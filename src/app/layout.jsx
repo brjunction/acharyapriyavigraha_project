@@ -38,11 +38,11 @@ const googleSans = localFont({
 });
 
 export const metadata = {
-  title: "GGS Digital Library",
+  title: "Sravana Managalam",
   description:
-    "The digital collection of the vani and teachings of Sri Srimad Gour Govinda Swami Maharaja",
+    "The digital collection of the vani and teachings of His Holiness Haladhara Swami Maharaja",
   icons: {
-    icon: "/GGS_favicon.png", // This looks in the 'public' folder
+    icon: "/hds_favicon.jpg", // This looks in the 'public' folder
   },
 };
 

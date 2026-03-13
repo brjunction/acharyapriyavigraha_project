@@ -34,7 +34,7 @@ export function HeroSection() {
               <Image
                 width={900}
                 height={900}
-                src="/GGSLogoDesign.png"
+                src="/hds_favicon.jpg"
                 alt="Channel Logo"
                 className="w-full h-full object-cover transition-transform duration-500"
               />
@@ -45,8 +45,8 @@ export function HeroSection() {
         {/* RIGHT SIDE: Text Content (Optimized gap and alignment) */}
         <div className="flex flex-col items-center md:items-start text-center md:text-left max-w-xl">
           <div className="text-3xl md:text-5xl font-bold text-[#8c2044] tracking-tighter leading-[0.9] mb-6">
-            GGS Digital{" "}
-            <span className="animate-neon-pulse inline-block">Library</span>
+            Sravana{" "}
+            <span className="animate-neon-pulse inline-block">Mangalam</span>
           </div>
 
           <p className="text-stone-900 font-light leading-relaxed mb-8 text-sm md:text-base">
