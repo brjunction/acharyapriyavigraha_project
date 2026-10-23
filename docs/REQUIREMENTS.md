@@ -5,11 +5,11 @@
 
 | | |
 |---|---|
-| **Document status** | v1.0, foundation spec. Nothing gets built until this document is approved. |
+| **Document status** | v1.1 (adds gourgovindaswami.org), foundation spec. Nothing gets built until this document is approved. |
 | **Prepared** | 24 October 2026 |
 | **Subject of the site** | Śrīla Gurudeva: Śrī Śrīmad Gour Govinda Swāmī |
 | **Founder of the site** | HH Haladhara Swāmī Mahārāja, disciple of Śrīla Gurudeva |
-| **Replaces** | taptajivanam.com (the PHP site, "Taptajivanam 2.0") |
+| **Replaces / absorbs** | taptajivanam.com (the PHP site, "Taptajivanam 2.0") and all content of gourgovindaswami.org ("Ānanda Sambāda", Google Sites) |
 | **Code repository** | `brjunction/acharyapriyavigraha_project`. The old code is removed and the project rebuilt from zero. |
 | **Database** | Neon (serverless Postgres) |
 | **Hosting** | Vercel |
@@ -21,6 +21,7 @@
 1. [Vision and guiding principles](#1-vision-and-guiding-principles)
 2. [Naming, honorifics and editorial policy](#2-naming-honorifics-and-editorial-policy)
 3. [What exists today (inventory of taptajivanam.com)](#3-what-exists-today-inventory-of-taptajivanamcom)
+3A. [Second source: gourgovindaswami.org](#3a-second-source-gourgovindaswamiorg)
 4. [What we learn from Vanipedia and Vedabase](#4-what-we-learn-from-vanipedia-and-vedabase)
 5. [Information architecture and main menu](#5-information-architecture-and-main-menu)
 6. [Śrīla Gurudeva hub](#6-śrīla-gurudeva-hub)
@@ -133,6 +134,46 @@ Research of the live site on 24 Oct 2026. Counts are as displayed by the site.
 
 ---
 
+## 3A. Second source: gourgovindaswami.org
+
+**gourgovindaswami.org** ("Ānanda Sambāda", a Google Sites site run by Śrīla Gurudeva's disciples and followers) holds a lot of material that taptajivanam.com doesn't. **All of its content is brought into the new site**, with credit to the original authors and the Ānanda Sambāda team, and with their agreement (Q12).
+
+### 3A.1 Inventory and where each part lives in the new site
+
+| gourgovindaswami.org section | Contents | New home |
+|---|---|---|
+| **Krishna Sent Him** | Introductory biography | Gurudeva hub › *Who is Śrīla Gurudeva* (themed essay) |
+| **A Brief Life Story** | Short biography | Gurudeva hub › *Who is Śrīla Gurudeva* |
+| **The Carita: Śrīla Gour Govinda Swāmī Carita** | Verse biography by Śrī Kalakaṇṭha Prabhu (Odia), English translation by Śrī Jagannātha Miśra Prabhu | Gurudeva hub › **Carita** (book reader, original + translation side by side) |
+| **With Śrīla Prabhupāda** | First meeting and their relationship | Gurudeva hub › *Śrīla Prabhupāda* block |
+| **The Disappearance Pastimes** (+7 sub-pages) | Accounts by Nimāi, Madanālasā Devī Dāsī, Līlā Avatāra Prabhu, Vaijayantī-mālā Dāsī; extracts from *When Good Fortune Arises*, *Gopal Jiu…*, *A Life Sketch* (Parantapa, Rāghava Paṇḍita, Gokula Dāsa) | Gurudeva hub › new block **Disappearance pastimes** (collection of accounts, each with author) |
+| **Gauḍīya Siddhāntācārya** | Teaching on his position as siddhāntācārya | Gurudeva hub › *Who is Śrīla Gurudeva* + Teachings › Articles |
+| **Prayers** (4) | *Śrī Gour Govinda Swāmy-aṣṭakam*, *Śrī Guru-paramparā*, *Vaiṣṇava Śaraṇa*, *Paramānanda He Mādhava* | Teachings › **Prayers & Songs** (text, translation, audio when available) |
+| **The Newsletter (Ānanda Sambāda)** + mailing list | Newsletter since April 1991, back issues (Issue 36+) | Teachings › Articles & writings › **Ānanda Sambāda newsletter archive** (issue by issue, PDF + text, searchable); newsletter sign-up form in footer |
+| **A.S. on YouTube** | Video channel | Videos (YouTube sync source) |
+| **News, Updates and Appeals** | News, announcements (e.g., devotees' departures), appeals | News & updates, with a category **Appeals** |
+| **Departed God-brothers and God-sisters** (5+) | Tributes: Śacīnandana Dāsa, Sādhu Hṛdaya Prabhu, HH Svayambhū Swāmī, Yamunā Devī Dāsī, Goloka Vṛndāvana Dāsa … | Gurudeva hub › Remembrance › new block **In memoriam: his disciples** |
+| **Some Disciples** (2 pages) | Biographies of disciples | Gurudeva hub › *Disciples* (biography pages linked from the disciple list) |
+| **Publications – TVP, GJP** | Books by Tattva Vicāra and Gopal Jiu Publications, recently published books, books by his disciples, *Kṛṣṇāliṅgita Vigraha* official biography series, 50-years-of-sannyāsa book & magazine, *Tattva Darśana*, *Quotes on Guru-tattva*, *Prema-pradāta Śrī Guru*, *When Good Fortune Arises*, GJP *Bindu* e-magazine | Teachings › Books (merged with taptajivanam books; a new type **Books by disciples**, kept separate from Gurudeva's own books) |
+| **Book Downloads** | Free PDF downloads | Books › each book's *Download PDF* button + a **Free downloads** filter |
+| **Oriya Biographies of Śrī Kṛṣṇa Caitanya Mahāprabhu** | *Mahā-bhāva Prakāśa*, *Vaiṣṇava Līlāmṛta*, *Gaurāṅga Bhāgavata*, *Caitanya Cakāḍā* (translation project) | Teachings › new block **Odia Vaiṣṇava literature** (book reader with Odia original + English translation) |
+| **Some ISKCON Sādhus** | Pages on ISKCON sādhus connected with him | Gurudeva hub › *With other sādhus* |
+| **A Few Mahātmās** | E.g., *The Reluctant Academic: Professor Fakir Mohan Das* | Gurudeva hub › *With other sādhus* › Mahātmās |
+| **The Temples** (7) | Kṛṣṇa-Balarāma Temple Bhubaneswar · Rādhā-Gopāljiu, Gaḍeigiri · Brahmapura Śrī Rāma-Govinda Mandir · Śrīpāṭa at Jagannāthapura · Jantaribol Temple · Pattamundai · Daṇḍa-bhaṅga Āśrama | Gurudeva hub › Projects › **Temples he established** (directory with map, history, photos, darśana times, contact) |
+| **The Archives Project** | Archiving effort | Gurudeva hub › About the archive + credits on the Thank List page |
+| **Janmasthān Temple Project** (Purī) | Fundraiser to preserve his birthplace; contacts in USA, Australia, UK, India, Bali | Gurudeva hub › Projects › **Janmasthān (birthplace) project** with contacts and how to help |
+| **Gour Govinda Āśrama guest rooms, Purī** | Seven rooms for pilgrims | Projects › Janmasthān / Purī page (contact info only; no booking system) |
+| **VĀṆĪSAṄGA WhatsApp group** | Daily quotes | Footer *Connect* + Quote of the day ("Get daily quotes on WhatsApp") |
+| Photo galleries & embedded videos | Many photos across pages | Gallery (new albums, with credits) + Videos |
+
+### 3A.2 Migration notes
+- It's a Google Sites site: content is extracted page by page (text, images, embedded PDFs, YouTube embeds), keeping author names and original page URL as provenance.
+- Each migrated item records **source site** and **original author/translator**, shown on the page ("Originally published by Ānanda Sambāda").
+- Books by disciples and accounts by others are clearly labelled as *not* Śrīla Gurudeva's own words, so search results and citations never mix them up.
+- Duplicates with taptajivanam.com (e.g., *Gopal Jiu* biography, life sketches, books) are merged into one item that lists both sources.
+
+---
+
 ## 4. What we learn from Vanipedia and Vedabase
 
 ### 4.1 Vanipedia (organization model)
@@ -186,7 +227,8 @@ We adopt: a clean library → book → chapter → text reader; verse display (S
 - The verse *tava kathāmṛtaṁ tapta-jīvanaṁ* with translation
 - Columns: **Explore** (hub links) · **Connect** (Instagram, Facebook, WhatsApp, YouTube) · **Our locations** (Pattamundai, Bhubaneswar, with map links) · **Contact** (email, phone, contact form)
 - **Gratitude strip:** "Built with love by disciples, grand-disciples and followers. → Our Thank List"
-- Sister sites: Gopal Jiu Publications, Tattva Vicāra Publications
+- Sister sites: Gopal Jiu Publications, Tattva Vicāra Publications, Ānanda Sambāda (gourgovindaswami.org)
+- Newsletter sign-up (Ānanda Sambāda) and "Daily quotes on WhatsApp" (Vāṇīsaṅga)
 - "Dedicated to Śrīla Gour Govinda Swāmī" · copyright · privacy · Open data
 - All footer content is editable in the dashboard (§14.6).
 
@@ -226,6 +268,9 @@ Every old `.php` URL is redirected (301) to its new URL (§18.4).
 |---|---|
 | **Who is Śrīla Gurudeva** | Brief life sketch (migrated) + themed essays: early years, Kīrtana gurus, meeting Śrīla Prabhupāda, Prabhupāda's order for Bhubaneswar, sannyāsa, preaching worldwide, departure (Māyāpur, 1996). |
 | **Life Description** | *"Gopal Jiu: the beloved Deity of Śrīla Gour Govinda Swāmī"* in the book reader: acknowledgement, dedication, invocation, preface, chapters 1–5. |
+| **Carita** | *Śrīla Gour Govinda Swāmī Carita*, verse biography by Śrī Kalakaṇṭha Prabhu, English by Śrī Jagannātha Miśra Prabhu (from gourgovindaswami.org). |
+| **Official biography** | *Kṛṣṇāliṅgita Vigraha* series, volume by volume. |
+| **Disappearance pastimes** | Accounts of his departure by disciples and witnesses, each with author. |
 | **Life timeline** | Interactive vertical timeline 1929–1996 with year markers; each event links to photos, lectures and letters from that period. Yearly pages ("1993: Ratha-yātrā, Australia, Radhadesh…") list everything we hold from that year. |
 | **This day in his life** | For today's date: lectures given, letters written, photos taken, events, on any year. 366 pages, linked from the home page. |
 | **Where he travelled** | World map of every place he lectured (from lecture metadata). Click a place for everything recorded there. |
@@ -247,7 +292,7 @@ Every old `.php` URL is redirected (301) to its new URL (§18.4).
 | **Letters** | 29+ letters, grouped as: with Śrīla Prabhupāda · with disciples · with others. Each letter: date, from → to, place, scan image (if available), transcribed text, translation. |
 | **Disciples** | Disciple list (initiation name, year, place; privacy-aware: admin decides what's public). |
 | **HH Haladhara Swāmī Mahārāja** | Founder of Taptajīvanam: biography, preaching mission, founding of the site. |
-| **With other sādhus** | His association with Vaiṣṇavas of other Maṭhas and ISKCON leaders (from gallery tags). |
+| **With other sādhus** | His association with Vaiṣṇavas of other Maṭhas and ISKCON leaders (from gallery tags), plus *Some ISKCON sādhus* and *A few Mahātmās* pages. |
 
 ### 6.4 Section D: His projects and holy places
 
@@ -256,6 +301,8 @@ Every old `.php` URL is redirected (301) to its new URL (§18.4).
 | **ISKCON Bhubaneswar** | History, mud-hut he built, temple construction, the temple today (migrated + gallery tags). |
 | **Śrī Śrī Rādhā-Gopāl Jiu** | His beloved Deity: history and darśana gallery. |
 | **ISKCON Pattamundai, Rādhā-Gopāljiu Gośālā** | Project page. |
+| **Temples he established** | Kṛṣṇa-Balarāma (Bhubaneswar), Rādhā-Gopāljiu (Gaḍeigiri), Śrī Rāma-Govinda Mandir (Brahmapura), Śrīpāṭa (Jagannāthapura), Jantaribol, Pattamundai, Daṇḍa-bhaṅga Āśrama: map + page each. |
+| **Janmasthān project, Purī** | Preserving his birthplace; how to help; contacts by country; Gour Govinda Āśrama guest rooms. |
 | **Other projects** | Admin-managed project pages (title, place, story, images, links). |
 
 ### 6.5 Section E: Remembrance
@@ -264,6 +311,8 @@ Every old `.php` URL is redirected (301) to its new URL (§18.4).
 |---|---|
 | **Gallery** | All photo albums (§13.4): portraits, early days, deities, festivals, travels, by year, personal belongings, his holy lotus feet… |
 | **Memories** | Disciples and followers remembering him: video + text testimony, speaker name and relation. Admin can add many more. |
+| **In memoriam: his disciples** | Tributes to departed god-brothers and god-sisters. |
+| **Disciple biographies** | Life stories of disciples ("Some disciples"). |
 | **Glorifications & offerings** | Vyāsa-pūjā offerings, appearance/disappearance day glorifications, poems, by year and by author. |
 | **Personal belongings** | Gallery with description of each item. |
 | **Holy appearance & disappearance days** | Calendar of his and his ācāryas' days with the related lectures. |
@@ -285,7 +334,7 @@ Every old `.php` URL is redirected (301) to its new URL (§18.4).
 ```
 
 #### Books
-- Library grouped by publisher (Gopal Jiu, Tattva Vicāra, Taptajīvanam) and by type (book, booklet, magazine, e-book, article).
+- Library grouped by publisher (Gopal Jiu, Tattva Vicāra, Taptajīvanam, Vāṇīsaṅga) and by type (book, booklet, magazine, e-book, article, newsletter); separate shelf **Books by his disciples**; filter **Free downloads**.
 - Book page: cover, title, author, publisher, language editions, edition, pages, release date, description, table of contents, *Read online* (if text is available), *Buy* link, *Download PDF* (if permitted), quotes from this book, topics.
 - **Reader** (§13.1) for books whose text we hold: chapter navigation, verse blocks with layer toggles, footnotes, highlights, share a passage as an image, citation copy.
 - Magazines: issues by year with cover grid.
@@ -314,7 +363,7 @@ A second row of medium tiles. Each compilation is a curated collection of excerp
 | **Stories & Anecdotes** | Stories he told (Purāṇic, from his life, from Odisha); title, summary, full excerpt, source. |
 | **Questions & Answers** | Q&A sessions split into individual questions, each a searchable unit with its answer excerpt. |
 | **Instructions to devotees** | Practical instructions (sādhana, chanting, behaviour), by theme. |
-| **Prayers & Songs** | Prayers he composed or sang, bhajanas he led, with lyrics (public-domain ācārya songs) and audio. |
+| **Prayers & Songs** | Prayers he composed or sang, bhajanas he led, and prayers to him (*Śrī Gour Govinda Swāmy-aṣṭakam*, *Śrī Guru-paramparā*, *Vaiṣṇava Śaraṇa*, *Paramānanda He Mādhava*), with text, translation and audio. |
 | **Ślokas he loved** | Verses he quoted most, ranked by number of lectures, each linked to all its discussions. |
 | **Thematic compilations** | Admin-curated anthologies ("On the Holy Name", "On Guru-tattva", "On Separation"), shown like small books. |
 | **Glossary** | Sanskrit/Bengali/Odia terms as he used them, with explanations in his own words and links. |
@@ -330,6 +379,10 @@ A second row of medium tiles. Each compilation is a curated collection of excerp
 
 ### 7.5 Articles & writings block
 - Articles, essays and editorials (migrated "articles"), news written about him, and Taptajīvanam publications.
+- **Ānanda Sambāda newsletter archive** (since 1991) and GJP *Bindu* e-magazine: issue pages, PDF + searchable text.
+
+### 7.6 Odia Vaiṣṇava literature block
+- Odia biographies of Śrī Caitanya Mahāprabhu (*Mahā-bhāva Prakāśa*, *Vaiṣṇava Līlāmṛta*, *Gaurāṅga Bhāgavata*, *Caitanya Cakāḍā*) with original and translation side by side, and translation progress shown.
 
 ---
 
@@ -772,6 +825,9 @@ All items in §3.2: 1,595 lectures (with audio URLs), 130 transcriptions, 112 to
 4. Validation report: counts per type match the old site; random sample of 50 items checked by a human; all audio URLs tested.
 5. Editor review in the dashboard; then promote to production.
 
+### 18.3a gourgovindaswami.org
+All pages listed in §3A.1 are extracted (text, images, PDFs, embeds), tagged with source and author, merged with duplicates and reviewed by an editor before publishing. If that site is retired later, its page URLs can be redirected to the new pages as well.
+
 ### 18.4 URL continuity
 Every old URL (`view-archive.php?…&a_id=1154`, `view-letters.php?l_id=6`, `view-category.php?id=166`, `view-images.php?img_key=…`, `view-book-details.php?id=12`, plus static `.php` pages) gets a **301 redirect** to its new URL, generated from `legacy_id`s. No existing link anywhere on the internet should break.
 
@@ -908,3 +964,5 @@ Subtle: fade/slide on block entry, smooth expansion of blocks into pages (View T
 | Q9 | YouTube channel ID/handle of HH Haladhara Swāmī Mahārāja for the Daily Diary Shorts? | Configured in the dashboard by admin. |
 | Q10 | Which publishers allow full online reading or PDF of their books? | Metadata + buy link; full text only where permission is recorded. |
 | Q11 | Disciple list: which fields may be public? | Name only. |
+| Q12 | Do the Ānanda Sambāda / gourgovindaswami.org maintainers agree to their content moving into the new site? Does their site stay online, or will it redirect to ours? | Bring everything in with full credit; their site stays online. |
+| Q13 | Donations and appeals (e.g., Janmasthān project): show contacts only, or accept online donations? | Contacts and bank details only; no payment system. |
