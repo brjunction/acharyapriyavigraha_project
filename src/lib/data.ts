@@ -4,11 +4,12 @@
 // Gurudeva's words are never invented: sample text is clearly marked as sample.
 
 export const IMG = {
-  ggs: "https://www.taptajivanam.com/custom_uploads/page_images/ggs.png",
+  ggs: "/legacy/gurudeva-portrait.jpg",
+  ggsSite: "https://www.taptajivanam.com/custom_uploads/page_images/ggs.png",
   sp: "https://www.taptajivanam.com/custom_uploads/page_images/sp.png",
   leaf: "https://www.taptajivanam.com/custom_uploads/page_images/leaf-divider.png",
   sign: "https://www.taptajivanam.com/images/sign.png",
-  banner: (n: number) => `https://www.taptajivanam.com/custom_uploads/banner_img/${n}.png`,
+  banner: (n: number) => (n === 1 ? "/legacy/banner-1.jpg" : `https://www.taptajivanam.com/custom_uploads/banner_img/${n}.png`),
 };
 
 export const SITE = {

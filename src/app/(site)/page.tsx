@@ -1,121 +1,134 @@
 import Link from "next/link";
-import { BookOpen, Headphones, PlayCircle, CalendarDays, Clapperboard, ScrollText, Image as ImageIcon, Heart, Clock, Mail } from "lucide-react";
-import { IMG, LECTURES, LANGUAGES, QUOTE_OF_DAY, SITE, STATS, TATTVA, DIARY } from "@/lib/data";
-import { Img } from "@/components/chrome";
-import { Block, Section, QuoteCard, Chip } from "@/components/ui";
+import { BookOpen, Headphones, FileText, Clapperboard, Quote, Image as ImageIcon, PlayCircle, CalendarDays, ArrowRight, HeartHandshake } from "lucide-react";
+import { IMG, LECTURES, LANGUAGES, QUOTE_OF_DAY, STATS, DIARY } from "@/lib/data";
+import { BannerCarousel, HeroSearch } from "@/components/home-client";
+import { TopicExplorer } from "@/components/topic-explorer";
+import { ArchiveTile, Container, Img, SectionHead } from "@/components/ui";
+import { FlowerBand, Ornament, PaisleyField, Rosette } from "@/components/motifs";
 import { LectureRow } from "@/components/lecture";
-import { HeroSearch } from "./hero-search";
+
+function Portrait({ src, name, text, href }: { src: string; name: string; text: string; href: string }) {
+  return (
+    <Link href={href} className="group text-center">
+      <div className="relative mx-auto h-56 w-56 sm:h-64 sm:w-64">
+        <Rosette className="spin-slow absolute inset-0 h-full w-full text-saffron/25" />
+        <div className="absolute inset-[18px] overflow-hidden rounded-full border-4 border-surface shadow-[var(--shadow-lg)] transition duration-500 group-hover:scale-[1.03]">
+          <Img src={src} alt={name} className="h-full w-full object-cover" />
+        </div>
+      </div>
+      <h3 className="mt-5 text-[26px] group-hover:text-saffron">{name}</h3>
+      <p className="mx-auto mt-2 max-w-sm text-[15px] leading-relaxed text-ink-2">{text}</p>
+      <span className="mt-3 inline-flex items-center gap-1 text-[14px] font-medium text-saffron">Read more<ArrowRight size={15} className="transition-transform group-hover:translate-x-0.5" /></span>
+    </Link>
+  );
+}
 
 export default function Home() {
   return (
     <>
-      {/* HERO */}
-      <section className="relative overflow-hidden border-b border-line">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,var(--gold-soft),transparent_60%),radial-gradient(ellipse_at_bottom_left,var(--saffron-soft),transparent_55%)]" />
-        <div className="relative mx-auto grid max-w-7xl grid-cols-[minmax(0,1fr)] items-center gap-10 px-4 py-14 sm:px-6 lg:grid-cols-[1.15fr_0.85fr] lg:py-20">
-          <div className="fade-up">
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-saffron">Hare Kṛṣṇa · Welcome</p>
-            <h1 className="mt-4 font-serif text-[44px] leading-[1.05] text-ink sm:text-6xl">
-              The teachings of<br /><span className="text-maroon">Śrīla Gurudeva</span>
-            </h1>
-            <p className="mt-3 font-serif text-xl text-ink-2">Śrī Śrīmad Gour Govinda Swāmī</p>
-            <p className="mt-6 font-serif text-[22px] italic text-gold">{SITE.verse}</p>
-            <p className="mt-1 max-w-xl text-[15px] leading-relaxed text-ink-2">{SITE.verseTranslation}</p>
-            <HeroSearch />
-            <div className="mt-5 flex flex-wrap gap-2 text-[13px] text-ink-3">
-              Try: <Chip href="/search?q=holy+name">holy name</Chip><Chip href="/search?q=SB+1.2.6">SB 1.2.6</Chip><Chip href="/search?q=gopal+jiu">gopal jiu</Chip><Chip href="/search?q=bhubaneswar+1993">bhubaneswar 1993</Chip>
-            </div>
+      <BannerCarousel />
+      <HeroSearch />
+
+      {/* Welcome */}
+      <section className="reveal pt-20 sm:pt-24">
+        <Container>
+          <SectionHead title="Hare Kṛṣṇa, welcome" intro="This is the archive of Śrīla Gour Govinda Swāmī, a disciple of the founder-ācārya of ISKCON, Śrīla Prabhupāda, and a representative of the Brahma-Madhva-Gauḍīya sampradāya." />
+          <div className="mx-auto grid max-w-4xl gap-14 sm:grid-cols-2">
+            <Portrait src={IMG.sp} name="Śrīla Prabhupāda" href="/gurudeva/srila-prabhupada" text="Founder-ācārya of ISKCON, who opened 108 centres around the world and gave Śrīla Gurudeva the order to build a temple in Bhubaneswar." />
+            <Portrait src={IMG.ggs} name="Śrīla Gurudeva" href="/gurudeva" text="Born in 1929 in Jagannāthapura near Purī, into the Giri family of Gaḍeigiri, devotees of Śrī Gopāl Jiu for generations." />
           </div>
-          <div className="relative mx-auto w-full max-w-md fade-up" style={{ animationDelay: "0.15s" }}>
-            <div className="absolute -inset-4 rounded-[2.5rem] border border-gold/40" />
-            <div className="overflow-hidden rounded-[2rem] border border-line bg-card shadow-2xl">
-              <Img src={IMG.ggs} alt="Śrīla Gurudeva, Śrī Śrīmad Gour Govinda Swāmī" className="aspect-[4/5] w-full object-cover" />
-            </div>
-            <div className="absolute -bottom-5 left-1/2 w-[85%] -translate-x-1/2 rounded-2xl border border-line bg-card/95 px-5 py-3 text-center shadow-lg backdrop-blur">
-              <p className="text-[12px] uppercase tracking-[0.18em] text-ink-3">The archive holds</p>
-              <p className="font-serif text-lg">{STATS.lectures.toLocaleString()} lectures · {STATS.transcriptions} transcriptions · {STATS.books} books</p>
-            </div>
-          </div>
-        </div>
+        </Container>
       </section>
 
-      {/* TODAY */}
-      <Section title="Today" sub="Saturday, 24 October 2026" className="mt-16">
-        <div className="grid gap-5 lg:grid-cols-3">
-          <div className="lg:col-span-1"><QuoteCard text={QUOTE_OF_DAY.text} source={QUOTE_OF_DAY.source} date={QUOTE_OF_DAY.date} place={QUOTE_OF_DAY.place} /></div>
-          <Link href="/gurudeva/diaries" className="group relative flex min-h-64 overflow-hidden rounded-2xl border border-line bg-ink text-paper shadow-sm">
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-            <div className="absolute inset-0 flex items-center justify-center"><PlayCircle size={64} strokeWidth={1.2} className="text-white/80 transition group-hover:scale-110" /></div>
-            <div className="relative mt-auto p-6">
-              <p className="text-xs uppercase tracking-[0.18em] text-[#ecd59b]">Daily Diary · YouTube Short</p>
-              <p className="mt-1 font-serif text-2xl text-white">{DIARY[0].title}</p>
-              <p className="text-sm text-white/70">From HH Haladhara Swāmī Mahārāja&apos;s channel</p>
-            </div>
-          </Link>
-          <Link href="/gurudeva/timeline" className="group flex flex-col rounded-2xl border border-line bg-gradient-to-br from-tulasi-soft to-card p-6 shadow-sm hover:border-gold">
-            <CalendarDays className="text-tulasi" strokeWidth={1.6} />
-            <p className="mt-4 text-xs uppercase tracking-[0.18em] text-ink-3">This day in his life · 24 October · sample</p>
-            <ul className="mt-3 space-y-3 text-[15px]">
-              <li><span className="font-serif text-lg text-tulasi">1993</span> · Lecture in Radhadesh, Belgium</li>
-              <li><span className="font-serif text-lg text-tulasi">1991</span> · Letter to a disciple</li>
-              <li><span className="font-serif text-lg text-tulasi">1989</span> · 14 photos, Bhubaneswar</li>
-            </ul>
-            <span className="mt-auto pt-4 text-sm font-medium text-saffron">See all 366 days →</span>
-          </Link>
-        </div>
-      </Section>
-
-      {/* PILLARS */}
-      <Section title="His Teachings" sub="Every word, sourced and searchable" action={{ href: "/teachings", label: "All teachings" }} className="mt-20">
-        <div className="grid gap-5 md:grid-cols-3">
-          <Block size="l" href="/soon?t=Books" icon={BookOpen} tone="maroon" title="Books" desc="Read online, browse by publisher, download where permitted." count={`${STATS.books} books & magazines`} />
-          <Block size="l" href="/teachings/audio" icon={Headphones} tone="saffron" title="Audio" desc="Lectures from 1985 to 1996 with synchronized transcriptions." count={`${STATS.lectures.toLocaleString()} lectures · ${STATS.transcriptions} transcribed`} />
-          <Block size="l" href="/soon?t=Videos" icon={Clapperboard} tone="tulasi" title="Videos" desc="Lectures on video, excerpts, memories and kīrtanas." count={`${STATS.videos} videos`} />
-        </div>
-      </Section>
-
-      {/* TOPICS */}
-      <Section title="Explore by topic" sub="The Tattva-kośa gathers everything he said on each subject" action={{ href: "/tattva", label: "Open Tattva-kośa" }} className="mt-20">
-        <div className="flex flex-wrap gap-2.5">
-          {TATTVA.flatMap((t) => t.children.slice(0, 2).map((c) => (
-            <Link key={c} href={`/tattva/${t.slug}`} className="rounded-full border border-line bg-card px-4 py-2 font-serif text-[17px] text-ink-2 transition hover:border-gold hover:bg-gold-soft hover:text-ink">{c}</Link>
-          )))}
-        </div>
-      </Section>
-
-      {/* GURUDEVA */}
-      <Section title="Śrīla Gurudeva" sub="His life, his diaries, his letters and his mission" action={{ href: "/gurudeva", label: "Open" }} className="mt-20">
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <Block href="/gurudeva/timeline" icon={Clock} title="Life timeline" desc="1929 to 1996, year by year." tone="gold" />
-          <Block href="/gurudeva/letters" icon={Mail} title="Letters" desc="With Śrīla Prabhupāda and others." count={`${STATS.letters} letters`} tone="maroon" />
-          <Block href="/gurudeva/gallery" icon={ImageIcon} title="Gallery" desc="Portraits, deities, festivals, travels." count={`${STATS.imageTags} albums`} tone="tulasi" />
-          <Block href="/soon?t=Memories" icon={Heart} title="Memories" desc="Disciples remembering him." tone="saffron" />
-        </div>
-      </Section>
-
-      {/* RECENT */}
-      <Section title="Recently added" action={{ href: "/teachings/audio", label: "All lectures" }} className="mt-20">
-        <div className="rounded-2xl border border-line bg-card/50 p-2">{LECTURES.slice(0, 5).map((l) => <LectureRow key={l.slug} l={l} />)}</div>
-      </Section>
-
-      {/* LANGUAGES */}
-      <Section title="In your language" sub="Translations are in progress in many languages" action={{ href: "/translations", label: "Translations" }} className="mt-20">
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-8">
-          {LANGUAGES.map((l) => (
-            <Link key={l.code} href="/translations" className="rounded-xl border border-line bg-card p-4 hover:border-gold">
-              <p className="font-serif text-xl">{l.native}</p><p className="text-xs text-ink-3">{l.name}</p>
-              <div className="mt-3 h-1.5 rounded-full bg-paper-2"><div className="h-full rounded-full bg-tulasi" style={{ width: `${l.ui}%` }} /></div>
+      {/* Today */}
+      <section className="reveal mt-24">
+        <Container>
+          <SectionHead align="left" title="For today" intro="A quote, a daily diary and this date in Śrīla Gurudeva's life." />
+          <div className="grid grid-cols-[minmax(0,1fr)] gap-5 lg:grid-cols-[1.35fr_1fr_1fr]">
+            <figure className="card relative overflow-hidden p-8 sm:p-10">
+              <Rosette className="pointer-events-none absolute -right-20 -top-20 h-72 w-72 text-saffron/[0.07]" />
+              <p className="text-[13px] font-medium text-saffron">Quote of the day</p>
+              <blockquote className="relative mt-4 font-serif text-[27px] leading-snug text-ink sm:text-[31px]">“{QUOTE_OF_DAY.text}”</blockquote>
+              <figcaption className="relative mt-6 flex flex-wrap items-end justify-between gap-4">
+                <span className="text-[14px] leading-relaxed text-ink-2"><span className="font-semibold text-ink">Śrīla Gurudeva</span><br />{QUOTE_OF_DAY.source}, {QUOTE_OF_DAY.date}, {QUOTE_OF_DAY.place}</span>
+                <Img src={IMG.sign} alt="Signature of Śrīla Gurudeva" className="h-10 w-auto opacity-80 dark:invert" fallback="" />
+              </figcaption>
+            </figure>
+            <Link href="/gurudeva/diaries" className="group relative flex min-h-72 flex-col overflow-hidden rounded-[14px] bg-[#2f2622] p-7 text-white">
+              <PaisleyField className="text-white/[0.05]" scale={0.7} />
+              <span className="relative text-[13px] font-medium text-[#e9b8a6]">Daily Diary</span>
+              <span className="relative mt-auto flex h-16 w-16 items-center justify-center rounded-full bg-white/10 backdrop-blur transition group-hover:scale-110 group-hover:bg-saffron"><PlayCircle size={34} strokeWidth={1.3} /></span>
+              <span className="relative mt-5 font-serif text-[24px] font-bold">{DIARY[0].title}</span>
+              <span className="relative text-[13.5px] text-white/70">Today&apos;s short from HH Haladhara Swāmī Mahārāja&apos;s channel</span>
             </Link>
-          ))}
-        </div>
-      </Section>
+            <Link href="/gurudeva/on-this-day" className="card card-hover group flex flex-col p-7">
+              <span className="flex items-center gap-2 text-[13px] font-medium text-saffron"><CalendarDays size={15} />This day in his life</span>
+              <span className="mt-2 font-serif text-[40px] font-bold leading-none text-ink">24 October</span>
+              <ul className="mt-6 space-y-3 text-[14.5px] text-ink-2">
+                {[["1993", "Lecture, Radhadesh"], ["1991", "Letter to a disciple"], ["1989", "14 photos, Bhubaneswar"]].map(([y, t]) => (
+                  <li key={y} className="flex items-baseline gap-3"><span className="w-12 font-serif text-[18px] font-bold text-saffron">{y}</span>{t}</li>
+                ))}
+              </ul>
+              <span className="mt-auto pt-5 text-[12px] text-ink-3">Sample entries for the prototype</span>
+            </Link>
+          </div>
+        </Container>
+      </section>
 
-      {/* GRATITUDE */}
-      <section className="mx-auto mt-20 max-w-4xl px-4 text-center sm:px-6">
-        <ScrollText className="mx-auto text-gold" strokeWidth={1.4} size={32} />
-        <h2 className="mt-3 font-serif text-3xl">With gratitude</h2>
-        <p className="mx-auto mt-3 max-w-2xl text-ink-2">This archive is built by disciples, grand-disciples, followers and admirers of Śrīla Gurudeva across Asia, Europe and the Americas, under the guidance of HH Haladhara Swāmī Mahārāja, founder of Taptajīvanam.</p>
-        <Link href="/thank-list" className="mt-5 inline-block rounded-full bg-maroon px-6 py-2.5 text-sm font-medium text-paper hover:opacity-90">Read our Thank List</Link>
+      {/* Archive */}
+      <section className="reveal relative mt-24 bg-band py-20">
+        <FlowerBand className="absolute inset-x-0 top-0" />
+        <Container>
+          <SectionHead title="Archive" intro="Everything recorded, written and photographed, in one place." />
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            <ArchiveTile tone="saffron" href="/teachings/books" icon={BookOpen} title="Books" desc="The teachings and pastimes of Śrīla Gurudeva, from three publishers." count={`${STATS.books} titles`} />
+            <ArchiveTile tone="charcoal" href="/teachings/audio" icon={Headphones} title="Audio lectures" desc="Search more than a thousand lectures by year, place, verse and topic." count={`${STATS.lectures.toLocaleString()} lectures`} />
+            <ArchiveTile tone="saffron" href="/teachings/transcriptions" icon={FileText} title="Transcriptions" desc="Read the lectures, with the text following the audio as it plays." count={`${STATS.transcriptions} transcribed`} />
+            <ArchiveTile tone="charcoal" href="/teachings/videos" icon={Clapperboard} title="Videos" desc="Not only for the ears, but also for the eyes: lectures on video." count={`${STATS.videos} videos`} />
+            <ArchiveTile tone="saffron" href="/teachings/quotes" icon={Quote} title="Quotes" desc="On personalities, tattvas and many subjects, each with its source." count={`${STATS.quoteCategories} subjects`} />
+            <ArchiveTile tone="charcoal" href="/gurudeva/gallery" icon={ImageIcon} title="Images" desc="A picture tells more than a thousand words: his pastimes in photographs." count={`${STATS.imageTags} albums`} />
+          </div>
+        </Container>
+        <FlowerBand className="absolute inset-x-0 bottom-0" />
+      </section>
+
+      {/* Tattva-kośa */}
+      <section className="reveal mt-24">
+        <Container>
+          <SectionHead align="left" title="Explore by subject" intro="The Tattva-kośa gathers everything Śrīla Gurudeva said on each subject." action={{ href: "/tattva", label: "Open Tattva-kośa" }} />
+          <TopicExplorer />
+        </Container>
+      </section>
+
+      {/* Recently added + languages */}
+      <section className="reveal mt-24">
+        <Container className="grid grid-cols-[minmax(0,1fr)] gap-10 lg:grid-cols-[minmax(0,1fr)_340px]">
+          <div>
+            <SectionHead align="left" title="Recently added" action={{ href: "/teachings/audio", label: "All lectures" }} />
+            <div className="card px-2">{LECTURES.slice(0, 6).map((l) => <LectureRow key={l.slug} l={l} />)}</div>
+          </div>
+          <div>
+            <SectionHead align="left" title="Translations" action={{ href: "/translations", label: "All" }} />
+            <div className="card divide-y divide-line">
+              {LANGUAGES.slice(0, 6).map((l) => (
+                <Link key={l.code} href={`/${l.code === "en" ? "" : l.code}`} className="group flex items-center gap-4 px-5 py-3.5 hover:bg-saffron-tint">
+                  <span className="flex-1"><span className="block font-serif text-[18px] font-bold group-hover:text-saffron">{l.native}</span><span className="text-[12.5px] text-ink-3">{l.name}</span></span>
+                  <span className="w-20"><span className="block h-1.5 overflow-hidden rounded-full bg-band"><span className="block h-full rounded-full bg-saffron" style={{ width: `${l.ui}%` }} /></span><span className="mt-1 block text-right text-[11px] tabular text-ink-3">{l.ui}%</span></span>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </Container>
+      </section>
+
+      {/* Gratitude */}
+      <section className="reveal mt-24 text-center">
+        <Container>
+          <HeartHandshake size={30} strokeWidth={1.4} className="mx-auto text-saffron" />
+          <p className="mx-auto mt-4 max-w-3xl font-serif text-[21px] leading-relaxed text-ink-2">This archive is being built by the efforts of the disciples, grand-disciples, followers and admirers of Śrīla Gour Govinda Swāmī.</p>
+          <Ornament className="mt-5" />
+          <Link href="/thank-list" className="mt-4 inline-block font-serif text-[30px] font-bold text-ink transition hover:text-saffron">Our Thank List</Link>
+        </Container>
       </section>
     </>
   );

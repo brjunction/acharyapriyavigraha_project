@@ -5,7 +5,7 @@
 
 | | |
 |---|---|
-| **Document status** | v1.1 (adds gourgovindaswami.org), foundation spec. Nothing gets built until this document is approved. |
+| **Document status** | v1.2 (menus and design decided; adds gourgovindaswami.org), foundation spec. Nothing gets built until this document is approved. |
 | **Prepared** | 24 October 2026 |
 | **Subject of the site** | Śrīla Gurudeva: Śrī Śrīmad Gour Govinda Swāmī |
 | **Founder of the site** | HH Haladhara Swāmī Mahārāja, disciple of Śrīla Gurudeva |
@@ -205,21 +205,24 @@ We adopt: a clean library → book → chapter → text reader; verse display (S
 
 ## 5. Information architecture and main menu
 
-### 5.1 Main menu (desktop header)
+### 5.1 Main menu (decided 24 Oct 2026)
 
 ```
-[Logo · Taptajīvanam]   Śrīla Gurudeva   His Teachings   Tattva-kośa   Translations   [🔍 Search …⌘K]   [Aa Settings]   [Language ▾]
+[Logo · Taptajīvanam]   Śrīla Gurudeva ▾   His Teachings ▾   Tattva-kośa ▾   Translations ▾   About ▾   |   [Search]  [Settings]
 ```
 
-- **Śrīla Gurudeva** opens the hub (§6). On hover, a *mega-panel of blocks* (not a dropdown list) previews the hub's main blocks.
-- **His Teachings** opens the hub (§7), with a mega-panel preview the same way.
-- **Tattva-kośa** opens the topic treasury (§8). *(Requested menu was: Śrīla Gurudeva, His Teachings, Translations, Search, Settings. Tattva-kośa is proposed as the replacement for Vanipedia's "Umbrella terms". If you'd rather keep the menu to the five you asked for, it moves inside His Teachings. See Q2.)*
-- **Translations** opens the translations hub (§9).
-- **Search** is a persistent search field in the header; ⌘K / Ctrl+K opens a command palette from anywhere (§10).
-- **Settings** is an "Aa" icon that opens a side drawer (§11).
-- **Language** switches the interface and content language.
-
-**Mobile:** compact header with logo, search icon and "Aa". Bottom tab bar: *Home · Gurudeva · Teachings · Search · More*. The audio mini-player sits above the tab bar.
+- Every top item opens a **hover mega-menu** in the style of harinamamritavyakaranam.com: a panel with the menu title, a one-line intro and an "Overview / All …" link at the top right, then either
+  - **columns** (Śrīla Gurudeva, His Teachings, Tattva-kośa): small saffron group headings, and items with an outlined icon, a title, an optional "soon" tag and a one-line description; or
+  - **tiles** (Translations, About): larger cards with icon, description and quick-link chips.
+- Each top item also has its own **overview page made of blocks** (the same groups, as cards).
+- **Śrīla Gurudeva**: His life · Diaries · Lineage & disciples (incl. the disciple database) · Projects & remembrance (ISKCON Bhubaneswar, temples, Rādhā-Gopāl Jiu, gallery, memories…).
+- **His Teachings**: Hear & watch · Read · Compilations. Tattva-kośa is *not* inside His Teachings.
+- **Tattva-kośa**: its own menu, with Subjects and Indexes (verses, people, places, years, glossary, A–Z).
+- **Translations**: each language is its own complete site (`/hi`, `/or`, `/id`, `/nl`, `/ru`, `/bn`, `/es`…).
+- **About**: only things about the website itself: about the archive, founder HH Haladhara Swāmī Mahārāja, Our Thank List, news, contact, newsletter, WhatsApp, locations.
+- Right side holds **only Search** (Ctrl K or /, opens a command palette) **and one Settings menu** (language, appearance light/sepia/dark/auto, text size, reading font, line spacing, audio speed, diacritics, reduce motion). No separate language selector.
+- **Mobile**: a full-screen menu that drills down (menu → its groups and items), with search at the top and settings at the bottom.
+- The whole structure lives in one config file (`src/lib/nav.ts`), so header, mobile menu, hub pages, footer and search always agree; in Phase 1 it moves into the dashboard ("Menus").
 
 ### 5.2 Footer (kept from Taptajīvanam, refined)
 
@@ -850,27 +853,30 @@ Every old URL (`view-archive.php?…&a_id=1154`, `view-letters.php?l_id=6`, `vie
 
 ## 20. Design system
 
-### 20.1 Character
-Keep the warmth and devotional character of Taptajīvanam (leaf dividers, Gurudeva's signature, the verse, portrait banners), refined to a calm, modern, library-like look. Generous whitespace, strong typography, gentle motion. Blocks and cards rather than menus.
+### 20.1 Character (decided 24 Oct 2026)
+- **Identity = taptajivanam.com**, so its current team recognises their own site: same saffron, same footer pattern, same background graphics, same archive tiles. Traditional Indian ornament (paisley / mehndi, flower bands, lotus rosettes) used throughout, but with restraint, so it stays professional.
+- **Quality bar = harinamamritavyakaranam.com**: systematic mega-menus, interactive elements, calm organisation, polish.
 
-### 20.2 Colour tokens (starting palette, to be finalised in the design phase)
-| Token | Light | Dark | Use |
-|---|---|---|---|
-| `--saffron` | #C8641E | #E08A47 | primary actions, highlights |
-| `--maroon` | #8C2044 | #C45A7A | headings accent, footer (from existing repo footer) |
-| `--gold` | #C3A354 | #E8D08A | ornaments, dividers (from existing repo) |
-| `--tulasi` | #2F5D3A | #7FB08A | success, nature accents (echo of existing #152515 green) |
-| `--paper` | #FBF7EF | #14110E | page background |
-| `--ink` | #231D17 | #EDE6DA | body text |
-| Sepia theme | #F4ECD8 bg / #3B2F22 text | | reading mode |
-
-All colour pairs must pass WCAG AA contrast.
+### 20.2 Colour tokens (sampled from taptajivanam.com)
+| Token | Value | Use |
+|---|---|---|
+| `--saffron` | `#853500` | header bar, primary buttons, saffron archive tiles, accents |
+| `--charcoal` | `#525252` | alternate archive tiles |
+| `--page` / `--band` | `#F3F2F0` / `#EEECEB` | page and alternate bands |
+| footer | `#592300` with paisley in `#4C1B00` | footer, sign-in page |
+| `--ornament` / `--ornament-light` | `#95542A` / `#BB947B` | flower-band divider |
+| banner rose | `#C47F6E` | banner script accents |
+Dark and sepia themes derive from the same hues.
 
 ### 20.3 Typography
-- **Reading serif with full IAST diacritics:** the SCA Garamond family already in the repo (`SCAGRG/SCAGB/SCAGI/SCAGBI`), or a Google-hosted alternative with diacritic coverage (EB Garamond / Noto Serif).
-- **Interface sans:** Inter or Google Sans (already in repo).
-- **Indic scripts:** Noto Serif Devanagari, Noto Sans Oriya, Noto Serif Bengali; Cyrillic via Noto.
-- Fonts subset and self-hosted for speed.
+- **Gentium Book Plus** (the serif taptajivanam.com uses; full IAST diacritics) for headings, quotes, verses and reading.
+- **Inter** for menus, labels, controls and body UI.
+- Self-hosted (no runtime font requests).
+
+### 20.3a Ornament and logo
+- Paisley field, flower band, lotus rosette and ornament dividers are drawn as SVG (`src/components/motifs.tsx`), themeable and crisp at any size.
+- New logo: a lamp flame rising from a lotus ("tapta" warmth, "jīvana" life), white on the saffron bar, with the wordmark in Gentium.
+- Real images come from taptajivanam.com (banners, portraits, signature, quote images); in production they are copied into the site's own storage during migration.
 
 ### 20.4 Components
 Hub block (L/M/S), mega-panel, quote card, lecture row, facet sidebar, verse block, transcript paragraph with timestamp, mini-player, lightbox, timeline item, language tile with coverage bar, citation popover, breadcrumb, empty state, skeleton loaders.

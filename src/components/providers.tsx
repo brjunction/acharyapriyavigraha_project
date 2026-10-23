@@ -1,21 +1,23 @@
 "use client";
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 
-/* ---------------- Reader preferences ---------------- */
 export type Prefs = {
-  theme: "light" | "dark" | "sepia" | "system";
+  theme: "light" | "sepia" | "dark" | "system";
+  lang: string;
   font: "serif" | "sans";
   size: number;
   leading: "compact" | "comfortable" | "spacious";
-  width: "narrow" | "medium" | "wide";
   diacritics: boolean;
   speed: number;
   reduceMotion: boolean;
 };
-const DEFAULT: Prefs = { theme: "light", font: "serif", size: 19, leading: "comfortable", width: "medium", diacritics: true, speed: 1, reduceMotion: false };
+const DEFAULT: Prefs = { theme: "light", lang: "en", font: "serif", size: 19, leading: "comfortable", diacritics: true, speed: 1, reduceMotion: false };
 
-type PrefsCtx = { prefs: Prefs; set: <K extends keyof Prefs>(k: K, v: Prefs[K]) => void; reset: () => void; drawer: boolean; setDrawer: (b: boolean) => void; palette: boolean; setPalette: (b: boolean) => void };
-const PrefsContext = createContext<PrefsCtx | null>(null);
+type Ctx = {
+  prefs: Prefs; set: <K extends keyof Prefs>(k: K, v: Prefs[K]) => void; reset: () => void;
+  search: boolean; setSearch: (b: boolean) => void;
+};
+const PrefsContext = createContext<Ctx | null>(null);
 export const usePrefs = () => useContext(PrefsContext)!;
 
 function apply(p: Prefs) {
@@ -26,10 +28,8 @@ function apply(p: Prefs) {
   r.dataset.motion = p.reduceMotion ? "reduce" : "full";
   r.style.setProperty("--reading-size", `${p.size}px`);
   r.style.setProperty("--reading-leading", { compact: "1.55", comfortable: "1.75", spacious: "2" }[p.leading]);
-  r.style.setProperty("--reading-width", { narrow: "36rem", medium: "42rem", wide: "52rem" }[p.width]);
 }
 
-/* ---------------- Audio player ---------------- */
 export type Track = { slug: string; title: string; subtitle: string; duration: number };
 type PlayerCtx = { track: Track | null; playing: boolean; time: number; play: (t: Track, at?: number) => void; toggle: () => void; seek: (s: number) => void; close: () => void };
 const PlayerContext = createContext<PlayerCtx | null>(null);
@@ -37,29 +37,43 @@ export const usePlayer = () => useContext(PlayerContext)!;
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [prefs, setPrefs] = useState<Prefs>(DEFAULT);
-  const [drawer, setDrawer] = useState(false);
-  const [palette, setPalette] = useState(false);
+  const [search, setSearch] = useState(false);
+  const loaded = useRef(false);
 
   useEffect(() => {
     try { const s = localStorage.getItem("tj-prefs"); if (s) setPrefs({ ...DEFAULT, ...JSON.parse(s) }); } catch {}
+    loaded.current = true;
   }, []);
-  useEffect(() => { apply(prefs); try { localStorage.setItem("tj-prefs", JSON.stringify(prefs)); } catch {} }, [prefs]);
+  useEffect(() => { apply(prefs); if (loaded.current) { try { localStorage.setItem("tj-prefs", JSON.stringify(prefs)); } catch {} } }, [prefs]);
   useEffect(() => {
-    const k = (e: KeyboardEvent) => { if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") { e.preventDefault(); setPalette(true); } if (e.key === "Escape") { setPalette(false); setDrawer(false); } };
+    const k = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") { e.preventDefault(); setSearch(true); }
+      if (e.key === "/" && !(e.target as HTMLElement)?.closest("input,textarea")) { e.preventDefault(); setSearch(true); }
+      if (e.key === "Escape") setSearch(false);
+    };
     window.addEventListener("keydown", k); return () => window.removeEventListener("keydown", k);
+  }, []);
+  // Scroll reveal, once per element
+  useEffect(() => {
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    document.documentElement.classList.add("js-reveal");
+    const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } }), { rootMargin: "0px 0px -6% 0px" });
+    const scan = () => document.querySelectorAll(".reveal:not(.in)").forEach((el) => io.observe(el));
+    scan();
+    const mo = new MutationObserver(scan); mo.observe(document.body, { childList: true, subtree: true });
+    return () => { io.disconnect(); mo.disconnect(); };
   }, []);
 
   const set = useCallback(<K extends keyof Prefs>(k: K, v: Prefs[K]) => setPrefs((p) => ({ ...p, [k]: v })), []);
 
-  // Simulated playback (prototype has no MP3s in the sandbox; real site plays the external MP3 URL)
+  // Simulated playback for the prototype (the real site plays the external MP3 link)
   const [track, setTrack] = useState<Track | null>(null);
   const [playing, setPlaying] = useState(false);
   const [time, setTime] = useState(0);
-  const timer = useRef<ReturnType<typeof setInterval> | null>(null);
   useEffect(() => {
-    if (timer.current) clearInterval(timer.current);
-    if (playing) timer.current = setInterval(() => setTime((t) => t + prefs.speed), 1000);
-    return () => { if (timer.current) clearInterval(timer.current); };
+    if (!playing) return;
+    const t = setInterval(() => setTime((x) => x + prefs.speed), 1000);
+    return () => clearInterval(t);
   }, [playing, prefs.speed]);
 
   const player: PlayerCtx = {
@@ -71,7 +85,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <PrefsContext.Provider value={{ prefs, set, reset: () => setPrefs(DEFAULT), drawer, setDrawer, palette, setPalette }}>
+    <PrefsContext.Provider value={{ prefs, set, reset: () => setPrefs(DEFAULT), search, setSearch }}>
       <PlayerContext.Provider value={player}>{children}</PlayerContext.Provider>
     </PrefsContext.Provider>
   );

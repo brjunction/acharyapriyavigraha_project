@@ -1,16 +1,17 @@
-import { Header, Footer, SettingsDrawer, CommandPalette, MiniPlayer, MobileTabs } from "@/components/chrome";
+import { Header } from "@/components/header";
+import { Footer } from "@/components/footer";
+import { SearchPalette } from "@/components/search";
+import { MiniPlayer } from "@/components/lecture";
 
 export default function SiteLayout({ children }: { children: React.ReactNode }) {
   return (
     <>
-      <div className="bg-tulasi text-center text-[12px] text-white/90 py-1.5 px-4">Prototype preview · design only · all counts and lecture listings are sample data</div>
+      <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-[200] focus:rounded-lg focus:bg-surface focus:px-4 focus:py-2">Skip to content</a>
       <Header />
-      <main className="min-h-[60vh] pb-20 sm:pb-0">{children}</main>
+      <main id="main" className="min-h-[60vh]">{children}</main>
       <Footer />
-      <SettingsDrawer />
-      <CommandPalette />
+      <SearchPalette />
       <MiniPlayer />
-      <MobileTabs />
     </>
   );
 }

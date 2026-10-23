@@ -1,30 +1,34 @@
+import Link from "next/link";
+import { Languages, ArrowRight } from "lucide-react";
 import { LANGUAGES } from "@/lib/data";
-import { PageHead } from "@/components/ui";
+import { Container, PageHero } from "@/components/ui";
 
 export const metadata = { title: "Translations" };
 
-const Bar = ({ v, c }: { v: number; c: string }) => <div className="h-1.5 rounded-full bg-paper-2"><div className={`h-full rounded-full ${c}`} style={{ width: `${Math.min(100, v)}%` }} /></div>;
+const Bar = ({ label, v, of }: { label: string; v: number; of: number }) => (
+  <div><div className="mb-1 flex justify-between text-[12.5px]"><span className="text-ink-2">{label}</span><span className="tabular text-ink-3">{of === 100 ? `${v}%` : `${v} / ${of}`}</span></div>
+    <div className="h-1.5 overflow-hidden rounded-full bg-band"><div className="h-full rounded-full bg-saffron" style={{ width: `${Math.min(100, (v / of) * 100)}%` }} /></div></div>
+);
 
-export default function Translations() {
+export default function Page() {
   return (
     <>
-      <PageHead eyebrow="Translations" title="His words in every language"
-        intro="Volunteer translators around the world are bringing Śrīla Gurudeva's teachings into their languages. Every translation is reviewed before it appears.">
-        <a href="/soon?t=Help%20translate" className="mt-6 inline-block rounded-full bg-tulasi px-5 py-2.5 text-sm font-medium text-white">Help translate</a>
-      </PageHead>
-      <div className="mx-auto grid max-w-7xl gap-5 px-4 py-10 sm:grid-cols-2 sm:px-6 lg:grid-cols-4">
-        {LANGUAGES.map((l) => (
-          <div key={l.code} className="rounded-2xl border border-line bg-card p-6 transition hover:border-gold hover:shadow-md">
-            <p className="font-serif text-3xl">{l.native}</p><p className="text-sm text-ink-3">{l.name}</p>
-            <div className="mt-5 space-y-3 text-[13px]">
-              <div><div className="mb-1 flex justify-between"><span>Interface</span><span className="text-ink-3">{l.ui}%</span></div><Bar v={l.ui} c="bg-tulasi" /></div>
-              <div><div className="mb-1 flex justify-between"><span>Quotes</span><span className="text-ink-3">{l.quotes}</span></div><Bar v={l.quotes / 18.4} c="bg-saffron" /></div>
-              <div><div className="mb-1 flex justify-between"><span>Transcriptions</span><span className="text-ink-3">{l.transcripts} / 130</span></div><Bar v={(l.transcripts / 130) * 100} c="bg-maroon" /></div>
-            </div>
-          </div>
-        ))}
-      </div>
-      <p className="text-center text-sm text-ink-3">Numbers are sample figures for the prototype.</p>
+      <PageHero crumbs={[{ label: "Translations" }]} icon={Languages} title="Translations" intro="Each language has its own complete site, with the interface, lectures, quotes and books in that language. Every translation is reviewed before it appears.">
+        <Link href="/about/contact" className="btn btn-primary mt-6">Help translate<ArrowRight size={16} /></Link>
+      </PageHero>
+      <Container className="py-14">
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          {LANGUAGES.map((l) => (
+            <Link key={l.code} href={l.code === "en" ? "/" : `/${l.code}`} className="card card-hover group flex flex-col p-6">
+              <p className="font-serif text-[30px] font-bold leading-tight group-hover:text-saffron">{l.native}</p>
+              <p className="text-[13px] text-ink-3">{l.name} · taptajivanam.com/{l.code === "en" ? "" : l.code}</p>
+              <div className="mt-6 space-y-3"><Bar label="Interface" v={l.ui} of={100} /><Bar label="Quotes" v={l.quotes} of={1840} /><Bar label="Transcriptions" v={l.transcripts} of={130} /></div>
+              <span className="mt-6 flex items-center gap-1 text-[13.5px] font-medium text-saffron">Open site<ArrowRight size={14} className="transition-transform group-hover:translate-x-0.5" /></span>
+            </Link>
+          ))}
+        </div>
+        <p className="mt-6 text-center text-[13px] text-ink-3">Figures are samples for the prototype.</p>
+      </Container>
     </>
   );
 }
