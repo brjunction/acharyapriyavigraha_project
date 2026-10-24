@@ -39,12 +39,12 @@ function Head({ kicker, title, intro, action, acc = "saffron", light = false }: 
 
 function Path({ acc, icon: I, title, text, links }: { acc: string; icon: LucideIcon; title: string; text: string; links: [string, string, string][] }) {
   return (
-    <div className={`acc-${acc} card tile-hue group relative flex flex-col overflow-hidden p-5`}>
+    <div className={`acc-${acc} card tile-hue group relative flex flex-col overflow-hidden p-3.5 sm:p-5`}>
       <Padma className="absolute -right-10 -top-10 h-40 w-40 text-[var(--acc)] opacity-[0.07] transition duration-700 group-hover:rotate-45 group-hover:opacity-[0.14]" />
-      <span className="relative flex h-11 w-11 items-center justify-center rounded-2xl text-white shadow-[var(--shadow-md)]" style={{ background: "linear-gradient(145deg, var(--acc), color-mix(in srgb, var(--acc) 60%, #000))" }}><I size={21} strokeWidth={1.7} /></span>
+      <span className="relative flex h-9 w-9 items-center justify-center rounded-xl text-white shadow sm:h-11 sm:w-11 sm:rounded-2xl-[var(--shadow-md)]" style={{ background: "linear-gradient(145deg, var(--acc), color-mix(in srgb, var(--acc) 60%, #000))" }}><I size={21} strokeWidth={1.7} /></span>
       <h3 className="relative mt-3 text-[16px] tracking-[-0.02em]">{title}</h3>
-      <p className="relative mt-1 text-[13px] leading-relaxed text-ink-2">{text}</p>
-      <ul className="relative mt-4 space-y-0.5 border-t border-line pt-3">
+      <p className="relative mt-1 text-[12px] leading-snug text-ink-2 sm:text-[13px] sm:leading-relaxed">{text}</p>
+      <ul className="relative mt-4 hidden space-y-0.5 border-t border-line pt-3 sm:block">
         {links.map(([h, l, d]) => (
           <li key={h}><Link href={h} className="group/l flex items-center justify-between rounded-lg px-2 py-1.5 text-[13px] transition hover:bg-acc-tint">
             <span><span className="font-medium text-ink group-hover/l:text-[var(--acc)]">{l}</span><span className="ml-2 text-[11.5px] text-ink-3">{d}</span></span>
@@ -97,19 +97,19 @@ export default async function Home() {
               <p className="mt-1 text-[15px] font-semibold leading-snug text-ink">Śrīla Haladhara Swāmī Guru Mahārāja</p>
               <p className="mt-2 text-[12px] leading-relaxed text-ink-3">Born and brought up in Odisha. He preaches mainly in Odia, Hindi and English, and travels to many countries to share the teachings of Śrīla Prabhupāda and Śrī Śrīmad Gour Govinda Swāmī Gurudeva.</p>
             </Link>
-            <div className="stagger grid auto-rows-fr gap-3 sm:grid-cols-6">
+            <div className="stagger grid auto-rows-fr grid-cols-2 gap-2.5 sm:grid-cols-6 sm:gap-3">
               {[
-                ["acc-teal sm:col-span-2", "1992", "Meets ISKCON Bhubaneswar", "Comes into contact with the devotees at ISKCON Bhubaneswar and begins to join their service."],
+                ["acc-teal col-span-1 sm:col-span-2", "1992", "Meets ISKCON Bhubaneswar", "Comes into contact with the devotees at ISKCON Bhubaneswar and begins to join their service."],
                 ["acc-leaf sm:col-span-2", "1994", "Initiation", "Initiated as Halāyudha Dāsa. Serves in the travelling saṅkīrtana party and as head pūjārī of Śrī Śrī Kṛṣṇa-Balarāma Temple."],
                 ["acc-indigo sm:col-span-2", "2016", "Sannyāsa", "Accepts the renounced order on 20 March 2016, from His Holiness Rādhā-Govinda Swāmī Mahārāja, at Śrī Śrī Kṛṣṇa-Balarāma Temple."],
                 ["acc-saffron sm:col-span-2", "2019 · France", "The wish for one home", "During his European tour, at ISKCON New Māyāpura, Śrīla Haladhara Swāmī Guru Mahārāja expressed his cherished desire to create a platform where all the audio lectures of his spiritual master would be available to everyone."],
                 ["acc-rose sm:col-span-2", "2020 · The daily offering", "Small clips, every day", "With the help of his disciples and followers he began curating daily selections of quotes and lectures, turned into small audio clips that capture the essence of Gurudeva’s teachings."],
                 ["acc-gold sm:col-span-2", "Thirty years", "Simple living, high thinking", "Emphasises serving the spiritual master (śrī guru-sevā) and chanting the holy names (śrī nāma-sevā) without compromise."],
               ].map(([c, y, t, d]) => (
-                <div key={y} className={`tile-hue ${c} flex flex-col rounded-2xl border border-line bg-surface p-5`}>
+                <div key={y} className={`tile-hue ${c} flex flex-col rounded-2xl border border-line bg-surface p-3.5 sm:p-5`}>
                   <p className="text-[11px] font-semibold uppercase tracking-[0.12em] tabular text-[var(--acc)]">{y}</p>
                   <p className="mt-1.5 text-[14px] font-semibold text-ink">{t}</p>
-                  <p className="mt-1.5 text-[12.5px] leading-[1.7] text-ink-2">{d}</p>
+                  <p className="mt-1.5 text-[11.5px] leading-[1.6] text-ink-2 sm:text-[12.5px] sm:leading-[1.7]">{d}</p>
                 </div>
               ))}
             </div>
@@ -120,7 +120,7 @@ export default async function Home() {
       {/* Four ways in */}
       <section className="reveal relative z-[2] mt-10">
         <Container>
-          <div className="stagger grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="stagger grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
             <Path acc="teal" icon={Headphones} title="Listen" text="Hari-kathā in his own voice, from 1985 to 1996." links={[["/teachings/audio", "Audio lectures", "1,595"], ["/teachings/transcriptions", "Transcriptions", "130"], ["/teachings/videos", "Videos", "210"]]} />
             <Path acc="indigo" icon={BookOpen} title="Read" text="Books, letters and quotes, each with its source." links={[["/teachings/books", "Books", "48"], ["/gurudeva/letters", "Letters", "29"], ["/teachings/quotes", "Quotes", "44 subjects"]]} />
             <Path acc="gold" icon={Network} title="Explore" text="Follow a subject through everything he said on it." links={[["/tattva", "Tattva", "112 topics"], ["/tattva/index/verses", "By verse", "SB, BG, CC"], ["/tattva/index/places", "By place and year", ""]]} />
