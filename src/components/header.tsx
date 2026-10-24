@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { ChevronDown, ChevronRight, ChevronLeft, Search, SlidersHorizontal, Menu, X, ArrowRight } from "lucide-react";
 import { MENUS, ACCENT, type NavMenu } from "@/lib/nav";
-import { LogoMark, Rosette, PortraitFrame } from "./motifs";
+import { LogoMark, Rosette } from "./motifs";
 import { usePrefs } from "./providers";
 import { SettingsPanel } from "./settings";
 import { Img } from "./img";
@@ -59,11 +59,7 @@ function MegaPanel({ menu, onNavigate, onPin }: { menu: NavMenu; onNavigate: () 
       <div className="grid min-h-[440px]" style={{ gridTemplateColumns: fly ? "210px 220px minmax(0,1fr)" : "220px minmax(0,1fr)" }}>
         <aside className="relative flex flex-col overflow-hidden p-4 text-white" style={{ background: "linear-gradient(165deg, var(--acc), color-mix(in srgb, var(--acc) 55%, #000))" }}>
           <Rosette className="spin-slow pointer-events-none absolute -bottom-20 -right-20 h-56 w-56 text-white/[0.16]" />
-          {menu.feature?.image ? (
-            <PortraitFrame photo className="mb-2.5 w-[104px]" src={menu.feature.image} alt={menu.feature.title} />
-          ) : (
-            <span className="relative mb-2.5 flex h-9 w-9 items-center justify-center rounded-xl bg-white/15 backdrop-blur"><I size={18} strokeWidth={1.7} /></span>
-          )}
+          <span className="relative mb-2.5 flex h-9 w-9 items-center justify-center rounded-xl bg-white/15 backdrop-blur"><I size={18} strokeWidth={1.7} /></span>
           <p className="relative text-[15px] font-semibold leading-tight tracking-[-0.02em]">{menu.label}</p>
           <p className="relative mt-1 text-[11px] leading-relaxed text-white/80">{menu.intro}</p>
           <Link href={menu.href} onClick={onNavigate} className="group relative mt-auto inline-flex w-fit items-center gap-1.5 rounded-full bg-white/15 px-2.5 py-1 text-[11px] font-medium backdrop-blur transition hover:bg-white hover:text-[var(--acc)]">
@@ -255,7 +251,7 @@ export function Header() {
   return (
     <header className="sticky top-0 z-50">
       <div className="stripe" aria-hidden />
-      <div className={`glass border-b border-line transition-shadow ${scrolled ? "shadow-[0_6px_24px_-14px_rgba(60,30,10,0.45)]" : ""}`}>
+      <div className={`border-b border-[#f3b363]/60 bg-[linear-gradient(90deg,#6a2905,#8a3a0a_50%,#6a2905)] transition-shadow ${scrolled ? "shadow-[0_6px_24px_-14px_rgba(60,30,10,0.45)]" : ""}`}>
         <div className="mx-auto grid h-[58px] max-w-[1320px] grid-cols-[auto_1fr_auto] items-center gap-3 px-4 sm:px-6">
           <Logo />
           <nav className="hidden items-center justify-center gap-0.5 lg:flex" aria-label="Main" onMouseLeave={hide}>
@@ -266,24 +262,24 @@ export function Header() {
               return (
                 <button key={m.key} onMouseEnter={() => show(m.key)} onFocus={() => show(m.key)} onClick={() => setActive(on ? null : m.key)}
                   aria-expanded={on} aria-haspopup="true"
-                  className={`acc-${ACCENT[m.key]} group relative flex items-center gap-1.5 whitespace-nowrap rounded-full px-2 py-1 text-[12px] font-medium transition ${on ? "bg-acc-soft text-[var(--acc)]" : current ? "text-[var(--acc)]" : "text-ink-2 hover:bg-acc-tint hover:text-[var(--acc)]"}`}>
-                  <I size={14} strokeWidth={1.9} className="hidden text-[var(--acc)] opacity-80 xl:block" />
+                  className={`acc-${ACCENT[m.key]} group relative flex items-center gap-1.5 whitespace-nowrap rounded-full px-2 py-1 text-[12px] font-medium transition ${on ? "bg-[#fbf3e3] text-[var(--acc)]" : current ? "text-[#ffc566]" : "text-[#ffe9cc] hover:bg-white/10 hover:text-white"}`}>
+                  <I size={14} strokeWidth={1.9} className={`hidden opacity-90 xl:block ${on ? "text-[var(--acc)]" : "text-[#ffc566]"}`} />
                   {m.label}
                   <ChevronDown size={12} className={`-ml-0.5 opacity-60 transition-transform ${on ? "rotate-180" : ""}`} />
-                  {current && <span className="absolute inset-x-3 -bottom-[7px] h-[2px] rounded-full bg-[var(--acc)]" />}
+                  {current && <span className="absolute inset-x-3 -bottom-[7px] h-[2px] rounded-full bg-[#ffc566]" />}
                 </button>
               );
             })}
           </nav>
           <div className="ml-auto flex items-center gap-1.5">
             <button onClick={() => setSearch(true)} aria-label="Search" title="Search (Ctrl K)"
-              className="flex h-9 items-center gap-2 rounded-full border border-line bg-band/70 px-3 text-ink-2 transition hover:border-saffron hover:bg-surface hover:text-saffron xl:w-40">
-              <Search size={15} /><span className="hidden flex-1 whitespace-nowrap text-left text-[12.5px] text-ink-3 xl:inline">Search…</span>
-              <kbd className="hidden whitespace-nowrap rounded border border-line bg-surface px-1.5 text-[10px] text-ink-3 xl:inline">Ctrl K</kbd>
+              className="flex h-9 items-center gap-2 rounded-full border border-[#f3b363]/45 bg-white/10 px-3 text-[#ffe9cc] transition hover:bg-white/20 xl:w-40">
+              <Search size={15} /><span className="hidden flex-1 whitespace-nowrap text-left text-[12.5px] text-[#ffe9cc]/80 xl:inline">Search…</span>
+              <kbd className="hidden whitespace-nowrap rounded border border-[#f3b363]/40 bg-white/10 px-1.5 text-[10px] text-[#ffe9cc] xl:inline">Ctrl K</kbd>
             </button>
             <div className="relative" ref={settingsRef}>
               <button onClick={() => { setSettings(!settings); setActive(null); }} aria-label="Settings" aria-expanded={settings} title="Settings"
-                className={`flex h-9 w-9 items-center justify-center rounded-full border transition ${settings ? "border-saffron bg-saffron-soft text-saffron" : "border-line bg-band/70 text-ink-2 hover:border-saffron hover:text-saffron"}`}>
+                className={`flex h-9 w-9 items-center justify-center rounded-full border transition ${settings ? "border-[#ffc566] bg-[#fbf3e3] text-saffron" : "border-[#f3b363]/45 bg-white/10 text-[#ffe9cc] hover:bg-white/20"}`}>
                 <SlidersHorizontal size={16} />
               </button>
               {settings && (
@@ -292,7 +288,7 @@ export function Header() {
                 </div>
               )}
             </div>
-            <button onClick={() => setMobile(true)} aria-label="Open menu" className="flex h-9 w-9 items-center justify-center rounded-full text-ink hover:bg-band lg:hidden"><Menu size={21} /></button>
+            <button onClick={() => setMobile(true)} aria-label="Open menu" className="flex h-9 w-9 items-center justify-center rounded-full text-[#ffe9cc] hover:bg-white/10 lg:hidden"><Menu size={21} /></button>
           </div>
         </div>
       </div>
