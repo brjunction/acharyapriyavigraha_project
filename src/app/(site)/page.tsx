@@ -8,19 +8,28 @@ import { Hero, Blessing, Featured, LifeTimeline, DiaryRail, QuotePanel, LangMarq
 import { TeachingsOrganiser } from "@/components/teachings-organiser";
 import { TopicExplorer } from "@/components/topic-explorer";
 import { Container } from "@/components/ui";
-import { Orn, OrnMask, Padma, PaisleyField, Toran } from "@/components/motifs";
+import { Orn, OrnMask, Padma, PaisleyField, Toran, PeacockDivider } from "@/components/motifs";
 import { Backdrop } from "@/components/backdrop";
 import { LectureRow } from "@/components/lecture";
 
-function Head({ kicker, title, intro, action, acc = "saffron" }: { kicker: string; title: string; intro?: string; action?: { href: string; label: string }; acc?: string }) {
+function SectionBg({ src, o = 0.4, flip = false, pos = "center" }: { src: string; o?: number; flip?: boolean; pos?: string }) {
+  return (
+    <>
+      <Backdrop src={src} o={o} flip={flip} pos={pos} className="-z-10" />
+      <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b from-page via-transparent to-page" />
+    </>
+  );
+}
+
+function Head({ kicker, title, intro, action, acc = "saffron", light = false }: { light?: boolean; kicker: string; title: string; intro?: string; action?: { href: string; label: string }; acc?: string }) {
   return (
     <div className={`acc-${acc} mb-7 flex flex-wrap items-end justify-between gap-4`}>
       <div>
         <p className="flex items-center gap-2 text-[12px] font-semibold uppercase tracking-[0.12em] text-[var(--acc)]"><Padma className="h-4 w-4" layers={2} />{kicker}</p>
-        <h2 className="mt-1.5 text-[26px] leading-tight tracking-[-0.03em] sm:text-[30px]">{title}</h2>
-        {intro && <p className="mt-1.5 max-w-xl text-[14px] text-ink-2">{intro}</p>}
+        <h2 className={`mt-1.5 text-[26px] leading-tight tracking-[-0.03em] sm:text-[30px] ${light ? "!text-white" : ""}`}>{title}</h2>
+        {intro && <p className={`mt-1.5 max-w-xl text-[14px] ${light ? "text-white/80" : "text-ink-2"}`}>{intro}</p>}
       </div>
-      {action && <Link href={action.href} className="group flex items-center gap-1 text-[13px] font-medium text-[var(--acc)]">{action.label}<ArrowRight size={14} className="transition-transform group-hover:translate-x-0.5" /></Link>}
+      {action && <Link href={action.href} className={`group flex items-center gap-1 text-[13px] font-medium ${light ? "text-[#f3d9a4]" : "text-[var(--acc)]"}`}>{action.label}<ArrowRight size={14} className="transition-transform group-hover:translate-x-0.5" /></Link>}
     </div>
   );
 }
@@ -71,14 +80,11 @@ export default function Home() {
         <Container><Blessing /></Container>
       </section>
 
-      <div aria-hidden className="mx-auto mt-12 flex max-w-md items-center justify-center gap-5">
-        <Orn src="peacock" className="h-24" />
-        <span className="h-px flex-1 bg-gradient-to-r from-transparent via-gold to-transparent" />
-        <Orn src="peacock" className="h-24 -scale-x-100" />
-      </div>
+      <PeacockDivider className="mt-12" />
 
       {/* Teachings */}
-      <section className="reveal relative mt-8">
+      <section className="reveal relative isolate mt-8 py-6">
+        <SectionBg src="cream-watercolor" o={0.7} />
         <Container>
           <Head kicker="His teachings" title="Hear, read and remember" intro="Everything is organised in three places: what you can hear and watch, what you can read, and the compilations drawn from both." action={{ href: "/teachings", label: "All teachings" }} />
           <TeachingsOrganiser />
@@ -86,7 +92,8 @@ export default function Home() {
       </section>
 
       {/* Today */}
-      <section className="reveal mt-24">
+      <section className="reveal relative isolate mt-16 py-10">
+        <SectionBg src="tan-mandala" o={0.3} flip />
         <Container>
           <Head kicker="For today" title="A quote, a diary, a date" intro="Something small to carry through the day." />
           <div className="grid grid-cols-[minmax(0,1fr)] gap-5 lg:grid-cols-[1.15fr_1fr]">
@@ -111,10 +118,12 @@ export default function Home() {
       </section>
 
       {/* Archive bento */}
-      <section className="reveal relative mt-24 border-y border-line bg-band py-16">
-        <Toran className="absolute inset-x-0 top-0 text-saffron/50" />
+      <section className="reveal relative isolate mt-16 overflow-hidden bg-[#4a0a0c] py-20">
+        <Backdrop src="red-gold-mandala" o={0.5} className="-z-10" />
+        <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b from-[#3d0307]/70 via-transparent to-[#3d0307]/70" />
+        <Toran className="absolute inset-x-0 top-0 text-[#e8b872]/70" />
         <Container>
-          <Head kicker="The archive" title="Everything he left us, in one place" action={{ href: "/teachings", label: "All teachings" }} />
+          <Head light kicker="The archive" title="Everything he left us, in one place" action={{ href: "/teachings", label: "All teachings" }} acc="gold" />
           <div className="stagger grid gap-4 sm:grid-cols-2 lg:auto-rows-[158px] lg:grid-cols-4">
             <Bento acc="teal" href="/teachings/audio" icon={Headphones} title="Audio lectures" desc="Search by year, place, verse and topic." count={`${STATS.lectures.toLocaleString()} lectures`} className="min-h-[220px] sm:col-span-2 lg:row-span-2">
               <div className="mt-5 hidden h-16 items-center gap-[3px] sm:flex">{Array.from({ length: 48 }, (_, i) => <span key={i} className="w-[3px] rounded-full bg-white/50" style={{ height: Math.round(10 + Math.abs(Math.sin(i * 0.6) * 24 + Math.sin(i * 0.2) * 12)) }} />)}</div>
@@ -126,11 +135,12 @@ export default function Home() {
             <Bento acc="leaf" href="/gurudeva/gallery" icon={ImageIcon} title="Images" desc="His pastimes in photographs." count={`${STATS.imageTags} albums`} className="min-h-[160px] sm:col-span-2" />
           </div>
         </Container>
-        <Toran flip className="absolute inset-x-0 bottom-0 text-saffron/50" />
+        <Toran flip className="absolute inset-x-0 bottom-0 text-[#e8b872]/70" />
       </section>
 
       {/* Listen + recent */}
-      <section className="reveal mt-24">
+      <section className="reveal relative isolate mt-16 py-10">
+        <SectionBg src="cream-mandala" o={0.55} />
         <Container className="grid grid-cols-[minmax(0,1fr)] gap-8 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
           <div>
             <Head kicker="Listen now" title="Featured lecture" acc="teal" />
@@ -149,15 +159,19 @@ export default function Home() {
       </section>
 
       {/* Life */}
-      <section className="reveal mt-24">
+      <PeacockDivider className="mt-16" size={72} />
+      <section className="reveal relative isolate mt-6 py-10">
+        <SectionBg src="orange-mandala" o={0.28} />
         <Container>
-          <Head kicker="His life" title="From Jagannāthapura to Māyāpur" intro="The main moments from 1929 to 1996. Select a year to read more." />
+          <Head kicker="His life" title="From Jagannāthapura to Māyāpur" intro="The main moments of his life. Select a year to read more." />
           <LifeTimeline />
         </Container>
       </section>
 
       {/* Subjects */}
-      <section className="reveal relative mt-24">
+      <PeacockDivider className="mt-12" size={72} />
+      <section className="reveal relative isolate mt-6 py-10">
+        <SectionBg src="cream-watercolor" o={0.7} flip />
         <Container>
           <Head kicker="Tattva-kośa" title="Explore by subject" intro="Everything Śrīla Gurudeva said on each subject, gathered in one place." action={{ href: "/tattva", label: "Open Tattva-kośa" }} acc="indigo" />
           <TopicExplorer />
@@ -179,20 +193,6 @@ export default function Home() {
           </div>
         </Container>
         <div className="relative"><LangMarquee /></div>
-      </section>
-
-      {/* Gratitude */}
-      <section className="reveal mt-24">
-        <Container>
-          <div className="relative overflow-hidden rounded-3xl bg-[#7a0a10] px-6 py-16 text-center text-white sm:px-12">
-            <Backdrop src="red-gold-mandala" />
-            <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[#5a0509]/40 via-[#5a0509]/60 to-[#3d0307]/70" />
-            <HeartHandshake size={28} strokeWidth={1.4} className="relative mx-auto text-[#f1d3a4]" />
-            <p className="relative mx-auto mt-4 max-w-2xl text-[17px] leading-relaxed text-white/90">This archive is built by the efforts of the disciples, grand-disciples, followers and admirers of Śrīla Gour Govinda Swāmī.</p>
-            <OrnMask src="border-5" repeat="repeat-x" size="auto 100%" className="relative mx-auto mt-6 h-5 max-w-xs text-[#e8b872]/70" />
-            <Link href="/thank-list" className="btn relative mt-4 !h-11 bg-white !px-6 text-[#592300] hover:bg-[#f6ebe3]">Our Thank List<ArrowRight size={15} /></Link>
-          </div>
-        </Container>
       </section>
     </>
   );

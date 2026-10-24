@@ -252,3 +252,7 @@ h1, h2, h3, h4 { font-family: var(--font-sans); font-weight: 650; letter-spacing
 .stagger > *:nth-child(5) { transition-delay: .32s; } .stagger > *:nth-child(6) { transition-delay: .4s; } .stagger > *:nth-child(n+7) { transition-delay: .48s; }
 .parallax-spin { transform: translate(-50%, -50%) rotate(calc(var(--sy, 0) * 0.04deg)); }
 @media (prefers-reduced-motion: reduce) { .lotus-a, .lotus-b { animation: none; } .js-reveal .stagger > * { opacity: 1; transform: none; } }
+
+.frame-shine { background: linear-gradient(110deg, transparent 35%, rgba(255,255,255,.55) 50%, transparent 65%); background-size: 250% 100%; animation: frameShine 6s ease-in-out infinite; mix-blend-mode: soft-light; }
+@keyframes frameShine { 0% { background-position: 160% 0; } 60%,100% { background-position: -60% 0; } }
+@media (prefers-reduced-motion: reduce) { .frame-shine { animation: none; } }

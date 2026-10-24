@@ -30,7 +30,7 @@ export const MENUS: NavMenu[] = [
         l("/gurudeva/life-description", "Life Description", "Gopāl Jiu: the beloved Deity of Śrīla Gurudeva", BookMarked),
         l("/gurudeva/carita", "The Carita", "Verse biography, Odia and English", Feather),
         l("/gurudeva/official-biography", "Kṛṣṇāliṅgita Vigraha", "The official biography series", ScrollText, true),
-        l("/gurudeva/timeline", "Life timeline", "1929 to 1996, year by year", Clock),
+        l("/gurudeva/timeline", "Life timeline", "His life, year by year", Clock),
         l("/gurudeva/on-this-day", "This day in his life", "Lectures, letters and photos for each date", CalendarDays),
         l("/gurudeva/disappearance-pastimes", "Disappearance pastimes", "Accounts of his departure, 1996", Sunset),
       ]),

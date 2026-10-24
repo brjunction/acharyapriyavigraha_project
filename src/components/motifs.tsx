@@ -260,3 +260,37 @@ export function LotusFrame({ src, alt, className = "" }: { src: string; alt: str
     </div>
   );
 }
+
+/** The full photograph, uncropped, in an ornamental gold frame with lotus crest and corner flourishes. */
+export function PhotoFrame({ src, alt, ratio = "1037 / 1428", className = "" }: { src: string; alt: string; ratio?: string; className?: string }) {
+  return (
+    <div className={`relative ${className}`}>
+      <div className="relative rounded-[22px] bg-gradient-to-br from-[#f3cf86] via-[#b9780a] to-[#f3cf86] p-[7px]">
+        <span aria-hidden className="frame-shine pointer-events-none absolute inset-0 rounded-[22px]" />
+        <div className="rounded-[16px] bg-[#6d1a10] p-[3px]">
+          <div className="rounded-[13px] bg-[#fff6e2] p-[9px]">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={src} alt={alt} className="block w-full rounded-[6px] object-cover" style={{ aspectRatio: ratio }} />
+          </div>
+        </div>
+      </div>
+      {[["-left-2 -top-2", ""], ["-right-2 -top-2", "-scale-x-100"], ["-bottom-2 -left-2", "-scale-y-100"], ["-bottom-2 -right-2", "-scale-100"]].map(([pos, f]) => (
+        <CornerFlourish key={pos} className={`pointer-events-none absolute h-12 w-12 text-[#8a4a08] ${pos} ${f}`} />
+      ))}
+      <span className="absolute -top-5 left-1/2 flex h-10 w-10 -translate-x-1/2 items-center justify-center rounded-full border-2 border-[#e9b85f] bg-[#6d1a10] text-[#f3d9a4]"><Padma className="h-6 w-6" layers={2} /></span>
+    </div>
+  );
+}
+
+/** Two peacocks facing each other either side of a gold line. */
+export function PeacockDivider({ className = "", size = 88 }: { className?: string; size?: number }) {
+  return (
+    <div aria-hidden className={`mx-auto flex max-w-md items-center justify-center gap-5 ${className}`}>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src="/ornaments/peacock.png" alt="" style={{ height: size }} className="w-auto select-none" />
+      <span className="h-px flex-1 bg-gradient-to-r from-transparent via-gold to-transparent" />
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src="/ornaments/peacock.png" alt="" style={{ height: size }} className="w-auto -scale-x-100 select-none" />
+    </div>
+  );
+}

@@ -6,7 +6,7 @@ import { ArrowRight, Search, Play, Pause, ChevronLeft, ChevronRight, Headphones,
 import { CONVERSATION, LETTER } from "@/lib/prabhupada";
 import { DIARY, IMG, LANGUAGES, QUOTE_OF_DAY, TIMELINE } from "@/lib/data";
 import { Img } from "./img";
-import { CutOut, LotusFrame, Orn, Padma, PaisleyField, Petals, Rosette, LogoMark } from "./motifs";
+import { CutOut, PhotoFrame, Orn, Padma, PaisleyField, Petals, Rosette, LogoMark } from "./motifs";
 import { usePrefs } from "./providers";
 import { Backdrop } from "./backdrop";
 
@@ -89,14 +89,13 @@ export function Hero() {
         </div>
 
         {/* Portrait stage */}
-        <div ref={box} className="relative mx-auto w-full max-w-[460px] [--px:0] [--py:0]">
-          <div className="absolute inset-0 -m-6 rounded-full bg-[radial-gradient(closest-side,color-mix(in_srgb,var(--gold)_38%,transparent),transparent)] blur-2xl" />
+        <div ref={box} className="relative mx-auto w-full max-w-[400px] [--px:0] [--py:0]">
+          <Orn src="mandala-gold" className="spin-slow absolute left-1/2 top-1/2 h-[135%] w-[135%] max-w-none -translate-x-1/2 -translate-y-1/2 opacity-55" />
           <div className="relative transition-transform duration-300 ease-out" style={{ transform: "translate3d(calc(var(--px) * -8px), calc(var(--py) * -6px), 0)" }}>
-            <LotusFrame src="/photos/gurudeva-speaking.webp" alt="Śrīla Gour Govinda Swāmī" className="mx-auto w-[96%]" />
+            <PhotoFrame src="/photos/gurudeva-garland.webp" alt="Śrīla Gour Govinda Swāmī" className="mx-auto w-[88%] sm:w-[82%]" />
           </div>
-          <div className="relative mx-auto mt-7 w-fit rounded-full border border-[#e8b872]/60 bg-[#fffbf3] px-5 py-2 text-center">
-            <p className="text-[13.5px] font-semibold tracking-tight text-ink">Śrī Śrīmad Gour Govinda Swāmī</p>
-            <p className="text-[11.5px] tracking-[0.12em] text-ink-3">1929 – 1996</p>
+          <div className="relative -mt-5 mx-auto w-fit rounded-full border border-[#e8b872] bg-[#6d1a10] px-6 py-2 text-center">
+            <p className="text-[13px] font-semibold tracking-tight text-[#fdebc4]">Śrī Śrīmad Gour Govinda Swāmī</p>
           </div>
         </div>
       </div>
@@ -305,9 +304,9 @@ export function Blessing() {
   return (
     <div className="relative overflow-hidden rounded-[28px] border border-line bg-[#f8efdd]">
       <Backdrop src="cream-mandala" o={0.35} pos="center" />
-      <div className="relative grid items-end gap-2 px-5 pt-10 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.4fr)_minmax(0,0.9fr)] lg:px-10">
+      <div className="relative grid items-end gap-2 px-5 pt-10 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1.3fr)_minmax(0,0.8fr)] lg:px-10">
         <div className="order-2 self-end lg:order-1">
-          <CutOut src="/legacy/prabhupada.webp" alt="Śrīla A.C. Bhaktivedanta Swami Prabhupāda" fade={0} className="mx-auto w-[62%] max-w-[250px]" />
+          <CutOut src="/legacy/prabhupada.webp" alt="Śrīla A.C. Bhaktivedanta Swami Prabhupāda" fade={0} className="mx-auto w-[78%] max-w-[340px] lg:w-[100%]" />
         </div>
         <div className="order-1 pb-10 text-center lg:order-2">
           <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-saffron">Śrīla Prabhupāda on Śrīla Gurudeva</p>
@@ -317,7 +316,7 @@ export function Blessing() {
           <p className="mt-2 text-[13px] text-ink-3">Letter, Māyāpur, 12 February 1976</p>
         </div>
         <div className="order-3 self-end">
-          <CutOut src="/legacy/gurudeva.webp" alt="Śrīla Gour Govinda Swāmī" fade={0} className="mx-auto w-[62%] max-w-[250px] lg:w-[78%]" />
+          <CutOut src="/legacy/gurudeva.webp" alt="Śrīla Gour Govinda Swāmī" fade={0} className="mx-auto w-[50%] max-w-[190px] lg:w-[66%]" />
         </div>
       </div>
       <div className="relative grid gap-5 border-t border-[#e9d9b8] bg-[#fbf5e8] p-4 sm:p-7 lg:grid-cols-2">
