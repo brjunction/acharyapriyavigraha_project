@@ -60,8 +60,7 @@ export function Hero() {
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[var(--page)]/80 via-[var(--page)]/30 to-transparent" />
       <div className="relative mx-auto grid max-w-[1240px] grid-cols-[minmax(0,1fr)] items-center gap-10 px-5 pb-14 pt-12 sm:px-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:pb-20 lg:pt-16">
         <div className="rise">
-          <span className="inline-flex items-center gap-2 rounded-full border border-saffron/25 bg-surface/70 py-1 pl-1.5 pr-3.5 text-[12px] font-medium text-saffron backdrop-blur">
-            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-saffron text-white"><LogoMark className="h-3.5 w-3.5" flame="#f4c27a" /></span>
+          <span className="inline-flex items-center gap-2 rounded-full border border-saffron/25 bg-surface/70 py-1 pl-3.5 pr-3.5 text-[12px] font-medium text-saffron backdrop-blur">
             The complete teachings of Śrī Śrīmad Gour Govinda Swāmī
           </span>
           <h1 className="mt-5 text-[28px] font-bold leading-[1.12] tracking-[-0.03em] text-ink sm:text-[36px] lg:text-[42px]">

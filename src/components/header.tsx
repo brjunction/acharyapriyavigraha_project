@@ -13,7 +13,7 @@ import { Img } from "./img";
 export function Logo({ compact = false }: { compact?: boolean }) {
   return (
     <Link href="/" className="group flex items-center gap-2.5" aria-label="Taptajīvanam home">
-      <LogoMark className="h-9 w-9 shrink-0 text-saffron transition-transform duration-500 group-hover:-translate-y-0.5" flame="#e8a33a" />
+      <LogoMark className="h-10 w-10 shrink-0" />
       {!compact && (
         <span className="leading-none">
           <span className="block text-[18px] font-bold tracking-[-0.02em] text-ink">Taptajīvanam</span>

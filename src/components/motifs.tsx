@@ -165,20 +165,10 @@ export function OgeeFrame({ children, className = "" }: { children: React.ReactN
   );
 }
 
-/** The Taptajīvanam mark: a lamp flame rising from a lotus. */
-export function LogoMark({ className = "", flame = "#f4b26a" }: { className?: string; flame?: string }) {
-  return (
-    <svg viewBox="0 0 48 48" className={className} aria-hidden>
-      <path d="M24 3.5c4.6 5.2 7.4 9.6 5.6 14.2-1.1 2.8-3.4 4.1-5.6 4.1s-4.5-1.3-5.6-4.1C16.6 13.1 19.4 8.7 24 3.5Z" fill={flame} />
-      <path d="M24 10.5c1.9 2.4 2.9 4.5 2.1 6.4-.4 1-1.2 1.5-2.1 1.5s-1.7-.5-2.1-1.5c-.8-1.9.2-4 2.1-6.4Z" fill="#fff6e8" opacity=".9" />
-      <g fill="currentColor">
-        <path d="M24 44c-4.6-4.2-6.6-9.2-6-14.2.4-3 2.4-5.6 6-7.6 3.6 2 5.6 4.6 6 7.6.6 5-1.4 10-6 14.2Z" />
-        <path d="M22.6 43.8C15.8 42.6 10.6 38.6 8.6 32.4c-.6-1.8-.6-3.6-.2-5.2 4 .2 7.6 1.8 10.2 4.6 2.8 3 4 7 4 12Z" opacity=".85" />
-        <path d="M25.4 43.8c6.8-1.2 12-5.2 14-11.4.6-1.8.6-3.6.2-5.2-4 .2-7.6 1.8-10.2 4.6-2.8 3-4 7-4 12Z" opacity=".85" />
-        <path d="M21 44.4c-6.6.6-12.4-1.4-16-5.6 3.2-2 7-2.6 10.6-1.6 2.4.7 4.2 2.9 5.4 7.2ZM27 44.4c6.6.6 12.4-1.4 16-5.6-3.2-2-7-2.6-10.6-1.6-2.4.7-4.2 2.9-5.4 7.2Z" opacity=".6" />
-      </g>
-    </svg>
-  );
+/** The Taptajīvanam logo: Śrīla Gurudeva in a round frame (also the favicon). */
+export function LogoMark({ className = "" }: { className?: string; flame?: string }) {
+  // eslint-disable-next-line @next/next/no-img-element
+  return <img src="/logo.png" alt="" aria-hidden draggable={false} className={`select-none rounded-full object-contain ${className}`} />;
 }
 
 /** Slowly falling flower petals for hero backgrounds (pure CSS, hidden when motion is reduced). */
