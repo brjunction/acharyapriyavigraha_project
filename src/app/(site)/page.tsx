@@ -4,12 +4,13 @@ import {
   MapPin, ScrollText, Search as SearchIcon, type LucideIcon,
 } from "lucide-react";
 import { LECTURES, STATS } from "@/lib/data";
-import { Hero, Blessing, Featured, LifeTimeline, DiaryRail, QuotePanel, LangMarquee, WavePlayer } from "@/components/home-client";
+import { Hero, Blessing, Featured, LifeTimeline, DiaryRail, QuotePanel, LangMarquee, Radio } from "@/components/home-client";
 import { TeachingsOrganiser } from "@/components/teachings-organiser";
 import { TopicExplorer } from "@/components/topic-explorer";
 import { Container } from "@/components/ui";
 import { Orn, OrnMask, Padma, PaisleyField, Toran, PeacockDivider } from "@/components/motifs";
 import { Backdrop } from "@/components/backdrop";
+import { getChannelVideos } from "@/lib/youtube";
 import { LectureRow } from "@/components/lecture";
 
 function SectionBg({ src, o = 0.4, flip = false, pos = "center" }: { src: string; o?: number; flip?: boolean; pos?: string }) {
@@ -70,7 +71,8 @@ function Bento({ href, acc, className = "", icon: I, title, desc, count, childre
   );
 }
 
-export default function Home() {
+export default async function Home() {
+  const diary = await getChannelVideos();
   return (
     <>
       <Hero />
@@ -95,24 +97,11 @@ export default function Home() {
       <section className="reveal relative isolate mt-16 py-10">
         <SectionBg src="tan-mandala" o={0.3} flip />
         <Container>
-          <Head kicker="For today" title="A quote, a diary, a date" intro="Something small to carry through the day." />
-          <div className="grid grid-cols-[minmax(0,1fr)] gap-5 lg:grid-cols-[1.15fr_1fr]">
-            <QuotePanel />
-            <div className="acc-leaf card flex flex-col p-7">
-              <span className="flex items-center gap-2 text-[12px] font-semibold text-[var(--acc)]"><CalendarDays size={15} />This day in his life</span>
-              <p className="mt-2 text-[40px] font-bold leading-none tracking-[-0.04em]">24 October</p>
-              <ul className="mt-6 divide-y divide-line text-[14px] text-ink-2">
-                {[["1993", "Lecture, Radhadesh", "/teachings/audio"], ["1991", "Letter to a disciple", "/gurudeva/letters"], ["1989", "14 photographs, Bhubaneswar", "/gurudeva/gallery"]].map(([y, t, h]) => (
-                  <li key={y}><Link href={h} className="group flex items-center gap-4 py-3 transition hover:text-[var(--acc)]"><span className="w-12 text-[17px] font-bold tabular text-[var(--acc)]">{y}</span><span className="flex-1">{t}</span><ArrowRight size={14} className="opacity-0 transition group-hover:opacity-100" /></Link></li>
-                ))}
-              </ul>
-              <Link href="/gurudeva/on-this-day" className="mt-auto inline-flex items-center gap-1 pt-5 text-[13px] font-medium text-[var(--acc)]">Pick another date<ArrowRight size={14} /></Link>
-              <p className="mt-2 text-[11px] text-ink-3">Sample entries for the prototype</p>
-            </div>
-          </div>
+          <Head kicker="For today" title="Quote of the day" />
+          <QuotePanel />
           <div className="mt-12">
             <Head kicker="Daily Diary" title="Today and the days before" intro="Short videos from HH Haladhara Swāmī Mahārāja's channel, added automatically." action={{ href: "/gurudeva/diaries", label: "All diaries" }} acc="rose" />
-            <DiaryRail />
+            <DiaryRail items={diary} />
           </div>
         </Container>
       </section>
@@ -141,19 +130,17 @@ export default function Home() {
       {/* Listen + recent */}
       <section className="reveal relative isolate mt-16 py-10">
         <SectionBg src="cream-mandala" o={0.55} />
-        <Container className="grid grid-cols-[minmax(0,1fr)] gap-8 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
-          <div>
-            <Head kicker="Listen now" title="Featured lecture" acc="teal" />
-            <WavePlayer />
-            <div className="acc-indigo card mt-5 flex items-center gap-4 p-5">
-              <span className="mega-ic !h-11 !w-11 !rounded-xl"><ScrollText size={20} strokeWidth={1.7} /></span>
-              <div className="flex-1"><p className="text-[14px] font-semibold">Looking for a verse?</p><p className="text-[12.5px] text-ink-3">Type “SB 1.2.6” in search to find every lecture and quote on it.</p></div>
-              <Link href="/tattva/index/verses" className="btn btn-ghost !h-9">Verse index</Link>
+        <Container>
+          <Head kicker="Śrīla Gurudeva Radio" title="Listen, and let it play on" intro="Hari-kathā in his own voice, one lecture after another, chosen at random." acc="teal" />
+          <div className="grid grid-cols-[minmax(0,1fr)] items-stretch gap-5 lg:grid-cols-2">
+            <Radio />
+            <div className="acc-teal flex flex-col overflow-hidden rounded-2xl border border-line bg-surface">
+              <div className="flex items-center justify-between border-b border-line px-5 py-3.5">
+                <span className="text-[12px] font-semibold uppercase tracking-[0.12em] text-teal">Recently added</span>
+                <Link href="/teachings/audio" className="text-[12.5px] font-medium text-teal">All lectures</Link>
+              </div>
+              <div className="flex-1 px-1">{LECTURES.slice(0, 4).map((l) => <LectureRow key={l.slug} l={l} />)}</div>
             </div>
-          </div>
-          <div>
-            <Head kicker="Recently added" title="New in the archive" action={{ href: "/teachings/audio", label: "All lectures" }} acc="teal" />
-            <div className="card px-2">{LECTURES.slice(0, 6).map((l) => <LectureRow key={l.slug} l={l} />)}</div>
           </div>
         </Container>
       </section>
@@ -193,6 +180,20 @@ export default function Home() {
           </div>
         </Container>
         <div className="relative"><LangMarquee /></div>
+      </section>
+
+      {/* Thank list */}
+      <section className="reveal mt-24">
+        <Container>
+          <div className="relative isolate overflow-hidden rounded-3xl bg-[#4a0a0c] px-6 py-14 text-center text-white sm:px-12">
+            <Backdrop src="red-gold-mandala" className="-z-10" />
+            <Toran className="absolute inset-x-0 top-0 text-[#e8b872]/60" />
+            <HeartHandshake size={26} strokeWidth={1.4} className="mx-auto text-[#f1d3a4]" />
+            <h2 className="mt-3 text-[22px] !text-white sm:text-[26px]">Our Thank List</h2>
+            <p className="mx-auto mt-3 max-w-2xl text-[15px] leading-relaxed text-white/85">This archive is built by the efforts of the disciples, grand-disciples, followers and admirers of Śrī Śrīmad Gour Govinda Swāmī, in many countries.</p>
+            <Link href="/thank-list" className="btn mt-6 !h-10 bg-[#e8b872] !px-5 text-[#3d0f08] hover:bg-[#f3d9a4]">Read the Thank List<ArrowRight size={15} /></Link>
+          </div>
+        </Container>
       </section>
     </>
   );

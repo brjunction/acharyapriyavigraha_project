@@ -17,7 +17,7 @@ export function Logo({ compact = false }: { compact?: boolean }) {
       {!compact && (
         <span className="leading-none">
           <span className="block text-[18px] font-bold tracking-[-0.02em] text-ink">Taptajīvanam</span>
-          <span className="mt-[3px] hidden whitespace-nowrap text-[10.5px] font-medium tracking-[0.02em] text-ink-3 2xl:block">Teachings of Śrī Śrīmad Gour Govinda Swāmī</span>
+          <span className="mt-[3px] hidden whitespace-nowrap text-[10.5px] font-medium tracking-[0.02em] text-ink-3 2xl:block">Teachings of Śrīla Gurudeva</span>
         </span>
       )}
     </Link>

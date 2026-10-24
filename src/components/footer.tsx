@@ -27,7 +27,7 @@ export function Footer() {
             </div>
             <div className="mt-7 flex flex-col items-center gap-2">
               <Signature src={IMG.sign} className="h-12 w-auto brightness-0 invert opacity-90" />
-              <p className="text-[11.5px] tracking-[0.04em] text-[#e6c9b4]/80">Śrī Śrīmad Gour Govinda Swāmī</p>
+              <p className="text-[11.5px] tracking-[0.04em] text-[#e6c9b4]/80">Śrīla Gurudeva</p>
             </div>
           </div>
 
@@ -46,11 +46,16 @@ export function Footer() {
             ))}
             <div>
               <h4 className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#f1d3a4]">Stay connected</h4>
-              <Link href="/about/subscribe" className="group mt-3.5 flex items-center gap-3 rounded-2xl border border-white/15 bg-white/[0.07] p-3.5 transition hover:bg-white/[0.12]">
+              <a href="https://gopaljiu.org/krishna-kathamrta-bindu/" target="_blank" rel="noreferrer" className="group mt-3.5 flex items-center gap-3 rounded-2xl border border-white/15 bg-white/[0.07] p-3.5 transition hover:bg-white/[0.12]">
                 <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#e8b872]/90 text-[#4a1a00]"><Mail size={19} /></span>
                 <span className="flex-1 text-[12.5px] leading-snug text-white"><span className="block font-semibold">Gopāl Jiu magazine</span><span className="text-[#f0dfd1]/70">Subscribe to receive it</span></span>
                 <ArrowUpRight size={16} className="text-[#f0dfd1]/60 transition group-hover:text-white" />
-              </Link>
+              </a>
+              <a href={SITE.social[2].href} target="_blank" rel="noreferrer" className="group mt-2.5 flex items-center gap-3 rounded-2xl border border-white/15 bg-white/[0.07] p-3.5 transition hover:bg-white/[0.12]">
+                <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#e0342b] text-white"><Youtube size={19} /></span>
+                <span className="flex-1 text-[12.5px] leading-snug text-white"><span className="block font-semibold">Taptajīvanam on YouTube</span><span className="text-[#f0dfd1]/70">Watch and subscribe</span></span>
+                <ArrowUpRight size={16} className="text-[#f0dfd1]/60 transition group-hover:text-white" />
+              </a>
               <div className="mt-3 flex gap-2">
                 {SITE.social.map((s) => { const I = SOCIAL_ICONS[s.name as keyof typeof SOCIAL_ICONS]; return (
                   <a key={s.name} href={s.href} target="_blank" rel="noreferrer" aria-label={s.name} title={s.name}
@@ -64,7 +69,7 @@ export function Footer() {
             </div>
           </div>
 
-          <div className="mt-9 grid gap-5 border-t border-white/10 pt-7 sm:grid-cols-2">
+          <div className="mt-9 grid gap-5 border-t border-white/10 pt-7 sm:grid-cols-2 lg:grid-cols-3">
             {SITE.locations.map((l) => (
               <div key={l.name} className="flex gap-3 text-[12.5px]">
                 <MapPin size={15} className="mt-0.5 shrink-0 text-[#e6c9b4]" />
@@ -74,7 +79,7 @@ export function Footer() {
           </div>
 
           <div className="mt-8 flex flex-col items-center justify-between gap-3 border-t border-white/10 pt-5 text-[12px] text-[#f0dfd1]/65 sm:flex-row">
-            <div className="flex items-center gap-2"><LogoMark className="h-6 w-6 text-white" flame="#e8a33a" /><span className="text-[13px] font-medium text-white">Dedicated to Śrī Śrīmad Gour Govinda Swāmī</span></div>
+            <div className="flex items-center gap-2"><LogoMark className="h-6 w-6 text-white" flame="#e8a33a" /><span className="text-[13px] font-medium text-white">Dedicated to Śrīla Gurudeva</span></div>
             <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-1">
               <Link href="/thank-list" className="hover:text-white">Our Thank List</Link>
               <Link href="/about" className="hover:text-white">About</Link>

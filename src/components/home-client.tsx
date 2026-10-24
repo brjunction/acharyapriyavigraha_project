@@ -2,12 +2,12 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { ArrowRight, Search, Play, Pause, ChevronLeft, ChevronRight, Headphones, Quote as QuoteIcon, Copy, Check, PlayCircle } from "lucide-react";
+import { ArrowRight, Search, Play, Pause, SkipForward, ChevronLeft, ChevronRight, Headphones, Quote as QuoteIcon, Copy, Check, PlayCircle } from "lucide-react";
 import { CONVERSATION, LETTER } from "@/lib/prabhupada";
-import { DIARY, IMG, LANGUAGES, QUOTE_OF_DAY, TIMELINE } from "@/lib/data";
+import { LECTURES, fmtDate, DIARY, IMG, LANGUAGES, QUOTE_OF_DAY, TIMELINE } from "@/lib/data";
 import { Img } from "./img";
 import { CutOut, PortraitFrame, Orn, Padma, PaisleyField, Petals, Rosette, LogoMark } from "./motifs";
-import { usePrefs } from "./providers";
+import { usePrefs, usePlayer } from "./providers";
 import { Backdrop } from "./backdrop";
 
 /* ------------------------------------------------------------------ Hero */
@@ -86,7 +86,6 @@ export function Hero() {
         {/* Portrait: a plain circular frame, no animation */}
         <div className="mx-auto w-full max-w-[340px]">
           <PortraitFrame photo src="/photos/gurudeva-speaking.webp" alt="Śrī Śrīmad Gour Govinda Swāmī" className="mx-auto w-full" />
-          <p className="mt-4 text-center text-[13.5px] font-semibold tracking-tight text-ink">Śrī Śrīmad Gour Govinda Swāmī</p>
         </div>
       </div>
     </section>
@@ -194,21 +193,29 @@ export function LifeTimeline() {
 /* ----------------------------------------------------------- Diary rail */
 
 const HUES = ["#853500", "#0b6b6f", "#3a4a9c", "#a3365e", "#3b7a4b", "#b9780a", "#6b2a00", "#2f2622"];
-export function DiaryRail() {
+export type DiaryItem = { id: string; title: string; published: string };
+export function DiaryRail({ items }: { items?: DiaryItem[] }) {
   const ref = useRef<HTMLDivElement>(null);
   const by = (d: number) => ref.current?.scrollBy({ left: d * 480, behavior: "smooth" });
   return (
     <div className="relative">
       <div ref={ref} className="scrollbar-none snap-x-rail -mx-5 flex gap-4 overflow-x-auto px-5 pb-4 sm:-mx-8 sm:px-8">
-        {DIARY.map((d, k) => (
-          <Link key={d.date} href="/gurudeva/diaries" className="group relative aspect-[9/14] w-[168px] shrink-0 overflow-hidden rounded-2xl text-white shadow-[var(--shadow-md)] transition duration-300 hover:-translate-y-1.5 hover:shadow-[var(--shadow-lg)] sm:w-[190px]"
+        {items && items.length ? items.slice(0, 10).map((v, k) => (
+          <a key={v.id} href={`https://www.youtube.com/watch?v=${v.id}`} target="_blank" rel="noreferrer" className="group relative aspect-[9/14] w-[168px] shrink-0 overflow-hidden rounded-2xl bg-[#1d1411] text-white transition duration-300 hover:-translate-y-1.5 sm:w-[184px]">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={`https://i.ytimg.com/vi/${v.id}/hqdefault.jpg`} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-105" />
+            <span className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/20" />
+            <span className="absolute left-3 top-3 rounded-full bg-black/40 px-2.5 py-1 text-[10.5px] font-medium backdrop-blur">{k === 0 ? "Latest" : new Date(v.published).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}</span>
+            <span className="absolute left-1/2 top-1/2 flex h-12 w-12 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white/20 backdrop-blur transition group-hover:scale-110 group-hover:bg-white group-hover:text-saffron"><Play size={18} fill="currentColor" className="ml-0.5" /></span>
+            <span className="absolute inset-x-3 bottom-3 line-clamp-2 text-[12.5px] font-semibold leading-snug">{v.title}</span>
+          </a>
+        )) : DIARY.map((d, k) => (
+          <a key={d.date} href="https://www.youtube.com/@HaladharaSwami/shorts" target="_blank" rel="noreferrer" className="group relative aspect-[9/14] w-[168px] shrink-0 overflow-hidden rounded-2xl text-white transition duration-300 hover:-translate-y-1.5 sm:w-[184px]"
             style={{ background: `linear-gradient(160deg, ${HUES[k % HUES.length]}, #1d1411)` }}>
-            <PaisleyField className="text-white/[0.09]" scale={0.55} />
-            <Padma className="spin-slow absolute -right-10 -top-10 h-40 w-40 text-white/[0.12]" />
-            <span className="absolute left-3 top-3 rounded-full bg-black/30 px-2.5 py-1 text-[10.5px] font-medium backdrop-blur">{k === 0 ? "Today" : new Date(d.date).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}</span>
-            <span className="absolute left-1/2 top-1/2 flex h-14 w-14 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white/15 backdrop-blur transition group-hover:scale-110 group-hover:bg-white group-hover:text-saffron"><Play size={22} fill="currentColor" className="ml-0.5" /></span>
-            <span className="absolute inset-x-3 bottom-3 text-[13px] font-semibold leading-snug">{d.title.replace("Daily Diary · ", "Diary, ")}<span className="mt-0.5 block text-[10.5px] font-normal text-white/65">Short · HH Haladhara Swāmī</span></span>
-          </Link>
+            <span className="absolute left-3 top-3 rounded-full bg-black/30 px-2.5 py-1 text-[10.5px] font-medium backdrop-blur">{k === 0 ? "Latest" : new Date(d.date).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}</span>
+            <span className="absolute left-1/2 top-1/2 flex h-12 w-12 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white/15 backdrop-blur"><Play size={18} fill="currentColor" className="ml-0.5" /></span>
+            <span className="absolute inset-x-3 bottom-3 text-[12.5px] font-semibold leading-snug">Daily Diary<span className="mt-0.5 block text-[10.5px] font-normal text-white/65">Short · HH Haladhara Swāmī</span></span>
+          </a>
         ))}
       </div>
       <div className="mt-1 hidden justify-end gap-2 sm:flex">
@@ -265,24 +272,37 @@ export function LangMarquee() {
 
 /* ----------------------------------------------------- Listen-now card */
 
-export function WavePlayer() {
-  const [on, setOn] = useState(false);
-  const bars = Array.from({ length: 56 }, (_, i) => Math.round(14 + Math.abs(Math.sin(i * 0.7) * 22 + Math.sin(i * 0.23) * 14)));
+export function Radio() {
+  const { track, playing, play, toggle, time } = usePlayer();
+  const pick = (exceptSlug?: string) => { const pool = LECTURES.filter((l) => l.slug !== exceptSlug); return pool[Math.floor(Math.random() * pool.length)]; };
+  const [cur, setCur] = useState(LECTURES[0]);
+  const bars = Array.from({ length: 48 }, (_, i) => Math.round(10 + Math.abs(Math.sin(i * 0.7) * 20 + Math.sin(i * 0.23) * 12)));
+  const mine = track?.slug === cur.slug;
+  const on = mine && playing;
+  const start = (l: (typeof LECTURES)[0]) => { setCur(l); play({ slug: l.slug, title: l.title, subtitle: `${fmtDate(l.date)}, ${l.place}`, duration: l.duration }); };
+  // Radio: when the track ends, another one begins at random
+  useEffect(() => { if (mine && playing && time >= cur.duration - 1) start(pick(cur.slug)); }, [time]); // eslint-disable-line react-hooks/exhaustive-deps
   return (
-    <div className="acc-teal relative overflow-hidden rounded-3xl border border-line bg-surface p-6 shadow-[var(--shadow-sm)] sm:p-8">
-      <Headphones size={160} strokeWidth={0.6} className="pointer-events-none absolute -right-8 -top-8 text-teal/[0.09]" />
-      <p className="relative text-[12px] font-semibold text-teal">Sample recording</p>
-      <h3 className="relative mt-1 text-[22px] tracking-[-0.03em]">The Mercy of Śrīla Prabhupāda</h3>
-      <p className="relative mt-1 text-[13px] text-ink-3">Bhubaneswar · 21 January 1996 · Bhagavad-gītā 18.66</p>
-      <div className="relative mt-6 flex items-center gap-4">
-        <button onClick={() => setOn(!on)} aria-label={on ? "Pause" : "Play"} className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-teal text-white shadow-[var(--shadow-md)] transition hover:scale-105">
+    <div className="acc-teal relative flex h-full flex-col overflow-hidden rounded-2xl border border-line bg-surface p-6">
+      <div className="flex items-center justify-between">
+        <span className="inline-flex items-center gap-2 text-[12px] font-semibold uppercase tracking-[0.12em] text-teal"><span className={`h-2 w-2 rounded-full ${on ? "bg-rose-d animate-pulse" : "bg-ink-3"}`} />Radio</span>
+        <span className="text-[12px] text-ink-3">Plays on, in random order</span>
+      </div>
+      <h3 className="mt-4 text-[20px] leading-snug tracking-[-0.02em]">{cur.title}</h3>
+      <p className="mt-1 text-[13px] text-ink-3">{fmtDate(cur.date)} · {cur.place}{cur.scripture ? ` · ${cur.scripture}` : ""}</p>
+      <div className="mt-6 flex items-center gap-4">
+        <button onClick={() => (mine ? toggle() : start(cur))} aria-label={on ? "Pause" : "Play"} className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-teal text-white transition hover:scale-105">
           {on ? <Pause size={22} fill="currentColor" /> : <Play size={22} fill="currentColor" className="ml-0.5" />}
         </button>
         <div className="flex h-14 flex-1 items-center gap-[3px] overflow-hidden">
-          {bars.map((h, i) => <span key={i} className="w-[3px] shrink-0 rounded-full bg-teal/70" style={{ height: h, opacity: on ? 1 : 0.45, animation: on ? `eq ${0.8 + (i % 7) * 0.12}s ease-in-out ${(i % 9) * 0.05}s infinite` : undefined }} />)}
+          {bars.map((h, i) => <span key={i} className="w-[3px] shrink-0 rounded-full bg-teal/70" style={{ height: h, opacity: on ? 1 : 0.4, animation: on ? `eq ${0.8 + (i % 7) * 0.12}s ease-in-out ${(i % 9) * 0.05}s infinite` : undefined }} />)}
         </div>
+        <button onClick={() => start(pick(cur.slug))} aria-label="Next, at random" className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-line-strong text-ink-2 transition hover:border-teal hover:text-teal"><SkipForward size={17} /></button>
       </div>
-      <Link href="/teachings/audio/1996-01-21-the-mercy-of-srila-prabhupada-bhubaneswar" className="relative mt-5 inline-flex items-center gap-1 text-[13px] font-medium text-teal">Open lecture and transcript<ArrowRight size={14} /></Link>
+      <div className="mt-auto flex items-center justify-between pt-6 text-[13px]">
+        <Link href={`/teachings/audio/${cur.slug}`} className="inline-flex items-center gap-1 font-medium text-teal">Open lecture<ArrowRight size={14} /></Link>
+        <Link href="/teachings/audio" className="text-ink-3 hover:text-teal">Browse all audio</Link>
+      </div>
     </div>
   );
 }
@@ -302,7 +322,7 @@ export function Blessing() {
           <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-saffron">Śrīla Prabhupāda on Śrīla Gurudeva</p>
           <p className="mt-4 text-balance text-[28px] font-semibold leading-[1.3] tracking-tight text-ink sm:text-[36px]">“Kṛṣṇa sent him.”</p>
           <p className="mt-2 text-[13px] text-ink-3">Room conversation, Bombay, 5 January 1977</p>
-          <p className="mx-auto mt-6 max-w-md text-[15px] leading-relaxed text-ink-2">“Just think that Krishna is with you and there is no need of disappointment.” “Krishna will help you.” “Krishna is so kind, He is always ready to help.”</p>
+          <p className="mx-auto mt-6 max-w-md text-[15px] leading-relaxed text-ink-2"><mark className="rounded bg-[#f6d58e]/70 px-1 font-semibold text-ink">“Krishna is with you and there is no need of disappointment.”</mark></p>
           <p className="mt-2 text-[13px] text-ink-3">Letter, Māyāpur, 12 February 1976</p>
         </div>
         <div className="order-3 self-end">
