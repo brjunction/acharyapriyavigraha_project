@@ -8,7 +8,7 @@ export const metadata = { title: "Daily Diary" };
 export default function Page() {
   return (
     <>
-      <PageHero crumbs={[{ href: "/gurudeva", label: "Śrīla Gurudeva" }, { label: "Daily Diary" }]} icon={PlayCircle} title="Daily Diary" intro="A short every day from HH Haladhara Swāmī Mahārāja's YouTube channel, brought in automatically. Swipe through them on a phone." />
+      <PageHero crumbs={[{ href: "/gurudeva", label: "Śrīla Gurudeva" }, { label: "Daily Diary" }]} icon={PlayCircle} title="Daily Diary" intro="A short every day from Śrīla Haladhara Swāmī Guru Mahārāja's YouTube channel, brought in automatically. Swipe through them on a phone." />
       <Container className="py-12">
         <div className="scrollbar-none -mx-5 flex snap-x gap-4 overflow-x-auto px-5 pb-4">
           {DIARY.map((d, i) => (

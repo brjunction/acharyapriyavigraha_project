@@ -133,7 +133,7 @@ export default async function Home() {
             </div>
           </div>
           <div className="mt-12">
-            <Head kicker="Daily Diary" title="Today and the days before" intro="Short videos from HH Haladhara Swāmī Mahārāja's channel, added automatically." action={{ href: "/gurudeva/diaries", label: "All diaries" }} acc="rose" />
+            <Head kicker="Daily Diary" title="Today and the days before" intro="Short videos from Śrīla Haladhara Swāmī Guru Mahārāja's channel, added automatically." action={{ href: "/gurudeva/diaries", label: "All diaries" }} acc="rose" />
             <DiaryRail items={diary} />
           </div>
         </Container>

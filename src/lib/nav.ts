@@ -36,7 +36,7 @@ export const MENUS: NavMenu[] = [
         l("/gurudeva/disappearance-pastimes", "Disappearance pastimes", "Accounts of his departure, 1996", Sunset),
       ]),
       g("Diaries", [
-        l("/gurudeva/diaries", "Daily Diary", "A short every day, from HH Haladhara Swāmī Mahārāja", PlayCircle),
+        l("/gurudeva/diaries", "Daily Diary", "A short every day, from Śrīla Haladhara Swāmī Guru Mahārāja", PlayCircle),
         l("/gurudeva/gopal-jiu-diary", "Gopāl Jiu Diary", "Entries connected with Śrī Śrī Rādhā-Gopāl Jiu", NotebookPen, true),
         l("/gurudeva/other-diaries", "Other diaries", "Travel and festival diaries", Notebook, true),
       ]),
@@ -129,7 +129,7 @@ export const MENUS: NavMenu[] = [
       g("Taptajīvanam", [
         l("/about", "About the archive", "Why and how this archive exists", Archive),
         l("/about/mission", "Mission & principles", "How content is chosen and cared for", Compass),
-        l("/about/founder", "HH Haladhara Swāmī Mahārāja", "Founder of Taptajīvanam", UserRound),
+        l("/about/founder", "Śrīla Haladhara Swāmī Guru Mahārāja", "Founder of Taptajīvanam", UserRound),
         l("/about/team", "Team & contributors", "Editors, translators, developers", Users),
         l("/thank-list", "Our Thank List", "Everyone who built this archive", HeartHandshake),
         l("/about/news", "News & updates", "What's new on the site", Megaphone),

@@ -86,6 +86,10 @@ export function Hero() {
         {/* Portrait: a plain circular frame, no animation */}
         <div className="order-1 mx-auto w-full max-w-[250px] sm:max-w-[300px] lg:order-2 lg:max-w-[340px]">
           <PortraitFrame photo src="/photos/gurudeva-speaking.webp" alt="Śrī Śrīmad Gour Govinda Swāmī Gurudeva" className="mx-auto w-full" />
+          <Link href="/about/founder" className="mx-auto mt-6 flex w-fit max-w-full items-center gap-3 rounded-full border border-[#f3b363]/50 bg-[#fbf3e3]/95 py-1.5 pl-1.5 pr-5 transition hover:-translate-y-0.5 hover:bg-[#fff8ea]">
+            <img src="/photos/haladhara-sm.webp" alt="Śrīla Haladhara Swāmī Guru Mahārāja" className="h-12 w-12 shrink-0 rounded-full border-2 border-[#e2b25c] object-cover" />
+            <span className="leading-tight"><span className="block text-[10.5px] font-semibold uppercase tracking-[0.1em] text-[#8a3a0a]">Founder of Taptajīvanam</span><span className="block text-[13px] font-semibold text-[#3a1d08]">Śrīla Haladhara Swāmī Guru Mahārāja</span></span>
+          </Link>
         </div>
       </div>
     </section>
@@ -212,7 +216,7 @@ export function DiaryRail({ items }: { items?: DiaryItem[] }) {
             style={{ background: `linear-gradient(160deg, ${HUES[k % HUES.length]}, #1d1411)` }}>
             <span className="absolute left-3 top-3 rounded-full bg-black/30 px-2.5 py-1 text-[10.5px] font-medium backdrop-blur">{k === 0 ? "Latest" : new Date(d.date).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}</span>
             <span className="absolute left-1/2 top-1/2 flex h-12 w-12 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white/15 backdrop-blur"><Play size={18} fill="currentColor" className="ml-0.5" /></span>
-            <span className="absolute inset-x-3 bottom-3 text-[12.5px] font-semibold leading-snug">Daily Diary<span className="mt-0.5 block text-[10.5px] font-normal text-white/65">Short · HH Haladhara Swāmī</span></span>
+            <span className="absolute inset-x-3 bottom-3 text-[12.5px] font-semibold leading-snug">Daily Diary<span className="mt-0.5 block text-[10.5px] font-normal text-white/65">Short · Śrīla Haladhara Swāmī</span></span>
           </a>
         ))}
       </div>

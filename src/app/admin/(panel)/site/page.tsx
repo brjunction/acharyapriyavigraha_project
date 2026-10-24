@@ -23,7 +23,7 @@ export default function Page() {
           <p className="font-semibold">Edit: For today</p>
           <label className="block"><span className="mb-1 block text-[12px] text-ink-3">Title</span><input className="h-9 w-full rounded-lg border border-line bg-page px-3" defaultValue="For today" /></label>
           <label className="block"><span className="mb-1 block text-[12px] text-ink-3">Quote of the day</span><select className="h-9 w-full rounded-lg border border-line bg-page px-2"><option>Automatic, changes daily</option><option>Choose a quote</option></select></label>
-          <label className="block"><span className="mb-1 block text-[12px] text-ink-3">Daily Diary source</span><select className="h-9 w-full rounded-lg border border-line bg-page px-2"><option>HH Haladhara Swāmī Mahārāja, Shorts</option></select></label>
+          <label className="block"><span className="mb-1 block text-[12px] text-ink-3">Daily Diary source</span><select className="h-9 w-full rounded-lg border border-line bg-page px-2"><option>Śrīla Haladhara Swāmī Guru Mahārāja, Shorts</option></select></label>
           <label className="flex items-center justify-between"><span>Show “This day in his life”</span><input type="checkbox" defaultChecked className="accent-[var(--saffron)]" /></label>
         </div>
       </div>
