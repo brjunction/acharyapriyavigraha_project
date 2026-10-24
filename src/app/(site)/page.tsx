@@ -8,6 +8,7 @@ import { Hero, Blessing, Featured, LifeTimeline, DiaryRail, QuotePanel, LangMarq
 import { TeachingsOrganiser } from "@/components/teachings-organiser";
 import { TopicExplorer } from "@/components/topic-explorer";
 import { Container } from "@/components/ui";
+import { Waves, Cloud } from "@/components/waves";
 import { Orn, OrnMask, Padma, PaisleyField, VectorToran, PeacockDivider, PortraitFrame } from "@/components/motifs";
 import { Backdrop } from "@/components/backdrop";
 import { getChannelVideos } from "@/lib/youtube";
@@ -138,7 +139,8 @@ export default async function Home() {
       <PeacockDivider className="mt-12" />
 
       {/* Teachings */}
-      <section className="reveal relative isolate mt-8 py-6">
+      <section className="reveal relative isolate mt-8 overflow-hidden py-6">
+        <Cloud className="top-6 text-[#f0a53c]/15" dur={110} /><Cloud className="bottom-4 w-[300px] text-[#c2415b]/10" dur={140} delay={60} />
         <SectionBg src="cream-watercolor" o={0.7} />
         <Container>
           <Head kicker="His teachings" title="Hear, read and remember" intro="Everything is organised in three places: what you can hear and watch, what you can read, and the compilations drawn from both." action={{ href: "/teachings", label: "All teachings" }} />
@@ -147,7 +149,8 @@ export default async function Home() {
       </section>
 
       {/* Today */}
-      <section className="reveal relative isolate mt-12 py-8">
+      <section className="reveal relative isolate mt-12 overflow-hidden py-8">
+        <Cloud className="top-8 text-[#1f8a8a]/10" dur={120} delay={40} />
         <SectionBg src="tan-mandala" o={0.3} flip />
         <Container>
           <Head kicker="For today" title="A quote, a diary, a date" intro="Something small to carry through the day." />
@@ -173,7 +176,8 @@ export default async function Home() {
       </section>
 
       {/* Archive bento */}
-      <section className="reveal relative isolate mt-16 overflow-hidden bg-[#4a0a0c] py-20">
+      <Waves tone="warm" solid="#4a0a0c" className="mt-10 -mb-px" />
+      <section className="reveal relative isolate overflow-hidden bg-[#4a0a0c] py-20">
         <Backdrop src="red-gold-mandala" o={0.5} className="-z-10" />
         <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b from-[#3d0307]/70 via-transparent to-[#3d0307]/70" />
         <VectorToran flip className="absolute inset-x-0 top-0 text-[#e8b872]/70" />
@@ -225,7 +229,7 @@ export default async function Home() {
       </section>
 
       {/* Life */}
-      <PeacockDivider className="mt-16" size={72} />
+      <Waves tone="rose" className="mt-10" />
       <section className="reveal relative isolate mt-6 py-10">
         <SectionBg src="orange-mandala" o={0.28} />
         <Container>
@@ -235,7 +239,7 @@ export default async function Home() {
       </section>
 
       {/* Subjects */}
-      <PeacockDivider className="mt-12" size={72} />
+      <Waves tone="teal" flip className="mt-6" />
       <section className="reveal relative isolate mt-6 py-10">
         <SectionBg src="cream-watercolor" o={0.7} flip />
         <Container>
@@ -245,7 +249,8 @@ export default async function Home() {
       </section>
 
       {/* Languages */}
-      <section className="reveal relative mt-24 overflow-hidden py-16 text-white">
+      <Waves tone="indigo" className="mt-16" />
+      <section className="reveal relative overflow-hidden py-16 text-white">
         <Backdrop src="blue-mandala" />
         <div className="pointer-events-none absolute inset-0 bg-[#0a2c78]/35" />
         <Container>

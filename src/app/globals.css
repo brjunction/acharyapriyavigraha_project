@@ -326,3 +326,20 @@ main p.hover-glow:hover { color: var(--saffron); }
 .tile-hue:hover::before { transform: scaleX(1); }
 .tile-hue:hover::after { opacity: 1; }
 .tile-hue:hover p:first-child { filter: saturate(1.4); }
+
+/* Curvy flowing dividers and clouds */
+.wave-box[data-tone="warm"] { --w1: #f0a53c; --w2: #e08a2e; --w3: #f6c46a; }
+.wave-box[data-tone="rose"] { --w1: #c2415b; --w2: #e0707f; --w3: #f0a0a0; }
+.wave-box[data-tone="teal"] { --w1: #1f8a8a; --w2: #3bb0a0; --w3: #7bd0c0; }
+.wave-box[data-tone="indigo"] { --w1: #3b4cc0; --w2: #6a7ae0; --w3: #a5b0f0; }
+.wave-hue { animation: wave-hue 16s ease-in-out infinite; }
+@keyframes wave-hue { 0%,100% { color: var(--w1); } 33% { color: var(--w2); } 66% { color: var(--w3); } }
+.wave-a { animation: wave-x 40s linear infinite, wave-hue 16s ease-in-out infinite; }
+.wave-solid { animation: wave-x 60s linear infinite; }
+.wave-b { animation: wave-x-rev 55s linear infinite, wave-hue 16s ease-in-out infinite; }
+.wave-c { animation: wave-x 75s linear infinite, wave-hue 16s ease-in-out infinite; }
+@keyframes wave-x { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+@keyframes wave-x-rev { from { transform: translateX(-50%); } to { transform: translateX(0); } }
+.cloud-drift { width: 220px; animation: cloud-x 90s linear infinite; }
+@keyframes cloud-x { from { transform: translateX(-30vw); } to { transform: translateX(110vw); } }
+@media (prefers-reduced-motion: reduce) { .wave-hue,.wave-a,.wave-b,.wave-c,.wave-solid,.cloud-drift { animation: none; } }
