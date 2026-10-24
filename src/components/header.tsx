@@ -12,9 +12,9 @@ import { Img } from "./img";
 
 export function Logo({ compact = false }: { compact?: boolean }) {
   return (
-    <Link href="/" className="logo-box group flex items-center gap-2.5 py-1 pl-1.5 pr-4" aria-label="Taptajīvanam home">
-      <LogoMark className="relative h-9 w-9 shrink-0" />
-      {!compact && <span className="relative text-[17px] font-bold leading-none tracking-[-0.02em] text-ink">Taptajīvanam</span>}
+    <Link href="/" className="logo-link group flex items-center" aria-label="Taptajīvanam home">
+      <span className="logo-medal relative z-10 flex h-10 w-10 shrink-0 items-center justify-center rounded-full"><LogoMark className="h-[34px] w-[34px]" /></span>
+      {!compact && <span className="logo-box -ml-3.5 py-[5px] pl-5 pr-3.5 text-[14.5px] font-bold leading-none tracking-[-0.02em] text-ink">Taptajīvanam</span>}
     </Link>
   );
 }
@@ -256,9 +256,9 @@ export function Header() {
     <header className="sticky top-0 z-50">
       <div className="stripe" aria-hidden />
       <div className={`glass border-b border-line transition-shadow ${scrolled ? "shadow-[0_6px_24px_-14px_rgba(60,30,10,0.45)]" : ""}`}>
-        <div className="mx-auto flex h-[58px] max-w-[1320px] items-center gap-3 px-4 sm:px-6">
+        <div className="mx-auto grid h-[58px] max-w-[1320px] grid-cols-[auto_1fr_auto] items-center gap-3 px-4 sm:px-6">
           <Logo />
-          <nav className="ml-2 hidden items-center gap-0.5 lg:flex" aria-label="Main" onMouseLeave={hide}>
+          <nav className="hidden items-center justify-center gap-0.5 lg:flex" aria-label="Main" onMouseLeave={hide}>
             {MENUS.map((m) => {
               const I = m.icon;
               const on = active === m.key;
