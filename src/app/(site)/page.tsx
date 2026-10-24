@@ -40,7 +40,6 @@ function Head({ kicker, title, intro, action, acc = "saffron", light = false }: 
 function Path({ acc, icon: I, title, text, links }: { acc: string; icon: LucideIcon; title: string; text: string; links: [string, string, string][] }) {
   return (
     <div className={`acc-${acc} card tile-hue group relative flex flex-col overflow-hidden p-3.5 sm:p-5`}>
-      <Padma className="absolute -right-10 -top-10 h-40 w-40 text-[var(--acc)] opacity-[0.07] transition duration-700 group-hover:rotate-45 group-hover:opacity-[0.14]" />
       <span className="relative flex h-9 w-9 items-center justify-center rounded-xl text-white shadow sm:h-11 sm:w-11 sm:rounded-2xl-[var(--shadow-md)]" style={{ background: "linear-gradient(145deg, var(--acc), color-mix(in srgb, var(--acc) 60%, #000))" }}><I size={21} strokeWidth={1.7} /></span>
       <h3 className="relative mt-3 text-[16px] tracking-[-0.02em]">{title}</h3>
       <p className="relative mt-1 text-[12px] leading-snug text-ink-2 sm:text-[13px] sm:leading-relaxed">{text}</p>
@@ -235,9 +234,10 @@ export default async function Home() {
       </section>
 
       {/* Languages */}
-      <section className="reveal relative mt-24 overflow-hidden py-16 text-white">
-        <Backdrop src="blue-mandala" />
-        <div className="pointer-events-none absolute inset-0 bg-[#0a2c78]/35" />
+      <section className="reveal relative isolate mt-24 overflow-hidden py-16 text-white">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/backgrounds/paint-blue.webp" alt="" loading="lazy" className="pointer-events-none absolute inset-0 -z-10 h-full w-full object-cover" />
+        <div className="pointer-events-none absolute inset-0 -z-10 bg-[#0a2c78]/45" />
         <Container>
           <div className="relative mb-8 flex flex-wrap items-end justify-between gap-4">
             <div>
@@ -257,8 +257,9 @@ export default async function Home() {
       <section className="reveal mt-24">
         <Container>
           <div className="relative isolate overflow-hidden rounded-3xl bg-[#4a0a0c] px-6 py-14 text-center text-white sm:px-12">
-            <Backdrop src="red-gold-mandala" o={0} className="-z-10 opacity-60" />
-            <VectorToran flip className="absolute inset-x-0 top-0 text-[#e8b872]/30" />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/backgrounds/flowers-pink.webp" alt="" loading="lazy" className="pointer-events-none absolute inset-0 -z-10 h-full w-full object-cover opacity-50" />
+            <div className="pointer-events-none absolute inset-0 -z-10 bg-[#4a0a0c]/70" />
             <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-white/12 ring-1 ring-[#e8b872]/50"><HeartHandshake size={26} strokeWidth={1.8} className="text-[#f1d3a4]" /></span>
             <h2 className="mt-3 text-[22px] !text-white sm:text-[26px]">Our Thank List</h2>
             <p className="mx-auto mt-3 max-w-2xl text-[15px] leading-relaxed text-white/85">This archive is built by the efforts of the disciples, grand-disciples, followers and admirers of Śrī Śrīmad Gour Govinda Swāmī Gurudeva, in many countries.</p>

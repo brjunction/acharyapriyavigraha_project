@@ -3,8 +3,8 @@ import { useEffect, useState } from "react";
 import { Palette, X, Copy, RotateCcw } from "lucide-react";
 
 const TOKENS = [
-  { key: "--nav-bg", label: "Navigation bar", def: "#fbe2b8" },
-  { key: "--nav-strip", label: "Strip above the hero", def: "#f6f4f1" },
+  { key: "--nav-bg", label: "Navigation bar", def: "#ffead1" },
+  { key: "--nav-strip", label: "Strip above the hero", def: "#ffffff" },
 ] as const;
 const PRESETS = ["#fdf3e1", "#fcebd0", "#fbe2b8", "#f9d9a0", "#f6cd87", "#fff7ea", "#fde7d3", "#f8e2c0"];
 
@@ -59,7 +59,7 @@ export function ColorTuner() {
         </div>
       ); })}
       <button onClick={copy} className="btn mt-4 !h-9 w-full justify-center border border-line-strong text-[12.5px]"><Copy size={14} />{copied || "Copy colours to tell me"}</button>
-      <p className="mt-2 text-[11px] leading-snug text-ink-3">Pick a colour; the page changes at once. Send me the hex codes (for example #fbe2b8).</p>
+      <p className="mt-2 text-[11px] leading-snug text-ink-3">Pick a colour; the page changes at once. Send me the hex codes (for example #ffead1).</p>
     </div>
   );
 }

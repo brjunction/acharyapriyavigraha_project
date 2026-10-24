@@ -57,7 +57,7 @@ export function Hero() {
   return (
     <>
     {/* Indian border standing on a light strip below the navigation, outside the saffron hero, as its top fringe */}
-    <div aria-hidden className="relative z-[1] bg-[var(--nav-strip,var(--page))] pt-4"><div className="h-8 w-full overflow-hidden"><VMask name="border-4" repeat="repeat-x" size="auto 100%" pos="center top" className="h-full w-full text-[#8a3a0a]" /></div></div>
+    <div aria-hidden className="relative z-[1] bg-[var(--nav-strip,#ffffff)] pt-4"><div className="h-8 w-full overflow-hidden"><VMask name="border-4" repeat="repeat-x" size="auto 100%" pos="center top" className="h-full w-full text-[#8a3a0a]" /></div></div>
     <section className="relative isolate -mt-px overflow-hidden" onPointerMove={move}>
       <Backdrop src="saffron-dark" flip pos="left center" o={0.4} />
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(70%_80%_at_80%_40%,rgba(243,179,99,0.28),transparent_65%),linear-gradient(100deg,rgba(70,26,3,0.55),transparent_60%)]" />
@@ -97,7 +97,7 @@ export function Hero() {
         {/* Portrait: a plain circular frame, no animation */}
         <div className="relative order-1 mx-auto w-full max-w-[170px] sm:max-w-[300px] lg:order-2 lg:max-w-[340px]">
           <div aria-hidden className="pointer-events-none absolute inset-[-42%]"><VMask name="mandala-saffron" className="hero-spin h-full w-full text-[#f3b363] opacity-[0.34]" /></div>
-          <div className="relative"><PortraitFrame photo src="/photos/gurudeva-speaking.webp" alt="Śrī Śrīmad Gour Govinda Swāmī Gurudeva" className="mx-auto w-full" /></div>
+          <div className="relative"><PortraitFrame photo focus="center 30%" src="/photos/gurudeva-hero.webp" alt="Śrī Śrīmad Gour Govinda Swāmī Gurudeva" className="mx-auto w-full" /></div>
         </div>
       </div>
     </section>
