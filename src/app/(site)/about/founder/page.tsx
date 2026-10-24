@@ -9,7 +9,7 @@ export default function Page() {
   return (
     <>
       <PageHero crumbs={[{ href: "/about", label: "About" }, { label: "Founder of Taptajīvanam" }]} icon={UserRound} title="Śrīla Haladhara Swāmī Guru Mahārāja"
-        intro="Disciple of Śrī Śrīmad Gour Govinda Swāmī Gurudeva and founder of Taptajīvanam."
+        intro="Founder of Taptajīvanam."
       />
       <Container className="py-12">
         <div className="mx-auto mb-8 w-full max-w-[220px]"><PortraitFrame photo src="/photos/haladhara.webp" alt="Śrīla Haladhara Swāmī Guru Mahārāja" className="w-full" /></div>

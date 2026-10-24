@@ -143,7 +143,6 @@ function MobileMenu({ onClose }: { onClose: () => void }) {
   const { setSearch } = usePrefs();
   return createPortal(
     <div className="fixed inset-0 z-[100] flex flex-col bg-surface lg:hidden">
-      <div className="stripe" aria-hidden />
       <div className="relative flex h-14 shrink-0 items-center justify-between border-b border-line px-4">
         <Logo compact />
         <span className="absolute left-14 text-[17px] font-bold tracking-[-0.02em]">Taptajīvanam</span>
@@ -250,8 +249,7 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-50">
-      <div className="stripe" aria-hidden />
-      <div className={`border-b border-[#f3b363]/60 bg-[linear-gradient(90deg,#6a2905,#8a3a0a_50%,#6a2905)] transition-shadow ${scrolled ? "shadow-[0_6px_24px_-14px_rgba(60,30,10,0.45)]" : ""}`}>
+      <div className={`border-b border-[#f3b363]/60 bg-[linear-gradient(90deg,#9a4812,#ad5a1a_50%,#9a4812)] transition-shadow ${scrolled ? "shadow-[0_6px_24px_-14px_rgba(60,30,10,0.45)]" : ""}`}>
         <div className="mx-auto grid h-[58px] max-w-[1320px] grid-cols-[auto_1fr_auto] items-center gap-3 px-4 sm:px-6">
           <Logo />
           <nav className="hidden items-center justify-center gap-0.5 lg:flex" aria-label="Main" onMouseLeave={hide}>

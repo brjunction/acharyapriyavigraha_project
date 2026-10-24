@@ -22,7 +22,7 @@ function Sel({ label, v, set, opts }: { label: string; v: string; set: (x: strin
   );
 }
 
-export function TeachingsOrganiser() {
+export function TeachingsOrganiser({ lists = true }: { lists?: boolean }) {
   const router = useRouter();
   const [y, setY] = useState(""); const [m, setM] = useState(""); const [b, setB] = useState(""); const [t, setT] = useState("");
   const go = () => {
@@ -44,7 +44,7 @@ export function TeachingsOrganiser() {
           <button onClick={go} className="btn btn-primary !h-11 justify-center"><Search size={16} />Find</button>
         </div>
       </div>
-      <div className="stagger mt-6 grid gap-5 lg:grid-cols-3">
+      {lists && <div className="stagger mt-6 grid gap-5 lg:grid-cols-3">
         {menu.groups.map((g, i) => (
           <section key={g.title} className={`${tone[i % 3]} card overflow-hidden`}>
             <h3 className="flex items-center gap-2 border-b border-line bg-[var(--acc-tint)] px-5 py-3.5 text-[13px] font-semibold uppercase tracking-[0.1em] text-[var(--acc)]"><span className="h-1.5 w-1.5 rounded-full bg-[var(--acc)]" />{g.title}</h3>
@@ -52,7 +52,7 @@ export function TeachingsOrganiser() {
               {g.links.map((l) => { const I = l.icon; return (
                 <li key={l.href + l.label}>
                   <Link href={l.href} className="group flex items-center gap-3 px-5 py-3 transition hover:bg-[var(--acc-tint)]">
-                    <span className="mega-ic"><I size={14} strokeWidth={1.8} /></span>
+                    <span className="mega-ic !h-9 !w-9"><I size={18} strokeWidth={1.8} /></span>
                     <span className="min-w-0 flex-1"><span className="block text-[14px] font-medium text-ink">{l.label}{l.soon && <span className="ml-2 rounded-full bg-band px-1.5 text-[10px] font-normal text-ink-3">soon</span>}</span><span className="block truncate text-[12px] text-ink-3">{l.desc}</span></span>
                     <ArrowRight size={14} className="text-ink-3 transition group-hover:translate-x-0.5 group-hover:text-[var(--acc)]" />
                   </Link>
@@ -61,7 +61,7 @@ export function TeachingsOrganiser() {
             </ul>
           </section>
         ))}
-      </div>
+      </div>}
     </div>
   );
 }
