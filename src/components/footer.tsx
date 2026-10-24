@@ -1,8 +1,8 @@
 import Link from "next/link";
-import { Instagram, Facebook, MessageCircle, Youtube, Mail, Phone, MapPin, ArrowUpRight } from "lucide-react";
+import { Instagram, Facebook, Youtube, Mail, Phone, MapPin, ArrowUpRight } from "lucide-react";
 import { SITE, IMG } from "@/lib/data";
 import { MENUS } from "@/lib/nav";
-import { PaisleyField, LogoMark, Toran, Orn, OrnMask } from "./motifs";
+import { PaisleyField, LogoMark, Toran, Orn } from "./motifs";
 import { Signature } from "./signature";
 
 const SOCIAL_ICONS = { Instagram, Facebook, YouTube: Youtube } as const;
@@ -30,9 +30,7 @@ export function Footer() {
             </div>
           </div>
 
-          <OrnMask src="border-5" repeat="repeat-x" size="auto 100%" className="mx-auto mt-10 h-5 max-w-md text-[#e8b872]/60" />
-
-          <div className="mt-10 grid gap-9 sm:grid-cols-2 lg:grid-cols-[1fr_1fr_1fr_1.3fr]">
+          <div className="mt-14 grid gap-9 sm:grid-cols-2 lg:grid-cols-[1fr_1fr_1fr_1.3fr]">
             {MENUS.slice(0, 3).map((m) => (
               <div key={m.key}>
                 <h4 className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#f1d3a4]">{m.label}</h4>
@@ -45,16 +43,11 @@ export function Footer() {
             ))}
             <div>
               <h4 className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#f1d3a4]">Stay connected</h4>
-              <a href="https://gopaljiu.org/krishna-kathamrta-bindu/" target="_blank" rel="noreferrer" className="group mt-3.5 flex items-center gap-3 rounded-2xl border border-white/15 bg-white/[0.07] p-3.5 transition hover:bg-white/[0.12]">
+              <Link href="/about/subscribe" className="group mt-3.5 flex items-center gap-3 rounded-2xl border border-white/15 bg-white/[0.07] p-3.5 transition hover:bg-white/[0.12]">
                 <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#e8b872]/90 text-[#4a1a00]"><Mail size={19} /></span>
                 <span className="flex-1 text-[12.5px] leading-snug text-white"><span className="block font-semibold">Gopāl Jiu magazine</span><span className="text-[#f0dfd1]/70">Subscribe to receive it</span></span>
                 <ArrowUpRight size={16} className="text-[#f0dfd1]/60 transition group-hover:text-white" />
-              </a>
-              <a href={SITE.youtube} target="_blank" rel="noreferrer" className="group mt-2.5 flex items-center gap-3 rounded-2xl border border-white/15 bg-white/[0.07] p-3.5 transition hover:bg-white/[0.12]">
-                <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#e0342b] text-white"><Youtube size={19} /></span>
-                <span className="flex-1 text-[12.5px] leading-snug text-white"><span className="block font-semibold">Taptajīvanam on YouTube</span><span className="text-[#f0dfd1]/70">Watch and subscribe</span></span>
-                <ArrowUpRight size={16} className="text-[#f0dfd1]/60 transition group-hover:text-white" />
-              </a>
+              </Link>
               <div className="mt-3 flex gap-2">
                 {SITE.social.map((s) => { const I = SOCIAL_ICONS[s.name as keyof typeof SOCIAL_ICONS]; return (
                   <a key={s.name} href={s.href} target="_blank" rel="noreferrer" aria-label={s.name} title={s.name}
@@ -68,7 +61,7 @@ export function Footer() {
             </div>
           </div>
 
-          <div className="mt-9 grid gap-5 border-t border-white/10 pt-7 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-9 grid gap-5 border-t border-white/10 pt-7 sm:grid-cols-3">
             {SITE.locations.map((l) => (
               <div key={l.name} className="flex gap-3 text-[12.5px]">
                 <MapPin size={15} className="mt-0.5 shrink-0 text-[#e6c9b4]" />
@@ -78,7 +71,7 @@ export function Footer() {
           </div>
 
           <div className="mt-8 flex flex-col items-center justify-between gap-3 border-t border-white/10 pt-5 text-[12px] text-[#f0dfd1]/65 sm:flex-row">
-            <div className="flex items-center gap-2"><LogoMark className="h-6 w-6 text-white" flame="#e8a33a" /><span className="text-[13px] font-medium text-white">Dedicated to Śrīla Gurudeva</span></div>
+            <div className="flex items-center gap-2"><LogoMark className="h-6 w-6 text-white" flame="#e8a33a" /><span className="text-[13px] font-medium text-white">Dedicated to Śrī Śrīmad Gour Govinda Swāmī Gurudeva</span></div>
             <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-1">
               <Link href="/thank-list" className="hover:text-white">Our Thank List</Link>
               <Link href="/about" className="hover:text-white">About</Link>
