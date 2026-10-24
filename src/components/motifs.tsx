@@ -321,3 +321,10 @@ export function VectorPaisley({ className = "" }: { className?: string }) {
     </svg>
   );
 }
+
+
+/** A traced vector ornament (see public/ornaments/vector) used as a recolourable mask. Colour = text colour. */
+export function VMask({ name, className = "", repeat = "no-repeat", size = "contain", pos = "center" }: { name: string; className?: string; repeat?: string; size?: string; pos?: string }) {
+  const u = `url(/ornaments/vector/${name}.svg)`;
+  return <div aria-hidden className={`bg-current ${className}`} style={{ WebkitMaskImage: u, maskImage: u, WebkitMaskRepeat: repeat, maskRepeat: repeat, WebkitMaskSize: size, maskSize: size, WebkitMaskPosition: pos, maskPosition: pos }} />;
+}

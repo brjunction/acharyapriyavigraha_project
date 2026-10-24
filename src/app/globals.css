@@ -269,3 +269,25 @@ h1, h2, h3, h4 { font-family: var(--font-sans); font-weight: 650; letter-spacing
 .logo-link:hover .logo-box::before { opacity: 1; animation: logo-run 1.4s cubic-bezier(.4,.1,.3,1) 1 forwards; }
 @keyframes logo-run { from { --logo-a: 0deg; } to { --logo-a: 360deg; } }
 :root[data-theme="dark"] .logo-box, :root[data-theme="dark"] .logo-medal { background: #2a211b; }
+
+/* Hero ornament + text motion */
+@keyframes hero-spin { to { transform: rotate(360deg); } }
+@keyframes hero-spin-rev { to { transform: rotate(-360deg); } }
+@keyframes hero-drift { 0%,100% { transform: translateY(0) rotate(0deg); opacity: .0; } 15% { opacity: .55; } 85% { opacity: .35; } 100% { transform: translateY(-120px) rotate(40deg); opacity: 0; } }
+@keyframes hero-word { from { opacity: 0; transform: translateY(18px); filter: blur(3px); } to { opacity: 1; transform: none; filter: none; } }
+@keyframes hero-gold { to { background-position: 200% center; } }
+@keyframes hero-line { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+.hero-spin { animation: hero-spin 160s linear infinite; }
+.hero-spin-rev { animation: hero-spin-rev 220s linear infinite; }
+.hero-petal { animation: hero-drift 9s ease-in-out infinite; }
+.hero-word { display: inline-block; opacity: 0; animation: hero-word .9s cubic-bezier(.2,.7,.2,1) forwards; transition: transform .35s cubic-bezier(.2,.7,.2,1), color .3s ease, text-shadow .3s ease; cursor: default; }
+.hero-word:hover { transform: translateY(-5px) scale(1.04); color: #fff; text-shadow: 0 6px 22px rgba(255,197,102,.55); }
+.hero-gold { background: linear-gradient(100deg, #ffc566 0%, #fff0c8 25%, #ffb347 50%, #ffc566 75%, #fff0c8 100%); background-size: 200% auto; -webkit-background-clip: text; background-clip: text; color: transparent !important; animation: hero-gold 5s linear infinite, hero-word .9s cubic-bezier(.2,.7,.2,1) forwards; }
+.hero-gold:hover { transform: translateY(-5px) scale(1.04); text-shadow: none; }
+.hero-rule { transform-origin: 0 50%; animation: hero-line 1.6s cubic-bezier(.2,.7,.2,1) .3s both; }
+.hero-chip { transition: transform .3s ease, background .3s ease, box-shadow .3s ease; }
+.hero-chip:hover { transform: translateY(-3px); background: rgba(255,255,255,.22); box-shadow: 0 10px 22px -10px rgba(0,0,0,.5); }
+.hero-pill { position: relative; overflow: hidden; }
+.hero-pill::after { content: ""; position: absolute; inset: 0; background: linear-gradient(110deg, transparent 35%, rgba(255,240,200,.45) 50%, transparent 65%); transform: translateX(-120%); animation: hero-sheen 5s ease-in-out 1.2s infinite; }
+@keyframes hero-sheen { 0%,60% { transform: translateX(-120%); } 100% { transform: translateX(120%); } }
+@media (prefers-reduced-motion: reduce) { .hero-spin,.hero-spin-rev,.hero-petal,.hero-gold,.hero-pill::after { animation: none; } .hero-word { opacity: 1; animation: none; } }
