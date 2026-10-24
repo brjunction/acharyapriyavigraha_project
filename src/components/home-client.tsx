@@ -7,6 +7,7 @@ import { DIARY, IMG, LANGUAGES, QUOTE_OF_DAY, TIMELINE } from "@/lib/data";
 import { Img } from "./img";
 import { OgeeFrame, Orn, Padma, PaisleyField, Petals, Rosette, LogoMark } from "./motifs";
 import { usePrefs } from "./providers";
+import { Backdrop } from "./backdrop";
 
 /* ------------------------------------------------------------------ Hero */
 
@@ -54,8 +55,8 @@ export function Hero() {
   };
   return (
     <section className="relative overflow-hidden border-b border-line" onPointerMove={move}>
-      <div className="absolute inset-0 bg-[radial-gradient(70%_90%_at_85%_20%,var(--saffron-soft),transparent),radial-gradient(60%_80%_at_0%_100%,var(--gold-soft),transparent)]" />
-      <PaisleyField className="text-saffron/[0.07]" scale={1.1} />
+      <Backdrop src="cream-mandala" flip pos="left center" />
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[var(--page)]/80 via-[var(--page)]/30 to-transparent" />
       <Petals n={16} />
       <div className="relative mx-auto grid max-w-[1240px] grid-cols-[minmax(0,1fr)] items-center gap-10 px-5 pb-14 pt-12 sm:px-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:pb-20 lg:pt-16">
         <div className="rise">
@@ -88,7 +89,7 @@ export function Hero() {
 
         {/* Portrait stage */}
         <div ref={box} className="relative mx-auto w-full max-w-[440px] [--px:0] [--py:0]">
-          <Orn src="mandala-saffron" className="spin-slow absolute -inset-10 h-[calc(100%+5rem)] w-[calc(100%+5rem)] max-w-none opacity-80" />
+          <Orn src="mandala-saffron" className="spin-slow absolute -inset-10 h-[calc(100%+5rem)] w-[calc(100%+5rem)] max-w-none opacity-60" />
           <div className="absolute inset-0 rounded-full bg-[radial-gradient(closest-side,color-mix(in_srgb,var(--gold)_35%,transparent),transparent)] blur-2xl" />
           <div className="relative transition-transform duration-300 ease-out" style={{ transform: "translate3d(calc(var(--px) * -10px), calc(var(--py) * -8px), 0)" }}>
             <OgeeFrame className="mx-auto aspect-[4/5] w-[78%] drop-shadow-[0_24px_40px_rgba(90,40,0,0.35)]">
@@ -162,7 +163,7 @@ export function LifeTimeline() {
   const t = TIMELINE[i];
   return (
     <div className="relative overflow-hidden rounded-3xl border border-line bg-surface p-6 shadow-[var(--shadow-sm)] sm:p-9">
-      <Orn src="floral-swirl" className="absolute -top-4 right-4 hidden h-72 w-auto max-w-none rotate-[14deg] opacity-90 lg:block" />
+      <Orn src="floral-swirl" className="absolute bottom-2 right-28 hidden h-44 w-auto max-w-none rotate-[10deg] opacity-90 xl:block" />
       <div className="relative">
         <div className="scrollbar-none -mx-1 overflow-x-auto px-1 pb-2 pt-1">
           <ol className="relative flex min-w-[640px] justify-between">
@@ -231,9 +232,9 @@ export function QuotePanel() {
   const [copied, setCopied] = useState(false);
   const cite = `“${QUOTE_OF_DAY.text}” Śrīla Gour Govinda Swāmī, ${QUOTE_OF_DAY.source}, ${QUOTE_OF_DAY.date}, ${QUOTE_OF_DAY.place}. Taptajīvanam.`;
   return (
-    <figure className="relative flex h-full flex-col overflow-hidden rounded-3xl bg-gradient-to-br from-[#853500] to-[#4c1b00] p-7 text-white sm:p-9">
-      <PaisleyField className="text-white/[0.07]" scale={0.9} />
-      <Orn src="mandala-gold" className="spin-slow absolute -bottom-28 -right-28 h-96 w-96 max-w-none opacity-40" />
+    <figure className="relative flex h-full flex-col overflow-hidden rounded-3xl bg-[#6b2a00] p-7 text-white sm:p-9">
+      <Backdrop src="orange-mandala" />
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[#4c1b00]/90 via-[#4c1b00]/55 to-transparent" />
       <p className="relative flex items-center gap-2 text-[12px] font-medium text-[#f1d3a4]"><QuoteIcon size={15} />Quote of the day</p>
       <blockquote className="relative mt-5 text-[22px] font-medium leading-[1.35] tracking-[-0.02em] sm:text-[26px]">“{QUOTE_OF_DAY.text}”</blockquote>
       <figcaption className="relative mt-auto pt-8">

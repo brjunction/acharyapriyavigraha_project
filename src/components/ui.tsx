@@ -1,7 +1,8 @@
 import Link from "next/link";
 import type { LucideIcon } from "lucide-react";
 import { ArrowRight, ChevronRight } from "lucide-react";
-import { Ornament, PaisleyField, Rosette } from "./motifs";
+import { Ornament, Rosette } from "./motifs";
+import { Backdrop } from "./backdrop";
 export { Img } from "./img";
 
 export function Crumbs({ items }: { items: { href?: string; label: string }[] }) {
@@ -16,13 +17,13 @@ export function Crumbs({ items }: { items: { href?: string; label: string }[] })
 }
 
 /** Page header: light band with a slow lotus rosette, like an illuminated page. */
-export function PageHero({ crumbs, title, intro, icon: Icon, children, aside }: {
-  crumbs?: { href?: string; label: string }[]; title: string; intro?: string; icon?: LucideIcon; children?: React.ReactNode; aside?: React.ReactNode;
+export function PageHero({ crumbs, title, intro, icon: Icon, children, aside, bg = "cream-watercolor", flip = false }: {
+  crumbs?: { href?: string; label: string }[]; title: string; intro?: string; icon?: LucideIcon; children?: React.ReactNode; aside?: React.ReactNode; bg?: string; flip?: boolean;
 }) {
   return (
     <section className="relative overflow-hidden border-b border-line bg-band">
-      <PaisleyField className="text-saffron/[0.045]" scale={0.9} />
-      <Rosette className="spin-slow pointer-events-none absolute -right-28 -top-28 h-[440px] w-[440px] text-saffron/[0.09]" />
+      <Backdrop src={bg} flip={flip} />
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[var(--page)]/85 via-[var(--page)]/35 to-transparent" />
       <div className="relative mx-auto grid max-w-[1240px] grid-cols-[minmax(0,1fr)] gap-8 px-5 py-12 sm:px-8 sm:py-16 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
         <div className="rise">
           {crumbs && <Crumbs items={crumbs} />}

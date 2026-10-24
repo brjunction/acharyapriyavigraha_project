@@ -5,12 +5,16 @@ import { MENUS, findLink, type NavMenu } from "@/lib/nav";
 import { Container, EmptyState, LinkCard, PageHero, SectionHead } from "./ui";
 import { FlowerBand } from "./motifs";
 
+const HERO_BG: Record<string, [string, boolean]> = {
+  gurudeva: ["tan-mandala", true], teachings: ["cream-mandala", true], tattva: ["yellow-half-mandalas", false], translations: ["cream-watercolor", false], about: ["cream-watercolor", true],
+};
+
 /** A menu's overview page: every group of the menu as a row of link cards. */
 export function MenuHub({ menuKey, children, aside, before }: { menuKey: string; children?: React.ReactNode; aside?: React.ReactNode; before?: React.ReactNode }) {
   const menu = MENUS.find((m) => m.key === menuKey) as NavMenu;
   return (
     <>
-      <PageHero crumbs={[{ label: menu.label }]} title={menu.label} intro={menu.intro} icon={menu.icon} aside={aside}>
+      <PageHero crumbs={[{ label: menu.label }]} title={menu.label} intro={menu.intro} icon={menu.icon} aside={aside} bg={HERO_BG[menuKey]?.[0] ?? "cream-watercolor"} flip={HERO_BG[menuKey]?.[1] ?? false}>
         <div className="mt-6 flex flex-wrap gap-2">
           {menu.groups.map((g) => <a key={g.title} href={`#${slug(g.title)}`} className="rounded-full border border-line bg-surface px-3.5 py-1.5 text-[13px] text-ink-2 transition hover:border-saffron hover:text-saffron">{g.title}</a>)}
         </div>

@@ -8,6 +8,7 @@ import { Hero, Featured, LifeTimeline, DiaryRail, QuotePanel, LangMarquee, WaveP
 import { TopicExplorer } from "@/components/topic-explorer";
 import { Container } from "@/components/ui";
 import { Orn, OrnMask, Padma, PaisleyField, Toran } from "@/components/motifs";
+import { Backdrop } from "@/components/backdrop";
 import { LectureRow } from "@/components/lecture";
 
 function Head({ kicker, title, intro, action, acc = "saffron" }: { kicker: string; title: string; intro?: string; action?: { href: string; label: string }; acc?: string }) {
@@ -166,17 +167,28 @@ export default function Home() {
       </section>
 
       {/* Languages */}
-      <section className="reveal mt-24">
-        <Container><Head kicker="Translations" title="One teaching, many languages" intro="Each language is a site of its own, with its own pages, search and archive." action={{ href: "/translations", label: "All languages" }} acc="rose" /></Container>
-        <LangMarquee />
+      <section className="reveal relative mt-24 overflow-hidden py-16 text-white">
+        <Backdrop src="blue-mandala" />
+        <div className="pointer-events-none absolute inset-0 bg-[#0a2c78]/35" />
+        <Container>
+          <div className="relative mb-8 flex flex-wrap items-end justify-between gap-4">
+            <div>
+              <p className="flex items-center gap-2 text-[12px] font-semibold uppercase tracking-[0.12em] text-white/85"><Padma className="h-4 w-4" layers={2} />Translations</p>
+              <h2 className="mt-1.5 text-[26px] leading-tight tracking-[-0.03em] text-white sm:text-[30px]">One teaching, many languages</h2>
+              <p className="mt-1.5 max-w-xl text-[14px] text-white/85">Each language is a site of its own, with its own pages, search and archive.</p>
+            </div>
+            <Link href="/translations" className="group flex items-center gap-1 text-[13px] font-medium text-white">All languages<ArrowRight size={14} className="transition-transform group-hover:translate-x-0.5" /></Link>
+          </div>
+        </Container>
+        <div className="relative"><LangMarquee /></div>
       </section>
 
       {/* Gratitude */}
       <section className="reveal mt-24">
         <Container>
-          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#592300] to-[#2f1407] px-6 py-14 text-center text-white sm:px-12">
-            <PaisleyField className="text-white/[0.06]" scale={0.9} />
-            <Orn src="mandala-gold" className="spin-slow absolute -left-28 -top-28 h-80 w-80 max-w-none opacity-30" />
+          <div className="relative overflow-hidden rounded-3xl bg-[#7a0a10] px-6 py-16 text-center text-white sm:px-12">
+            <Backdrop src="red-gold-mandala" />
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[#5a0509]/40 via-[#5a0509]/60 to-[#3d0307]/70" />
             <Orn src="peacock-mandala" className="absolute -bottom-10 -right-6 hidden h-72 w-72 max-w-none opacity-90 sm:block" />
             <Orn src="mandala-plum" className="spin-slow absolute -bottom-28 -left-16 h-64 w-64 max-w-none opacity-25 sm:hidden" />
             <HeartHandshake size={28} strokeWidth={1.4} className="relative mx-auto text-[#f1d3a4]" />
