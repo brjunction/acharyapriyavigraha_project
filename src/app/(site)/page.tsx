@@ -234,10 +234,9 @@ export default async function Home() {
       </section>
 
       {/* Languages */}
-      <section className="reveal relative isolate mt-24 overflow-hidden py-16 text-white">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/backgrounds/paint-blue.webp" alt="" loading="lazy" className="pointer-events-none absolute inset-0 -z-10 h-full w-full object-cover" />
-        <div className="pointer-events-none absolute inset-0 -z-10 bg-[#0a2c78]/45" />
+      <section className="reveal relative mt-24 overflow-hidden py-16 text-white">
+        <Backdrop src="blue-mandala" />
+        <div className="pointer-events-none absolute inset-0 bg-[#0a2c78]/35" />
         <Container>
           <div className="relative mb-8 flex flex-wrap items-end justify-between gap-4">
             <div>
@@ -257,9 +256,8 @@ export default async function Home() {
       <section className="reveal mt-24">
         <Container>
           <div className="relative isolate overflow-hidden rounded-3xl bg-[#4a0a0c] px-6 py-14 text-center text-white sm:px-12">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/backgrounds/flowers-pink.webp" alt="" loading="lazy" className="pointer-events-none absolute inset-0 -z-10 h-full w-full object-cover opacity-50" />
-            <div className="pointer-events-none absolute inset-0 -z-10 bg-[#4a0a0c]/70" />
+            <Backdrop src="red-gold-mandala" o={0} className="-z-10 opacity-60" />
+            <VectorToran flip className="absolute inset-x-0 top-0 text-[#e8b872]/30" />
             <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-white/12 ring-1 ring-[#e8b872]/50"><HeartHandshake size={26} strokeWidth={1.8} className="text-[#f1d3a4]" /></span>
             <h2 className="mt-3 text-[22px] !text-white sm:text-[26px]">Our Thank List</h2>
             <p className="mx-auto mt-3 max-w-2xl text-[15px] leading-relaxed text-white/85">This archive is built by the efforts of the disciples, grand-disciples, followers and admirers of Śrī Śrīmad Gour Govinda Swāmī Gurudeva, in many countries.</p>
