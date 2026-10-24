@@ -5,7 +5,7 @@ import { MENUS } from "@/lib/nav";
 import { PaisleyField, LogoMark, Toran, Orn, OrnMask } from "./motifs";
 import { Signature } from "./signature";
 
-const SOCIAL_ICONS = { Instagram, Facebook, WhatsApp: MessageCircle, YouTube: Youtube } as const;
+const SOCIAL_ICONS = { Instagram, Facebook, YouTube: Youtube } as const;
 
 export function Footer() {
   return (
@@ -46,11 +46,11 @@ export function Footer() {
             ))}
             <div>
               <h4 className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#f1d3a4]">Stay connected</h4>
-              <a href={SITE.social[2].href} target="_blank" rel="noreferrer" className="group mt-3.5 flex items-center gap-3 rounded-2xl border border-white/15 bg-white/[0.07] p-3.5 transition hover:bg-white/[0.12]">
-                <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#25a55a]/90 text-white"><MessageCircle size={19} /></span>
-                <span className="flex-1 text-[12.5px] leading-snug text-white"><span className="block font-semibold">Daily Diary on WhatsApp</span><span className="text-[#f0dfd1]/70">Join the community</span></span>
+              <Link href="/about/subscribe" className="group mt-3.5 flex items-center gap-3 rounded-2xl border border-white/15 bg-white/[0.07] p-3.5 transition hover:bg-white/[0.12]">
+                <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#e8b872]/90 text-[#4a1a00]"><Mail size={19} /></span>
+                <span className="flex-1 text-[12.5px] leading-snug text-white"><span className="block font-semibold">Gopāl Jiu magazine</span><span className="text-[#f0dfd1]/70">Subscribe to receive it</span></span>
                 <ArrowUpRight size={16} className="text-[#f0dfd1]/60 transition group-hover:text-white" />
-              </a>
+              </Link>
               <div className="mt-3 flex gap-2">
                 {SITE.social.map((s) => { const I = SOCIAL_ICONS[s.name as keyof typeof SOCIAL_ICONS]; return (
                   <a key={s.name} href={s.href} target="_blank" rel="noreferrer" aria-label={s.name} title={s.name}

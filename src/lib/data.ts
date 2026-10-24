@@ -23,7 +23,6 @@ export const SITE = {
   social: [
     { name: "Instagram", href: "https://www.instagram.com/taptajivanam" },
     { name: "Facebook", href: "https://www.facebook.com/tapta.jivanam" },
-    { name: "WhatsApp", href: "https://chat.whatsapp.com/I8oPWbXQt9c7mTpken8eF6" },
     { name: "YouTube", href: "https://www.youtube.com/@taptajivanam" },
   ],
   locations: [

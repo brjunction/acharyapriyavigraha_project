@@ -75,7 +75,7 @@ export const MENUS: NavMenu[] = [
         l("/teachings/books", "Books", "Gopal Jiu, Tattva Vicāra and Taptajīvanam publications", BookOpen),
         l("/teachings/transcriptions", "Transcriptions", "Lectures as text, synced with audio", FileText),
         l("/gurudeva/letters", "Letters", "His correspondence", Mail),
-        l("/teachings/ananda-sambada", "Ānanda Sambāda & articles", "Newsletter archive since 1991", Newspaper),
+        l("/teachings/gopal-jiu-magazine", "Gopāl Jiu magazine", "Issues to read, and subscription", Newspaper),
         l("/teachings/odia-literature", "Odia Vaiṣṇava literature", "Biographies of Śrī Caitanya, translated", Languages, true),
       ]),
       g("Compilations", [
@@ -156,8 +156,7 @@ export const MENUS: NavMenu[] = [
       ]),
       g("Connect", [
         l("/about/contact", "Contact", "taptajivanam@gmail.com · +91 96687 21555", Phone),
-        l("/about/newsletter", "Ānanda Sambāda newsletter", "Subscribe to the newsletter", Mail),
-        l("/about/whatsapp", "Daily quotes on WhatsApp", "Vāṇīsaṅga group", MessageCircle),
+        l("/about/subscribe", "Subscribe to Gopāl Jiu magazine", "Receive the magazine", Mail),
         l("/about/suggest-correction", "Suggest a correction", "Found a mistake? Tell us", MessageCircleQuestion),
       ]),
       g("Help & policies", [
