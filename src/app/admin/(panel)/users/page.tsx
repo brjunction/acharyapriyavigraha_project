@@ -9,7 +9,7 @@ export default function Page() {
   return (
     <div className="mx-auto max-w-6xl space-y-8">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div><h1 className="text-[30px]">Users</h1><p className="text-[13.5px] text-ink-3">Only admins create accounts. Each person gets a user ID, a password and one or more roles.</p></div>
+        <div><h1 className="text-[24px]">Users</h1><p className="text-[13.5px] text-ink-3">Only admins create accounts. Each person gets a user ID, a password and one or more roles.</p></div>
         <button className="btn btn-primary !rounded-xl"><UserPlus size={15} />Invite user</button>
       </div>
       <div className="card overflow-x-auto">

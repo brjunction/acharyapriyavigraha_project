@@ -20,7 +20,7 @@ export default function Page() {
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
           {LANGUAGES.map((l) => (
             <Link key={l.code} href={l.code === "en" ? "/" : `/${l.code}`} className="card card-hover group flex flex-col p-6">
-              <p className="font-serif text-[30px] font-bold leading-tight group-hover:text-saffron">{l.native}</p>
+              <p className="font-serif text-[24px] font-bold leading-tight group-hover:text-saffron">{l.native}</p>
               <p className="text-[13px] text-ink-3">{l.name} · taptajivanam.com/{l.code === "en" ? "" : l.code}</p>
               <div className="mt-6 space-y-3"><Bar label="Interface" v={l.ui} of={100} /><Bar label="Quotes" v={l.quotes} of={1840} /><Bar label="Transcriptions" v={l.transcripts} of={130} /></div>
               <span className="mt-6 flex items-center gap-1 text-[13.5px] font-medium text-saffron">Open site<ArrowRight size={14} className="transition-transform group-hover:translate-x-0.5" /></span>

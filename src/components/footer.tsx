@@ -1,70 +1,84 @@
 import Link from "next/link";
-import { Instagram, Facebook, MessageCircle, Youtube, Mail, Phone, MapPin } from "lucide-react";
+import { Instagram, Facebook, MessageCircle, Youtube, Mail, Phone, MapPin, ArrowUpRight } from "lucide-react";
 import { SITE, IMG } from "@/lib/data";
 import { MENUS } from "@/lib/nav";
-import { FlowerBand, PaisleyField, LogoMark } from "./motifs";
-import { Img } from "./ui";
+import { PaisleyField, LogoMark, Toran, CornerFlourish, Garland } from "./motifs";
+import { Signature } from "./signature";
 
 const SOCIAL_ICONS = { Instagram, Facebook, WhatsApp: MessageCircle, YouTube: Youtube } as const;
 
 export function Footer() {
   return (
     <footer className="mt-24">
-      <FlowerBand />
+      <Toran className="text-[#8a3d0f]" />
       <div className="footer-paisley relative overflow-hidden">
-        <PaisleyField className="text-[#4c1b00]" scale={1.6} />
-        <div className="relative mx-auto max-w-[1240px] px-5 pb-8 pt-14 sm:px-8">
-          <div className="grid gap-10 lg:grid-cols-[1.1fr_1fr] lg:items-end">
-            <div>
-              <p className="font-serif text-[30px] italic leading-tight text-white sm:text-[38px]">{SITE.verse}</p>
-              <p className="mt-3 max-w-xl font-serif text-[17px] leading-relaxed text-[#f3e3d6]">{SITE.verseTranslation}</p>
-              <p className="mt-2 text-[13px] text-[#e6c9b4]/80">{SITE.verseSource}</p>
+        <PaisleyField className="text-[#4c1b00]" scale={1.5} />
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-72 bg-[radial-gradient(60%_100%_at_50%_0%,rgba(232,163,58,0.22),transparent)]" />
+        <div className="relative mx-auto max-w-[1180px] px-5 pb-8 pt-14 sm:px-8">
+
+          {/* The verse: a framed card in the centre, signature beneath */}
+          <div className="mx-auto max-w-3xl text-center">
+            <div className="relative rounded-[28px] border border-white/20 bg-gradient-to-b from-white/[0.13] to-white/[0.05] px-6 py-10 shadow-[0_34px_70px_-24px_rgba(0,0,0,0.65),inset_0_1px_0_rgba(255,255,255,0.2)] backdrop-blur-sm sm:px-14">
+              <div className="pointer-events-none absolute inset-2.5 rounded-[20px] border border-dashed border-[#e9c9a8]/30" />
+              {[["left-3 top-3", ""], ["right-3 top-3", "scale-x-[-1]"], ["bottom-3 left-3", "scale-y-[-1]"], ["bottom-3 right-3", "scale-[-1]"]].map(([pos, flip]) => (
+                <CornerFlourish key={pos} className={`absolute h-12 w-12 text-[#e8b872]/70 ${pos} ${flip}`} />
+              ))}
+              <span className="relative inline-flex items-center gap-2 rounded-full border border-[#e8b872]/40 bg-[#e8b872]/10 px-3 py-1 text-[11px] font-medium tracking-[0.06em] text-[#f1d3a4]">
+                <LogoMark className="h-4 w-4 text-[#f1d3a4]" flame="#f1d3a4" />{SITE.verseSource}
+              </span>
+              <p className="relative mt-5 text-[26px] font-semibold leading-snug tracking-[-0.02em] text-white sm:text-[32px]">{SITE.verse}</p>
+              <p className="relative mx-auto mt-4 max-w-xl text-[14.5px] leading-relaxed text-[#f3e2d2]/90">{SITE.verseTranslation}</p>
             </div>
-            <div className="flex items-center gap-4 lg:justify-end">
-              <Img src={IMG.sign} alt="Signature of Śrīla Gurudeva" className="h-14 w-auto opacity-90 brightness-0 invert" fallback="" />
+            <div className="mt-7 flex flex-col items-center gap-2">
+              <Signature src={IMG.sign} className="h-12 w-auto brightness-0 invert opacity-90" />
+              <p className="text-[11.5px] tracking-[0.04em] text-[#e6c9b4]/80">Śrīla Gour Govinda Swāmī</p>
             </div>
           </div>
 
-          <div className="mt-12 grid gap-10 border-t border-white/10 pt-10 sm:grid-cols-2 lg:grid-cols-[1fr_1fr_1fr_1.25fr]">
+          <Garland className="mx-auto mt-10 max-w-md opacity-90" />
+
+          <div className="mt-10 grid gap-9 sm:grid-cols-2 lg:grid-cols-[1fr_1fr_1fr_1.3fr]">
             {MENUS.slice(0, 3).map((m) => (
               <div key={m.key}>
-                <h4 className="font-sans text-[12px] font-semibold uppercase tracking-[0.14em] text-white">{m.label}</h4>
-                <ul className="mt-4 space-y-2 text-[14px]">
+                <h4 className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#f1d3a4]">{m.label}</h4>
+                <ul className="mt-3.5 space-y-1.5 text-[13px]">
                   {m.groups.flatMap((g) => g.links).slice(0, 6).map((l) => (
-                    <li key={l.href + l.label}><Link href={l.href} className="text-[#f0dfd1]/80 transition hover:text-white">{l.label}</Link></li>
+                    <li key={l.href + l.label}><Link href={l.href} className="text-[#f0dfd1]/75 transition hover:text-white">{l.label}</Link></li>
                   ))}
                 </ul>
               </div>
             ))}
             <div>
-              <h4 className="font-sans text-[12px] font-semibold uppercase tracking-[0.14em] text-white">Connect with us</h4>
-              <div className="mt-4 flex gap-2">
+              <h4 className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#f1d3a4]">Stay connected</h4>
+              <a href={SITE.social[2].href} target="_blank" rel="noreferrer" className="group mt-3.5 flex items-center gap-3 rounded-2xl border border-white/15 bg-white/[0.07] p-3.5 transition hover:bg-white/[0.12]">
+                <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#25a55a]/90 text-white"><MessageCircle size={19} /></span>
+                <span className="flex-1 text-[12.5px] leading-snug text-white"><span className="block font-semibold">Daily Diary on WhatsApp</span><span className="text-[#f0dfd1]/70">Join the community</span></span>
+                <ArrowUpRight size={16} className="text-[#f0dfd1]/60 transition group-hover:text-white" />
+              </a>
+              <div className="mt-3 flex gap-2">
                 {SITE.social.map((s) => { const I = SOCIAL_ICONS[s.name as keyof typeof SOCIAL_ICONS]; return (
                   <a key={s.name} href={s.href} target="_blank" rel="noreferrer" aria-label={s.name} title={s.name}
-                    className="flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-white/5 text-white transition hover:bg-white hover:text-[#592300]"><I size={17} /></a>
+                    className="flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-white/5 text-white transition hover:-translate-y-0.5 hover:bg-white hover:text-[#592300]"><I size={15} /></a>
                 ); })}
               </div>
-              <ul className="mt-5 space-y-2 text-[14px] text-[#f0dfd1]/85">
-                <li className="flex items-center gap-2"><Mail size={14} className="text-[#e6c9b4]" />{SITE.email}</li>
-                <li className="flex items-center gap-2"><Phone size={14} className="text-[#e6c9b4]" />{SITE.phone}</li>
+              <ul className="mt-4 space-y-1.5 text-[12.5px] text-[#f0dfd1]/80">
+                <li className="flex items-center gap-2"><Mail size={13} className="text-[#e6c9b4]" />{SITE.email}</li>
+                <li className="flex items-center gap-2"><Phone size={13} className="text-[#e6c9b4]" />{SITE.phone}</li>
               </ul>
             </div>
           </div>
 
-          <div className="mt-10 grid gap-6 border-t border-white/10 pt-8 sm:grid-cols-2">
+          <div className="mt-9 grid gap-5 border-t border-white/10 pt-7 sm:grid-cols-2">
             {SITE.locations.map((l) => (
-              <div key={l.name} className="flex gap-3 text-[13.5px]">
-                <MapPin size={16} className="mt-0.5 shrink-0 text-[#e6c9b4]" />
-                <div><p className="font-semibold text-white">{l.name}</p>{l.lines.map((x) => <p key={x} className="text-[#f0dfd1]/75">{x}</p>)}</div>
+              <div key={l.name} className="flex gap-3 text-[12.5px]">
+                <MapPin size={15} className="mt-0.5 shrink-0 text-[#e6c9b4]" />
+                <div><p className="font-semibold text-white">{l.name}</p>{l.lines.map((x) => <p key={x} className="text-[#f0dfd1]/65">{x}</p>)}</div>
               </div>
             ))}
           </div>
 
-          <div className="mt-10 flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-6 text-[12.5px] text-[#f0dfd1]/70 sm:flex-row">
-            <div className="flex items-center gap-2.5">
-              <LogoMark className="h-7 w-7 text-white" />
-              <span className="font-serif text-[15px] text-white">Dedicated to Śrīla Gour Govinda Swāmī</span>
-            </div>
+          <div className="mt-8 flex flex-col items-center justify-between gap-3 border-t border-white/10 pt-5 text-[12px] text-[#f0dfd1]/65 sm:flex-row">
+            <div className="flex items-center gap-2"><LogoMark className="h-6 w-6 text-white" flame="#e8a33a" /><span className="text-[13px] font-medium text-white">Dedicated to Śrīla Gour Govinda Swāmī</span></div>
             <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-1">
               <Link href="/thank-list" className="hover:text-white">Our Thank List</Link>
               <Link href="/about" className="hover:text-white">About</Link>

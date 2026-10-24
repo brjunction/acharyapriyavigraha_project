@@ -6,7 +6,7 @@ export default function Page() {
   return (
     <div className="mx-auto max-w-5xl">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div><h1 className="text-[30px]">Home page</h1><p className="text-[13.5px] text-ink-3">Drag to reorder, switch blocks on or off, and click a block to edit it.</p></div>
+        <div><h1 className="text-[24px]">Home page</h1><p className="text-[13.5px] text-ink-3">Drag to reorder, switch blocks on or off, and click a block to edit it.</p></div>
         <button className="btn btn-primary !rounded-xl">Publish changes</button>
       </div>
       <div className="mt-6 grid grid-cols-[minmax(0,1fr)] gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">

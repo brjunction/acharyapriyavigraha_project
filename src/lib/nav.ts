@@ -149,3 +149,8 @@ export function findLink(href: string): { menu: NavMenu; group: NavGroup; link: 
   for (const menu of MENUS) for (const group of menu.groups) for (const link of group.links) if (link.href === href) return { menu, group, link };
   return null;
 }
+
+/** Each menu has its own festival colour (see .acc-* in globals.css). */
+export const ACCENT: Record<string, "saffron" | "teal" | "indigo" | "rose" | "leaf" | "gold"> = {
+  gurudeva: "saffron", teachings: "teal", tattva: "indigo", translations: "rose", about: "leaf",
+};

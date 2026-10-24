@@ -20,7 +20,7 @@ export function MenuHub({ menuKey, children, aside, before }: { menuKey: string;
         {menu.groups.map((g, i) => (
           <section key={g.title} id={slug(g.title)} className="reveal scroll-mt-28 pb-14">
             <div className="mb-5 flex items-center gap-4">
-              <h2 className="text-[28px]">{g.title}</h2>
+              <h2 className="text-[22px]">{g.title}</h2>
               <span className="h-px flex-1 bg-gradient-to-r from-line-strong to-transparent" />
               <span className="text-[13px] text-ink-3">{g.links.length} {g.links.length === 1 ? "section" : "sections"}</span>
             </div>

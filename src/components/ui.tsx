@@ -28,7 +28,7 @@ export function PageHero({ crumbs, title, intro, icon: Icon, children, aside }: 
           {crumbs && <Crumbs items={crumbs} />}
           <div className="mt-5 flex items-center gap-4">
             {Icon && <span className="hidden h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-saffron text-white shadow-[var(--shadow-md)] sm:flex"><Icon size={26} strokeWidth={1.6} /></span>}
-            <h1 className="text-[38px] leading-[1.08] text-ink sm:text-[50px]">{title}</h1>
+            <h1 className="text-[28px] leading-[1.08] text-ink sm:text-[36px]">{title}</h1>
           </div>
           {intro && <p className="mt-4 max-w-2xl text-[17px] leading-relaxed text-ink-2">{intro}</p>}
           {children}
@@ -44,14 +44,14 @@ export function SectionHead({ title, intro, action, align = "center" }: { title:
   if (align === "left") {
     return (
       <div className="mb-7 flex flex-wrap items-end justify-between gap-4">
-        <div><h2 className="text-[30px] leading-tight text-ink sm:text-[34px]">{title}</h2>{intro && <p className="mt-1.5 max-w-2xl text-[15px] text-ink-2">{intro}</p>}</div>
+        <div><h2 className="text-[24px] leading-tight text-ink sm:text-[26px]">{title}</h2>{intro && <p className="mt-1.5 max-w-2xl text-[15px] text-ink-2">{intro}</p>}</div>
         {action && <Link href={action.href} className="group flex items-center gap-1 text-[14px] font-medium text-saffron">{action.label}<ArrowRight size={15} className="transition-transform group-hover:translate-x-0.5" /></Link>}
       </div>
     );
   }
   return (
     <div className="mb-10 text-center">
-      <h2 className="text-[32px] leading-tight text-ink sm:text-[38px]">{title}</h2>
+      <h2 className="text-[25px] leading-tight text-ink sm:text-[28px]">{title}</h2>
       <Ornament className="mt-3" />
       {intro && <p className="mx-auto mt-4 max-w-2xl text-[16px] leading-relaxed text-ink-2">{intro}</p>}
       {action && <Link href={action.href} className="group mt-4 inline-flex items-center gap-1 text-[14px] font-medium text-saffron">{action.label}<ArrowRight size={15} className="transition-transform group-hover:translate-x-0.5" /></Link>}
@@ -85,7 +85,7 @@ export function ArchiveTile({ href, icon: Icon, title, desc, count, tone }: { hr
     <Link href={href} className={`tile tile-${tone} group flex min-h-[230px] flex-col p-7`}>
       <Rosette className="tile-motif text-white" />
       <Icon size={30} strokeWidth={1.3} className="opacity-95" />
-      <h3 className="mt-5 text-[25px] text-white">{title}</h3>
+      <h3 className="mt-5 text-[20px] text-white">{title}</h3>
       <p className="mt-2 max-w-sm text-[14.5px] leading-relaxed text-white/80">{desc}</p>
       <div className="mt-auto flex items-center justify-between pt-6 text-[13px]">
         {count ? <span className="rounded-full bg-white/15 px-3 py-1 font-medium">{count}</span> : <span />}
@@ -99,7 +99,7 @@ export function QuoteCard({ text, source, date, place, sample, large }: { text: 
   return (
     <figure className="card relative flex h-full flex-col overflow-hidden p-7">
       <span className="absolute right-5 top-2 font-serif text-[90px] leading-none text-saffron/10" aria-hidden>”</span>
-      <blockquote className={`relative font-serif ${large ? "text-[26px]" : "text-[21px]"} leading-snug ${sample ? "italic text-ink-3" : "text-ink"}`}>{text}</blockquote>
+      <blockquote className={`relative font-serif ${large ? "text-[21px]" : "text-[21px]"} leading-snug ${sample ? "italic text-ink-3" : "text-ink"}`}>{text}</blockquote>
       <figcaption className="relative mt-auto pt-6 text-[13px] leading-relaxed text-ink-3">
         <span className="font-semibold text-saffron">Śrīla Gurudeva</span>
         <span className="block">{[source, date, place].filter(Boolean).join(", ")}</span>
@@ -112,7 +112,7 @@ export function EmptyState({ title, text, icon: Icon }: { title: string; text: s
   return (
     <div className="card flex flex-col items-center px-6 py-16 text-center">
       <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-saffron-soft text-saffron"><Icon size={26} strokeWidth={1.5} /></span>
-      <p className="mt-5 font-serif text-[22px]">{title}</p>
+      <p className="mt-5 font-serif text-[18px]">{title}</p>
       <p className="mt-2 max-w-md text-[14.5px] text-ink-2">{text}</p>
     </div>
   );

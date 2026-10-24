@@ -12,7 +12,7 @@ export default function Page() {
     <div className="mx-auto max-w-6xl">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2"><Link href="/admin/lectures" className="rounded-lg p-1.5 hover:bg-surface" aria-label="Back"><ChevronLeft size={18} /></Link>
-          <div><h1 className="text-[26px]">The Mercy of Śrīla Prabhupāda</h1><p className="flex items-center gap-1 text-[12px] text-ink-3"><CheckCircle2 size={12} className="text-ok" />Saved automatically, 2 seconds ago</p></div></div>
+          <div><h1 className="text-[21px]">The Mercy of Śrīla Prabhupāda</h1><p className="flex items-center gap-1 text-[12px] text-ink-3"><CheckCircle2 size={12} className="text-ok" />Saved automatically, 2 seconds ago</p></div></div>
         <div className="flex flex-wrap gap-2">
           <button className="btn btn-ghost !h-9 !rounded-xl text-[13px]"><History size={15} />History</button>
           <button className="btn btn-ghost !h-9 !rounded-xl text-[13px]"><Eye size={15} />Preview</button>

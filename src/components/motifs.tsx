@@ -1,48 +1,97 @@
 "use client";
-// Traditional Indian ornament, drawn as SVG so it stays crisp and themeable.
-// Paisley (mehndi) field for the footer and bands, the flower border of
-// taptajivanam.com, a lotus rosette, and the Taptajīvanam mark.
+// Traditional Indian ornament, constructed from real forms rather than doodles:
+//  padma  - the lotus, drawn with ogee (pointed, S-curved) petals as on temple ceilings
+//  buta   - the paisley / mango motif of Indian textiles
+//  jali   - the eight-pointed star lattice of carved stone screens
+//  toran  - the row of cusped (ogee) arches hung over a doorway
+// Colour always comes from currentColor or the theme tokens, so everything follows light, sepia and dark.
 
 import { useId } from "react";
 
-function petals(n: number, r: number, rx: number, ry: number, cx = 0, cy = 0) {
-  return Array.from({ length: n }, (_, i) => (
-    <ellipse key={i} cx={cx} cy={cy - r} rx={rx} ry={ry} transform={`rotate(${(360 / n) * i} ${cx} ${cy})`} />
-  ));
+/** One ogee petal pointing up from the origin, length L, half-width w. */
+const petalD = (L: number, w: number) =>
+  `M0 0C${w * 0.9} ${-L * 0.18} ${w * 1.15} ${-L * 0.55} ${w * 0.45} ${-L * 0.84}Q${w * 0.2} ${-L * 0.94} 0 ${-L}Q${-w * 0.2} ${-L * 0.94} ${-w * 0.45} ${-L * 0.84}C${-w * 1.15} ${-L * 0.55} ${-w * 0.9} ${-L * 0.18} 0 0Z`;
+
+function Ring({ n, L, w, rot = 0, vein = true, fill }: { n: number; L: number; w: number; rot?: number; vein?: boolean; fill?: string }) {
+  return (
+    <g>
+      {Array.from({ length: n }, (_, i) => (
+        <g key={i} transform={`rotate(${rot + (360 / n) * i})`}>
+          <path d={petalD(L, w)} fill={fill ?? "none"} />
+          {vein && <path d={`M0 ${-L * 0.14}V${-L * 0.7}`} opacity=".6" />}
+        </g>
+      ))}
+    </g>
+  );
 }
 
-/** Tiled paisley / mehndi field. Colour comes from `currentColor`. */
+/** Lotus seen from above. */
+export function Padma({ className = "", layers = 3 }: { className?: string; layers?: 2 | 3 }) {
+  return (
+    <svg viewBox="-50 -50 100 100" className={className} aria-hidden fill="none" stroke="currentColor" strokeWidth="1" strokeLinejoin="round">
+      {layers === 3 && <Ring n={12} L={48} w={6.6} rot={15} />}
+      <Ring n={8} L={38} w={8.6} />
+      <Ring n={8} L={25} w={6.2} rot={22.5} />
+      <circle r="7" /><circle r="3" fill="currentColor" stroke="none" />
+      {Array.from({ length: 8 }, (_, i) => <circle key={i} cx={0} cy={-5.2} r=".9" fill="currentColor" stroke="none" transform={`rotate(${45 * i})`} />)}
+    </svg>
+  );
+}
+
+/** Mandala of lotus rings with a beaded outer circle. */
+export function Rosette({ className = "" }: { className?: string }) {
+  return (
+    <svg viewBox="-100 -100 200 200" className={className} aria-hidden fill="none" stroke="currentColor" strokeLinejoin="round">
+      <circle r="97" strokeWidth=".8" />
+      <circle r="92" strokeWidth=".6" strokeDasharray="0.1 5.1" strokeLinecap="round" />
+      <g strokeWidth=".9"><Ring n={24} L={84} w={7.2} /></g>
+      <circle r="52" strokeWidth=".7" />
+      <g strokeWidth="1"><Ring n={16} L={66} w={9} rot={11.25} vein={false} /></g>
+      <g strokeWidth="1"><Ring n={12} L={47} w={8.2} /></g>
+      <g strokeWidth="1"><Ring n={8} L={29} w={7} rot={22.5} /></g>
+      <circle r="9" strokeWidth="1.1" />
+      {Array.from({ length: 8 }, (_, i) => <circle key={i} cx={0} cy={-5.5} r="1.2" fill="currentColor" stroke="none" transform={`rotate(${45 * i})`} />)}
+      <circle r="2.6" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+
+/** Buta (paisley) outline with an inner contour and a bead trail. Drawn in a 120 x 140 box. */
+function Buta({ stroke = 1.6 }: { stroke?: number }) {
+  return (
+    <g fill="none" stroke="currentColor" strokeWidth={stroke} strokeLinecap="round" strokeLinejoin="round">
+      <path d="M52 6C92 2 118 36 111 78C105 112 76 134 47 129C21 124 8 102 20 84C30 70 53 72 56 88C58 100 44 105 37 96" />
+      <path d="M53 24C82 22 100 46 96 76C92 100 72 114 50 111C35 108 28 97 34 88" strokeWidth={stroke * 0.7} />
+      {[[60, 44], [76, 54], [84, 70], [84, 88], [76, 102], [62, 108]].map(([x, y], i) => <circle key={i} cx={x} cy={y} r="2.3" fill="currentColor" stroke="none" />)}
+      <g transform="translate(58 72)"><circle r="4" fill="currentColor" stroke="none" /><g strokeWidth={stroke * 0.6}><Ring n={8} L={15} w={4} vein={false} /></g></g>
+    </g>
+  );
+}
+
+/** Tiled Indian textile print: jali stars alternating with buta (paisley) and lotus. */
 export function PaisleyField({ className = "", scale = 1 }: { className?: string; scale?: number }) {
   const id = useId().replace(/:/g, "");
-  const s = 260 * scale;
+  const s = 240 * scale;
+  const star = (r: number) => {
+    const sq = (a: number) => [0, 1, 2, 3].map((k) => { const t = ((a + k * 90) * Math.PI) / 180; return `${(Math.cos(t) * r).toFixed(1)},${(Math.sin(t) * r).toFixed(1)}`; }).join(" ");
+    return <><polygon points={sq(0)} /><polygon points={sq(45)} /></>;
+  };
   return (
     <svg className={`pointer-events-none absolute inset-0 h-full w-full ${className}`} aria-hidden>
       <defs>
-        <pattern id={`p${id}`} width={s} height={s} patternUnits="userSpaceOnUse" viewBox="0 0 260 260">
-          <g fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
-            {/* paisley */}
-            <path d="M78 26c42 2 66 44 52 84-11 31-47 49-75 36-23-11-27-40-8-53 17-11 34 1 30 16-3 10-15 12-20 5" />
-            <path d="M80 42c30 3 46 33 36 61-8 22-33 34-52 25" />
-            <path d="M64 70c6-8 18-9 24-2" />
-            {/* mirrored paisley */}
-            <path d="M190 236c-42-2-66-44-52-84 11-31 47-49 75-36 23 11 27 40 8 53-17 11-34-1-30-16 3-10 15-12 20-5" />
-            <path d="M188 220c-30-3-46-33-36-61 8-22 33-34 52-25" />
-            {/* vines */}
-            <path d="M0 214c26-20 44-20 62 0s38 22 58 4" />
-            <path d="M140 30c20 10 40 8 60-6s38-12 60 2" />
-            <path d="M226 120c-10 18-6 34 10 46" />
+        <pattern id={`p${id}`} width={s} height={s} patternUnits="userSpaceOnUse" viewBox="0 0 240 240">
+          <g fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round">
+            {/* jali star medallions */}
+            {[[60, 60], [180, 180]].map(([x, y]) => (
+              <g key={x} transform={`translate(${x} ${y})`}>
+                {star(46)}<circle r="46" strokeDasharray="1 4" strokeLinecap="round" /><circle r="30" /><g transform="scale(.46)"><Ring n={8} L={50} w={14} /></g>
+                <circle r="3" fill="currentColor" stroke="none" />
+              </g>
+            ))}
           </g>
-          <g fill="currentColor">
-            <circle cx="84" cy="88" r="3.4" /><circle cx="96" cy="72" r="2.4" /><circle cx="72" cy="104" r="2.4" />
-            <circle cx="184" cy="174" r="3.4" /><circle cx="172" cy="190" r="2.4" /><circle cx="196" cy="158" r="2.4" />
-            <circle cx="20" cy="40" r="5" /><circle cx="34" cy="54" r="2.6" /><circle cx="236" cy="236" r="5" />
-            <circle cx="120" cy="150" r="2.2" /><circle cx="140" cy="132" r="3" /><circle cx="236" cy="70" r="2.4" />
-          </g>
-          {/* flowers */}
-          <g fill="none" stroke="currentColor" strokeWidth="2">
-            <g transform="translate(205 88)">{petals(8, 9, 4, 8)}<circle r="4" /></g>
-            <g transform="translate(40 168)">{petals(10, 11, 4, 9)}<circle r="5" /><circle r="16" strokeDasharray="1 4" /></g>
-          </g>
+          <g transform="translate(150 6) scale(.62) rotate(14 60 70)"><Buta stroke={2.4} /></g>
+          <g transform="translate(94 238) scale(-.62 -.62) rotate(14 60 70)"><Buta stroke={2.4} /></g>
+          <g fill="currentColor"><circle cx="120" cy="120" r="2.4" /><circle cx="0" cy="120" r="2.4" /><circle cx="240" cy="120" r="2.4" /><circle cx="120" cy="0" r="2.4" /><circle cx="120" cy="240" r="2.4" /></g>
         </pattern>
       </defs>
       <rect width="100%" height="100%" fill={`url(#p${id})`} />
@@ -50,23 +99,23 @@ export function PaisleyField({ className = "", scale = 1 }: { className?: string
   );
 }
 
-/** The flower border band used between sections on taptajivanam.com. */
+/** Border band: a chain of small lotuses between two rules, with diamond beads. */
 export function FlowerBand({ className = "" }: { className?: string }) {
   const id = useId().replace(/:/g, "");
   return (
     <div className={`${className.includes("absolute") ? "" : "relative "}h-[30px] w-full overflow-hidden ${className}`} aria-hidden>
       <svg className="absolute inset-0 h-full w-full">
         <defs>
-          <pattern id={`b${id}`} width="30" height="30" patternUnits="userSpaceOnUse">
-            <line x1="0" y1="2.5" x2="30" y2="2.5" stroke="var(--ornament)" strokeWidth="1.2" />
-            <line x1="0" y1="27.5" x2="30" y2="27.5" stroke="var(--ornament)" strokeWidth="1.2" />
-            <g fill="var(--ornament-light)">
-              {[3, 9, 15, 21, 27].map((x) => <circle key={`t${x}`} cx={x} cy="6.5" r="1.1" />)}
-              {[3, 9, 15, 21, 27].map((x) => <circle key={`b${x}`} cx={x} cy="23.5" r="1.1" />)}
+          <pattern id={`b${id}`} width="46" height="30" patternUnits="userSpaceOnUse">
+            <line x1="0" y1="2.5" x2="46" y2="2.5" stroke="var(--ornament)" strokeWidth="1" />
+            <line x1="0" y1="27.5" x2="46" y2="27.5" stroke="var(--ornament)" strokeWidth="1" />
+            <g transform="translate(23 15)" fill="none" stroke="var(--ornament)" strokeWidth=".9" strokeLinejoin="round">
+              <g transform="scale(.27)"><Ring n={8} L={50} w={10} vein={false} /></g>
+              <g transform="scale(.17) rotate(22.5)"><Ring n={8} L={50} w={10} vein={false} /></g>
+              <circle r="1.6" fill="var(--ornament)" stroke="none" />
             </g>
-            <g fill="var(--ornament)">{petals(10, 4.6, 1.7, 3.6, 15, 15)}</g>
-            <circle cx="15" cy="15" r="2" fill="var(--page)" stroke="var(--ornament)" strokeWidth=".8" />
-            <circle cx="0" cy="15" r="1.6" fill="var(--ornament-light)" /><circle cx="30" cy="15" r="1.6" fill="var(--ornament-light)" />
+            <path d="M0 15l4-4 4 4-4 4Z M38 15l4-4 4 4-4 4Z" fill="var(--ornament-light)" />
+            <circle cx="12" cy="15" r="1" fill="var(--ornament-light)" /><circle cx="34" cy="15" r="1" fill="var(--ornament-light)" />
           </pattern>
         </defs>
         <rect width="100%" height="100%" fill={`url(#b${id})`} />
@@ -75,29 +124,79 @@ export function FlowerBand({ className = "" }: { className?: string }) {
   );
 }
 
-/** Lotus rosette (mandala). Colour from currentColor. */
-export function Rosette({ className = "" }: { className?: string }) {
-  return (
-    <svg viewBox="-100 -100 200 200" className={className} aria-hidden fill="none" stroke="currentColor">
-      <circle r="96" strokeWidth=".8" strokeDasharray="1.5 4" />
-      <circle r="88" strokeWidth=".8" />
-      <g strokeWidth="1">{petals(24, 72, 6, 15)}</g>
-      <circle r="56" strokeWidth=".8" />
-      <g strokeWidth="1.1">{petals(16, 42, 8, 17)}</g>
-      <g strokeWidth="1">{petals(8, 22, 7, 13)}</g>
-      <circle r="8" strokeWidth="1.2" />
-      <circle r="3" fill="currentColor" />
-    </svg>
-  );
-}
-
-/** Small centred ornament used under headings. */
+/** Small centred ornament under headings: a lotus between two fading rules. */
 export function Ornament({ className = "" }: { className?: string }) {
   return (
     <div className={`flex items-center justify-center gap-3 text-ornament ${className}`} aria-hidden>
       <span className="h-px w-16 bg-gradient-to-r from-transparent to-current opacity-60" />
-      <svg viewBox="-12 -12 24 24" className="h-4 w-4" fill="currentColor">{petals(8, 6, 2, 4.5)}<circle r="2.2" fill="var(--page)" /></svg>
+      <Padma className="h-6 w-6" layers={2} />
       <span className="h-px w-16 bg-gradient-to-l from-transparent to-current opacity-60" />
+    </div>
+  );
+}
+
+/** Hanging toran: cusped ogee arches, each with an inner contour and a bead at the tip. */
+export function Toran({ className = "", flip = false }: { className?: string; flip?: boolean }) {
+  const id = useId().replace(/:/g, "");
+  return (
+    <div className={`h-[34px] w-full overflow-hidden ${flip ? "rotate-180" : ""} ${className}`} aria-hidden>
+      <svg className="h-full w-full">
+        <defs>
+          <pattern id={`t${id}`} width="52" height="34" patternUnits="userSpaceOnUse">
+            <path d="M0 0H52V11C52 20 38 26 26 33C14 26 0 20 0 11Z" fill="currentColor" opacity=".2" />
+            <path d="M6 0V10C6 17 16 22 26 28C36 22 46 17 46 10V0" fill="none" stroke="currentColor" strokeWidth="1.1" opacity=".75" />
+            <path d="M26 8c2.6 2.8 3.6 5.4 0 8.6-3.6-3.2-2.6-5.8 0-8.6Z" fill="currentColor" opacity=".9" />
+            <circle cx="26" cy="31" r="2" fill="currentColor" /><circle cx="0" cy="11" r="2.4" fill="currentColor" /><circle cx="52" cy="11" r="2.4" fill="currentColor" />
+          </pattern>
+        </defs>
+        <rect width="100%" height="100%" fill={`url(#t${id})`} />
+      </svg>
+    </div>
+  );
+}
+
+/** Corner border: right-angle rules with a lotus fanning out of the corner. */
+export function CornerFlourish({ className = "" }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 80 80" className={className} aria-hidden fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M2 2H70M2 2V70" strokeWidth="1.3" />
+      <path d="M2 11H44M11 2V44" strokeWidth=".7" opacity=".6" />
+      <g transform="translate(2 2)" strokeWidth=".9">
+        {[98, 116, 135, 154, 172].map((a) => <path key={a} d={petalD(a === 135 ? 52 : a === 116 || a === 154 ? 44 : 34, 7.5)} transform={`rotate(${a})`} />)}
+        <circle r="3.4" fill="currentColor" stroke="none" />
+      </g>
+      <circle cx="56" cy="2" r="1.6" fill="currentColor" stroke="none" /><circle cx="2" cy="56" r="1.6" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+
+/** A thin divider: lotus buds on a vine. */
+export function Garland({ className = "" }: { className?: string }) {
+  const id = useId().replace(/:/g, "");
+  return (
+    <svg className={`h-6 w-full ${className}`} aria-hidden>
+      <defs>
+        <pattern id={`g${id}`} width="36" height="24" patternUnits="userSpaceOnUse">
+          <path d="M0 12C9 4 9 20 18 12S27 4 36 12" fill="none" stroke="var(--gold)" strokeWidth="1" opacity=".7" />
+          <g transform="translate(18 12)" fill="none" stroke="var(--gold)" strokeWidth=".9" strokeLinejoin="round"><g transform="scale(.2)"><Ring n={8} L={50} w={10} vein={false} /></g><circle r="1.4" fill="var(--gold)" stroke="none" /></g>
+        </pattern>
+      </defs>
+      <rect width="100%" height="100%" fill={`url(#g${id})`} />
+    </svg>
+  );
+}
+
+/** Ogee (onion-arch) frame for portraits: clips children to the arch and draws a double outline. */
+export function OgeeFrame({ children, className = "" }: { children: React.ReactNode; className?: string }) {
+  const id = useId().replace(/:/g, "");
+  const d = "M0 1V.5C0 .3 .3 .22 .5 0C.7 .22 1 .3 1 .5V1Z";
+  return (
+    <div className={`relative ${className}`}>
+      <svg width="0" height="0" className="absolute"><defs><clipPath id={`o${id}`} clipPathUnits="objectBoundingBox"><path d={d} /></clipPath></defs></svg>
+      <div className="absolute inset-0" style={{ clipPath: `url(#o${id})` }}>{children}</div>
+      <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="pointer-events-none absolute inset-0 h-full w-full overflow-visible" fill="none">
+        <path d="M0 100V50C0 30 30 22 50 0C70 22 100 30 100 50V100Z" stroke="var(--gold)" strokeWidth="2" vectorEffect="non-scaling-stroke" />
+      </svg>
     </div>
   );
 }
@@ -117,3 +216,20 @@ export function LogoMark({ className = "", flame = "#f4b26a" }: { className?: st
     </svg>
   );
 }
+
+/** Slowly falling flower petals for hero backgrounds (pure CSS, hidden when motion is reduced). */
+export function Petals({ n = 14, className = "" }: { n?: number; className?: string }) {
+  const cols = ["var(--gold)", "var(--saffron)", "var(--rose-d)", "var(--rose)", "var(--gold)"];
+  return (
+    <div className={`pointer-events-none absolute inset-0 overflow-hidden ${className}`} aria-hidden>
+      {Array.from({ length: n }, (_, i) => (
+        <span key={i} className="petal" style={{
+          left: `${(i * 37 + 7) % 100}%`, background: cols[i % cols.length], ["--d" as string]: `${16 + ((i * 5) % 12)}s`,
+          ["--s" as string]: `${-((i * 3.1) % 18)}s`, ["--dx" as string]: `${((i % 2) * 2 - 1) * (40 + (i * 13) % 80)}px`,
+          width: 9 + (i % 4) * 3, height: 9 + (i % 4) * 3, filter: "saturate(.9)",
+        } as React.CSSProperties} />
+      ))}
+    </div>
+  );
+}
+

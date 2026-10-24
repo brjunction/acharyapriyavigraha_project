@@ -24,7 +24,7 @@ export function TopicExplorer() {
       <div key={t.slug} className="fade-in relative overflow-hidden p-7 sm:p-10">
         <Rosette className="spin-slow pointer-events-none absolute -bottom-32 -right-32 h-96 w-96 text-saffron/[0.08]" />
         <p className="text-[13px] font-medium text-saffron">{t.count} passages, lectures and quotes</p>
-        <h3 className="mt-1 text-[36px] leading-tight">{t.name}</h3>
+        <h3 className="mt-1 text-[27px] leading-tight">{t.name}</h3>
         <div className="mt-6 grid gap-2 sm:grid-cols-2">
           {t.children.map((c) => (
             <Link key={c} href={`/tattva/${t.slug}`} className="group flex items-center justify-between rounded-xl border border-line bg-page/50 px-4 py-3 transition hover:border-saffron/50 hover:bg-saffron-tint">

@@ -25,7 +25,7 @@ export default async function LecturePage({ params }: { params: Promise<{ slug: 
         <Container className="relative max-w-[1000px] py-10 sm:py-14">
           <Crumbs items={[{ href: "/teachings", label: "His Teachings" }, { href: "/teachings/audio", label: "Audio lectures" }, { label: l.date.slice(0, 4) }]} />
           <p className="mt-6 text-[14px] font-medium text-saffron">{l.type}{l.scripture ? ` on ${l.scripture}` : ""}</p>
-          <h1 className="mt-1 text-[38px] leading-tight sm:text-[48px]">{l.title}</h1>
+          <h1 className="mt-1 text-[28px] leading-tight sm:text-[34px]">{l.title}</h1>
           <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-[14px] text-ink-2">
             {meta.map(({ i: I, t }) => <span key={t} className="flex items-center gap-1.5"><I size={15} className="text-saffron" />{t}</span>)}
           </div>
@@ -36,7 +36,7 @@ export default async function LecturePage({ params }: { params: Promise<{ slug: 
       <Container className="grid max-w-[1200px] grid-cols-[minmax(0,1fr)] gap-12 py-12 lg:grid-cols-[minmax(0,1fr)_300px]">
         <article>
           <div className="mb-8 flex flex-wrap items-center justify-between gap-3">
-            <h2 className="text-[28px]">Transcription</h2>
+            <h2 className="text-[22px]">Transcription</h2>
             <div className="flex rounded-full border border-line bg-surface p-1 text-[13px]">
               {["English", "हिन्दी", "ଓଡ଼ିଆ", "Side by side"].map((x, i) => <span key={x} className={`rounded-full px-3 py-1 ${i === 0 ? "bg-saffron text-white" : "text-ink-3"}`}>{x}</span>)}
             </div>
@@ -61,7 +61,7 @@ export default async function LecturePage({ params }: { params: Promise<{ slug: 
       </Container>
       {related.length > 0 && (
         <Container className="max-w-[1200px]">
-          <h2 className="mb-4 text-[26px]">More from {l.place}{l.scripture ? ` or on ${l.scripture}` : ""}</h2>
+          <h2 className="mb-4 text-[21px]">More from {l.place}{l.scripture ? ` or on ${l.scripture}` : ""}</h2>
           <div className="card px-2">{related.map((r) => <LectureRow key={r.slug} l={r} />)}</div>
         </Container>
       )}

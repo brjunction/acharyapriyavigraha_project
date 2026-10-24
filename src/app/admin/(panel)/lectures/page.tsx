@@ -9,7 +9,7 @@ export default function Page() {
   return (
     <div className="mx-auto max-w-6xl">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div><h1 className="text-[30px]">Lectures & audio</h1><p className="text-[13.5px] text-ink-3">1,595 lectures. Audio stays on the existing hosting; only the link is stored.</p></div>
+        <div><h1 className="text-[24px]">Lectures & audio</h1><p className="text-[13.5px] text-ink-3">1,595 lectures. Audio stays on the existing hosting; only the link is stored.</p></div>
         <div className="flex gap-2"><button className="btn btn-ghost !rounded-xl"><Upload size={15} />Import spreadsheet</button><Link href="/admin/lectures/edit" className="btn btn-primary !rounded-xl"><Plus size={15} />New lecture</Link></div>
       </div>
       <div className="card mt-6 overflow-hidden">

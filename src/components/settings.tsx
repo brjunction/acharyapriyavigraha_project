@@ -32,13 +32,13 @@ export function SettingsPanel({ compact = false }: { compact?: boolean }) {
           { v: "light", label: <><Sun size={13} />Light</> }, { v: "sepia", label: <><Coffee size={13} />Sepia</> },
           { v: "dark", label: <><Moon size={13} />Dark</> }, { v: "system", label: <><Monitor size={13} />Auto</> }]} />
       </Row>
-      <Row label="Text size" aside={<span className="tabular text-ink-3">{prefs.size}px</span>}>
+      <Row label="Reading size" aside={<span className="tabular text-ink-3">{prefs.size}px</span>}>
         <div className="flex items-center gap-3"><span className="text-xs text-ink-3">A</span>
-          <input type="range" min={15} max={26} value={prefs.size} onChange={(e) => set("size", +e.target.value)} className="flex-1 accent-[var(--saffron)]" aria-label="Text size" />
+          <input type="range" min={14} max={24} value={prefs.size} onChange={(e) => set("size", +e.target.value)} className="flex-1 accent-[var(--saffron)]" aria-label="Reading size" />
           <span className="text-lg text-ink-3">A</span></div>
       </Row>
-      <Row label="Reading font">
-        <Seg value={prefs.font} onChange={(v) => set("font", v)} options={[{ v: "serif", label: <span className="font-serif text-[14px]">Gentium</span> }, { v: "sans", label: "Inter" }]} />
+      <Row label="Reading font (transcripts, books)">
+        <Seg value={prefs.font} onChange={(v) => set("font", v)} options={[{ v: "sans", label: "Inter" }, { v: "serif", label: <span style={{ fontFamily: "var(--font-reading-serif)" }}>Gentium</span> }]} />
       </Row>
       <Row label="Line spacing">
         <Seg value={prefs.leading} onChange={(v) => set("leading", v)} options={[{ v: "compact", label: "Compact" }, { v: "comfortable", label: "Comfortable" }, { v: "spacious", label: "Spacious" }]} />

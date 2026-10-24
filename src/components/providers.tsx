@@ -11,7 +11,7 @@ export type Prefs = {
   speed: number;
   reduceMotion: boolean;
 };
-const DEFAULT: Prefs = { theme: "light", lang: "en", font: "serif", size: 19, leading: "comfortable", diacritics: true, speed: 1, reduceMotion: false };
+const DEFAULT: Prefs = { theme: "light", lang: "en", font: "sans", size: 17, leading: "comfortable", diacritics: true, speed: 1, reduceMotion: false };
 
 type Ctx = {
   prefs: Prefs; set: <K extends keyof Prefs>(k: K, v: Prefs[K]) => void; reset: () => void;
@@ -41,10 +41,10 @@ export function Providers({ children }: { children: React.ReactNode }) {
   const loaded = useRef(false);
 
   useEffect(() => {
-    try { const s = localStorage.getItem("tj-prefs"); if (s) setPrefs({ ...DEFAULT, ...JSON.parse(s) }); } catch {}
+    try { const s = localStorage.getItem("tj-prefs-v3"); if (s) setPrefs({ ...DEFAULT, ...JSON.parse(s) }); } catch {}
     loaded.current = true;
   }, []);
-  useEffect(() => { apply(prefs); if (loaded.current) { try { localStorage.setItem("tj-prefs", JSON.stringify(prefs)); } catch {} } }, [prefs]);
+  useEffect(() => { apply(prefs); if (loaded.current) { try { localStorage.setItem("tj-prefs-v3", JSON.stringify(prefs)); } catch {} } }, [prefs]);
   useEffect(() => {
     const k = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") { e.preventDefault(); setSearch(true); }

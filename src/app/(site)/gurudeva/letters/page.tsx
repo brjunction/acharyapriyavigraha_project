@@ -14,7 +14,7 @@ export default function Page() {
           const items = LETTERS.filter((l) => l.group === g);
           return (
             <section key={g} className="mb-12">
-              <div className="mb-4 flex items-baseline gap-3"><h2 className="text-[26px]">{g}</h2><span className="text-[14px] text-ink-3">{n} letters</span></div>
+              <div className="mb-4 flex items-baseline gap-3"><h2 className="text-[21px]">{g}</h2><span className="text-[14px] text-ink-3">{n} letters</span></div>
               {items.length ? (
                 <div className="card divide-y divide-line">
                   {items.map((l) => (

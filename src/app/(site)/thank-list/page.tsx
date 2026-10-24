@@ -15,7 +15,7 @@ export default function Page() {
     <>
       <PageHero crumbs={[{ href: "/about", label: "About" }, { label: "Our Thank List" }]} icon={HeartHandshake} title="Our Thank List" intro="This archive is being built by the efforts of the disciples, grand-disciples, followers and admirers of Śrīla Gour Govinda Swāmī." />
       <Container className="max-w-3xl py-16">
-        <blockquote className="text-center font-serif text-[24px] italic leading-snug text-ink">“Your love for me will be shown by how you cooperate with one another.”</blockquote>
+        <blockquote className="text-center font-serif text-[20px] italic leading-snug text-ink">“Your love for me will be shown by how you cooperate with one another.”</blockquote>
         <p className="mt-3 text-center text-[14px] text-ink-3">His Divine Grace A.C. Bhaktivedanta Swami Prabhupāda</p>
         <Ornament className="my-10" />
         <div className="reading mx-auto">
@@ -25,7 +25,7 @@ export default function Page() {
           {["Gratitude to Śrīpād Caitanya Chandra Dāsa Mahārāja", "Core contributors", "Audio remastering", "Web designers and web hosts"].map((s) => <div key={s} className="card p-5 font-serif text-[18px] font-bold">{s}</div>)}
         </div>
         {REGIONS.map(([r, l]) => (
-          <div key={r} className="mt-10"><h2 className="text-[24px] text-saffron">{r}</h2><ul className="mt-3 space-y-1.5 text-[15.5px] text-ink-2">{l.map((x) => <li key={x}>{x}</li>)}</ul></div>
+          <div key={r} className="mt-10"><h2 className="text-[20px] text-saffron">{r}</h2><ul className="mt-3 space-y-1.5 text-[15.5px] text-ink-2">{l.map((x) => <li key={x}>{x}</li>)}</ul></div>
         ))}
       </Container>
     </>

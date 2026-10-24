@@ -78,7 +78,7 @@ export function AudioLibrary() {
           {view === "list" ? <div className="card px-2">{list.map((l) => <LectureRow key={l.slug} l={l} />)}</div> :
             Object.keys(byYear).sort().reverse().map((y) => (
               <section key={y} className="mb-8">
-                <div className="sticky top-[72px] z-10 flex items-baseline gap-3 bg-page/95 py-3 backdrop-blur"><h2 className="text-[34px] text-saffron">{y}</h2><span className="text-[13px] text-ink-3">{byYear[y].length} lectures</span></div>
+                <div className="sticky top-[72px] z-10 flex items-baseline gap-3 bg-page/95 py-3 backdrop-blur"><h2 className="text-[26px] text-saffron">{y}</h2><span className="text-[13px] text-ink-3">{byYear[y].length} lectures</span></div>
                 <div className="card px-2">{byYear[y].map((l) => <LectureRow key={l.slug} l={l} />)}</div>
               </section>
             ))}

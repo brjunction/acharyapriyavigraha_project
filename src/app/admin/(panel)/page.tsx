@@ -15,11 +15,11 @@ export default function Overview() {
   return (
     <div className="mx-auto max-w-6xl">
       <div className="flex flex-wrap items-end justify-between gap-4">
-        <div><p className="text-[13.5px] text-ink-3">Hare Kṛṣṇa</p><h1 className="text-[32px]">Welcome back</h1></div>
+        <div><p className="text-[13.5px] text-ink-3">Hare Kṛṣṇa</p><h1 className="text-[25px]">Welcome back</h1></div>
         <div className="flex flex-wrap gap-2">{quick.map(([I, l, h]) => <Link key={l} href={h} className="btn btn-ghost !h-9 !rounded-xl !px-3.5 text-[13px]"><I size={15} className="text-saffron" />{l}</Link>)}</div>
       </div>
       <div className="mt-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
-        {tiles.map(([a, b, c]) => <div key={a} className="card p-5"><p className="text-[13px] text-ink-3">{a}</p><p className="mt-1 font-serif text-[32px] font-bold">{b}</p><p className="text-[12px] text-ink-3">{c}</p></div>)}
+        {tiles.map(([a, b, c]) => <div key={a} className="card p-5"><p className="text-[13px] text-ink-3">{a}</p><p className="mt-1 font-serif text-[25px] font-bold">{b}</p><p className="text-[12px] text-ink-3">{c}</p></div>)}
       </div>
       <div className="mt-6 grid gap-6 lg:grid-cols-3">
         <div className="card lg:col-span-2">
