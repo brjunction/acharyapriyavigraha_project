@@ -23,7 +23,6 @@ export const SITE = {
   social: [
     { name: "Instagram", href: "https://www.instagram.com/taptajivanam" },
     { name: "Facebook", href: "https://www.facebook.com/tapta.jivanam" },
-    { name: "YouTube", href: "https://www.youtube.com/@taptajivanam" },
   ],
   locations: [
     { name: "ISKCON Pattamundai", lines: ["Śrī Śrī Rādhā-Gopāljiu Gośālā", "Sana Mulabasanta, Pattamundai", "Kendrapada, Odisha 754215, India"] },
