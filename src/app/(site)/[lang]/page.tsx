@@ -11,9 +11,9 @@ const COPY: Record<string, { welcome: string; intro: string }> = {
   or: { welcome: "ହରେ କୃଷ୍ଣ, ସ୍ୱାଗତ", intro: "ଶ୍ରୀଲ ଗୌର ଗୋବିନ୍ଦ ସ୍ୱାମୀଙ୍କ ପ୍ରବଚନ, ଉକ୍ତି ଓ ପୁସ୍ତକ ଓଡ଼ିଆରେ।" },
   bn: { welcome: "হরে কৃষ্ণ, স্বাগতম", intro: "শ্রীল গৌর গোবিন্দ স্বামীর প্রবচন, উদ্ধৃতি ও গ্রন্থ বাংলায়।" },
   ru: { welcome: "Харе Кришна, добро пожаловать", intro: "Лекции, цитаты и книги Шрилы Гоур Говинды Свами на русском языке." },
-  nl: { welcome: "Hare Kṛṣṇa, welkom", intro: "Lezingen, citaten en boeken van Śrīla Gour Govinda Swāmī in het Nederlands." },
-  id: { welcome: "Hare Kṛṣṇa, selamat datang", intro: "Ceramah, kutipan, dan buku Śrīla Gour Govinda Swāmī dalam bahasa Indonesia." },
-  es: { welcome: "Hare Kṛṣṇa, bienvenidos", intro: "Conferencias, citas y libros de Śrīla Gour Govinda Swāmī en español." },
+  nl: { welcome: "Hare Kṛṣṇa, welkom", intro: "Lezingen, citaten en boeken van Śrī Śrīmad Gour Govinda Swāmī in het Nederlands." },
+  id: { welcome: "Hare Kṛṣṇa, selamat datang", intro: "Ceramah, kutipan, dan buku Śrī Śrīmad Gour Govinda Swāmī dalam bahasa Indonesia." },
+  es: { welcome: "Hare Kṛṣṇa, bienvenidos", intro: "Conferencias, citas y libros de Śrī Śrīmad Gour Govinda Swāmī en español." },
 };
 
 export function generateStaticParams() { return ALL_LANGUAGES.filter((l) => l.code !== "en").map((l) => ({ lang: l.code })); }

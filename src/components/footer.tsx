@@ -27,7 +27,7 @@ export function Footer() {
             </div>
             <div className="mt-7 flex flex-col items-center gap-2">
               <Signature src={IMG.sign} className="h-12 w-auto brightness-0 invert opacity-90" />
-              <p className="text-[11.5px] tracking-[0.04em] text-[#e6c9b4]/80">Śrīla Gour Govinda Swāmī</p>
+              <p className="text-[11.5px] tracking-[0.04em] text-[#e6c9b4]/80">Śrī Śrīmad Gour Govinda Swāmī</p>
             </div>
           </div>
 
@@ -74,7 +74,7 @@ export function Footer() {
           </div>
 
           <div className="mt-8 flex flex-col items-center justify-between gap-3 border-t border-white/10 pt-5 text-[12px] text-[#f0dfd1]/65 sm:flex-row">
-            <div className="flex items-center gap-2"><LogoMark className="h-6 w-6 text-white" flame="#e8a33a" /><span className="text-[13px] font-medium text-white">Dedicated to Śrīla Gour Govinda Swāmī</span></div>
+            <div className="flex items-center gap-2"><LogoMark className="h-6 w-6 text-white" flame="#e8a33a" /><span className="text-[13px] font-medium text-white">Dedicated to Śrī Śrīmad Gour Govinda Swāmī</span></div>
             <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-1">
               <Link href="/thank-list" className="hover:text-white">Our Thank List</Link>
               <Link href="/about" className="hover:text-white">About</Link>

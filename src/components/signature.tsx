@@ -8,5 +8,5 @@ export function Signature({ src, className = "" }: { src: string; className?: st
   useEffect(() => { const i = ref.current; if (i && i.complete && i.naturalWidth === 0) setErr(true); }, []);
   if (err) return <span className="text-[26px] italic tracking-wide text-white/90" style={{ fontFamily: "var(--font-reading-serif)" }}>Gour Govinda Swāmī</span>;
   // eslint-disable-next-line @next/next/no-img-element
-  return <img ref={ref} src={src} alt="Signature of Śrīla Gour Govinda Swāmī" onError={() => setErr(true)} className={className} />;
+  return <img ref={ref} src={src} alt="Signature of Śrī Śrīmad Gour Govinda Swāmī" onError={() => setErr(true)} className={className} />;
 }

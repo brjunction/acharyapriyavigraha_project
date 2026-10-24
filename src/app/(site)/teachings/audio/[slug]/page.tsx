@@ -55,7 +55,7 @@ export default async function LecturePage({ params }: { params: Promise<{ slug: 
           <QuoteCard text={QUOTE_OF_DAY.text} source={QUOTE_OF_DAY.source} date={QUOTE_OF_DAY.date} />
           <div className="card p-5">
             <p className="text-[12px] font-semibold uppercase tracking-[0.14em] text-ink-3">Cite this lecture</p>
-            <p className="mt-2 font-serif text-[15px] leading-relaxed text-ink-2">Śrīla Gour Govinda Swāmī, “{l.title}”, lecture, {l.place}, {fmtDate(l.date)}. Taptajīvanam archive.</p>
+            <p className="mt-2 font-serif text-[15px] leading-relaxed text-ink-2">Śrī Śrīmad Gour Govinda Swāmī, “{l.title}”, lecture, {l.place}, {fmtDate(l.date)}. Taptajīvanam archive.</p>
           </div>
         </aside>
       </Container>

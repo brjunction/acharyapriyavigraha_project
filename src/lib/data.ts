@@ -89,7 +89,7 @@ export const QUOTE_CATEGORIES = [
   "Happiness and Pleasure", "Hearing", "Holy Places", "Holy Scriptures", "Ignorance", "Impediments/obstacles", "ISKCON", "Kali",
   "Karmi, Jnanis and Yogis", "Liberation", "Love", "Mahaprasadam", "Mahatma", "Material Emotions", "Mayavadis", "Paramatma",
   "Personalities", "Problems and Dangers", "Sankirtana Padayatra", "Sense and Sense Gratification", "Servant and Service",
-  "Soul and Supersoul", "Spiritual Moods", "Srila Gour Govinda Swami", "Srimad Bhagavatam", "The Holy Name", "Transcendental",
+  "Soul and Supersoul", "Spiritual Moods", "Śrī Śrīmad Gour Govinda Swami", "Srimad Bhagavatam", "The Holy Name", "Transcendental",
   "Vaikuntha", "Various Religions", "Varnas and Asramas",
 ];
 

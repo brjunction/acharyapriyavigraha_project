@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { ChevronDown, ChevronRight, ChevronLeft, Search, SlidersHorizontal, Menu, X, ArrowRight } from "lucide-react";
 import { MENUS, ACCENT, type NavMenu } from "@/lib/nav";
-import { LogoMark, Rosette, LotusFrame } from "./motifs";
+import { LogoMark, Rosette, PortraitFrame } from "./motifs";
 import { usePrefs } from "./providers";
 import { SettingsPanel } from "./settings";
 import { Img } from "./img";
@@ -17,7 +17,7 @@ export function Logo({ compact = false }: { compact?: boolean }) {
       {!compact && (
         <span className="leading-none">
           <span className="block text-[18px] font-bold tracking-[-0.02em] text-ink">Taptajīvanam</span>
-          <span className="mt-[3px] hidden whitespace-nowrap text-[10.5px] font-medium tracking-[0.02em] text-ink-3 2xl:block">Teachings of Śrīla Gour Govinda Swāmī</span>
+          <span className="mt-[3px] hidden whitespace-nowrap text-[10.5px] font-medium tracking-[0.02em] text-ink-3 2xl:block">Teachings of Śrī Śrīmad Gour Govinda Swāmī</span>
         </span>
       )}
     </Link>
@@ -62,7 +62,7 @@ function MegaPanel({ menu, onNavigate, onPin }: { menu: NavMenu; onNavigate: () 
         <aside className="relative flex flex-col overflow-hidden p-4 text-white" style={{ background: "linear-gradient(165deg, var(--acc), color-mix(in srgb, var(--acc) 55%, #000))" }}>
           <Rosette className="spin-slow pointer-events-none absolute -bottom-20 -right-20 h-56 w-56 text-white/[0.16]" />
           {menu.feature?.image ? (
-            <LotusFrame className="mb-1 w-[128px]" src={menu.feature.image} alt={menu.feature.title} />
+            <PortraitFrame photo className="mb-2.5 w-[104px]" src={menu.feature.image} alt={menu.feature.title} />
           ) : (
             <span className="relative mb-2.5 flex h-9 w-9 items-center justify-center rounded-xl bg-white/15 backdrop-blur"><I size={18} strokeWidth={1.7} /></span>
           )}

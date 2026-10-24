@@ -6,7 +6,7 @@ import { ArrowRight, Search, Play, Pause, ChevronLeft, ChevronRight, Headphones,
 import { CONVERSATION, LETTER } from "@/lib/prabhupada";
 import { DIARY, IMG, LANGUAGES, QUOTE_OF_DAY, TIMELINE } from "@/lib/data";
 import { Img } from "./img";
-import { CutOut, PhotoFrame, Orn, Padma, PaisleyField, Petals, Rosette, LogoMark } from "./motifs";
+import { CutOut, PortraitFrame, Orn, Padma, PaisleyField, Petals, Rosette, LogoMark } from "./motifs";
 import { usePrefs } from "./providers";
 import { Backdrop } from "./backdrop";
 
@@ -58,12 +58,11 @@ export function Hero() {
     <section className="relative overflow-hidden border-b border-line" onPointerMove={move}>
       <Backdrop src="cream-mandala" flip pos="left center" o={0.6} />
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[var(--page)]/80 via-[var(--page)]/30 to-transparent" />
-      <Petals n={16} />
       <div className="relative mx-auto grid max-w-[1240px] grid-cols-[minmax(0,1fr)] items-center gap-10 px-5 pb-14 pt-12 sm:px-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:pb-20 lg:pt-16">
         <div className="rise">
           <span className="inline-flex items-center gap-2 rounded-full border border-saffron/25 bg-surface/70 py-1 pl-1.5 pr-3.5 text-[12px] font-medium text-saffron backdrop-blur">
             <span className="flex h-5 w-5 items-center justify-center rounded-full bg-saffron text-white"><LogoMark className="h-3.5 w-3.5" flame="#f4c27a" /></span>
-            The complete teachings of Śrīla Gour Govinda Swāmī
+            The complete teachings of Śrī Śrīmad Gour Govinda Swāmī
           </span>
           <h1 className="mt-5 text-[28px] font-bold leading-[1.12] tracking-[-0.03em] text-ink sm:text-[36px] lg:text-[42px]">
             Words that give life<br />to a <span className="text-shine">burning heart</span>
@@ -83,20 +82,12 @@ export function Hero() {
           <div className="mt-4 flex max-w-xl flex-wrap gap-1.5">
             {CHIPS.map(([l, k]) => <Link key={k} href={`/search?q=${k}`} className="chip acc-saffron">{l}</Link>)}
           </div>
-          <div className="mt-9 grid max-w-xl grid-cols-4 gap-4 border-t border-line pt-6">
-            <Stat n={1595} label="lectures" /><Stat n={130} label="transcribed" /><Stat n={44} label="quote subjects" /><Stat n={8} label="languages" />
-          </div>
         </div>
 
-        {/* Portrait stage */}
-        <div ref={box} className="relative mx-auto w-full max-w-[400px] [--px:0] [--py:0]">
-          <Orn src="mandala-gold" className="spin-slow absolute left-1/2 top-1/2 h-[135%] w-[135%] max-w-none -translate-x-1/2 -translate-y-1/2 opacity-55" />
-          <div className="relative transition-transform duration-300 ease-out" style={{ transform: "translate3d(calc(var(--px) * -8px), calc(var(--py) * -6px), 0)" }}>
-            <PhotoFrame src="/photos/gurudeva-garland.webp" alt="Śrīla Gour Govinda Swāmī" className="mx-auto w-[88%] sm:w-[82%]" />
-          </div>
-          <div className="relative -mt-5 mx-auto w-fit rounded-full border border-[#e8b872] bg-[#6d1a10] px-6 py-2 text-center">
-            <p className="text-[13px] font-semibold tracking-tight text-[#fdebc4]">Śrī Śrīmad Gour Govinda Swāmī</p>
-          </div>
+        {/* Portrait: a plain circular frame, no animation */}
+        <div className="mx-auto w-full max-w-[340px]">
+          <PortraitFrame photo src="/photos/gurudeva-speaking.webp" alt="Śrī Śrīmad Gour Govinda Swāmī" className="mx-auto w-full" />
+          <p className="mt-4 text-center text-[13.5px] font-semibold tracking-tight text-ink">Śrī Śrīmad Gour Govinda Swāmī</p>
         </div>
       </div>
     </section>
@@ -233,7 +224,7 @@ export function DiaryRail() {
 
 export function QuotePanel() {
   const [copied, setCopied] = useState(false);
-  const cite = `“${QUOTE_OF_DAY.text}” Śrīla Gour Govinda Swāmī, ${QUOTE_OF_DAY.source}, ${QUOTE_OF_DAY.date}, ${QUOTE_OF_DAY.place}. Taptajīvanam.`;
+  const cite = `“${QUOTE_OF_DAY.text}” Śrī Śrīmad Gour Govinda Swāmī, ${QUOTE_OF_DAY.source}, ${QUOTE_OF_DAY.date}, ${QUOTE_OF_DAY.place}. Taptajīvanam.`;
   return (
     <figure className="relative flex h-full flex-col overflow-hidden rounded-3xl bg-[#6b2a00] p-7 text-white sm:p-9">
       <Backdrop src="orange-mandala" />
@@ -316,7 +307,7 @@ export function Blessing() {
           <p className="mt-2 text-[13px] text-ink-3">Letter, Māyāpur, 12 February 1976</p>
         </div>
         <div className="order-3 self-end">
-          <CutOut src="/legacy/gurudeva.webp" alt="Śrīla Gour Govinda Swāmī" fade={0} className="mx-auto w-[50%] max-w-[190px] lg:w-[66%]" />
+          <CutOut src="/legacy/gurudeva.webp" alt="Śrī Śrīmad Gour Govinda Swāmī" fade={0} className="mx-auto w-[50%] max-w-[190px] lg:w-[66%]" />
         </div>
       </div>
       <div className="relative grid gap-5 border-t border-[#e9d9b8] bg-[#fbf5e8] p-4 sm:p-7 lg:grid-cols-2">
