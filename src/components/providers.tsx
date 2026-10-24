@@ -58,10 +58,22 @@ export function Providers({ children }: { children: React.ReactNode }) {
     if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     document.documentElement.classList.add("js-reveal");
     const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } }), { rootMargin: "0px 0px -6% 0px" });
-    const scan = () => document.querySelectorAll(".reveal:not(.in)").forEach((el) => io.observe(el));
+    const scan = () => document.querySelectorAll(".reveal:not(.in), .stagger:not(.in)").forEach((el) => io.observe(el));
     scan();
     const mo = new MutationObserver(scan); mo.observe(document.body, { childList: true, subtree: true });
     return () => { io.disconnect(); mo.disconnect(); };
+  }, []);
+
+  // Scroll progress line and a slow parallax variable
+  useEffect(() => {
+    const bar = document.createElement("div"); bar.className = "scroll-progress"; bar.setAttribute("aria-hidden", "true"); document.body.appendChild(bar);
+    let raf = 0;
+    const on = () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(() => {
+      const h = document.documentElement; const y = window.scrollY; const max = h.scrollHeight - window.innerHeight;
+      h.style.setProperty("--prog", String(max > 0 ? Math.min(1, y / max) : 0)); h.style.setProperty("--sy", String(y));
+    }); };
+    on(); window.addEventListener("scroll", on, { passive: true });
+    return () => { window.removeEventListener("scroll", on); cancelAnimationFrame(raf); bar.remove(); };
   }, []);
 
   const set = useCallback(<K extends keyof Prefs>(k: K, v: Prefs[K]) => setPrefs((p) => ({ ...p, [k]: v })), []);

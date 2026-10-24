@@ -6,7 +6,7 @@ import { ArrowRight, Search, Play, Pause, ChevronLeft, ChevronRight, Headphones,
 import { CONVERSATION, LETTER } from "@/lib/prabhupada";
 import { DIARY, IMG, LANGUAGES, QUOTE_OF_DAY, TIMELINE } from "@/lib/data";
 import { Img } from "./img";
-import { CutOut, PortraitFrame, Orn, Padma, PaisleyField, Petals, Rosette, LogoMark } from "./motifs";
+import { CutOut, LotusFrame, Orn, Padma, PaisleyField, Petals, Rosette, LogoMark } from "./motifs";
 import { usePrefs } from "./providers";
 import { Backdrop } from "./backdrop";
 
@@ -91,10 +91,8 @@ export function Hero() {
         {/* Portrait stage */}
         <div ref={box} className="relative mx-auto w-full max-w-[460px] [--px:0] [--py:0]">
           <div className="absolute inset-0 -m-6 rounded-full bg-[radial-gradient(closest-side,color-mix(in_srgb,var(--gold)_38%,transparent),transparent)] blur-2xl" />
-          <Orn src="mandala-gold" className="spin-slow absolute left-1/2 top-1/2 h-[118%] w-[118%] max-w-none -translate-x-1/2 -translate-y-1/2 opacity-90" />
-          <Orn src="mandala-saffron" className="absolute left-1/2 top-1/2 h-[104%] w-[104%] max-w-none -translate-x-1/2 -translate-y-1/2 opacity-70 [animation:spin_90s_linear_infinite_reverse]" />
           <div className="relative transition-transform duration-300 ease-out" style={{ transform: "translate3d(calc(var(--px) * -8px), calc(var(--py) * -6px), 0)" }}>
-            <PortraitFrame photo src="/photos/gurudeva-portrait.webp" className="mx-auto w-[74%]" />
+            <LotusFrame src="/photos/gurudeva-speaking.webp" alt="Śrīla Gour Govinda Swāmī" className="mx-auto w-[96%]" />
           </div>
           <div className="relative mx-auto mt-7 w-fit rounded-full border border-[#e8b872]/60 bg-[#fffbf3] px-5 py-2 text-center">
             <p className="text-[13.5px] font-semibold tracking-tight text-ink">Śrī Śrīmad Gour Govinda Swāmī</p>
@@ -319,7 +317,7 @@ export function Blessing() {
           <p className="mt-2 text-[13px] text-ink-3">Letter, Māyāpur, 12 February 1976</p>
         </div>
         <div className="order-3 self-end">
-          <PortraitFrame photo src="/photos/gurudeva-portrait.webp" className="mx-auto w-[56%] max-w-[210px] lg:w-[64%]" />
+          <CutOut src="/legacy/gurudeva.webp" alt="Śrīla Gour Govinda Swāmī" fade={0} className="mx-auto w-[62%] max-w-[250px] lg:w-[78%]" />
         </div>
       </div>
       <div className="relative grid gap-5 border-t border-[#e9d9b8] bg-[#fbf5e8] p-4 sm:p-7 lg:grid-cols-2">

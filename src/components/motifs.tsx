@@ -234,3 +234,29 @@ export function CutOut({ src, alt, className = "", fade = 12 }: { src: string; a
     <img src={src} alt={alt} className={className} style={{ WebkitMaskImage: m, maskImage: m }} />
   );
 }
+
+/** A portrait set in a circle of lotus petals: two rings of petals turn slowly in opposite directions. */
+export function LotusFrame({ src, alt, className = "" }: { src: string; alt: string; className?: string }) {
+  const petal = (r0: number, L: number, w: number) => `M0,${-r0} C${w},${-(r0 + L * 0.3)} ${w * 0.7},${-(r0 + L * 0.8)} 0,${-(r0 + L)} C${-w * 0.7},${-(r0 + L * 0.8)} ${-w},${-(r0 + L * 0.3)} 0,${-r0} Z`;
+  const ring = (n: number, r0: number, L: number, w: number, off: number) => Array.from({ length: n }, (_, i) => ({ d: petal(r0, L, w), a: off + (360 / n) * i }));
+  const outer = ring(16, 58, 40, 15, 0);
+  const inner = ring(16, 58, 26, 11, 11.25);
+  return (
+    <div className={`relative aspect-square ${className}`}>
+      <svg viewBox="-100 -100 200 200" className="absolute inset-0 h-full w-full overflow-visible" aria-hidden>
+        <defs>
+          <linearGradient id="lf-o" x1="0" y1="-1" x2="0" y2="1"><stop offset="0" stopColor="#f0b24a" /><stop offset="1" stopColor="#c9761a" /></linearGradient>
+          <linearGradient id="lf-i" x1="0" y1="-1" x2="0" y2="1"><stop offset="0" stopColor="#fff3d2" /><stop offset="1" stopColor="#f6cf86" /></linearGradient>
+        </defs>
+        <g className="lotus-a">{outer.map((p, i) => <path key={i} d={p.d} transform={`rotate(${p.a})`} fill="url(#lf-o)" stroke="#8a4a08" strokeWidth=".6" opacity=".92" />)}</g>
+        <g className="lotus-b">{inner.map((p, i) => <path key={i} d={p.d} transform={`rotate(${p.a})`} fill="url(#lf-i)" stroke="#b9780a" strokeWidth=".6" />)}</g>
+        <circle r="62" fill="#fff8e8" stroke="#b9780a" strokeWidth="1.2" />
+        <circle r="59.5" fill="none" stroke="#e9b85f" strokeWidth=".8" strokeDasharray="1.4 2.2" />
+      </svg>
+      <span className="absolute left-1/2 top-1/2 block h-[60%] w-[60%] -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-full">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={src} alt={alt} className="h-full w-full object-cover" />
+      </span>
+    </div>
+  );
+}

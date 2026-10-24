@@ -238,3 +238,17 @@ h1, h2, h3, h4 { font-family: var(--font-sans); font-weight: 650; letter-spacing
 
 @keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
 @keyframes grow { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+
+/* Lotus frame */
+.lotus-a { transform-origin: 0 0; animation: spin 140s linear infinite, breathe 7s ease-in-out infinite; }
+.lotus-b { transform-origin: 0 0; animation: spin 100s linear infinite reverse, breathe 7s ease-in-out infinite -3.5s; }
+@keyframes breathe { 0%,100% { opacity: .92; } 50% { opacity: 1; } }
+
+/* Scroll life */
+.scroll-progress { position: fixed; inset: 0 0 auto 0; height: 2px; z-index: 120; transform-origin: 0 50%; transform: scaleX(var(--prog, 0)); background: linear-gradient(90deg, var(--gold), var(--saffron), var(--rose-d, #a3365e)); pointer-events: none; }
+.js-reveal .stagger > * { opacity: 0; transform: translateY(16px); transition: opacity .7s ease, transform .7s cubic-bezier(.2,.7,.2,1); }
+.js-reveal .reveal.in .stagger > *, .js-reveal .stagger.in > * { opacity: 1; transform: none; }
+.stagger > *:nth-child(2) { transition-delay: .08s; } .stagger > *:nth-child(3) { transition-delay: .16s; } .stagger > *:nth-child(4) { transition-delay: .24s; }
+.stagger > *:nth-child(5) { transition-delay: .32s; } .stagger > *:nth-child(6) { transition-delay: .4s; } .stagger > *:nth-child(n+7) { transition-delay: .48s; }
+.parallax-spin { transform: translate(-50%, -50%) rotate(calc(var(--sy, 0) * 0.04deg)); }
+@media (prefers-reduced-motion: reduce) { .lotus-a, .lotus-b { animation: none; } .js-reveal .stagger > * { opacity: 1; transform: none; } }

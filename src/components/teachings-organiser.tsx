@@ -44,7 +44,7 @@ export function TeachingsOrganiser() {
           <button onClick={go} className="btn btn-primary !h-11 justify-center"><Search size={16} />Find</button>
         </div>
       </div>
-      <div className="mt-6 grid gap-5 lg:grid-cols-3">
+      <div className="stagger mt-6 grid gap-5 lg:grid-cols-3">
         {menu.groups.map((g, i) => (
           <section key={g.title} className={`${tone[i % 3]} card overflow-hidden`}>
             <h3 className="flex items-center gap-2 border-b border-line bg-[var(--acc-tint)] px-5 py-3.5 text-[13px] font-semibold uppercase tracking-[0.1em] text-[var(--acc)]"><span className="h-1.5 w-1.5 rounded-full bg-[var(--acc)]" />{g.title}</h3>

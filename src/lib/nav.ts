@@ -23,7 +23,7 @@ export const MENUS: NavMenu[] = [
   {
     key: "gurudeva", label: "Śrīla Gurudeva", href: "/gurudeva", icon: Flower2, allLabel: "Overview",
     intro: "His life, his diaries, his lineage, his disciples and his mission.",
-    feature: { title: "Śrī Śrīmad Gour Govinda Swāmī", text: "A dear disciple of Śrīla Prabhupāda, born in 1929 near Purī into a family devoted to Śrī Gopāl Jiu.", image: "/photos/gurudeva-portrait.webp", href: "/gurudeva", cta: "Overview" },
+    feature: { title: "Śrī Śrīmad Gour Govinda Swāmī", text: "A dear disciple of Śrīla Prabhupāda, born in 1929 near Purī into a family devoted to Śrī Gopāl Jiu.", image: "/photos/gurudeva-speaking.webp", href: "/gurudeva", cta: "Overview" },
     groups: [
       g("His life", [
         l("/gurudeva/who-is-srila-gurudeva", "Who is Śrīla Gurudeva", "Krishna sent him · a brief life story", UserRound),
