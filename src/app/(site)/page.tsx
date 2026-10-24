@@ -130,7 +130,7 @@ export default async function Home() {
 
 
       {/* Teachings */}
-      <Band tint="#fbf1de" arc="rgba(200,120,30,.35)" arcFill="rgba(243,179,99,.16)" carve className="mt-[110px] pb-[130px] pt-8 sm:mt-[150px] sm:pb-[190px]">
+      <Band tint="#fbf1de" className="mt-[110px] pb-[130px] pt-8 sm:mt-[150px] sm:pb-[190px]">
         <Container>
           <Head kicker="His teachings" title="Hear, read and remember" intro="Everything is organised in three places: what you can hear and watch, what you can read, and the compilations drawn from both." action={{ href: "/teachings", label: "All teachings" }} />
           <TeachingsOrganiser />
@@ -139,7 +139,9 @@ export default async function Home() {
 
       {/* Today */}
       <section className="reveal relative isolate mt-12 py-8">
-        <SectionBg src="tan-mandala" o={0.3} flip />
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/backgrounds/paint-pink.webp" alt="" loading="lazy" className="pointer-events-none absolute inset-0 -z-10 h-full w-full object-cover opacity-[0.22]" />
+        <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b from-[var(--page)] via-[#fdf3f6]/70 to-[var(--page)]" />
         <Container>
           <Head kicker="For today" title="A quote, a diary, a date" intro="Something small to carry through the day." />
           <div className="grid grid-cols-[minmax(0,1fr)] gap-5 lg:grid-cols-[1.15fr_1fr]">
