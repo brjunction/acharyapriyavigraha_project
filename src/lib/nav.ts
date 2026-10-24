@@ -117,8 +117,8 @@ export const MENUS: NavMenu[] = [
     key: "translations", label: "Translations", href: "/translations", icon: Languages, layout: "flyout", dense: true, searchAll: true, allLabel: "All languages",
     intro: "Every language has its own complete site. Pick a region, or search.",
     feature: { title: "Every language", text: "Each language has its own complete site.", image: "/photos/gurudeva-smile.webp", href: "/translations", cta: "All languages" },
-    groups: REGIONS.map((r) => g(r.title, ALL_LANGUAGES.filter((x) => x.region === r.key).map((x) => ({
-      href: x.code === "en" ? "/" : `/${x.code}`, label: x.native, desc: `${x.name} · ${STATUS_LABEL[x.status]}`, icon: Globe, soon: x.status === "planned",
+    groups: REGIONS.filter((r) => ALL_LANGUAGES.some((x) => x.region === r.key && x.code !== "en")).map((r) => g(r.title, ALL_LANGUAGES.filter((x) => x.region === r.key && x.code !== "en").map((x) => ({
+      href: `/${x.code}`, label: x.native, desc: `${x.name} · ${STATUS_LABEL[x.status]}`, icon: Globe, soon: x.status === "planned",
     })))),
   },
   {

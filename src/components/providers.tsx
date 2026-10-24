@@ -66,14 +66,13 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
   // Scroll progress line and a slow parallax variable
   useEffect(() => {
-    const bar = document.createElement("div"); bar.className = "scroll-progress"; bar.setAttribute("aria-hidden", "true"); document.body.appendChild(bar);
     let raf = 0;
     const on = () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(() => {
       const h = document.documentElement; const y = window.scrollY; const max = h.scrollHeight - window.innerHeight;
       h.style.setProperty("--prog", String(max > 0 ? Math.min(1, y / max) : 0)); h.style.setProperty("--sy", String(y));
     }); };
     on(); window.addEventListener("scroll", on, { passive: true });
-    return () => { window.removeEventListener("scroll", on); cancelAnimationFrame(raf); bar.remove(); };
+    return () => { window.removeEventListener("scroll", on); cancelAnimationFrame(raf); };
   }, []);
 
   const set = useCallback(<K extends keyof Prefs>(k: K, v: Prefs[K]) => setPrefs((p) => ({ ...p, [k]: v })), []);

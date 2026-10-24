@@ -13,18 +13,19 @@ import { Img } from "./img";
 export function Logo({ compact = false }: { compact?: boolean }) {
   return (
     <Link href="/" className="group flex items-center gap-2.5" aria-label="Taptajīvanam home">
-      <LogoMark className="h-10 w-10 shrink-0" />
+      <LogoMark className="h-9 w-9 shrink-0" />
       {!compact && (
         <span className="leading-none">
-          <span className="block text-[18px] font-bold tracking-[-0.02em] text-ink">Taptajīvanam</span>
-          <span className="mt-[3px] hidden whitespace-nowrap text-[10.5px] font-medium tracking-[0.02em] text-ink-3 2xl:block">Life and teachings of Śrī Śrīmad Gour Govinda Swāmī Gurudeva</span>
+          <span className="block text-[16px] font-bold tracking-[-0.02em] text-ink">Taptajīvanam</span>
+          <span className="mt-[3px] hidden whitespace-nowrap text-[9px] font-medium tracking-[0.01em] text-ink-3 xl:block">Life and teachings of Śrī Śrīmad Gour Govinda Swāmī Gurudeva</span>
         </span>
       )}
     </Link>
   );
 }
 
-const isIn = (path: string, m: NavMenu) => path === m.href || path.startsWith(m.href + "/") || m.groups.some((g) => g.links.some((l) => path === l.href));
+const hit = (path: string, href: string) => href !== "/" && (path === href || path.startsWith(href + "/"));
+const isIn = (path: string, m: NavMenu) => hit(path, m.href) || m.groups.some((g) => g.links.some((l) => hit(path, l.href)));
 
 const dot = (desc: string, soon?: boolean) => (soon ? "bg-line-strong" : desc.includes("In progress") ? "bg-[#d99a1c]" : "bg-ok");
 
@@ -35,13 +36,15 @@ function MegaPanel({ menu, onNavigate, onPin }: { menu: NavMenu; onNavigate: () 
   const [gi, setGi] = useState(0);
   const [q, setQ] = useState("");
   const links = menu.groups.flatMap((g) => g.links);
+  const here = usePathname();
+  const sel = (href: string) => hit(here, href);
   const g = menu.groups[gi] ?? menu.groups[0];
   const nq = q.trim().toLowerCase();
   const found = nq ? menu.groups.flatMap((x) => x.links.map((l) => ({ ...l, grp: x.title }))).filter((l) => (l.label + " " + l.desc).toLowerCase().includes(nq)) : [];
   const Item = ({ it }: { it: (typeof links)[number] }) => {
     const T = it.icon;
     return (
-      <Link href={it.href} onClick={onNavigate} className="mega-item" title={it.desc}>
+      <Link href={it.href} onClick={onNavigate} aria-current={sel(it.href) ? "page" : undefined} className={`mega-item ${sel(it.href) ? "!border-[var(--acc)] bg-acc-soft" : ""}`} title={it.desc}>
         <span className="mega-ic"><T size={14} strokeWidth={1.8} /></span>
         <span className="min-w-0">
           <span className="flex items-center gap-1.5 text-[12px] font-semibold leading-snug text-ink">{it.label}{it.soon && <span className="rounded-full bg-band px-1.5 text-[9px] font-medium text-ink-3">soon</span>}</span>
@@ -51,7 +54,7 @@ function MegaPanel({ menu, onNavigate, onPin }: { menu: NavMenu; onNavigate: () 
     );
   };
   const Chip = ({ it }: { it: (typeof links)[number] }) => (
-    <Link href={it.href} onClick={onNavigate} title={it.desc} className="group/c flex items-center gap-2 rounded-lg border border-transparent px-2 py-1.5 transition hover:border-[var(--acc)]/30 hover:bg-acc-tint">
+    <Link href={it.href} onClick={onNavigate} title={it.desc} aria-current={sel(it.href) ? "page" : undefined} className={`group/c flex items-center gap-2 rounded-lg border px-2 py-1.5 transition hover:border-[var(--acc)]/30 hover:bg-acc-tint ${sel(it.href) ? "border-[var(--acc)] bg-acc-soft" : "border-transparent"}`}>
       <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${dot(it.desc, it.soon)}`} />
       <span className="min-w-0 leading-tight"><span className="block text-[12px] font-semibold text-ink group-hover/c:text-[var(--acc)]">{it.label}</span><span className="block text-[10.5px] text-ink-3">{it.desc.split(" · ")[0]}</span></span>
     </Link>
@@ -143,12 +146,13 @@ function MegaPanel({ menu, onNavigate, onPin }: { menu: NavMenu; onNavigate: () 
 }
 
 function MobileMenu({ onClose }: { onClose: () => void }) {
+  const path = usePathname();
   const [open, setOpen] = useState<NavMenu | null>(null);
   const [og, setOg] = useState<string | null>(null);
   const { setSearch } = usePrefs();
   return createPortal(
     <div className="fixed inset-0 z-[100] flex flex-col bg-surface lg:hidden">
-      <div className="stripe" />
+      <div className="stripe" aria-hidden />
       <div className="relative flex h-14 shrink-0 items-center justify-between border-b border-line px-4">
         <Logo compact />
         <span className="absolute left-14 text-[17px] font-bold tracking-[-0.02em]">Taptajīvanam</span>
@@ -186,12 +190,12 @@ function MobileMenu({ onClose }: { onClose: () => void }) {
                   {og === g.title && (
                     <div className={`pb-3 ${open.dense ? "grid grid-cols-2 gap-1" : ""}`}>
                       {g.links.map((it) => open.dense ? (
-                        <Link key={it.href + it.label} href={it.href} onClick={onClose} className="flex items-center gap-2 rounded-lg px-2 py-2 hover:bg-acc-tint">
+                        <Link key={it.href + it.label} href={it.href} onClick={onClose} className={`flex items-center gap-2 rounded-lg px-2 py-2 hover:bg-acc-tint ${hit(path, it.href) ? "bg-acc-soft font-semibold" : ""}`}>
                           <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${dot(it.desc, it.soon)}`} />
                           <span className="min-w-0 leading-tight"><span className="block truncate text-[13px] font-medium">{it.label}</span><span className="block truncate text-[11px] text-ink-3">{it.desc.split(" · ")[0]}</span></span>
                         </Link>
                       ) : (
-                        <Link key={it.href + it.label} href={it.href} onClick={onClose} className="flex items-center gap-3 rounded-xl px-2 py-2 hover:bg-acc-tint">
+                        <Link key={it.href + it.label} href={it.href} onClick={onClose} className={`flex items-center gap-3 rounded-xl px-2 py-2 hover:bg-acc-tint ${hit(path, it.href) ? "bg-acc-soft font-semibold" : ""}`}>
                           <span className="mega-ic"><it.icon size={15} strokeWidth={1.8} /></span>
                           <span><span className="block text-[13.5px] font-medium">{it.label}</span><span className="block text-[11px] leading-snug text-ink-3">{it.desc}</span></span>
                         </Link>
@@ -203,7 +207,7 @@ function MobileMenu({ onClose }: { onClose: () => void }) {
                 <div key={g.title} className="mb-2">
                   <p className="px-2 pb-1 pt-3 text-[10.5px] font-semibold uppercase tracking-[0.12em] text-[var(--acc)]">{g.title}</p>
                   {g.links.map((it) => { const I = it.icon; return (
-                    <Link key={it.href + it.label} href={it.href} onClick={onClose} className="flex items-center gap-3 rounded-xl px-2 py-2 hover:bg-acc-tint">
+                    <Link key={it.href + it.label} href={it.href} onClick={onClose} className={`flex items-center gap-3 rounded-xl px-2 py-2 hover:bg-acc-tint ${hit(path, it.href) ? "bg-acc-soft font-semibold" : ""}`}>
                       <span className="mega-ic"><I size={15} strokeWidth={1.8} /></span>
                       <span><span className="block text-[13.5px] font-medium">{it.label}</span><span className="block text-[11px] leading-snug text-ink-3">{it.desc}</span></span>
                     </Link>
@@ -255,11 +259,11 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-50">
-      <div className="stripe" />
+      <div className="stripe" aria-hidden />
       <div className={`glass border-b border-line transition-shadow ${scrolled ? "shadow-[0_6px_24px_-14px_rgba(60,30,10,0.45)]" : ""}`}>
         <div className="mx-auto flex h-[58px] max-w-[1320px] items-center gap-3 px-4 sm:px-6">
           <Logo />
-          <nav className="ml-4 hidden items-center gap-0.5 lg:flex" aria-label="Main" onMouseLeave={hide}>
+          <nav className="ml-2 hidden items-center gap-0.5 lg:flex" aria-label="Main" onMouseLeave={hide}>
             {MENUS.map((m) => {
               const I = m.icon;
               const on = active === m.key;
@@ -267,7 +271,7 @@ export function Header() {
               return (
                 <button key={m.key} onMouseEnter={() => show(m.key)} onFocus={() => show(m.key)} onClick={() => setActive(on ? null : m.key)}
                   aria-expanded={on} aria-haspopup="true"
-                  className={`acc-${ACCENT[m.key]} group relative flex items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-1 text-[12.5px] font-medium transition ${on ? "bg-acc-soft text-[var(--acc)]" : current ? "text-[var(--acc)]" : "text-ink-2 hover:bg-acc-tint hover:text-[var(--acc)]"}`}>
+                  className={`acc-${ACCENT[m.key]} group relative flex items-center gap-1.5 whitespace-nowrap rounded-full px-2 py-1 text-[12px] font-medium transition ${on ? "bg-acc-soft text-[var(--acc)]" : current ? "text-[var(--acc)]" : "text-ink-2 hover:bg-acc-tint hover:text-[var(--acc)]"}`}>
                   <I size={14} strokeWidth={1.9} className="hidden text-[var(--acc)] opacity-80 xl:block" />
                   {m.label}
                   <ChevronDown size={12} className={`-ml-0.5 opacity-60 transition-transform ${on ? "rotate-180" : ""}`} />
@@ -278,7 +282,7 @@ export function Header() {
           </nav>
           <div className="ml-auto flex items-center gap-1.5">
             <button onClick={() => setSearch(true)} aria-label="Search" title="Search (Ctrl K)"
-              className="flex h-9 items-center gap-2 rounded-full border border-line bg-band/70 px-3 text-ink-2 transition hover:border-saffron hover:bg-surface hover:text-saffron xl:w-48">
+              className="flex h-9 items-center gap-2 rounded-full border border-line bg-band/70 px-3 text-ink-2 transition hover:border-saffron hover:bg-surface hover:text-saffron xl:w-40">
               <Search size={15} /><span className="hidden flex-1 whitespace-nowrap text-left text-[12.5px] text-ink-3 xl:inline">Search…</span>
               <kbd className="hidden whitespace-nowrap rounded border border-line bg-surface px-1.5 text-[10px] text-ink-3 xl:inline">Ctrl K</kbd>
             </button>

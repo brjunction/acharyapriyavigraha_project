@@ -104,7 +104,6 @@ const FEATURES = [
 
 export function Featured() {
   const [i, setI] = useState(0); const [paused, setPaused] = useState(false);
-  useEffect(() => { if (paused) return; const t = setInterval(() => setI((x) => (x + 1) % FEATURES.length), 6000); return () => clearInterval(t); }, [paused]);
   const f = FEATURES[i];
   return (
     <div className="grid overflow-hidden rounded-3xl border border-line bg-surface shadow-[var(--shadow-md)] lg:grid-cols-[300px_minmax(0,1fr)]" onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
@@ -114,8 +113,7 @@ export function Featured() {
             <button onClick={() => setI(k)} className={`acc-${x.acc} relative w-full overflow-hidden rounded-2xl px-4 py-3 text-left transition ${k === i ? "bg-acc-soft" : "hover:bg-band"}`}>
               <span className={`block text-[14px] font-semibold ${k === i ? "text-[var(--acc)]" : "text-ink"}`}>{x.title}</span>
               <span className="mt-0.5 hidden text-[12px] leading-snug text-ink-3 lg:line-clamp-1">{x.text}</span>
-              {k === i && !paused && <span key={i} className="absolute bottom-0 left-0 h-[3px] bg-[var(--acc)]" style={{ animation: "grow 6s linear both" }} />}
-              {k === i && paused && <span className="absolute bottom-0 left-0 h-[3px] w-full bg-[var(--acc)]" />}
+              {k === i && <span className="absolute bottom-0 left-0 h-[3px] w-full bg-[var(--acc)]" />}
             </button>
           </li>
         ))}
