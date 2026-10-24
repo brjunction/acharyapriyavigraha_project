@@ -7,11 +7,12 @@ const TONES: Record<string, Tone> = {
   light: { base: "#f7efe0", line: "#b9780a", glow: "rgba(233,184,95,0.35)", o: 0.2 },
   warm: { base: "#f3e2c4", line: "#853500", glow: "rgba(210,130,40,0.3)", o: 0.16 },
   red: { base: "#4a0a0c", line: "#e8b872", glow: "rgba(200,60,40,0.45)", o: 0.2 },
+  saffron: { base: "#8a3a0a", line: "#f3b363", glow: "rgba(243,179,99,0.28)", o: 0.2 },
   blue: { base: "#12295f", line: "#bcd0ff", glow: "rgba(90,130,230,0.4)", o: 0.18 },
 };
 const FAMILY: Record<string, keyof typeof TONES> = {
   "red-gold-mandala": "red", "maroon-mandala": "red", "red-henna-gold": "red", "blue-mandala": "blue",
-  "tan-mandala": "warm", "orange-mandala": "warm", "folk-peacock": "warm",
+  "saffron-dark": "saffron", "tan-mandala": "warm", "orange-mandala": "warm", "folk-peacock": "warm",
 };
 
 function tile(line: string) {

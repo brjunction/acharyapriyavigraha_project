@@ -6,7 +6,7 @@ import { ArrowRight, Search, Play, Pause, SkipForward, ChevronLeft, ChevronRight
 import { CONVERSATION, LETTER } from "@/lib/prabhupada";
 import { LECTURES, fmtDate, DIARY, IMG, LANGUAGES, QUOTE_OF_DAY, TIMELINE } from "@/lib/data";
 import { Img } from "./img";
-import { CutOut, PortraitFrame, Orn, Padma, PaisleyField, Petals, Rosette, LogoMark, RosetteLines, VectorToran, VectorPaisley } from "./motifs";
+import { CutOut, PortraitFrame, Orn, Padma, PaisleyField, Petals, Rosette, LogoMark } from "./motifs";
 import { usePrefs, usePlayer } from "./providers";
 import { Backdrop } from "./backdrop";
 
@@ -56,14 +56,9 @@ export function Hero() {
   };
   return (
     <section className="relative overflow-hidden border-b border-line" onPointerMove={move}>
-      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(155deg,#6e2a06_0%,#8f3d0a_38%,#a9490d_70%,#7d3407_100%)]" />
-      <VectorPaisley className="text-[#f3b363] opacity-[0.07]" />
-      <RosetteLines className="pointer-events-none absolute -right-28 top-1/2 h-[640px] w-[640px] -translate-y-1/2 text-[#f3b363] opacity-[0.22] lg:right-[-60px]" />
-      <RosetteLines className="pointer-events-none absolute -bottom-52 -left-44 hidden h-[500px] w-[500px] text-[#f3b363] opacity-[0.14] lg:block" />
-      <div className="pointer-events-none absolute inset-x-0 top-3 h-px bg-[#f3b363]/40" />
-      <div className="pointer-events-none absolute inset-x-0 top-[18px] h-px bg-[#f3b363]/20" />
-      <VectorToran className="pointer-events-none absolute inset-x-0 bottom-0 text-[#f3b363]/70" />
-      <div className="relative mx-auto grid max-w-[1240px] grid-cols-[minmax(0,1fr)] items-center gap-10 px-5 pb-24 pt-20 sm:px-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:pb-28 lg:pt-24">
+      <Backdrop src="saffron-dark" flip pos="left center" o={0.6} />
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[#5a2204]/60 via-[#5a2204]/15 to-transparent" />
+      <div className="relative mx-auto grid max-w-[1240px] grid-cols-[minmax(0,1fr)] items-center gap-10 px-5 pb-14 pt-16 sm:px-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:pb-20 lg:pt-24">
         <div className="rise order-2 text-center lg:order-1 lg:text-left">
           <span className="inline-flex items-center gap-2 rounded-full border border-[#f3b363]/40 bg-white/10 py-1 pl-3.5 pr-3.5 text-[12px] font-medium text-[#ffe2b8] backdrop-blur">
             The complete teachings of Śrī Śrīmad Gour Govinda Swāmī Gurudeva
