@@ -12,14 +12,9 @@ import { Img } from "./img";
 
 export function Logo({ compact = false }: { compact?: boolean }) {
   return (
-    <Link href="/" className="group flex items-center gap-2.5" aria-label="Taptajīvanam home">
-      <LogoMark className="h-9 w-9 shrink-0" />
-      {!compact && (
-        <span className="leading-none">
-          <span className="block text-[16px] font-bold tracking-[-0.02em] text-ink">Taptajīvanam</span>
-          <span className="mt-[3px] hidden whitespace-nowrap text-[9px] font-medium tracking-[0.01em] text-ink-3 xl:block">Life and teachings of Śrī Śrīmad Gour Govinda Swāmī Gurudeva</span>
-        </span>
-      )}
+    <Link href="/" className="logo-box group flex items-center gap-2.5 py-1 pl-1.5 pr-4" aria-label="Taptajīvanam home">
+      <LogoMark className="relative h-9 w-9 shrink-0" />
+      {!compact && <span className="relative text-[17px] font-bold leading-none tracking-[-0.02em] text-ink">Taptajīvanam</span>}
     </Link>
   );
 }

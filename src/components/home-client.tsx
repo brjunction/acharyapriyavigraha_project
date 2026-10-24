@@ -60,8 +60,8 @@ export function Hero() {
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[#5a2204]/60 via-[#5a2204]/15 to-transparent" />
       <div className="relative mx-auto grid max-w-[1240px] grid-cols-[minmax(0,1fr)] items-center gap-10 px-5 pb-14 pt-16 sm:px-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:pb-20 lg:pt-24">
         <div className="rise order-2 text-center lg:order-1 lg:text-left">
-          <span className="inline-flex items-center gap-2 rounded-full border border-[#f3b363]/40 bg-white/10 py-1 pl-3.5 pr-3.5 text-[12px] font-medium text-[#ffe2b8] backdrop-blur">
-            The complete teachings of Śrī Śrīmad Gour Govinda Swāmī Gurudeva
+          <span className="inline-flex items-center gap-2 rounded-full border border-[#f3b363]/70 bg-[#f3b363]/20 py-1.5 pl-4 pr-4 text-[12.5px] font-semibold text-[#fff1da] backdrop-blur">
+            The complete life and teachings of Śrī Śrīmad Gour Govinda Swāmī Gurudeva
           </span>
           <h1 className="mt-5 text-[28px] font-bold leading-[1.12] tracking-[-0.03em] sm:text-[36px] lg:text-[42px] text-[#fff1da]">
             Words that give life<br />to a <span className="text-[#ffc566]">burning heart</span>
