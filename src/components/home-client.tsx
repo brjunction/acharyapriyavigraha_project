@@ -78,7 +78,7 @@ export function Hero() {
           </h1>
           <div className="hero-rule mx-auto mt-5 h-[3px] w-24 rounded-full bg-gradient-to-r from-[#ffc566] to-transparent lg:mx-0" />
           <p className="mx-auto mt-5 max-w-xl text-[15.5px] leading-relaxed text-[#ffe9cc]/90 lg:mx-0">
-            Lectures, letters, books, quotes and photographs of a pure devotee, gathered in one searchable home and growing in many languages. Listen, read, and find the exact words you were looking for.
+            Lectures, letters, books, quotes and photographs of Śrīla Gurudeva, gathered in one searchable home and growing in many languages. Listen, read, and find the exact words you were looking for.
           </p>
           <form onSubmit={(e) => { e.preventDefault(); if (q.trim()) r.push(`/search?q=${encodeURIComponent(q)}`); else setSearch(true); }}
             className="mx-auto mt-7 flex max-w-xl items-center gap-2 lg:mx-0 rounded-2xl border border-line bg-surface p-1.5 pl-4 shadow-[var(--shadow-md)] transition focus-within:border-saffron focus-within:shadow-[0_0_0_4px_color-mix(in_srgb,var(--saffron)_14%,transparent)]">
