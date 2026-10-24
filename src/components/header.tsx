@@ -12,7 +12,8 @@ import { Img } from "./img";
 
 export function Logo({ compact = false }: { compact?: boolean }) {
   return (
-    <Link href="/" className="logo-link group flex items-center" aria-label="Taptajīvanam home">
+    <Link href="/" className="logo-link group flex items-center" aria-label="Taptajīvanam home"
+      onClick={(e) => { if (window.location.pathname === "/") { e.preventDefault(); window.scrollTo({ top: 0, behavior: "smooth" }); } }}>
       <span className="logo-medal relative z-10 flex h-10 w-10 shrink-0 items-center justify-center rounded-full"><LogoMark className="h-full w-full" /></span>
       {!compact && <span className="logo-box -ml-3.5 py-[5px] pl-5 pr-3.5 text-[14.5px] font-bold leading-none tracking-[-0.02em] text-ink">Taptajīvanam</span>}
     </Link>
@@ -249,7 +250,7 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-50">
-      <div className={`border-b border-line bg-white transition-shadow ${scrolled ? "shadow-[0_6px_24px_-14px_rgba(60,30,10,0.45)]" : ""}`}>
+      <div className={`border-b border-line bg-[#fdf8ee] transition-shadow ${scrolled ? "shadow-[0_6px_24px_-14px_rgba(60,30,10,0.45)]" : ""}`}>
         <div className="mx-auto grid h-[58px] max-w-[1320px] grid-cols-[auto_1fr_auto] items-center gap-3 px-4 sm:px-6">
           <Logo />
           <nav className="hidden items-center justify-center gap-0.5 lg:flex" aria-label="Main" onMouseLeave={hide}>

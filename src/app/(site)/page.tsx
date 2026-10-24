@@ -80,7 +80,7 @@ export default async function Home() {
       <Hero />
 
       {/* Blessing */}
-      <section className="reveal mt-10">
+      <section className="reveal relative z-[2] mt-10">
         <Container><Blessing /></Container>
       </section>
 
@@ -118,7 +118,7 @@ export default async function Home() {
       </section>
 
       {/* Four ways in */}
-      <section className="reveal mt-10">
+      <section className="reveal relative z-[2] mt-10">
         <Container>
           <div className="stagger grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <Path acc="teal" icon={Headphones} title="Listen" text="Hari-kathā in his own voice, from 1985 to 1996." links={[["/teachings/audio", "Audio lectures", "1,595"], ["/teachings/transcriptions", "Transcriptions", "130"], ["/teachings/videos", "Videos", "210"]]} />

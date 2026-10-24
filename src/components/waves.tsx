@@ -9,8 +9,6 @@ function Arcs({ stroke, fill, flip }: { stroke: string; fill: string; flip?: boo
   return (
     <svg aria-hidden className={`arc-drift pointer-events-none absolute inset-0 -z-10 h-full w-full ${flip ? "-scale-x-100" : ""}`} viewBox="0 0 1440 900" preserveAspectRatio="none">
       <path d="M-120 820 C 260 640 520 760 820 420 S 1280 60 1600 -80 V 300 C 1300 340 1100 640 820 760 S 300 980 -120 980 Z" fill={fill} />
-      <path d="M-140 560 C 240 480 520 520 800 300 S 1240 20 1580 -40" fill="none" stroke={stroke} strokeWidth="1.5" vectorEffect="non-scaling-stroke" />
-      <path d="M-140 700 C 280 600 560 680 860 440 S 1300 140 1600 60" fill="none" stroke={stroke} strokeWidth="1" vectorEffect="non-scaling-stroke" />
     </svg>
   );
 }
