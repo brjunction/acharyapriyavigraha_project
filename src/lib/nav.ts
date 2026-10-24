@@ -5,7 +5,7 @@ import {
   Handshake, Users, IdCard, Sunset, Landmark, Sparkles, Building2, Home, Star, Image, Heart, Gift, Package, Headphones, Clapperboard,
   Music, BookOpen, FileText, Newspaper, Languages, Quote, Droplet, Lightbulb, BookHeart, MessageCircleQuestion, ListChecks, HandHeart,
   Library, Network, BookA, MapPin, CalendarRange, Users2, ArrowDownAZ, Info, HeartHandshake, MessageCircle, Phone, Globe, Archive, Megaphone,
-  Map, Compass, Sunrise, Search, ShieldCheck, Accessibility, ListTree, Type,
+  Map, Compass, Sunrise, Search, ShieldCheck, Accessibility, ListTree, Type, Download, Smartphone, GraduationCap, ExternalLink, Youtube, Image as ImageDl,
 } from "lucide-react";
 import { ALL_LANGUAGES, REGIONS, STATUS_LABEL } from "./languages";
 
@@ -114,6 +114,31 @@ export const MENUS: NavMenu[] = [
     ],
   },
   {
+    key: "resources", label: "Resources", href: "/resources", icon: Download, allLabel: "All resources",
+    intro: "Downloads, the mobile app, and good places elsewhere to read and learn.",
+    groups: [
+      g("Downloads", [
+        l("/resources/mobile-app", "Mobile app", "Taptajīvanam on your phone, for Android and iOS", Smartphone, true),
+        l("/teachings/books", "Books", "Publications on his teachings and pastimes", BookOpen),
+        l("/resources/wallpapers", "Photos & wallpapers", "Portraits and artwork for your screen", ImageDl, true),
+        l("/resources/quote-cards", "Quote cards", "Shareable cards, each with its source", Quote, true),
+      ]),
+      g("Read the books", [
+        l("https://vedabase.io", "Śrīla Prabhupāda's books", "Bhagavad-gītā, Śrīmad-Bhāgavatam and more, on Vedabase", BookMarked),
+        l("/resources/acarya-scriptures", "Other ācārya scriptures", "Works of the previous ācāryas, with a link to the full library", ScrollText, true),
+      ]),
+      g("Learn", [
+        l("/resources/sanskrit-grammar", "Sanskrit grammar", "Hari-nāmāmṛta-vyākaraṇa and Sanskrit courses", GraduationCap, true),
+        l("/resources/courses", "More courses", "Courses to understand the teachings and the books", Library, true),
+      ]),
+      g("Elsewhere online", [
+        l("https://www.youtube.com/@HaladharaSwami", "Śrīla Haladhara Swāmī Guru Mahārāja", "His YouTube channel", Youtube),
+        l("https://www.iskconpattamundai.in", "ISKCON Pattamundai", "The temple and its programs", Landmark),
+        l("/resources/websites", "More websites", "Other places where his teachings are found", Globe, true),
+      ]),
+    ],
+  },
+  {
     key: "translations", label: "Translations", href: "/translations", icon: Languages, layout: "flyout", dense: true, searchAll: true, allLabel: "All languages",
     intro: "Every language has its own complete site. Pick a region, or search.",
     feature: { title: "Every language", text: "Each language has its own complete site.", image: "/photos/menu-smile.webp", href: "/translations", cta: "All languages" },
@@ -179,5 +204,5 @@ export function findLink(href: string): { menu: NavMenu; group: NavGroup; link: 
 
 /** Each menu has its own festival colour (see .acc-* in globals.css). */
 export const ACCENT: Record<string, "saffron" | "teal" | "indigo" | "rose" | "leaf" | "gold"> = {
-  gurudeva: "saffron", teachings: "teal", tattva: "indigo", translations: "rose", about: "leaf",
+  gurudeva: "saffron", teachings: "teal", tattva: "indigo", resources: "gold", translations: "rose", about: "leaf",
 };

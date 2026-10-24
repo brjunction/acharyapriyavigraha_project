@@ -39,7 +39,7 @@ function MegaPanel({ menu, onNavigate, onPin }: { menu: NavMenu; onNavigate: () 
   const Item = ({ it }: { it: (typeof links)[number] }) => {
     const T = it.icon;
     return (
-      <Link href={it.href} onClick={onNavigate} aria-current={sel(it.href) ? "page" : undefined} className={`mega-item ${sel(it.href) ? "!border-[var(--acc)] bg-acc-soft" : ""}`} title={it.desc}>
+      <Link href={it.href} {...(it.href.startsWith("http") ? { target: "_blank", rel: "noreferrer" } : {})} onClick={onNavigate} aria-current={sel(it.href) ? "page" : undefined} className={`mega-item ${sel(it.href) ? "!border-[var(--acc)] bg-acc-soft" : ""}`} title={it.desc}>
         <span className="mega-ic"><T size={14} strokeWidth={1.8} /></span>
         <span className="min-w-0">
           <span className="flex items-center gap-1.5 text-[12px] font-semibold leading-snug text-ink">{it.label}{it.soon && <span className="rounded-full bg-band px-1.5 text-[9px] font-medium text-ink-3">soon</span>}</span>

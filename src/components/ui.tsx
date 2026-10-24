@@ -67,7 +67,7 @@ export function Container({ children, className = "" }: { children: React.ReactN
 /** Link card with icon, used in hubs. */
 export function LinkCard({ href, icon: Icon, title, desc, soon, count }: { href: string; icon: LucideIcon; title: string; desc: string; soon?: boolean; count?: string }) {
   return (
-    <Link href={href} className="card card-hover group flex gap-4 p-5">
+    <Link href={href} {...(href.startsWith("http") ? { target: "_blank", rel: "noreferrer" } : {})} className="card card-hover group flex gap-4 p-5">
       <span className="mega-ic !h-11 !w-11 group-hover:!border-saffron group-hover:!bg-saffron group-hover:!text-white"><Icon size={20} strokeWidth={1.7} /></span>
       <span className="min-w-0 flex-1">
         <span className="flex items-center gap-2 text-[16px] font-semibold text-ink group-hover:text-saffron">
