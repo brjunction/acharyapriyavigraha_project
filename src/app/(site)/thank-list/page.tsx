@@ -1,7 +1,7 @@
 import { HeartHandshake } from "lucide-react";
 import { Container } from "@/components/ui";
 import { Backdrop } from "@/components/backdrop";
-import { PeacockDivider, Toran, OrnMask } from "@/components/motifs";
+import { PeacockDivider, VectorToran, OrnMask } from "@/components/motifs";
 
 export const metadata = { title: "Our Thank List" };
 
@@ -16,7 +16,7 @@ export default function Page() {
     <div className="relative isolate overflow-hidden bg-[#3d0709] text-white">
       <Backdrop src="red-gold-mandala" o={0.5} className="-z-10" />
       <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b from-[#3d0307]/60 via-[#3d0307]/30 to-[#3d0307]/80" />
-      <Toran className="text-[#e8b872]/70" />
+      <VectorToran flip className="text-[#e8b872]/70" />
       <Container className="relative py-14 sm:py-16">
         <nav className="text-[12.5px] text-white/70"><a href="/" className="hover:text-white">Home</a> / <a href="/about" className="hover:text-white">About</a> / <span className="text-white">Our Thank List</span></nav>
         <h1 className="mt-5 flex items-center gap-3 text-[28px] text-white sm:text-[34px]"><HeartHandshake size={28} strokeWidth={1.5} className="text-[#f1d3a4]" />Our Thank List</h1>
@@ -35,7 +35,7 @@ export default function Page() {
         ))}
         <OrnMask src="border-5" repeat="repeat-x" size="auto 100%" className="mx-auto mt-14 h-5 max-w-xs text-[#e8b872]/70" />
       </Container>
-      <Toran flip className="text-[#e8b872]/70" />
+      <VectorToran className="text-[#e8b872]/70" />
     </div>
   );
 }

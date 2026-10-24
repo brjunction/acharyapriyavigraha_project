@@ -8,7 +8,7 @@ import { Hero, Blessing, Featured, LifeTimeline, DiaryRail, QuotePanel, LangMarq
 import { TeachingsOrganiser } from "@/components/teachings-organiser";
 import { TopicExplorer } from "@/components/topic-explorer";
 import { Container } from "@/components/ui";
-import { Orn, OrnMask, Padma, PaisleyField, Toran, PeacockDivider } from "@/components/motifs";
+import { Orn, OrnMask, Padma, PaisleyField, VectorToran, PeacockDivider } from "@/components/motifs";
 import { Backdrop } from "@/components/backdrop";
 import { getChannelVideos } from "@/lib/youtube";
 import { LectureRow } from "@/components/lecture";
@@ -110,7 +110,7 @@ export default async function Home() {
       <section className="reveal relative isolate mt-16 overflow-hidden bg-[#4a0a0c] py-20">
         <Backdrop src="red-gold-mandala" o={0.5} className="-z-10" />
         <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b from-[#3d0307]/70 via-transparent to-[#3d0307]/70" />
-        <Toran className="absolute inset-x-0 top-0 text-[#e8b872]/70" />
+        <VectorToran flip className="absolute inset-x-0 top-0 text-[#e8b872]/70" />
         <Container>
           <Head light kicker="The archive" title="Everything he left us, in one place" action={{ href: "/teachings", label: "All teachings" }} acc="gold" />
           <div className="stagger grid gap-4 sm:grid-cols-2 lg:auto-rows-[158px] lg:grid-cols-4">
@@ -124,7 +124,7 @@ export default async function Home() {
             <Bento acc="leaf" href="/gurudeva/gallery" icon={ImageIcon} title="Images" desc="His pastimes in photographs." count={`${STATS.imageTags} albums`} className="min-h-[160px] sm:col-span-2" />
           </div>
         </Container>
-        <Toran flip className="absolute inset-x-0 bottom-0 text-[#e8b872]/70" />
+        <VectorToran className="absolute inset-x-0 bottom-0 text-[#e8b872]/70" />
       </section>
 
       {/* Listen + recent */}
@@ -187,7 +187,7 @@ export default async function Home() {
         <Container>
           <div className="relative isolate overflow-hidden rounded-3xl bg-[#4a0a0c] px-6 py-14 text-center text-white sm:px-12">
             <Backdrop src="red-gold-mandala" className="-z-10" />
-            <Toran className="absolute inset-x-0 top-0 text-[#e8b872]/60" />
+            <VectorToran flip className="absolute inset-x-0 top-0 text-[#e8b872]/60" />
             <HeartHandshake size={26} strokeWidth={1.4} className="mx-auto text-[#f1d3a4]" />
             <h2 className="mt-3 text-[22px] !text-white sm:text-[26px]">Our Thank List</h2>
             <p className="mx-auto mt-3 max-w-2xl text-[15px] leading-relaxed text-white/85">This archive is built by the efforts of the disciples, grand-disciples, followers and admirers of Śrī Śrīmad Gour Govinda Swāmī Gurudeva, in many countries.</p>

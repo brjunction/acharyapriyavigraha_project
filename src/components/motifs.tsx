@@ -284,3 +284,40 @@ export function PeacockDivider({ className = "", size = 88 }: { className?: stri
     </div>
   );
 }
+
+/** Vector toran: a row of cusped ogee arches with a lotus bud under each. Crisp at any size. Colour = text colour. */
+export function VectorToran({ className = "", flip = false }: { className?: string; flip?: boolean }) {
+  const id = useId().replace(/:/g, "");
+  return (
+    <svg className={`block w-full ${flip ? "rotate-180" : ""} ${className}`} height="34" aria-hidden>
+      <defs>
+        <pattern id={`t${id}`} width="56" height="34" patternUnits="userSpaceOnUse">
+          <g fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M3 34V21C3 12 17 10 28 1C39 10 53 12 53 21V34" strokeWidth="1.5" />
+            <path d="M9 34V22C9 15 19 14 28 7C37 14 47 15 47 22V34" strokeWidth="1" opacity=".7" />
+            <g transform="translate(28 24) scale(.2)" strokeWidth="5"><path d="M0 0C20 -15 22 -50 0 -78C-22 -50 -20 -15 0 0Z" /><path d="M0 0C-30 -6 -52 -30 -58 -52C-34 -50 -12 -34 0 0Z" /><path d="M0 0C30 -6 52 -30 58 -52C34 -50 12 -34 0 0Z" /></g>
+          </g>
+          <circle cx="28" cy="1" r="1.6" fill="currentColor" /><circle cx="3" cy="33" r="1.4" fill="currentColor" /><circle cx="53" cy="33" r="1.4" fill="currentColor" />
+        </pattern>
+      </defs>
+      <rect width="100%" height="34" fill={`url(#t${id})`} />
+    </svg>
+  );
+}
+
+/** Tiled vector buta (paisley) field. Colour = text colour. */
+export function VectorPaisley({ className = "" }: { className?: string }) {
+  const id = useId().replace(/:/g, "");
+  return (
+    <svg className={`absolute inset-0 h-full w-full ${className}`} aria-hidden>
+      <defs>
+        <pattern id={`p${id}`} width="170" height="190" patternUnits="userSpaceOnUse">
+          <g transform="translate(10 8) scale(.7)"><Buta stroke={1.6} /></g>
+          <g transform="translate(170 190) rotate(180) translate(10 8) scale(.7)"><Buta stroke={1.6} /></g>
+          <g transform="translate(85 95)" fill="none" stroke="currentColor" strokeWidth=".8"><Ring n={8} L={16} w={4} vein={false} /></g>
+        </pattern>
+      </defs>
+      <rect width="100%" height="100%" fill={`url(#p${id})`} />
+    </svg>
+  );
+}

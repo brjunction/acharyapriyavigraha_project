@@ -6,7 +6,7 @@ import { ArrowRight, Search, Play, Pause, SkipForward, ChevronLeft, ChevronRight
 import { CONVERSATION, LETTER } from "@/lib/prabhupada";
 import { LECTURES, fmtDate, DIARY, IMG, LANGUAGES, QUOTE_OF_DAY, TIMELINE } from "@/lib/data";
 import { Img } from "./img";
-import { CutOut, PortraitFrame, Orn, Padma, PaisleyField, Petals, Rosette, LogoMark, FlowerBand, Toran } from "./motifs";
+import { CutOut, PortraitFrame, Orn, Padma, PaisleyField, Petals, Rosette, LogoMark, RosetteLines, VectorToran, VectorPaisley } from "./motifs";
 import { usePrefs, usePlayer } from "./providers";
 import { Backdrop } from "./backdrop";
 
@@ -56,22 +56,22 @@ export function Hero() {
   };
   return (
     <section className="relative overflow-hidden border-b border-line" onPointerMove={move}>
-      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(160deg,#f7c986_0%,#f3b363_28%,#f6cf94_58%,#f8e6c6_100%)]" />
-      <Backdrop src="cream-mandala" flip pos="left center" o={0.35} />
-      <PaisleyField className="text-[#a8501a] opacity-[0.07]" scale={0.8} />
-      <Rosette className="pointer-events-none absolute -right-24 top-1/2 h-[620px] w-[620px] -translate-y-1/2 text-[#8a3a0c] opacity-[0.16] lg:right-[-40px] lg:opacity-[0.2]" />
-      <Rosette className="pointer-events-none absolute -left-40 -bottom-48 hidden h-[480px] w-[480px] text-[#8a3a0c] opacity-[0.12] lg:block" />
-      <Toran className="pointer-events-none absolute inset-x-0 top-0 !h-8 text-[#7a3200] opacity-80" />
-      <FlowerBand className="absolute inset-x-0 bottom-0 text-[#7a3200] [--ornament:#8a3a0c] [--ornament-light:#c9822b] opacity-80" />
-      <div className="relative mx-auto grid max-w-[1240px] grid-cols-[minmax(0,1fr)] items-center gap-10 px-5 pb-20 pt-16 sm:px-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:pb-24 lg:pt-20">
+      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(155deg,#6e2a06_0%,#8f3d0a_38%,#a9490d_70%,#7d3407_100%)]" />
+      <VectorPaisley className="text-[#f3b363] opacity-[0.07]" />
+      <RosetteLines className="pointer-events-none absolute -right-28 top-1/2 h-[640px] w-[640px] -translate-y-1/2 text-[#f3b363] opacity-[0.22] lg:right-[-60px]" />
+      <RosetteLines className="pointer-events-none absolute -bottom-52 -left-44 hidden h-[500px] w-[500px] text-[#f3b363] opacity-[0.14] lg:block" />
+      <div className="pointer-events-none absolute inset-x-0 top-3 h-px bg-[#f3b363]/40" />
+      <div className="pointer-events-none absolute inset-x-0 top-[18px] h-px bg-[#f3b363]/20" />
+      <VectorToran className="pointer-events-none absolute inset-x-0 bottom-0 text-[#f3b363]/70" />
+      <div className="relative mx-auto grid max-w-[1240px] grid-cols-[minmax(0,1fr)] items-center gap-10 px-5 pb-24 pt-20 sm:px-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:pb-28 lg:pt-24">
         <div className="rise order-2 text-center lg:order-1 lg:text-left">
-          <span className="inline-flex items-center gap-2 rounded-full border border-saffron/25 bg-surface/70 py-1 pl-3.5 pr-3.5 text-[12px] font-medium text-saffron backdrop-blur">
+          <span className="inline-flex items-center gap-2 rounded-full border border-[#f3b363]/40 bg-white/10 py-1 pl-3.5 pr-3.5 text-[12px] font-medium text-[#ffe2b8] backdrop-blur">
             The complete teachings of Śrī Śrīmad Gour Govinda Swāmī Gurudeva
           </span>
-          <h1 className="mt-5 text-[28px] font-bold leading-[1.12] tracking-[-0.03em] text-ink sm:text-[36px] lg:text-[42px]">
-            Words that give life<br />to a <span className="text-shine">burning heart</span>
+          <h1 className="mt-5 text-[28px] font-bold leading-[1.12] tracking-[-0.03em] sm:text-[36px] lg:text-[42px] text-[#fff1da]">
+            Words that give life<br />to a <span className="text-[#ffc566]">burning heart</span>
           </h1>
-          <p className="mx-auto mt-5 max-w-xl text-[15.5px] leading-relaxed text-ink-2 lg:mx-0">
+          <p className="mx-auto mt-5 max-w-xl text-[15.5px] leading-relaxed text-[#ffe9cc]/90 lg:mx-0">
             Lectures, letters, books, quotes and photographs of a pure devotee, gathered in one searchable home and growing in many languages. Listen, read, and find the exact words you were looking for.
           </p>
           <form onSubmit={(e) => { e.preventDefault(); if (q.trim()) r.push(`/search?q=${encodeURIComponent(q)}`); else setSearch(true); }}
@@ -84,7 +84,7 @@ export function Hero() {
             <button className="btn btn-primary !h-10 !px-5">Search</button>
           </form>
           <div className="mx-auto mt-4 flex max-w-xl flex-wrap justify-center gap-1.5 lg:mx-0 lg:justify-start">
-            {CHIPS.map(([l, k]) => <Link key={k} href={`/search?q=${k}`} className="chip acc-saffron">{l}</Link>)}
+            {CHIPS.map(([l, k]) => <Link key={k} href={`/search?q=${k}`} className="rounded-full border border-[#f3b363]/40 bg-white/10 px-3 py-1 text-[12.5px] text-[#ffe2b8] backdrop-blur transition hover:bg-white/20">{l}</Link>)}
           </div>
         </div>
 
