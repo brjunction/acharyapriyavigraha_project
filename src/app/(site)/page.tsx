@@ -38,7 +38,7 @@ function Head({ kicker, title, intro, action, acc = "saffron", light = false }: 
 
 function Path({ acc, icon: I, title, text, links }: { acc: string; icon: LucideIcon; title: string; text: string; links: [string, string, string][] }) {
   return (
-    <div className={`acc-${acc} card card-hover group relative flex flex-col overflow-hidden p-5`}>
+    <div className={`acc-${acc} card tile-hue group relative flex flex-col overflow-hidden p-5`}>
       <Padma className="absolute -right-10 -top-10 h-40 w-40 text-[var(--acc)] opacity-[0.07] transition duration-700 group-hover:rotate-45 group-hover:opacity-[0.14]" />
       <span className="relative flex h-11 w-11 items-center justify-center rounded-2xl text-white shadow-[var(--shadow-md)]" style={{ background: "linear-gradient(145deg, var(--acc), color-mix(in srgb, var(--acc) 60%, #000))" }}><I size={21} strokeWidth={1.7} /></span>
       <h3 className="relative mt-3 text-[16px] tracking-[-0.02em]">{title}</h3>
