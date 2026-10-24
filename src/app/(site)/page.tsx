@@ -140,7 +140,7 @@ export default async function Home() {
       {/* Today */}
       <section className="reveal relative isolate mt-12 py-8">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/backgrounds/paint-pink.webp" alt="" loading="lazy" className="pointer-events-none absolute inset-0 -z-10 h-full w-full object-cover opacity-[0.5]" />
+        <img src="/backgrounds/paint-pink.webp" alt="" loading="lazy" className="pointer-events-none absolute inset-0 -z-10 h-full w-full object-cover opacity-[0.09]" />
         <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b from-[var(--page)] via-white/20 to-[var(--page)]" />
         <Container>
           <Head kicker="For today" title="A quote, a diary, a date" intro="Something small to carry through the day." />
@@ -168,7 +168,7 @@ export default async function Home() {
       {/* Listen + recent */}
       <section className="reveal relative isolate mt-12 py-8">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/backgrounds/paint-blue.webp" alt="" loading="lazy" className="pointer-events-none absolute inset-0 -z-10 h-full w-full object-cover opacity-[0.42]" />
+        <img src="/backgrounds/paint-blue.webp" alt="" loading="lazy" className="pointer-events-none absolute inset-0 -z-10 h-full w-full object-cover opacity-[0.08]" />
         <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b from-[var(--page)] via-white/25 to-[var(--page)]" />
         <Container>
           <Head kicker="Śrīla Gurudeva Radio" title="Listen, and let it play on" intro="Hari-kathā in his own voice, one lecture after another, chosen at random." acc="teal" />
@@ -199,10 +199,8 @@ export default async function Home() {
       </section>
 
       {/* Archive bento */}
-      <section className="reveal relative isolate mt-16 overflow-hidden bg-[#4a0a0c] py-20">
-        <Backdrop src="red-gold-mandala" o={0.5} className="-z-10" />
-        <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b from-[#3d0307]/70 via-transparent to-[#3d0307]/70" />
-        <VectorToran flip className="absolute inset-x-0 top-0 text-[#e8b872]/70" />
+      <section className="reveal relative isolate mt-16 overflow-hidden bg-[#8a2a2c] py-20">
+        <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b from-[#97302f] via-[#8a2a2c] to-[#7a2224]" />
         <Container>
           <Head light kicker="The archive" title="Everything he left us, in one place" action={{ href: "/teachings", label: "All teachings" }} acc="gold" />
           <div className="stagger grid gap-4 sm:grid-cols-2 lg:auto-rows-[178px] lg:grid-cols-4">
@@ -216,7 +214,6 @@ export default async function Home() {
             <Bento acc="leaf" href="/gurudeva/gallery" icon={ImageIcon} title="Images" desc="His pastimes in photographs." count={`${STATS.imageTags} albums`} className="min-h-[160px] sm:col-span-2" />
           </div>
         </Container>
-        <VectorToran className="absolute inset-x-0 bottom-0 text-[#e8b872]/70" />
       </section>
 
       {/* Life */}
