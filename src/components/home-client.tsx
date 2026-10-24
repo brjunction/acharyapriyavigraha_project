@@ -70,7 +70,7 @@ export function Hero() {
       <div className="relative mx-auto grid max-w-[1240px] grid-cols-[minmax(0,1fr)] items-center gap-6 px-5 pb-12 pt-14 sm:gap-10 sm:px-8 sm:pb-24 sm:pt-24 lg:min-h-[740px] lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:py-28">
         <div className="rise order-2 text-center lg:order-1 lg:text-left">
           <span className="hero-pill inline-flex items-center gap-2 rounded-full border border-[#f3b363]/70 bg-[#f3b363]/20 py-1 pl-3 pr-3 text-[11px] font-semibold text-[#fff1da] sm:py-1.5 sm:pl-4 sm:pr-4 sm:text-[12.5px] backdrop-blur">
-            The complete life and teachings of Śrī Śrīmad Gour Govinda Swāmī Gurudeva
+            The Complete Life and Teachings of Śrī Śrīmad Gour Govinda Swāmī Gurudeva
           </span>
           <h1 className="mt-4 text-[23px] font-bold leading-[1.15] tracking-[-0.03em] text-[#fff1da] sm:mt-6 sm:text-[32px] lg:text-[42px]">
             {["Words", "that", "give", "life"].map((w, i) => <span key={w} className="hero-word mr-[0.28em]" style={{ animationDelay: `${0.15 + i * 0.12}s` }}>{w}</span>)}<br />
