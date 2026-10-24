@@ -4,7 +4,7 @@ import {
   MapPin, ScrollText, Search as SearchIcon, type LucideIcon,
 } from "lucide-react";
 import { LECTURES, STATS } from "@/lib/data";
-import { Hero, Featured, LifeTimeline, DiaryRail, QuotePanel, LangMarquee, WavePlayer } from "@/components/home-client";
+import { Hero, Blessing, Featured, LifeTimeline, DiaryRail, QuotePanel, LangMarquee, WavePlayer } from "@/components/home-client";
 import { TopicExplorer } from "@/components/topic-explorer";
 import { Container } from "@/components/ui";
 import { Orn, OrnMask, Padma, PaisleyField, Toran } from "@/components/motifs";
@@ -64,6 +64,11 @@ export default function Home() {
   return (
     <>
       <Hero />
+
+      {/* Blessing */}
+      <section className="reveal mt-10">
+        <Container><Blessing /></Container>
+      </section>
 
       {/* Highlights */}
       <section className="reveal relative mt-14">

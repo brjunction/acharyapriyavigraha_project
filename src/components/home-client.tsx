@@ -291,3 +291,60 @@ export function WavePlayer() {
     </div>
   );
 }
+
+/* ------------------------------------------------------------ Blessing */
+const BLESSINGS = [
+  { q: "Kṛṣṇa sent him.", src: "Śrīla Prabhupāda, room conversation, Bombay, 5 January 1977", note: "Of Śrīla Gour Govinda Swāmī, who had asked for shelter in Vṛndāvana." },
+  { q: "He's organizing nicely.", src: "Śrīla Prabhupāda, room conversation, Bombay, 5 January 1977", note: "On his work in Orissa, alone for long periods." },
+  { q: "Just think that Krishna is with you and there is no need of disappointment.", src: "Śrīla Prabhupāda, letter, Māyāpur, 12 February 1976", note: "Written when he had completed one cottage in Bhuvaneśvara." },
+  { q: "Krishna will help you. You have my full blessings and you try your best and you will be successful.", src: "Śrīla Prabhupāda, letter, Māyāpur, 12 February 1976", note: "To Gaura Govinda Swāmī, on remaining in Bhuvaneśvara." },
+  { q: "Krishna is so kind, He is always ready to help.", src: "Śrīla Prabhupāda, letter, Māyāpur, 12 February 1976", note: "On publishing books in the Oriya language." },
+];
+
+export function Blessing() {
+  const [i, setI] = useState(0);
+  const [hold, setHold] = useState(false);
+  useEffect(() => {
+    if (hold) return;
+    const t = setTimeout(() => setI((n) => (n + 1) % BLESSINGS.length), 6500);
+    return () => clearTimeout(t);
+  }, [i, hold]);
+  const b = BLESSINGS[i];
+  return (
+    <div className="relative overflow-hidden rounded-[28px] border border-[#e8b872]/30 bg-[#3d0f08] text-white shadow-[var(--shadow-lg)]" onMouseEnter={() => setHold(true)} onMouseLeave={() => setHold(false)}>
+      <Backdrop src="red-gold-mandala" className="opacity-60" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_40%,rgba(61,15,8,0.2),rgba(61,15,8,0.82))]" />
+      <div className="relative grid items-center gap-8 px-6 py-12 md:px-12 lg:grid-cols-[1fr_1.25fr_1fr]">
+        <div className={`order-2 text-center transition duration-700 lg:order-1 ${i < 2 ? "scale-105" : "opacity-80"}`}>
+          <PortraitFrame contain src="/legacy/prabhupada.webp" alt="Śrīla A.C. Bhaktivedanta Swami Prabhupāda" className="floaty mx-auto w-[210px] sm:w-[240px]" />
+          <p className="mt-4 text-[13px] font-semibold tracking-wide text-[#f3d9a4]">Śrīla Prabhupāda</p>
+          <p className="text-[11.5px] text-white/60">Founder-ācārya</p>
+        </div>
+        <div className="order-1 text-center lg:order-2">
+          <p className="mx-auto inline-flex items-center gap-2 rounded-full border border-[#e8b872]/40 bg-white/5 px-3.5 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-[#f3d9a4]"><LogoMark className="h-3.5 w-3.5" />His spiritual master said</p>
+          <div key={i} className="mt-6 min-h-[200px] animate-[fadeUp_.7s_ease_both]">
+            <QuoteIcon className="mx-auto text-[#e8b872]" size={30} />
+            <p className="mt-3 text-balance text-[26px] font-semibold leading-[1.25] tracking-tight text-white sm:text-[32px]">“{b.q}”</p>
+            <p className="mt-4 text-[13px] font-medium text-[#f3d9a4]">{b.src}</p>
+            <p className="mt-1 text-[12.5px] text-white/65">{b.note}</p>
+          </div>
+          <div className="mt-5 flex justify-center gap-2">
+            {BLESSINGS.map((_, n) => (
+              <button key={n} aria-label={`Quotation ${n + 1}`} onClick={() => setI(n)} className="group relative h-1.5 w-12 overflow-hidden rounded-full bg-white/20">
+                <span className={`absolute inset-y-0 left-0 rounded-full bg-[#e8b872] ${n < i ? "w-full" : n === i ? (hold ? "w-1/2" : "w-full origin-left animate-[grow_6.5s_linear_both]") : "w-0"}`} />
+              </button>
+            ))}
+          </div>
+          <div className="mt-6 flex flex-wrap justify-center gap-3">
+            <Link href="/gurudeva/srila-prabhupada" className="inline-flex items-center gap-1.5 rounded-full bg-[#e8b872] px-5 py-2 text-[13.5px] font-semibold text-[#3d0f08] transition hover:bg-[#f3d9a4]">Read the conversation and letter <ArrowRight size={15} /></Link>
+          </div>
+        </div>
+        <div className={`order-3 text-center transition duration-700 ${i >= 2 ? "scale-105" : "opacity-80"}`}>
+          <PortraitFrame src="/legacy/gurudeva.webp" className="floaty mx-auto w-[210px] sm:w-[240px]" />
+          <p className="mt-4 text-[13px] font-semibold tracking-wide text-[#f3d9a4]">Śrīla Gurudeva</p>
+          <p className="text-[11.5px] text-white/60">Śrī Śrīmad Gour Govinda Swāmī</p>
+        </div>
+      </div>
+    </div>
+  );
+}
