@@ -1,5 +1,6 @@
 import { HeartHandshake } from "lucide-react";
-import { Container, PageHero } from "@/components/ui";
+import { Container } from "@/components/ui";
+import { Backdrop } from "@/components/backdrop";
 import { Ornament } from "@/components/motifs";
 
 export const metadata = { title: "Our Thank List" };
@@ -13,7 +14,15 @@ const REGIONS: [string, string[]][] = [
 export default function Page() {
   return (
     <>
-      <PageHero crumbs={[{ href: "/about", label: "About" }, { label: "Our Thank List" }]} icon={HeartHandshake} title="Our Thank List" intro="This archive is being built by the efforts of the disciples, grand-disciples, followers and admirers of Śrīla Gour Govinda Swāmī." />
+      <section className="relative overflow-hidden bg-[#5a0509] text-white">
+        <Backdrop src="red-gold-mandala" o={0.55} />
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[#3d0307]/80 via-[#5a0509]/50 to-[#3d0307]/70" />
+        <Container className="relative py-14 sm:py-16">
+          <nav className="text-[12.5px] text-white/70"><a href="/" className="hover:text-white">Home</a> / <a href="/about" className="hover:text-white">About</a> / <span className="text-white">Our Thank List</span></nav>
+          <h1 className="mt-5 flex items-center gap-3 text-[28px] text-white sm:text-[34px]"><HeartHandshake size={28} strokeWidth={1.5} className="text-[#f1d3a4]" />Our Thank List</h1>
+          <p className="mt-3 max-w-2xl text-[15.5px] leading-relaxed text-white/85">This archive is being built by the efforts of the disciples, grand-disciples, followers and admirers of Śrīla Gour Govinda Swāmī.</p>
+        </Container>
+      </section>
       <Container className="max-w-3xl py-16">
         <blockquote className="text-center font-serif text-[20px] italic leading-snug text-ink">“Your love for me will be shown by how you cooperate with one another.”</blockquote>
         <p className="mt-3 text-center text-[14px] text-ink-3">His Divine Grace A.C. Bhaktivedanta Swami Prabhupāda</p>

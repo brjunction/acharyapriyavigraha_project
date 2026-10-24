@@ -22,10 +22,7 @@ export function Footer() {
             <span className="absolute left-1/2 top-0 z-10 block h-[148px] w-[148px] -translate-x-1/2 rounded-full bg-[#5d140c] p-2 shadow-[0_14px_34px_rgba(0,0,0,0.5)] ring-2 ring-[#e8b872]/60"><Orn src="mandala-gold" className="spin-slow h-full w-full" /></span>
             <div className="relative rounded-[28px] border border-white/20 bg-gradient-to-b from-white/[0.13] to-white/[0.05] px-6 pb-10 pt-[88px] shadow-[0_34px_70px_-24px_rgba(0,0,0,0.65),inset_0_1px_0_rgba(255,255,255,0.2)] backdrop-blur-sm sm:px-14">
               <div className="pointer-events-none absolute inset-2.5 rounded-[20px] border border-dashed border-[#e9c9a8]/30" />
-              <span className="relative inline-flex items-center gap-2 rounded-full border border-[#e8b872]/40 bg-[#e8b872]/10 px-3 py-1 text-[11px] font-medium tracking-[0.06em] text-[#f1d3a4]">
-                <LogoMark className="h-4 w-4 text-[#f1d3a4]" flame="#f1d3a4" />{SITE.verseSource}
-              </span>
-              <p className="relative mt-5 text-[26px] font-semibold leading-snug tracking-[-0.02em] text-white sm:text-[32px]">{SITE.verse}</p>
+              <p className="relative text-[26px] font-semibold italic leading-snug tracking-[-0.02em] text-white sm:text-[32px]">{SITE.verse}</p>
               <p className="relative mx-auto mt-4 max-w-xl text-[14.5px] leading-relaxed text-[#f3e2d2]/90">{SITE.verseTranslation}</p>
             </div>
             <div className="mt-7 flex flex-col items-center gap-2">
