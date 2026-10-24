@@ -89,33 +89,27 @@ export default async function Home() {
         <SectionBg src="cream-watercolor" o={0.6} flip />
         <Container>
           <Head kicker="The founder" title="How Taptajīvanam began" action={{ href: "/about/founder", label: "Read his biography" }} />
-          <div className="grid items-start gap-5 lg:grid-cols-[290px_minmax(0,1fr)]">
+          <div className="grid items-stretch gap-3 lg:grid-cols-[290px_minmax(0,1fr)]">
             <Link href="/about/founder" className="card group flex flex-col items-center p-6 text-center transition hover:-translate-y-0.5">
               <div className="w-[150px]"><PortraitFrame photo src="/photos/haladhara.webp" alt="Śrīla Haladhara Swāmī Guru Mahārāja" className="w-full" /></div>
               <p className="mt-4 text-[10.5px] font-semibold uppercase tracking-[0.12em] text-saffron">Founder of Taptajīvanam</p>
               <p className="mt-1 text-[15px] font-semibold leading-snug text-ink">Śrīla Haladhara Swāmī Guru Mahārāja</p>
               <p className="mt-2 text-[12px] leading-relaxed text-ink-3">Born and brought up in Odisha. He preaches mainly in Odia, Hindi and English, and travels to many countries to share the teachings of Śrīla Prabhupāda and Śrī Śrīmad Gour Govinda Swāmī Gurudeva.</p>
             </Link>
-            <div className="space-y-3">
-              <div className="rounded-2xl border border-line bg-surface p-5 sm:p-6">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-saffron">2019 · France</p>
-                <p className="mt-2 text-[13.5px] leading-[1.75] text-ink-2">During his European tour, at ISKCON New Māyāpura, Śrīla Haladhara Swāmī Guru Mahārāja expressed his cherished desire to create a platform where all the audio lectures of his spiritual master would be available to everyone. He wished to explain the mission of his spiritual master, emphasising that everything is present in Śrīla Prabhupāda’s books and that there is no need to seek teachings outside of ISKCON.</p>
-                <p className="mt-4 text-[11px] font-semibold uppercase tracking-[0.12em] text-saffron">2020 · The daily offering</p>
-                <p className="mt-2 text-[13.5px] leading-[1.75] text-ink-2">With the help of his disciples and followers he began curating daily selections of quotes and lectures, which are turned into small audio clips that capture the essence of Gurudeva’s teachings.</p>
-              </div>
-              <div className="stagger grid gap-3 sm:grid-cols-3">
-                {[
-                  ["1992 – 1994", "Joins ISKCON Bhubaneswar", "Meets the devotees in 1992; initiated in 1994 as Halāyudha Dāsa. Serves in the travelling saṅkīrtana party and as head pūjārī of Śrī Śrī Kṛṣṇa-Balarāma Temple."],
-                  ["2016", "Sannyāsa", "Accepts the renounced order on 20 March 2016, from His Holiness Rādhā-Govinda Swāmī Mahārāja, at Śrī Śrī Kṛṣṇa-Balarāma Temple."],
-                  ["Thirty years", "Simple living, high thinking", "Emphasises serving the spiritual master (śrī guru-sevā) and chanting the holy names (śrī nāma-sevā) without compromise."],
-                ].map(([y, t, d]) => (
-                  <div key={y} className="acc-saffron rounded-2xl border border-line bg-surface p-4">
-                    <p className="text-[11.5px] font-semibold tabular text-[var(--acc)]">{y}</p>
-                    <p className="mt-0.5 text-[13.5px] font-semibold text-ink">{t}</p>
-                    <p className="mt-1 text-[12px] leading-relaxed text-ink-2">{d}</p>
-                  </div>
-                ))}
-              </div>
+            <div className="stagger grid auto-rows-fr gap-3 sm:grid-cols-6">
+              {[
+                ["acc-saffron sm:col-span-3", "2019 · France", "The wish for one home", "During his European tour, at ISKCON New Māyāpura, Śrīla Haladhara Swāmī Guru Mahārāja expressed his cherished desire to create a platform where all the audio lectures of his spiritual master would be available to everyone, explaining that everything is present in Śrīla Prabhupāda’s books."],
+                ["acc-rose sm:col-span-3", "2020 · The daily offering", "Small clips, every day", "With the help of his disciples and followers he began curating daily selections of quotes and lectures, turned into small audio clips that capture the essence of Gurudeva’s teachings."],
+                ["acc-teal sm:col-span-2", "1992 – 1994", "Joins ISKCON Bhubaneswar", "Meets the devotees in 1992; initiated in 1994 as Halāyudha Dāsa. Serves in the travelling saṅkīrtana party and as head pūjārī of Śrī Śrī Kṛṣṇa-Balarāma Temple."],
+                ["acc-indigo sm:col-span-2", "2016", "Sannyāsa", "Accepts the renounced order on 20 March 2016, from His Holiness Rādhā-Govinda Swāmī Mahārāja, at Śrī Śrī Kṛṣṇa-Balarāma Temple."],
+                ["acc-leaf sm:col-span-2", "Thirty years", "Simple living, high thinking", "Emphasises serving the spiritual master (śrī guru-sevā) and chanting the holy names (śrī nāma-sevā) without compromise."],
+              ].map(([c, y, t, d]) => (
+                <div key={y} className={`tile-hue ${c} flex flex-col rounded-2xl border border-line bg-surface p-5`}>
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.12em] tabular text-[var(--acc)]">{y}</p>
+                  <p className="mt-1.5 text-[14px] font-semibold text-ink">{t}</p>
+                  <p className="mt-1.5 text-[12.5px] leading-[1.7] text-ink-2">{d}</p>
+                </div>
+              ))}
             </div>
           </div>
         </Container>

@@ -316,3 +316,12 @@ main section li > a:hover, main section ol > li > a:hover { transform: translate
 main .btn:hover, main section a.chip:hover { transform: translateY(-2px); }
 main p.hover-glow:hover { color: var(--saffron); }
 @media (prefers-reduced-motion: reduce) { .live-word, mark.mark-live { animation: none !important; opacity: 1 !important; transform: none; background-size: 100% 100%; } }
+
+/* Matched tiles whose colour answers the pointer */
+.tile-hue { position: relative; overflow: hidden; transition: transform .35s ease, border-color .35s ease, background-color .35s ease, box-shadow .35s ease; }
+.tile-hue::before { content: ""; position: absolute; inset: 0 0 auto 0; height: 3px; background: var(--acc); transform: scaleX(.18); transform-origin: left; transition: transform .5s cubic-bezier(.2,.8,.2,1); }
+.tile-hue::after { content: ""; position: absolute; inset: 0; background: linear-gradient(135deg, transparent 40%, color-mix(in srgb, var(--acc) 14%, transparent)); opacity: 0; transition: opacity .4s ease; pointer-events: none; }
+.tile-hue:hover { transform: translateY(-3px); border-color: color-mix(in srgb, var(--acc) 45%, white); background-color: color-mix(in srgb, var(--acc) 6%, white); box-shadow: 0 14px 28px -18px color-mix(in srgb, var(--acc) 60%, transparent); }
+.tile-hue:hover::before { transform: scaleX(1); }
+.tile-hue:hover::after { opacity: 1; }
+.tile-hue:hover p:first-child { filter: saturate(1.4); }

@@ -6,7 +6,7 @@ import { ArrowRight, Search, Play, Pause, SkipForward, ChevronLeft, ChevronRight
 import { CONVERSATION, LETTER } from "@/lib/prabhupada";
 import { LECTURES, fmtDate, DIARY, IMG, LANGUAGES, QUOTE_OF_DAY, TIMELINE } from "@/lib/data";
 import { Img } from "./img";
-import { CutOut, PortraitFrame, Orn, Padma, PaisleyField, Petals, Rosette, LogoMark, VMask, RosetteLines } from "./motifs";
+import { CutOut, PortraitFrame, Orn, Padma, PaisleyField, Petals, Rosette, LogoMark, VMask } from "./motifs";
 import { usePrefs, usePlayer } from "./providers";
 import { Backdrop } from "./backdrop";
 
@@ -57,16 +57,16 @@ export function Hero() {
   return (
     <>
     <section className="relative isolate overflow-hidden" onPointerMove={move}>
+      <div aria-hidden className="pointer-events-none absolute inset-x-0 top-7 z-[1]"><VMask name="border-4" repeat="repeat-x" size="auto 100%" pos="center top" className="h-7 w-full text-[#f3b363] opacity-80" /><div className="hero-rule mt-1.5 h-px w-full bg-gradient-to-r from-transparent via-[#f3b363]/70 to-transparent" /></div>
       <Backdrop src="saffron-dark" flip pos="left center" o={0.4} />
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(70%_80%_at_80%_40%,rgba(243,179,99,0.28),transparent_65%),linear-gradient(100deg,rgba(70,26,3,0.55),transparent_60%)]" />
-      <VMask name="mandala-saffron" className="hero-spin pointer-events-none absolute -right-48 -top-40 h-[760px] w-[760px] text-[#f3b363] opacity-[0.22]" />
       <VMask name="mandala-saffron" className="hero-spin-rev pointer-events-none absolute -bottom-56 -left-48 h-[620px] w-[620px] text-[#f3b363] opacity-[0.16]" />
       <VMask name="paisley-red" repeat="repeat" size="380px" className="pointer-events-none absolute inset-0 text-[#f3b363] opacity-[0.07]" />
       <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-[3px] bg-gradient-to-r from-[#c98a2b] via-[#ffc566] to-[#c98a2b]" />
       {[8, 22, 36, 61, 74, 90].map((x, i) => (
         <div key={x} className="pointer-events-none absolute bottom-24" style={{ left: `${x}%` }}><div className="hero-petal" style={{ animationDelay: `${i * 1.5}s` }}><Padma className="h-5 w-5 text-[#ffd48a]" layers={2} /></div></div>
       ))}
-      <div className="relative mx-auto grid max-w-[1240px] grid-cols-[minmax(0,1fr)] items-center gap-10 px-5 pb-16 pt-14 sm:px-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:pb-20 lg:pt-20">
+      <div className="relative mx-auto grid max-w-[1240px] grid-cols-[minmax(0,1fr)] items-center gap-10 px-5 pb-16 pt-24 sm:px-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:pb-20 lg:pt-32">
         <div className="rise order-2 text-center lg:order-1 lg:text-left">
           <span className="hero-pill inline-flex items-center gap-2 rounded-full border border-[#f3b363]/70 bg-[#f3b363]/20 py-1.5 pl-4 pr-4 text-[12.5px] font-semibold text-[#fff1da] backdrop-blur">
             The complete life and teachings of Śrī Śrīmad Gour Govinda Swāmī Gurudeva
@@ -95,8 +95,7 @@ export function Hero() {
 
         {/* Portrait: a plain circular frame, no animation */}
         <div className="relative order-1 mx-auto w-full max-w-[250px] sm:max-w-[300px] lg:order-2 lg:max-w-[340px]">
-          <div aria-hidden className="pointer-events-none absolute inset-[-45%]"><RosetteLines className="hero-spin h-full w-full text-[#ffd48a] opacity-[0.3]" /></div>
-          <div aria-hidden className="pointer-events-none absolute inset-[-17%]"><RosetteLines className="hero-spin-rev h-full w-full text-[#ffd48a] opacity-[0.22]" /></div>
+          <div aria-hidden className="pointer-events-none absolute inset-[-42%]"><VMask name="mandala-saffron" className="hero-spin h-full w-full text-[#f3b363] opacity-[0.34]" /></div>
           <div className="relative"><PortraitFrame photo src="/photos/gurudeva-speaking.webp" alt="Śrī Śrīmad Gour Govinda Swāmī Gurudeva" className="mx-auto w-full" /></div>
         </div>
       </div>
