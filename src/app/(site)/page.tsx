@@ -5,6 +5,7 @@ import {
 } from "lucide-react";
 import { LECTURES, STATS } from "@/lib/data";
 import { Hero, Blessing, Featured, LifeTimeline, DiaryRail, QuotePanel, LangMarquee, WavePlayer } from "@/components/home-client";
+import { TeachingsOrganiser } from "@/components/teachings-organiser";
 import { TopicExplorer } from "@/components/topic-explorer";
 import { Container } from "@/components/ui";
 import { Orn, OrnMask, Padma, PaisleyField, Toran } from "@/components/motifs";
@@ -76,23 +77,11 @@ export default function Home() {
         <Orn src="peacock" className="h-24 -scale-x-100" />
       </div>
 
-      {/* Highlights */}
+      {/* Teachings */}
       <section className="reveal relative mt-8">
         <Container>
-          <Head kicker="Highlights" title="Where would you like to begin?" />
-          <Featured />
-        </Container>
-      </section>
-
-      {/* Four ways in */}
-      <section className="reveal mt-20">
-        <Container>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <Path acc="teal" icon={Headphones} title="Listen" text="Hari-kathā in his own voice, from 1985 to 1996." links={[["/teachings/audio", "Audio lectures", "1,595"], ["/teachings/transcriptions", "Transcriptions", "130"], ["/teachings/videos", "Videos", "210"]]} />
-            <Path acc="indigo" icon={BookOpen} title="Read" text="Books, letters and quotes, each with its source." links={[["/teachings/books", "Books", "48"], ["/gurudeva/letters", "Letters", "29"], ["/teachings/quotes", "Quotes", "44 subjects"]]} />
-            <Path acc="gold" icon={Network} title="Explore" text="Follow a subject through everything he said on it." links={[["/tattva", "Tattva-kośa", "112 topics"], ["/tattva/index/verses", "By verse", "SB, BG, CC"], ["/tattva/index/places", "By place and year", ""]]} />
-            <Path acc="rose" icon={Heart} title="Remember" text="Photographs, memories and glorifications." links={[["/gurudeva/gallery", "Gallery", "38 albums"], ["/gurudeva/memories", "Memories", ""], ["/gurudeva/glorifications", "Glorifications", ""]]} />
-          </div>
+          <Head kicker="His teachings" title="Hear, read and remember" intro="Everything is organised in three places: what you can hear and watch, what you can read, and the compilations drawn from both." action={{ href: "/teachings", label: "All teachings" }} />
+          <TeachingsOrganiser />
         </Container>
       </section>
 

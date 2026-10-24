@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Search, X, FileText, ArrowRight } from "lucide-react";
 import { LECTURES, fmtDate } from "@/lib/data";
 import { norm } from "@/components/search";
@@ -29,6 +29,7 @@ export function TranscriptionBrowser() {
   const [topic, setTopic] = useState("");
   const [place, setPlace] = useState("");
   const [lang, setLang] = useState("");
+  useEffect(() => { const p = new URLSearchParams(window.location.search); setYear(p.get("year") ?? ""); setMonth(p.get("month") ?? ""); setBk(p.get("book") ?? ""); setTopic(p.get("topic") ?? ""); }, []);
 
   const base = ALL.filter((l) => (!q || norm(`${l.title} ${l.place} ${l.scripture ?? ""} ${l.topics.join(" ")} ${l.date}`).includes(norm(q))));
   const match = (l: (typeof ALL)[0], skip?: string) =>

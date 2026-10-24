@@ -89,21 +89,16 @@ export function Hero() {
         </div>
 
         {/* Portrait stage */}
-        <div ref={box} className="relative mx-auto w-full max-w-[440px] [--px:0] [--py:0]">
-          <Orn src="mandala-saffron" className="spin-slow absolute -inset-10 h-[calc(100%+5rem)] w-[calc(100%+5rem)] max-w-none opacity-60" />
-          <div className="absolute inset-0 rounded-full bg-[radial-gradient(closest-side,color-mix(in_srgb,var(--gold)_35%,transparent),transparent)] blur-2xl" />
-          <div className="relative transition-transform duration-300 ease-out" style={{ transform: "translate3d(calc(var(--px) * -10px), calc(var(--py) * -8px), 0)" }}>
-            <PortraitFrame photo src="/photos/gurudeva-portrait.webp" className="mx-auto w-[78%]" />
+        <div ref={box} className="relative mx-auto w-full max-w-[460px] [--px:0] [--py:0]">
+          <div className="absolute inset-0 -m-6 rounded-full bg-[radial-gradient(closest-side,color-mix(in_srgb,var(--gold)_38%,transparent),transparent)] blur-2xl" />
+          <Orn src="mandala-gold" className="spin-slow absolute left-1/2 top-1/2 h-[118%] w-[118%] max-w-none -translate-x-1/2 -translate-y-1/2 opacity-90" />
+          <Orn src="mandala-saffron" className="absolute left-1/2 top-1/2 h-[104%] w-[104%] max-w-none -translate-x-1/2 -translate-y-1/2 opacity-70 [animation:spin_90s_linear_infinite_reverse]" />
+          <div className="relative transition-transform duration-300 ease-out" style={{ transform: "translate3d(calc(var(--px) * -8px), calc(var(--py) * -6px), 0)" }}>
+            <PortraitFrame photo src="/photos/gurudeva-portrait.webp" className="mx-auto w-[74%] drop-shadow-[0_24px_40px_rgba(90,40,0,0.35)]" />
           </div>
-          <div className="floaty absolute -left-1 top-[18%] w-[52%] rounded-2xl border border-line bg-surface/95 p-3.5 shadow-[var(--shadow-lg)] backdrop-blur sm:-left-6" style={{ ["--r" as string]: "-3deg", transform: "translate3d(calc(var(--px) * 14px), calc(var(--py) * 10px), 0)" }}>
-            <p className="flex items-center gap-1.5 text-[10.5px] font-semibold uppercase tracking-[0.1em] text-teal"><span className="eq flex h-3 items-end gap-[2px]"><span style={{ animationDelay: "0s" }} /><span style={{ animationDelay: ".25s" }} /><span style={{ animationDelay: ".5s" }} /></span>Now in the archive</p>
-            <p className="mt-1.5 text-[13px] font-semibold leading-snug text-ink">The Mercy of Śrīla Prabhupāda</p>
-            <p className="text-[11.5px] text-ink-3">Bhubaneswar, 1996 · 1 h 12 min</p>
-          </div>
-          <div className="floaty absolute -right-1 bottom-[10%] w-[56%] rounded-2xl border border-line bg-surface/95 p-3.5 shadow-[var(--shadow-lg)] backdrop-blur sm:-right-6" style={{ ["--r" as string]: "2.5deg", animationDelay: "-3s", transform: "translate3d(calc(var(--px) * 18px), calc(var(--py) * 12px), 0)" }}>
-            <QuoteIcon size={15} className="text-rosewood" />
-            <p className="mt-1 text-[12.5px] leading-snug text-ink-2">“{QUOTE_OF_DAY.text}”</p>
-            <p className="mt-1.5 text-[10.5px] text-ink-3">{QUOTE_OF_DAY.source}, {QUOTE_OF_DAY.date}</p>
+          <div className="relative mx-auto mt-7 w-fit rounded-full border border-[#e8b872]/60 bg-surface/90 px-6 py-2.5 text-center shadow-[var(--shadow-md)] backdrop-blur">
+            <p className="text-[15px] font-semibold tracking-tight text-ink">Śrī Śrīmad Gour Govinda Swāmī</p>
+            <p className="text-[11.5px] tracking-[0.12em] text-ink-3">1929 – 1996</p>
           </div>
         </div>
       </div>
