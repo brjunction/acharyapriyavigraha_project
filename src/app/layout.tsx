@@ -7,8 +7,8 @@ import "./globals.css";
 import { Providers } from "@/components/providers";
 
 export const metadata: Metadata = {
-  title: { default: "Taptajīvanam · The teachings of Śrī Śrīmad Gour Govinda Swāmī", template: "%s · Taptajīvanam" },
-  description: "Lectures, transcriptions, books, quotes, letters and photos of Śrīla Gurudeva, Śrī Śrīmad Gour Govinda Swāmī.",
+  title: { default: "Taptajīvanam · The teachings of Śrī Śrīmad Gour Govinda Swāmī Gurudeva", template: "%s · Taptajīvanam" },
+  description: "Lectures, transcriptions, books, quotes, letters and photos of Śrīla Gurudeva, Śrī Śrīmad Gour Govinda Swāmī Gurudeva.",
   icons: { icon: [{ url: "/icon.png", sizes: "512x512", type: "image/png" }, { url: "/favicon-48.png", sizes: "48x48", type: "image/png" }], shortcut: "/favicon.ico", apple: "/apple-icon.png" },
 };
 export const viewport: Viewport = { themeColor: "#853500" };

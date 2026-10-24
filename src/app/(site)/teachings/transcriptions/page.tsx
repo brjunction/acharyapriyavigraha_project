@@ -9,7 +9,7 @@ export default function Page() {
   return (
     <>
       <PageHero crumbs={[{ href: "/teachings", label: "His Teachings" }, { label: "Transcriptions" }]} icon={FileText} title="Transcriptions"
-        intro={`${STATS.transcriptions} lectures so far are available as text. Choose a year and month, or narrow by book, topic, place and language.`} bg="cream-mandala" flip />
+        intro={`${STATS.transcriptions} lectures so far are available as text. Choose a year and month, or narrow by type, topic, place and language.`} bg="cream-mandala" flip />
       <TranscriptionBrowser />
     </>
   );

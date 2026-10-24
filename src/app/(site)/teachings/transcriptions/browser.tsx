@@ -6,7 +6,10 @@ import { LECTURES, fmtDate } from "@/lib/data";
 import { norm } from "@/components/search";
 
 const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-const book = (s?: string) => (s ? ({ SB: "Śrīmad-Bhāgavatam", BG: "Bhagavad-gītā", CC: "Caitanya-caritāmṛta" } as Record<string, string>)[s.split(" ")[0]] ?? "Other" : "No verse");
+const kind = (l: { type: string; scripture?: string }) => {
+  if (l.type === "Lecture") { const k = l.scripture?.split(" ")[0]; return k === "SB" ? "Śrīmad-Bhāgavatam lecture" : k === "BG" ? "Bhagavad-gītā lecture" : k === "CC" ? "Caitanya-caritāmṛta lecture" : "Discussion"; }
+  return l.type === "Questions & Answers" ? "Questions & answers" : l.type;
+};
 const ALL = LECTURES.filter((l) => l.transcribed);
 
 function Select({ label, value, onChange, options }: { label: string; value: string; onChange: (v: string) => void; options: [string, number][] }) {
@@ -29,11 +32,11 @@ export function TranscriptionBrowser() {
   const [topic, setTopic] = useState("");
   const [place, setPlace] = useState("");
   const [lang, setLang] = useState("");
-  useEffect(() => { const p = new URLSearchParams(window.location.search); setYear(p.get("year") ?? ""); setMonth(p.get("month") ?? ""); setBk(p.get("book") ?? ""); setTopic(p.get("topic") ?? ""); }, []);
+  useEffect(() => { const p = new URLSearchParams(window.location.search); setYear(p.get("year") ?? ""); setMonth(p.get("month") ?? ""); setBk(p.get("type") ?? ""); setTopic(p.get("topic") ?? ""); }, []);
 
   const base = ALL.filter((l) => (!q || norm(`${l.title} ${l.place} ${l.scripture ?? ""} ${l.topics.join(" ")} ${l.date}`).includes(norm(q))));
   const match = (l: (typeof ALL)[0], skip?: string) =>
-    (skip === "year" || !year || l.date.startsWith(year)) && (skip === "month" || !month || l.date.slice(5, 7) === month) && (skip === "bk" || !bk || book(l.scripture) === bk)
+    (skip === "year" || !year || l.date.startsWith(year)) && (skip === "month" || !month || l.date.slice(5, 7) === month) && (skip === "bk" || !bk || kind(l) === bk)
     && (skip === "topic" || !topic || l.topics.includes(topic)) && (skip === "place" || !place || l.place === place) && (skip === "lang" || !lang || l.languages.includes(lang));
   const list = base.filter((l) => match(l)).sort((a, b) => b.date.localeCompare(a.date));
   const count = (f: (l: (typeof ALL)[0]) => string[], skip: string) => {
@@ -41,7 +44,7 @@ export function TranscriptionBrowser() {
   };
   const years = useMemo(() => [...count((l) => [l.date.slice(0, 4)], "year").entries()].sort((a, b) => b[0].localeCompare(a[0])), [q, year, month, bk, topic, place, lang]); // eslint-disable-line react-hooks/exhaustive-deps
   const monthsAvail = count((l) => [l.date.slice(5, 7)], "month");
-  const books = [...count((l) => [book(l.scripture)], "bk").entries()].sort();
+  const books = [...count((l) => [kind(l)], "bk").entries()].sort();
   const topics = [...count((l) => l.topics, "topic").entries()].sort();
   const places = [...count((l) => [l.place], "place").entries()].sort();
   const langs = [...count((l) => l.languages, "lang").entries()].sort();
@@ -68,7 +71,7 @@ export function TranscriptionBrowser() {
           ); })}
         </div>
         <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          <Select label="Book" value={bk} onChange={setBk} options={books} />
+          <Select label="Type" value={bk} onChange={setBk} options={books} />
           <Select label="Topic" value={topic} onChange={setTopic} options={topics} />
           <Select label="Place" value={place} onChange={setPlace} options={places} />
           <Select label="Language" value={lang} onChange={setLang} options={langs} />

@@ -1,3 +1,4 @@
+import { Lotus } from "@/components/lotus-icon";
 import type { LucideIcon } from "lucide-react";
 import {
   UserRound, BookMarked, Feather, ScrollText, Clock, CalendarDays, Flower2, PlayCircle, NotebookPen, Notebook, Crown, GitBranch, Mail,
@@ -21,9 +22,9 @@ const l = (href: string, label: string, desc: string, icon: LucideIcon, soon?: b
 
 export const MENUS: NavMenu[] = [
   {
-    key: "gurudeva", label: "Śrīla Gurudeva", href: "/gurudeva", icon: Flower2, allLabel: "Overview",
+    key: "gurudeva", label: "Śrīla Gurudeva", href: "/gurudeva", icon: Lotus as unknown as LucideIcon, allLabel: "Overview",
     intro: "His life, his diaries, his lineage, his disciples and his mission.",
-    feature: { title: "Śrī Śrīmad Gour Govinda Swāmī", text: "A dear disciple of Śrīla Prabhupāda, born in 1929 near Purī into a family devoted to Śrī Gopāl Jiu.", image: "/photos/gurudeva-speaking.webp", href: "/gurudeva", cta: "Overview" },
+    feature: { title: "Śrī Śrīmad Gour Govinda Swāmī Gurudeva", text: "A dear disciple of Śrīla Prabhupāda, born in 1929 near Purī into a family devoted to Śrī Gopāl Jiu.", image: "/photos/gurudeva-speaking.webp", href: "/gurudeva", cta: "Overview" },
     groups: [
       g("His life", [
         l("/gurudeva/who-is-srila-gurudeva", "Who is Śrīla Gurudeva", "Krishna sent him · a brief life story", UserRound),
@@ -90,9 +91,9 @@ export const MENUS: NavMenu[] = [
     ],
   },
   {
-    key: "tattva", label: "Tattva-kośa", href: "/tattva", icon: Network, allLabel: "All topics",
+    key: "tattva", label: "Tattva", href: "/tattva", icon: Network, allLabel: "All topics",
     intro: "The treasury of truths: everything he said, gathered by subject.",
-    feature: { title: "Start with a topic", text: "Each topic collects quotes, lecture moments, chapters, stories and verses in one place.", href: "/tattva", cta: "Open Tattva-kośa" },
+    feature: { title: "Start with a topic", text: "Each topic collects quotes, lecture moments, chapters, stories and verses in one place.", href: "/tattva", cta: "Open Tattva" },
     groups: [
       g("Subjects", [
         l("/tattva/guru-tattva", "Guru-tattva", "Guru, disciple, sādhu-saṅga, paramparā", Network),

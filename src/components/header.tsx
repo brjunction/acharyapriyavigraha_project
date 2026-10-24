@@ -17,7 +17,7 @@ export function Logo({ compact = false }: { compact?: boolean }) {
       {!compact && (
         <span className="leading-none">
           <span className="block text-[18px] font-bold tracking-[-0.02em] text-ink">Taptajīvanam</span>
-          <span className="mt-[3px] hidden whitespace-nowrap text-[10.5px] font-medium tracking-[0.02em] text-ink-3 2xl:block">Teachings of Śrīla Gurudeva</span>
+          <span className="mt-[3px] hidden whitespace-nowrap text-[10.5px] font-medium tracking-[0.02em] text-ink-3 2xl:block">Life and teachings of Śrī Śrīmad Gour Govinda Swāmī Gurudeva</span>
         </span>
       )}
     </Link>
@@ -169,7 +169,6 @@ function MobileMenu({ onClose }: { onClose: () => void }) {
               </button>
             );
           })}
-          <div className="mt-5 border-t border-line pt-5"><SettingsPanel compact /></div>
         </nav>
         <nav className={`absolute inset-0 overflow-y-auto px-4 py-4 transition-transform duration-300 ${open ? "translate-x-0" : "translate-x-full"}`}>
           {open && (
@@ -289,7 +288,7 @@ export function Header() {
                 <SlidersHorizontal size={16} />
               </button>
               {settings && (
-                <div className="mega-enter absolute right-0 top-[calc(100%+14px)] z-[60] max-h-[calc(100vh-90px)] w-[330px] overflow-y-auto rounded-2xl border border-line bg-surface p-5 text-ink shadow-[var(--shadow-lg)]">
+                <div className="mega-enter absolute right-0 top-[calc(100%+14px)] z-[60] max-h-[calc(100vh-90px)] w-[330px] max-lg:fixed max-lg:inset-x-3 max-lg:top-[66px] max-lg:w-auto overflow-y-auto rounded-2xl border border-line bg-surface p-5 text-ink shadow-[var(--shadow-lg)]">
                   <SettingsPanel />
                 </div>
               )}

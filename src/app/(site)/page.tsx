@@ -160,7 +160,7 @@ export default async function Home() {
       <section className="reveal relative isolate mt-6 py-10">
         <SectionBg src="cream-watercolor" o={0.7} flip />
         <Container>
-          <Head kicker="Tattva-kośa" title="Explore by subject" intro="Everything Śrīla Gurudeva said on each subject, gathered in one place." action={{ href: "/tattva", label: "Open Tattva-kośa" }} acc="indigo" />
+          <Head kicker="Tattva" title="Explore by subject" intro="Everything Śrīla Gurudeva said on each subject, gathered in one place." action={{ href: "/tattva", label: "Open Tattva" }} acc="indigo" />
           <TopicExplorer />
         </Container>
       </section>
@@ -190,7 +190,7 @@ export default async function Home() {
             <Toran className="absolute inset-x-0 top-0 text-[#e8b872]/60" />
             <HeartHandshake size={26} strokeWidth={1.4} className="mx-auto text-[#f1d3a4]" />
             <h2 className="mt-3 text-[22px] !text-white sm:text-[26px]">Our Thank List</h2>
-            <p className="mx-auto mt-3 max-w-2xl text-[15px] leading-relaxed text-white/85">This archive is built by the efforts of the disciples, grand-disciples, followers and admirers of Śrī Śrīmad Gour Govinda Swāmī, in many countries.</p>
+            <p className="mx-auto mt-3 max-w-2xl text-[15px] leading-relaxed text-white/85">This archive is built by the efforts of the disciples, grand-disciples, followers and admirers of Śrī Śrīmad Gour Govinda Swāmī Gurudeva, in many countries.</p>
             <Link href="/thank-list" className="btn mt-6 !h-10 bg-[#e8b872] !px-5 text-[#3d0f08] hover:bg-[#f3d9a4]">Read the Thank List<ArrowRight size={15} /></Link>
           </div>
         </Container>

@@ -20,7 +20,7 @@ export default function Page() {
       <Container className="relative py-14 sm:py-16">
         <nav className="text-[12.5px] text-white/70"><a href="/" className="hover:text-white">Home</a> / <a href="/about" className="hover:text-white">About</a> / <span className="text-white">Our Thank List</span></nav>
         <h1 className="mt-5 flex items-center gap-3 text-[28px] text-white sm:text-[34px]"><HeartHandshake size={28} strokeWidth={1.5} className="text-[#f1d3a4]" />Our Thank List</h1>
-        <p className="mt-3 max-w-2xl text-[15.5px] leading-relaxed text-white/85">This archive is being built by the efforts of the disciples, grand-disciples, followers and admirers of Śrī Śrīmad Gour Govinda Swāmī.</p>
+        <p className="mt-3 max-w-2xl text-[15.5px] leading-relaxed text-white/85">This archive is being built by the efforts of the disciples, grand-disciples, followers and admirers of Śrī Śrīmad Gour Govinda Swāmī Gurudeva.</p>
       </Container>
       <Container className="relative max-w-3xl pb-20">
         <blockquote className="text-center text-[19px] italic leading-snug text-white">“Your love for me will be shown by how you cooperate with one another.”</blockquote>

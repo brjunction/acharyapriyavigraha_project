@@ -7,7 +7,7 @@ import { MENUS } from "@/lib/nav";
 
 const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 const YEARS = Array.from({ length: 12 }, (_, i) => String(1996 - i));
-const BOOKS = ["Śrīmad-Bhāgavatam", "Bhagavad-gītā", "Caitanya-caritāmṛta"];
+const TYPES = ["Śrīmad-Bhāgavatam lecture", "Bhagavad-gītā lecture", "Caitanya-caritāmṛta lecture", "Discussion", "Questions & answers", "Darśana", "Festival", "House program"];
 const TOPICS = ["Guru-tattva", "The Holy Name", "Separation", "Sādhu-saṅga", "Humility", "Surrender", "Prema"];
 
 function Sel({ label, v, set, opts }: { label: string; v: string; set: (x: string) => void; opts: string[][] }) {
@@ -26,7 +26,7 @@ export function TeachingsOrganiser() {
   const router = useRouter();
   const [y, setY] = useState(""); const [m, setM] = useState(""); const [b, setB] = useState(""); const [t, setT] = useState("");
   const go = () => {
-    const p = new URLSearchParams(); if (y) p.set("year", y); if (m) p.set("month", m); if (b) p.set("book", b); if (t) p.set("topic", t);
+    const p = new URLSearchParams(); if (y) p.set("year", y); if (m) p.set("month", m); if (b) p.set("type", b); if (t) p.set("topic", t);
     router.push(`/teachings/transcriptions${p.size ? `?${p}` : ""}`);
   };
   const menu = MENUS.find((x) => x.key === "teachings")!;
@@ -39,7 +39,7 @@ export function TeachingsOrganiser() {
         <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-[repeat(4,minmax(0,1fr))_auto] lg:items-end">
           <Sel label="Year" v={y} set={setY} opts={YEARS.map((x) => [x, x])} />
           <Sel label="Month" v={m} set={setM} opts={MONTHS.map((x, i) => [String(i + 1).padStart(2, "0"), x])} />
-          <Sel label="Book" v={b} set={setB} opts={BOOKS.map((x) => [x, x])} />
+          <Sel label="Type" v={b} set={setB} opts={TYPES.map((x) => [x, x])} />
           <Sel label="Topic" v={t} set={setT} opts={TOPICS.map((x) => [x, x])} />
           <button onClick={go} className="btn btn-primary !h-11 justify-center"><Search size={16} />Find</button>
         </div>

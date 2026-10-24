@@ -28,7 +28,7 @@ export function SearchPalette() {
       .map((l) => ({ href: `/teachings/audio/${l.slug}`, label: l.title, kind: "Lecture", sub: `${fmtDate(l.date)}, ${l.place}`, icon: Headphones }));
     if (lec.length) out.push({ title: "Lectures", items: lec });
     const top = TATTVA.flatMap((t) => [{ c: t.name, t }, ...t.children.map((c) => ({ c, t }))]).filter(({ c }) => norm(c).includes(n)).slice(0, 4)
-      .map(({ c, t }) => ({ href: `/tattva/${t.slug}`, label: c, kind: "Topic", sub: t.name === c ? "Tattva-kośa" : t.name, icon: Network }));
+      .map(({ c, t }) => ({ href: `/tattva/${t.slug}`, label: c, kind: "Topic", sub: t.name === c ? "Tattva" : t.name, icon: Network }));
     if (top.length) out.push({ title: "Topics", items: top });
     const qc = QUOTE_CATEGORIES.filter((c) => norm(c).includes(n)).slice(0, 3).map((c) => ({ href: "/teachings/quotes", label: c, kind: "Quotes", icon: Quote }));
     if (qc.length) out.push({ title: "Quote subjects", items: qc });

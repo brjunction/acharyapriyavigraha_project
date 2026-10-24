@@ -14,7 +14,7 @@ export default async function Concept({ params }: { params: Promise<{ slug: stri
   const tabs: [string, number][] = [["Lectures", 48], ["Lecture moments", 212], ["Quotes", 64], ["Books & chapters", 17], ["Stories", 9], ["Q&A", 22], ["Verses", 31]];
   return (
     <>
-      <PageHero crumbs={[{ href: "/tattva", label: "Tattva-kośa" }, { label: t.name }]} icon={Network} title={t.name} intro={`${t.count} passages, lectures and quotes gathered on this subject.`}>
+      <PageHero crumbs={[{ href: "/tattva", label: "Tattva" }, { label: t.name }]} icon={Network} title={t.name} intro={`${t.count} passages, lectures and quotes gathered on this subject.`}>
         <div className="mt-6 flex flex-wrap gap-2">{t.children.map((c) => <span key={c} className="rounded-full border border-line bg-surface px-3.5 py-1.5 font-serif text-[16px] font-bold text-ink-2">{c}</span>)}</div>
       </PageHero>
       <Container className="grid grid-cols-[minmax(0,1fr)] gap-10 py-12 lg:grid-cols-[minmax(0,1fr)_340px]">

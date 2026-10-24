@@ -59,18 +59,18 @@ export function Hero() {
       <Backdrop src="cream-mandala" flip pos="left center" o={0.6} />
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[var(--page)]/80 via-[var(--page)]/30 to-transparent" />
       <div className="relative mx-auto grid max-w-[1240px] grid-cols-[minmax(0,1fr)] items-center gap-10 px-5 pb-14 pt-12 sm:px-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:pb-20 lg:pt-16">
-        <div className="rise">
+        <div className="rise order-2 text-center lg:order-1 lg:text-left">
           <span className="inline-flex items-center gap-2 rounded-full border border-saffron/25 bg-surface/70 py-1 pl-3.5 pr-3.5 text-[12px] font-medium text-saffron backdrop-blur">
-            The complete teachings of Śrī Śrīmad Gour Govinda Swāmī
+            The complete teachings of Śrī Śrīmad Gour Govinda Swāmī Gurudeva
           </span>
           <h1 className="mt-5 text-[28px] font-bold leading-[1.12] tracking-[-0.03em] text-ink sm:text-[36px] lg:text-[42px]">
             Words that give life<br />to a <span className="text-shine">burning heart</span>
           </h1>
-          <p className="mt-5 max-w-xl text-[15.5px] leading-relaxed text-ink-2">
+          <p className="mx-auto mt-5 max-w-xl text-[15.5px] leading-relaxed text-ink-2 lg:mx-0">
             Lectures, letters, books, quotes and photographs of a pure devotee, gathered in one searchable home and growing in many languages. Listen, read, and find the exact words you were looking for.
           </p>
           <form onSubmit={(e) => { e.preventDefault(); if (q.trim()) r.push(`/search?q=${encodeURIComponent(q)}`); else setSearch(true); }}
-            className="mt-7 flex max-w-xl items-center gap-2 rounded-2xl border border-line bg-surface p-1.5 pl-4 shadow-[var(--shadow-md)] transition focus-within:border-saffron focus-within:shadow-[0_0_0_4px_color-mix(in_srgb,var(--saffron)_14%,transparent)]">
+            className="mx-auto mt-7 flex max-w-xl items-center gap-2 lg:mx-0 rounded-2xl border border-line bg-surface p-1.5 pl-4 shadow-[var(--shadow-md)] transition focus-within:border-saffron focus-within:shadow-[0_0_0_4px_color-mix(in_srgb,var(--saffron)_14%,transparent)]">
             <Search size={19} className="shrink-0 text-saffron" />
             <div className="relative flex-1">
               <input value={q} onChange={(e) => setQ(e.target.value)} aria-label="Search the teachings" className="h-11 w-full bg-transparent text-[15px] text-ink outline-none" />
@@ -78,14 +78,14 @@ export function Hero() {
             </div>
             <button className="btn btn-primary !h-10 !px-5">Search</button>
           </form>
-          <div className="mt-4 flex max-w-xl flex-wrap gap-1.5">
+          <div className="mx-auto mt-4 flex max-w-xl flex-wrap justify-center gap-1.5 lg:mx-0 lg:justify-start">
             {CHIPS.map(([l, k]) => <Link key={k} href={`/search?q=${k}`} className="chip acc-saffron">{l}</Link>)}
           </div>
         </div>
 
         {/* Portrait: a plain circular frame, no animation */}
-        <div className="mx-auto w-full max-w-[340px]">
-          <PortraitFrame photo src="/photos/gurudeva-speaking.webp" alt="Śrī Śrīmad Gour Govinda Swāmī" className="mx-auto w-full" />
+        <div className="order-1 mx-auto w-full max-w-[250px] sm:max-w-[300px] lg:order-2 lg:max-w-[340px]">
+          <PortraitFrame photo src="/photos/gurudeva-speaking.webp" alt="Śrī Śrīmad Gour Govinda Swāmī Gurudeva" className="mx-auto w-full" />
         </div>
       </div>
     </section>
@@ -230,7 +230,7 @@ export function DiaryRail({ items }: { items?: DiaryItem[] }) {
 
 export function QuotePanel() {
   const [copied, setCopied] = useState(false);
-  const cite = `“${QUOTE_OF_DAY.text}” Śrī Śrīmad Gour Govinda Swāmī, ${QUOTE_OF_DAY.source}, ${QUOTE_OF_DAY.date}, ${QUOTE_OF_DAY.place}. Taptajīvanam.`;
+  const cite = `“${QUOTE_OF_DAY.text}” Śrī Śrīmad Gour Govinda Swāmī Gurudeva, ${QUOTE_OF_DAY.source}, ${QUOTE_OF_DAY.date}, ${QUOTE_OF_DAY.place}. Taptajīvanam.`;
   return (
     <figure className="relative flex h-full flex-col overflow-hidden rounded-3xl bg-[#6b2a00] p-7 text-white sm:p-9">
       <Backdrop src="orange-mandala" />
@@ -314,11 +314,11 @@ export function Blessing() {
   return (
     <div className="relative overflow-hidden rounded-[28px] border border-line bg-[#f8efdd]">
       <Backdrop src="cream-mandala" o={0.35} pos="center" />
-      <div className="relative grid items-end gap-2 px-5 pt-10 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1.3fr)_minmax(0,0.8fr)] lg:px-10">
+      <div className="relative grid grid-cols-2 items-end gap-x-3 gap-y-2 px-4 pt-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1.2fr)_minmax(0,1fr)] lg:px-10 lg:pt-10">
         <div className="order-2 self-end lg:order-1">
-          <CutOut src="/legacy/prabhupada.webp" alt="Śrīla A.C. Bhaktivedanta Swami Prabhupāda" fade={0} className="mx-auto w-[78%] max-w-[340px] lg:w-[100%]" />
+          <CutOut src="/legacy/prabhupada.webp" alt="Śrīla A.C. Bhaktivedanta Swami Prabhupāda" fade={0} className="mx-auto w-full max-w-[340px]" />
         </div>
-        <div className="order-1 pb-10 text-center lg:order-2">
+        <div className="order-1 col-span-2 pb-6 text-center lg:order-2 lg:col-span-1 lg:pb-10">
           <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-saffron">Śrīla Prabhupāda on Śrīla Gurudeva</p>
           <p className="mt-4 text-balance text-[28px] font-semibold leading-[1.3] tracking-tight text-ink sm:text-[36px]">“Kṛṣṇa sent him.”</p>
           <p className="mt-2 text-[13px] text-ink-3">Room conversation, Bombay, 5 January 1977</p>
@@ -326,7 +326,7 @@ export function Blessing() {
           <p className="mt-2 text-[13px] text-ink-3">Letter, Māyāpur, 12 February 1976</p>
         </div>
         <div className="order-3 self-end">
-          <CutOut src="/legacy/gurudeva.webp" alt="Śrī Śrīmad Gour Govinda Swāmī" fade={0} className="mx-auto w-[50%] max-w-[190px] lg:w-[66%]" />
+          <CutOut src="/legacy/gurudeva.webp" alt="Śrī Śrīmad Gour Govinda Swāmī Gurudeva" fade={0} className="mx-auto w-[88%] max-w-[300px]" />
         </div>
       </div>
       <div className="relative grid gap-5 border-t border-[#e9d9b8] bg-[#fbf5e8] p-4 sm:p-7 lg:grid-cols-2">
