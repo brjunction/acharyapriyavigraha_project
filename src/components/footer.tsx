@@ -30,7 +30,7 @@ export function Footer() {
             </div>
           </div>
 
-          <div className="mt-14 grid gap-9 sm:grid-cols-2 lg:grid-cols-[1fr_1fr_1fr_1.3fr]">
+          <div className="mt-24 grid items-start gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
             {MENUS.slice(0, 3).map((m) => (
               <div key={m.key}>
                 <h4 className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#f1d3a4]">{m.label}</h4>
@@ -61,7 +61,7 @@ export function Footer() {
             </div>
           </div>
 
-          <div className="mt-9 grid gap-5 border-t border-white/10 pt-7 sm:grid-cols-3">
+          <div className="mt-14 grid gap-x-8 gap-y-6 border-t border-white/10 pt-9 sm:grid-cols-2 lg:grid-cols-4">
             {SITE.locations.map((l) => (
               <div key={l.name} className="flex gap-3 text-[12.5px]">
                 <MapPin size={15} className="mt-0.5 shrink-0 text-[#e6c9b4]" />

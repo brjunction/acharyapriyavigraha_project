@@ -28,8 +28,9 @@ export const SITE = {
   ],
   locations: [
     { name: "ISKCON Pattamundai", lines: ["Śrī Śrī Rādhā-Gopāljiu Gośālā", "Sana Mulabasanta, Pattamundai", "Kendrapada, Odisha 754215, India"] },
-    { name: "ISKCON Gadeigiri", lines: ["Śrī Śrī Rādhā-Gopāljiu Mandira", "Balikuda, Jagatsinghpur", "Odisha, India"] },
+    { name: "ISKCON Gadeigiri", lines: ["Śrī Śrī Rādhā-Gopāljiu Mandira", "Gadeigiri, Odisha, India"] },
     { name: "ISKCON Bhubaneswar", lines: ["Śrī Śrī Kṛṣṇa-Balarāma", "NH16, near Krishna Plaza, IRC Village", "Nayapalli, Bhubaneswar, Odisha 751015, India"] },
+    { name: "ISKCON Jagannathpur", lines: ["New temple under construction", "Odisha, India"] },
   ],
 };
 
