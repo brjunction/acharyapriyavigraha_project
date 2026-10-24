@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { ArrowRight, Search, Play, Pause, ChevronLeft, ChevronRight, Headphones, Quote as QuoteIcon, Copy, Check, PlayCircle } from "lucide-react";
 import { DIARY, IMG, LANGUAGES, QUOTE_OF_DAY, TIMELINE } from "@/lib/data";
 import { Img } from "./img";
-import { OgeeFrame, Orn, Padma, PaisleyField, Petals, Rosette, LogoMark } from "./motifs";
+import { PortraitFrame, Orn, Padma, PaisleyField, Petals, Rosette, LogoMark } from "./motifs";
 import { usePrefs } from "./providers";
 import { Backdrop } from "./backdrop";
 
@@ -92,9 +92,7 @@ export function Hero() {
           <Orn src="mandala-saffron" className="spin-slow absolute -inset-10 h-[calc(100%+5rem)] w-[calc(100%+5rem)] max-w-none opacity-60" />
           <div className="absolute inset-0 rounded-full bg-[radial-gradient(closest-side,color-mix(in_srgb,var(--gold)_35%,transparent),transparent)] blur-2xl" />
           <div className="relative transition-transform duration-300 ease-out" style={{ transform: "translate3d(calc(var(--px) * -10px), calc(var(--py) * -8px), 0)" }}>
-            <OgeeFrame className="mx-auto aspect-[4/5] w-[78%] drop-shadow-[0_24px_40px_rgba(90,40,0,0.35)]">
-              <Img src={IMG.ggs} alt="Śrīla Gour Govinda Swāmī" className="h-full w-full object-cover object-[50%_15%]" />
-            </OgeeFrame>
+            <PortraitFrame className="mx-auto w-[74%]" />
           </div>
           <div className="floaty absolute -left-1 top-[18%] w-[52%] rounded-2xl border border-line bg-surface/95 p-3.5 shadow-[var(--shadow-lg)] backdrop-blur sm:-left-6" style={{ ["--r" as string]: "-3deg", transform: "translate3d(calc(var(--px) * 14px), calc(var(--py) * 10px), 0)" }}>
             <p className="flex items-center gap-1.5 text-[10.5px] font-semibold uppercase tracking-[0.1em] text-teal"><span className="eq flex h-3 items-end gap-[2px]"><span style={{ animationDelay: "0s" }} /><span style={{ animationDelay: ".25s" }} /><span style={{ animationDelay: ".5s" }} /></span>Now in the archive</p>

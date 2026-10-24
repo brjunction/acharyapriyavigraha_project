@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Headphones, Quote, BookOpen, FileText, ArrowRight, Languages } from "lucide-react";
-import { LANGUAGES, QUOTE_OF_DAY } from "@/lib/data";
+import { ALL_LANGUAGES, STATUS_LABEL } from "@/lib/languages";
+import { QUOTE_OF_DAY } from "@/lib/data";
 import { Container, QuoteCard, ArchiveTile } from "@/components/ui";
 import { PaisleyField, Rosette } from "@/components/motifs";
 
@@ -15,26 +16,26 @@ const COPY: Record<string, { welcome: string; intro: string }> = {
   es: { welcome: "Hare Kṛṣṇa, bienvenidos", intro: "Conferencias, citas y libros de Śrīla Gour Govinda Swāmī en español." },
 };
 
-export function generateStaticParams() { return LANGUAGES.filter((l) => l.code !== "en").map((l) => ({ lang: l.code })); }
+export function generateStaticParams() { return ALL_LANGUAGES.filter((l) => l.code !== "en").map((l) => ({ lang: l.code })); }
 export const dynamicParams = false;
 
 export default async function LanguageHome({ params }: { params: Promise<{ lang: string }> }) {
   const { lang } = await params;
-  const l = LANGUAGES.find((x) => x.code === lang);
+  const l = ALL_LANGUAGES.find((x) => x.code === lang);
   if (!l) notFound();
-  const c = COPY[lang];
+  const c = COPY[lang] ?? { welcome: `${l.native}`, intro: `The ${l.name} site of Taptajīvanam is being prepared. Translators and reviewers are welcome.` };
   return (
     <>
       <section className="relative overflow-hidden bg-[#2f2622] text-white">
         <PaisleyField className="text-white/[0.04]" />
         <Rosette className="spin-slow absolute -left-32 top-1/2 h-[560px] w-[560px] -translate-y-1/2 text-[#c47f6e]/20" />
         <Container className="relative py-20 text-center sm:py-28">
-          <p className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-3 py-1 text-[13px] text-white/80"><Languages size={14} />{l.native} · {l.name}</p>
+          <p className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-3 py-1 text-[13px] text-white/80"><Languages size={14} />{l.native} · {l.name} · {STATUS_LABEL[l.status]}</p>
           <h1 className="mt-6 text-[32px] leading-tight text-white sm:text-[40px]">{c.welcome}</h1>
           <p className="mx-auto mt-4 max-w-2xl text-[18px] text-white/80">{c.intro}</p>
           <div className="mx-auto mt-8 flex max-w-md items-center gap-4">
             <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-white/15"><div className="h-full rounded-full bg-[#d8907e]" style={{ width: `${l.ui}%` }} /></div>
-            <span className="text-[13px] text-white/70">{l.ui}% translated</span>
+            <span className="text-[13px] text-white/70">{l.status === "planned" ? "Not started yet" : `${l.ui}% translated`}</span>
           </div>
         </Container>
       </section>

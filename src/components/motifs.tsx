@@ -209,3 +209,19 @@ export function Orn({ src, className = "" }: { src: string; className?: string }
   // eslint-disable-next-line @next/next/no-img-element
   return <img src={`/ornaments/${src}.png`} alt="" aria-hidden draggable={false} className={`pointer-events-none select-none ${className}`} />;
 }
+
+/** Respectful circular frame for Śrīla Gurudeva's cut-out portrait. Never crops the head. */
+export function PortraitFrame({ className = "", src = "/legacy/gurudeva.webp", alt = "Śrīla Gour Govinda Swāmī" }: { className?: string; src?: string; alt?: string }) {
+  return (
+    <div className={`relative aspect-square ${className}`}>
+      <span className="absolute inset-0 rounded-full bg-gradient-to-b from-[#e9b85f] via-[#fff1d0] to-[#e9b85f] p-[3px] shadow-[0_18px_40px_rgba(90,40,0,0.35)]">
+        <span className="block h-full w-full rounded-full bg-white p-[4px]">
+          <span className="relative block h-full w-full overflow-hidden rounded-full bg-[radial-gradient(circle_at_50%_35%,#fff7e3,#f6d9a0_60%,#e7b66a)]">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={src} alt={alt} className="absolute left-1/2 top-[9%] w-[104%] max-w-none -translate-x-1/2" />
+          </span>
+        </span>
+      </span>
+    </div>
+  );
+}

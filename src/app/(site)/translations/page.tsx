@@ -1,34 +1,22 @@
 import Link from "next/link";
 import { Languages, ArrowRight } from "lucide-react";
-import { LANGUAGES } from "@/lib/data";
+import { ALL_LANGUAGES } from "@/lib/languages";
 import { Container, PageHero } from "@/components/ui";
+import { LanguageDirectory } from "@/components/language-directory";
 
 export const metadata = { title: "Translations" };
 
-const Bar = ({ label, v, of }: { label: string; v: number; of: number }) => (
-  <div><div className="mb-1 flex justify-between text-[12.5px]"><span className="text-ink-2">{label}</span><span className="tabular text-ink-3">{of === 100 ? `${v}%` : `${v} / ${of}`}</span></div>
-    <div className="h-1.5 overflow-hidden rounded-full bg-band"><div className="h-full rounded-full bg-saffron" style={{ width: `${Math.min(100, (v / of) * 100)}%` }} /></div></div>
-);
-
 export default function Page() {
+  const n = (s: string) => ALL_LANGUAGES.filter((l) => l.status === s).length;
   return (
     <>
-      <PageHero crumbs={[{ label: "Translations" }]} icon={Languages} title="Translations" intro="Each language has its own complete site, with the interface, lectures, quotes and books in that language. Every translation is reviewed before it appears.">
-        <Link href="/about/contact" className="btn btn-primary mt-6">Help translate<ArrowRight size={16} /></Link>
-      </PageHero>
-      <Container className="py-14">
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          {LANGUAGES.map((l) => (
-            <Link key={l.code} href={l.code === "en" ? "/" : `/${l.code}`} className="card card-hover group flex flex-col p-6">
-              <p className="font-serif text-[24px] font-bold leading-tight group-hover:text-saffron">{l.native}</p>
-              <p className="text-[13px] text-ink-3">{l.name} · taptajivanam.com/{l.code === "en" ? "" : l.code}</p>
-              <div className="mt-6 space-y-3"><Bar label="Interface" v={l.ui} of={100} /><Bar label="Quotes" v={l.quotes} of={1840} /><Bar label="Transcriptions" v={l.transcripts} of={130} /></div>
-              <span className="mt-6 flex items-center gap-1 text-[13.5px] font-medium text-saffron">Open site<ArrowRight size={14} className="transition-transform group-hover:translate-x-0.5" /></span>
-            </Link>
-          ))}
+      <PageHero crumbs={[{ label: "Translations" }]} icon={Languages} title="Translations" bg="blue-mandala" intro="Every language has its own complete site: interface, lectures, quotes and books. Every translation is reviewed before it appears.">
+        <div className="mt-5 flex flex-wrap items-center gap-x-6 gap-y-3 text-[13px] text-ink-2">
+          <span><b className="text-[20px] text-ink">{n("live")}</b> live</span><span><b className="text-[20px] text-ink">{n("building")}</b> in progress</span><span><b className="text-[20px] text-ink">{n("planned")}</b> planned</span>
+          <Link href="/about/contact" className="btn btn-primary ml-auto">Help translate<ArrowRight size={15} /></Link>
         </div>
-        <p className="mt-6 text-center text-[13px] text-ink-3">Figures are samples for the prototype.</p>
-      </Container>
+      </PageHero>
+      <Container className="pb-14"><LanguageDirectory /><p className="mt-2 text-center text-[12px] text-ink-3">Progress figures are samples for the prototype.</p></Container>
     </>
   );
 }

@@ -4,7 +4,7 @@
 // Gurudeva's words are never invented: sample text is clearly marked as sample.
 
 export const IMG = {
-  ggs: "/legacy/gurudeva-portrait.jpg",
+  ggs: "/legacy/gurudeva.webp",
   ggsSite: "https://www.taptajivanam.com/custom_uploads/page_images/ggs.png",
   sp: "https://www.taptajivanam.com/custom_uploads/page_images/sp.png",
   leaf: "https://www.taptajivanam.com/custom_uploads/page_images/leaf-divider.png",
@@ -108,16 +108,7 @@ export const TATTVA: Concept[] = [
   { slug: "personalities", name: "Personalities", count: 276, children: ["Ācāryas", "Śrīla Prabhupāda", "Śrīmatī Rādhārāṇī", "Nṛsiṁhadeva & Prahlāda", "Devatās"] },
 ];
 
-export const LANGUAGES = [
-  { code: "en", native: "English", name: "English", ui: 100, quotes: 1840, transcripts: 130 },
-  { code: "hi", native: "हिन्दी", name: "Hindi", ui: 92, quotes: 312, transcripts: 18 },
-  { code: "or", native: "ଓଡ଼ିଆ", name: "Odia", ui: 85, quotes: 204, transcripts: 11 },
-  { code: "id", native: "Bahasa Indonesia", name: "Bahasa", ui: 64, quotes: 140, transcripts: 6 },
-  { code: "nl", native: "Nederlands", name: "Dutch", ui: 70, quotes: 96, transcripts: 4 },
-  { code: "ru", native: "Русский", name: "Russian", ui: 58, quotes: 120, transcripts: 5 },
-  { code: "bn", native: "বাংলা", name: "Bengali", ui: 20, quotes: 12, transcripts: 0 },
-  { code: "es", native: "Español", name: "Spanish", ui: 10, quotes: 0, transcripts: 0 },
-];
+export { LANGUAGES } from "./languages";
 
 export const LETTERS = [
   { date: "1974-01-01", from: "Śrīla Prabhupāda", to: "Śrīla Gurudeva", group: "With Śrīla Prabhupāda" },

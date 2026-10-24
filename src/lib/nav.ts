@@ -4,13 +4,14 @@ import {
   Handshake, Users, IdCard, Sunset, Landmark, Sparkles, Building2, Home, Star, Image, Heart, Gift, Package, Headphones, Clapperboard,
   Music, BookOpen, FileText, Newspaper, Languages, Quote, Droplet, Lightbulb, BookHeart, MessageCircleQuestion, ListChecks, HandHeart,
   Library, Network, BookA, MapPin, CalendarRange, Users2, ArrowDownAZ, Info, HeartHandshake, MessageCircle, Phone, Globe, Archive, Megaphone,
-  Map,
+  Map, Compass, Sunrise, Search, ShieldCheck, Accessibility, ListTree, Type,
 } from "lucide-react";
+import { ALL_LANGUAGES, REGIONS, STATUS_LABEL } from "./languages";
 
 export type NavLink = { href: string; label: string; desc: string; icon: LucideIcon; soon?: boolean; chips?: { href: string; label: string }[] };
 export type NavGroup = { title: string; links: NavLink[] };
 export type NavMenu = {
-  key: string; label: string; href: string; icon: LucideIcon; intro: string; groups: NavGroup[]; layout?: "columns" | "tiles"; allLabel?: string;
+  key: string; label: string; href: string; icon: LucideIcon; intro: string; groups: NavGroup[]; layout?: "columns" | "tiles" | "flyout"; dense?: boolean; searchAll?: boolean; allLabel?: string;
   feature?: { title: string; text: string; image?: string; href: string; cta: string };
 };
 
@@ -22,7 +23,7 @@ export const MENUS: NavMenu[] = [
   {
     key: "gurudeva", label: "Śrīla Gurudeva", href: "/gurudeva", icon: Flower2, allLabel: "Overview",
     intro: "His life, his diaries, his lineage, his disciples and his mission.",
-    feature: { title: "Śrī Śrīmad Gour Govinda Swāmī", text: "A dear disciple of Śrīla Prabhupāda, born in 1929 near Purī into a family devoted to Śrī Gopāl Jiu.", image: "/legacy/gurudeva-portrait.jpg", href: "/gurudeva", cta: "Overview" },
+    feature: { title: "Śrī Śrīmad Gour Govinda Swāmī", text: "A dear disciple of Śrīla Prabhupāda, born in 1929 near Purī into a family devoted to Śrī Gopāl Jiu.", image: "/legacy/gurudeva.webp", href: "/gurudeva", cta: "Overview" },
     groups: [
       g("His life", [
         l("/gurudeva/who-is-srila-gurudeva", "Who is Śrīla Gurudeva", "Krishna sent him · a brief life story", UserRound),
@@ -112,34 +113,58 @@ export const MENUS: NavMenu[] = [
     ],
   },
   {
-    key: "translations", label: "Translations", href: "/translations", icon: Languages, layout: "tiles", allLabel: "All languages",
-    intro: "Each language has its own complete site.",
-    groups: [
-      g("Languages", [
-        { href: "/hi", label: "हिन्दी · Hindi", desc: "Lectures, quotes and books in Hindi.", icon: Globe, chips: [{ href: "/hi", label: "Home" }, { href: "/hi/lectures", label: "Lectures" }, { href: "/hi/quotes", label: "Quotes" }] },
-        { href: "/or", label: "ଓଡ଼ିଆ · Odia", desc: "Śrīla Gurudeva's own mother tongue.", icon: Globe, chips: [{ href: "/or", label: "Home" }, { href: "/or/lectures", label: "Lectures" }, { href: "/or/quotes", label: "Quotes" }] },
-        { href: "/id", label: "Bahasa Indonesia", desc: "For devotees in Bali and Indonesia.", icon: Globe, chips: [{ href: "/id", label: "Home" }, { href: "/id/quotes", label: "Quotes" }] },
-        { href: "/nl", label: "Nederlands · Dutch", desc: "For devotees in the Netherlands and Belgium.", icon: Globe, chips: [{ href: "/nl", label: "Home" }, { href: "/nl/quotes", label: "Quotes" }] },
-        { href: "/ru", label: "Русский · Russian", desc: "For Russian-speaking devotees.", icon: Globe, chips: [{ href: "/ru", label: "Home" }, { href: "/ru/quotes", label: "Quotes" }] },
-        { href: "/translations", label: "More languages", desc: "Bengali, Spanish and others in progress. Help translate.", icon: Languages, chips: [{ href: "/bn", label: "বাংলা" }, { href: "/es", label: "Español" }, { href: "/translations", label: "Help translate" }] },
-      ]),
-    ],
+    key: "translations", label: "Translations", href: "/translations", icon: Languages, layout: "flyout", dense: true, searchAll: true, allLabel: "All languages",
+    intro: "Every language has its own complete site. Pick a region, or search.",
+    groups: REGIONS.map((r) => g(r.title, ALL_LANGUAGES.filter((x) => x.region === r.key).map((x) => ({
+      href: x.code === "en" ? "/" : `/${x.code}`, label: x.native, desc: `${x.name} · ${STATUS_LABEL[x.status]}`, icon: Globe, soon: x.status === "planned",
+    })))),
   },
   {
-    key: "about", label: "About", href: "/about", icon: Info, layout: "tiles",
-    intro: "About Taptajīvanam, the people behind it and how to reach us.",
+    key: "about", label: "About", href: "/about", icon: Info, layout: "flyout", allLabel: "About overview",
+    intro: "The archive, the ācāryas, the scriptures and how to reach us.",
     groups: [
       g("Taptajīvanam", [
         l("/about", "About the archive", "Why and how this archive exists", Archive),
+        l("/about/mission", "Mission & principles", "How content is chosen and cared for", Compass),
         l("/about/founder", "HH Haladhara Swāmī Mahārāja", "Founder of Taptajīvanam", UserRound),
+        l("/about/team", "Team & contributors", "Editors, translators, developers", Users),
         l("/thank-list", "Our Thank List", "Everyone who built this archive", HeartHandshake),
         l("/about/news", "News & updates", "What's new on the site", Megaphone),
+      ]),
+      g("Ācāryas & paramparā", [
+        l("/about/acaryas", "Ācāryas", "The Gauḍīya Vaiṣṇava succession", GitBranch),
+        l("/about/acarya-biographies", "Ācārya biographies", "Life stories of the ācāryas", BookMarked),
+        l("/about/acarya-teachings", "Ācārya teachings", "Selected teachings, with sources", ScrollText),
+        l("/gurudeva/srila-prabhupada", "Śrīla Prabhupāda", "Founder-ācārya of ISKCON", Crown),
+        l("/about/bhaktisiddhanta", "Śrīla Bhaktisiddhānta Sarasvatī", "Śrīla Prabhupāda's spiritual master", Sunrise),
+        l("/about/bhaktivinoda", "Śrīla Bhaktivinoda Ṭhākura", "The seventh Gosvāmī", Feather),
+        l("/about/six-gosvamis", "The Six Gosvāmīs", "Of Vṛndāvana", Landmark),
+        l("/about/mahaprabhu", "Śrī Caitanya Mahāprabhu", "And His associates", Flower2),
+      ]),
+      g("Scriptures & references", [
+        l("/about/bhagavad-gita", "Bhagavad-gītā", "Verse index and lectures", BookOpen),
+        l("/about/srimad-bhagavatam", "Śrīmad-Bhāgavatam", "Canto by canto", Library),
+        l("/about/caitanya-caritamrta", "Caitanya-caritāmṛta", "Ādi, Madhya, Antya", ScrollText),
+        l("/tattva/index/glossary", "Glossary", "Sanskrit and Odia terms", BookA, true),
+        l("/about/diacritics", "Spelling & diacritics", "How names and verses are written (IAST)", Type),
+      ]),
+      g("Partners & support", [
+        l("/about/publishers", "Publishers", "The three publishers of his books", Newspaper),
+        l("/about/related-websites", "Related websites", "gourgovindaswami.org, Vanipedia and more", Globe),
+        l("/about/support", "Support the archive", "Sevā, sponsorship, contributions", HandHeart),
+        l("/about/locations", "Our locations", "Pattamundai and Bhubaneswar", Map),
       ]),
       g("Connect", [
         l("/about/contact", "Contact", "taptajivanam@gmail.com · +91 96687 21555", Phone),
         l("/about/newsletter", "Ānanda Sambāda newsletter", "Subscribe to the newsletter", Mail),
         l("/about/whatsapp", "Daily quotes on WhatsApp", "Vāṇīsaṅga group", MessageCircle),
-        l("/about/locations", "Our locations", "Pattamundai and Bhubaneswar", Map),
+        l("/about/suggest-correction", "Suggest a correction", "Found a mistake? Tell us", MessageCircleQuestion),
+      ]),
+      g("Help & policies", [
+        l("/about/how-to-search", "How to search", "Verses, places, years, spellings", Search),
+        l("/about/privacy", "Privacy & terms", "How we handle data and content", ShieldCheck),
+        l("/about/accessibility", "Accessibility", "Reading, fonts, screen readers", Accessibility),
+        l("/about/sitemap", "Sitemap", "Every page in one list", ListTree),
       ]),
     ],
   },

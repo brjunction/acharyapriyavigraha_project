@@ -1,3 +1,4 @@
+import { PortraitFrame } from "@/components/motifs";
 import { Image as ImageIcon } from "lucide-react";
 import { GALLERY_TAGS, IMG } from "@/lib/data";
 import { Container, Img, PageHero } from "@/components/ui";
@@ -13,7 +14,7 @@ export default function Page() {
         <div className="mt-8 grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
           {GALLERY_TAGS.map((t, i) => (
             <a key={t} href="#" className="group overflow-hidden rounded-[14px] border border-line bg-surface">
-              <div className="overflow-hidden"><Img src={i === 0 ? IMG.ggs : i % 3 === 0 ? IMG.banner(1) : IMG.ggsSite} alt={t} className="aspect-[4/3] w-full object-cover transition duration-700 group-hover:scale-105" /></div>
+              <div className="overflow-hidden">{i === 0 ? <div className="flex aspect-[4/3] items-center justify-center bg-gradient-to-b from-[#fff3d6] to-[#f2cf93]"><PortraitFrame className="h-[86%]" /></div> : <Img src={i % 3 === 0 ? IMG.banner(1) : IMG.ggsSite} alt={t} className="aspect-[4/3] w-full object-cover transition duration-700 group-hover:scale-105" />}</div>
               <div className="p-4"><p className="font-serif text-[17px] font-bold leading-tight group-hover:text-saffron">{t}</p><p className="mt-0.5 text-[12.5px] text-ink-3">Album</p></div>
             </a>
           ))}

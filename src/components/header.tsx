@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { ChevronDown, ChevronRight, ChevronLeft, Search, SlidersHorizontal, Menu, X, ArrowRight } from "lucide-react";
 import { MENUS, ACCENT, type NavMenu } from "@/lib/nav";
-import { LogoMark, Rosette } from "./motifs";
+import { LogoMark, Rosette, PortraitFrame } from "./motifs";
 import { usePrefs } from "./providers";
 import { SettingsPanel } from "./settings";
 import { Img } from "./img";
@@ -26,75 +26,116 @@ export function Logo({ compact = false }: { compact?: boolean }) {
 
 const isIn = (path: string, m: NavMenu) => path === m.href || path.startsWith(m.href + "/") || m.groups.some((g) => g.links.some((l) => path === l.href));
 
-function MegaPanel({ menu, onNavigate }: { menu: NavMenu; onNavigate: () => void }) {
+const dot = (desc: string, soon?: boolean) => (soon ? "bg-line-strong" : desc.includes("In progress") ? "bg-[#d99a1c]" : "bg-ok");
+
+function MegaPanel({ menu, onNavigate, onPin }: { menu: NavMenu; onNavigate: () => void; onPin: (b: boolean) => void }) {
   const tiles = menu.layout === "tiles";
+  const fly = menu.layout === "flyout";
   const I = menu.icon;
+  const [gi, setGi] = useState(0);
+  const [q, setQ] = useState("");
   const links = menu.groups.flatMap((g) => g.links);
+  const g = menu.groups[gi] ?? menu.groups[0];
+  const nq = q.trim().toLowerCase();
+  const found = nq ? menu.groups.flatMap((x) => x.links.map((l) => ({ ...l, grp: x.title }))).filter((l) => (l.label + " " + l.desc).toLowerCase().includes(nq)) : [];
+  const Item = ({ it }: { it: (typeof links)[number] }) => {
+    const T = it.icon;
+    return (
+      <Link href={it.href} onClick={onNavigate} className="mega-item" title={it.desc}>
+        <span className="mega-ic"><T size={14} strokeWidth={1.8} /></span>
+        <span className="min-w-0">
+          <span className="flex items-center gap-1.5 text-[12px] font-semibold leading-snug text-ink">{it.label}{it.soon && <span className="rounded-full bg-band px-1.5 text-[9px] font-medium text-ink-3">soon</span>}</span>
+          <span className="line-clamp-1 text-[10.5px] leading-snug text-ink-3">{it.desc}</span>
+        </span>
+      </Link>
+    );
+  };
+  const Chip = ({ it }: { it: (typeof links)[number] }) => (
+    <Link href={it.href} onClick={onNavigate} title={it.desc} className="group/c flex items-center gap-2 rounded-lg border border-transparent px-2 py-1.5 transition hover:border-[var(--acc)]/30 hover:bg-acc-tint">
+      <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${dot(it.desc, it.soon)}`} />
+      <span className="min-w-0 leading-tight"><span className="block truncate text-[12px] font-semibold text-ink group-hover/c:text-[var(--acc)]">{it.label}</span><span className="block truncate text-[10.5px] text-ink-3">{it.desc.split(" · ")[0]}</span></span>
+    </Link>
+  );
   return (
     <div className={`acc-${ACCENT[menu.key]} mega-enter overflow-hidden rounded-2xl border border-line bg-surface shadow-[var(--shadow-lg)]`}>
-      <div className="grid" style={{ gridTemplateColumns: "232px minmax(0,1fr)" }}>
-        <aside className="relative flex flex-col overflow-hidden p-5 text-white" style={{ background: "linear-gradient(165deg, var(--acc), color-mix(in srgb, var(--acc) 55%, #000))" }}>
-          <Rosette className="spin-slow pointer-events-none absolute -bottom-20 -right-20 h-64 w-64 text-white/[0.14]" />
+      <div className="grid" style={{ gridTemplateColumns: fly ? "190px 200px minmax(0,1fr)" : "200px minmax(0,1fr)" }}>
+        <aside className="relative flex flex-col overflow-hidden p-4 text-white" style={{ background: "linear-gradient(165deg, var(--acc), color-mix(in srgb, var(--acc) 55%, #000))" }}>
+          <Rosette className="spin-slow pointer-events-none absolute -bottom-20 -right-20 h-56 w-56 text-white/[0.16]" />
           {menu.feature?.image ? (
-            <div className="relative mb-3 h-[104px] w-[84px] overflow-hidden rounded-t-full border-2 border-white/40 shadow-lg">
-              <Img src={menu.feature.image} alt="" className="h-full w-full object-cover" fallback="" />
-            </div>
+            <PortraitFrame className="mb-2.5 w-[84px]" src={menu.feature.image} alt={menu.feature.title} />
           ) : (
-            <span className="relative mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-white/15 backdrop-blur"><I size={20} strokeWidth={1.7} /></span>
+            <span className="relative mb-2.5 flex h-9 w-9 items-center justify-center rounded-xl bg-white/15 backdrop-blur"><I size={18} strokeWidth={1.7} /></span>
           )}
-          <p className="relative text-[17px] font-semibold leading-tight tracking-[-0.02em]">{menu.label}</p>
-          <p className="relative mt-1.5 text-[12px] leading-relaxed text-white/80">{menu.intro}</p>
-          <Link href={menu.href} onClick={onNavigate} className="group relative mt-auto inline-flex w-fit items-center gap-1.5 rounded-full bg-white/15 px-3 py-1.5 text-[12px] font-medium backdrop-blur transition hover:bg-white hover:text-[var(--acc)]">
-            {menu.allLabel ?? "Overview"} <ArrowRight size={13} className="transition-transform group-hover:translate-x-0.5" />
+          <p className="relative text-[15px] font-semibold leading-tight tracking-[-0.02em]">{menu.label}</p>
+          <p className="relative mt-1 text-[11px] leading-relaxed text-white/80">{menu.intro}</p>
+          <Link href={menu.href} onClick={onNavigate} className="group relative mt-auto inline-flex w-fit items-center gap-1.5 rounded-full bg-white/15 px-2.5 py-1 text-[11px] font-medium backdrop-blur transition hover:bg-white hover:text-[var(--acc)]">
+            {menu.allLabel ?? "Overview"} <ArrowRight size={12} className="transition-transform group-hover:translate-x-0.5" />
           </Link>
         </aside>
-        {tiles ? (
-          <div className="grid gap-2 p-4 sm:grid-cols-3">
+
+        {fly ? (
+          <>
+            <ul className="max-h-[400px] overflow-y-auto border-r border-line bg-page/50 p-1.5">
+              {menu.groups.map((x, k) => (
+                <li key={x.title}>
+                  <button onMouseEnter={() => { setGi(k); setQ(""); }} onFocus={() => setGi(k)} onClick={() => { setGi(k); setQ(""); }}
+                    className={`flex w-full items-center justify-between gap-2 rounded-lg px-2.5 py-2 text-left transition ${k === gi && !nq ? "bg-acc-soft text-[var(--acc)]" : "text-ink-2 hover:bg-acc-tint"}`}>
+                    <span className="text-[12px] font-semibold leading-tight">{x.title}</span>
+                    <span className="flex items-center gap-1 text-[10.5px] tabular text-ink-3">{x.links.length}<ChevronRight size={12} /></span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+            <div className="max-h-[400px] min-w-0 overflow-y-auto p-3">
+              {menu.searchAll && (
+                <div className="sticky -top-3 z-10 -mx-3 -mt-3 mb-2 border-b border-line bg-surface px-3 pb-2 pt-3">
+                  <label className="flex items-center gap-2 rounded-lg border border-line bg-page px-2.5 py-1.5 focus-within:border-[var(--acc)]">
+                    <Search size={13} className="text-ink-3" />
+                    <input value={q} onChange={(e) => setQ(e.target.value)} onFocus={() => onPin(true)} onBlur={() => onPin(false)} placeholder={`Search ${links.length} languages…`} aria-label="Search languages" className="w-full bg-transparent text-[12px] outline-none placeholder:text-ink-3" />
+                  </label>
+                </div>
+              )}
+              {nq ? (
+                <>
+                  <p className="px-1 pb-1.5 text-[10.5px] font-semibold uppercase tracking-[0.1em] text-ink-3">{found.length} result{found.length === 1 ? "" : "s"}</p>
+                  <div className="grid grid-cols-2 gap-0.5 xl:grid-cols-3">{found.map((it) => <Chip key={it.href} it={it} />)}</div>
+                  {!found.length && <p className="px-1 py-4 text-[12px] text-ink-3">No match. <Link href={menu.href} onClick={onNavigate} className="text-[var(--acc)]">Browse all</Link></p>}
+                </>
+              ) : (
+                <>
+                  <p className="flex items-center gap-1.5 px-1 pb-1.5 text-[10.5px] font-semibold uppercase tracking-[0.1em] text-[var(--acc)]"><span className="h-1 w-1 rounded-full bg-[var(--acc)]" />{g.title}<span className="font-normal normal-case tracking-normal text-ink-3">· {g.links.length}</span></p>
+                  {menu.dense ? <div className="grid grid-cols-2 gap-0.5 xl:grid-cols-3">{g.links.map((it) => <Chip key={it.href + it.label} it={it} />)}</div>
+                    : <div className="grid grid-cols-1 gap-x-2 sm:grid-cols-2">{g.links.map((it) => <Item key={it.href + it.label} it={it} />)}</div>}
+                </>
+              )}
+            </div>
+          </>
+        ) : tiles ? (
+          <div className="grid gap-2 p-3 sm:grid-cols-3">
             {links.map((it) => {
               const T = it.icon;
               return (
-                <div key={it.href + it.label} className="group/tile rounded-xl border border-line p-3 transition hover:border-[var(--acc)] hover:bg-acc-tint">
-                  <Link href={it.href} onClick={onNavigate} className="block">
-                    <span className="mega-ic"><T size={16} strokeWidth={1.8} /></span>
-                    <span className="mt-2 block text-[13px] font-semibold text-ink">{it.label}</span>
-                    <span className="mt-0.5 block text-[11.5px] leading-snug text-ink-3">{it.desc}</span>
-                  </Link>
-                  {it.chips && (
-                    <div className="mt-2 flex flex-wrap gap-1 border-t border-line pt-2">
-                      {it.chips.map((c) => <Link key={c.href + c.label} href={c.href} onClick={onNavigate} className="rounded-md bg-band px-1.5 py-0.5 text-[11px] text-ink-2 transition hover:bg-[var(--acc)] hover:text-white">{c.label}</Link>)}
-                    </div>
-                  )}
-                </div>
+                <Link key={it.href + it.label} href={it.href} onClick={onNavigate} className="rounded-xl border border-line p-3 transition hover:border-[var(--acc)] hover:bg-acc-tint">
+                  <span className="mega-ic"><T size={14} strokeWidth={1.8} /></span>
+                  <span className="mt-1.5 block text-[12px] font-semibold text-ink">{it.label}</span>
+                  <span className="mt-0.5 block text-[10.5px] leading-snug text-ink-3">{it.desc}</span>
+                </Link>
               );
             })}
           </div>
         ) : (
-          <div className="grid gap-x-3 p-3" style={{ gridTemplateColumns: `repeat(${menu.groups.length}, minmax(0, 1fr))` }}>
-            {menu.groups.map((g) => (
-              <div key={g.title}>
-                <p className="flex items-center gap-1.5 px-2 pb-1 pt-2 text-[10.5px] font-semibold uppercase tracking-[0.12em] text-[var(--acc)]"><span className="h-1 w-1 rounded-full bg-[var(--acc)]" />{g.title}</p>
-                {g.links.map((it) => {
-                  const T = it.icon;
-                  return (
-                    <Link key={it.href + it.label} href={it.href} onClick={onNavigate} className="mega-item" title={it.desc}>
-                      <span className="mega-ic"><T size={15} strokeWidth={1.8} /></span>
-                      <span className="min-w-0">
-                        <span className="flex items-center gap-1.5 text-[12.5px] font-semibold leading-snug text-ink">
-                          {it.label}
-                          {it.soon && <span className="rounded-full bg-band px-1.5 text-[9.5px] font-medium text-ink-3">soon</span>}
-                        </span>
-                        <span className="line-clamp-1 text-[11px] leading-snug text-ink-3">{it.desc}</span>
-                      </span>
-                    </Link>
-                  );
-                })}
+          <div className="grid gap-x-2 p-2.5" style={{ gridTemplateColumns: `repeat(${menu.groups.length}, minmax(0, 1fr))` }}>
+            {menu.groups.map((x) => (
+              <div key={x.title}>
+                <p className="flex items-center gap-1.5 px-2 pb-0.5 pt-1.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--acc)]"><span className="h-1 w-1 rounded-full bg-[var(--acc)]" />{x.title}</p>
+                {x.links.map((it) => <Item key={it.href + it.label} it={it} />)}
               </div>
             ))}
           </div>
         )}
       </div>
-      <div className="flex items-center justify-between gap-4 border-t border-line bg-acc-tint px-5 py-2 text-[11.5px] text-ink-3">
-        <span>{links.length} sections</span>
+      <div className="flex items-center justify-between gap-4 border-t border-line bg-acc-tint px-4 py-1.5 text-[10.5px] text-ink-3">
+        <span>{links.length} {menu.key === "translations" ? "languages" : "sections"}{menu.key === "translations" && <> · <span className="inline-block h-1.5 w-1.5 rounded-full bg-ok" /> live <span className="ml-1 inline-block h-1.5 w-1.5 rounded-full bg-[#d99a1c]" /> in progress <span className="ml-1 inline-block h-1.5 w-1.5 rounded-full bg-line-strong" /> planned</>}</span>
         <span className="hidden sm:inline">Press <kbd className="rounded border border-line bg-surface px-1">Ctrl</kbd> <kbd className="rounded border border-line bg-surface px-1">K</kbd> to search everything</span>
       </div>
     </div>
@@ -103,6 +144,7 @@ function MegaPanel({ menu, onNavigate }: { menu: NavMenu; onNavigate: () => void
 
 function MobileMenu({ onClose }: { onClose: () => void }) {
   const [open, setOpen] = useState<NavMenu | null>(null);
+  const [og, setOg] = useState<string | null>(null);
   const { setSearch } = usePrefs();
   return createPortal(
     <div className="fixed inset-0 z-[100] flex flex-col bg-surface lg:hidden">
@@ -136,13 +178,35 @@ function MobileMenu({ onClose }: { onClose: () => void }) {
               <Link href={open.href} onClick={onClose} className="mb-3 flex items-center justify-between rounded-xl px-4 py-3.5 text-white" style={{ background: "linear-gradient(135deg, var(--acc), color-mix(in srgb, var(--acc) 55%, #000))" }}>
                 <span className="text-[17px] font-semibold">{open.label}</span><span className="flex items-center gap-1 text-[13px] opacity-90">{open.allLabel ?? "Overview"}<ArrowRight size={14} /></span>
               </Link>
-              {open.groups.map((g) => (
+              {open.layout === "flyout" ? open.groups.map((g) => (
+                <div key={g.title} className="border-b border-line">
+                  <button onClick={() => setOg(og === g.title ? null : g.title)} className="flex w-full items-center justify-between px-2 py-3 text-left">
+                    <span className="text-[14px] font-semibold">{g.title}</span>
+                    <span className="flex items-center gap-1.5 text-[12px] text-ink-3">{g.links.length}<ChevronDown size={15} className={`transition-transform ${og === g.title ? "rotate-180" : ""}`} /></span>
+                  </button>
+                  {og === g.title && (
+                    <div className={`pb-3 ${open.dense ? "grid grid-cols-2 gap-1" : ""}`}>
+                      {g.links.map((it) => open.dense ? (
+                        <Link key={it.href + it.label} href={it.href} onClick={onClose} className="flex items-center gap-2 rounded-lg px-2 py-2 hover:bg-acc-tint">
+                          <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${dot(it.desc, it.soon)}`} />
+                          <span className="min-w-0 leading-tight"><span className="block truncate text-[13px] font-medium">{it.label}</span><span className="block truncate text-[11px] text-ink-3">{it.desc.split(" · ")[0]}</span></span>
+                        </Link>
+                      ) : (
+                        <Link key={it.href + it.label} href={it.href} onClick={onClose} className="flex items-center gap-3 rounded-xl px-2 py-2 hover:bg-acc-tint">
+                          <span className="mega-ic"><it.icon size={15} strokeWidth={1.8} /></span>
+                          <span><span className="block text-[13.5px] font-medium">{it.label}</span><span className="block text-[11px] leading-snug text-ink-3">{it.desc}</span></span>
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )) : open.groups.map((g) => (
                 <div key={g.title} className="mb-2">
                   <p className="px-2 pb-1 pt-3 text-[10.5px] font-semibold uppercase tracking-[0.12em] text-[var(--acc)]">{g.title}</p>
                   {g.links.map((it) => { const I = it.icon; return (
-                    <Link key={it.href + it.label} href={it.href} onClick={onClose} className="flex items-center gap-3 rounded-xl px-2 py-2.5 hover:bg-acc-tint">
-                      <span className="mega-ic"><I size={16} strokeWidth={1.8} /></span>
-                      <span><span className="block text-[14px] font-medium">{it.label}</span><span className="block text-[11.5px] leading-snug text-ink-3">{it.desc}</span></span>
+                    <Link key={it.href + it.label} href={it.href} onClick={onClose} className="flex items-center gap-3 rounded-xl px-2 py-2 hover:bg-acc-tint">
+                      <span className="mega-ic"><I size={15} strokeWidth={1.8} /></span>
+                      <span><span className="block text-[13.5px] font-medium">{it.label}</span><span className="block text-[11px] leading-snug text-ink-3">{it.desc}</span></span>
                     </Link>
                   ); })}
                 </div>
@@ -165,6 +229,7 @@ export function Header() {
   const [mounted, setMounted] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const pinned = useRef(false);
   const settingsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => setMounted(true), []);
@@ -185,9 +250,9 @@ export function Header() {
   }, [active]);
 
   const show = (k: string) => { if (timer.current) clearTimeout(timer.current); setActive(k); setSettings(false); };
-  const hide = () => { if (timer.current) clearTimeout(timer.current); timer.current = setTimeout(() => setActive(null), 150); };
+  const hide = () => { if (timer.current) clearTimeout(timer.current); timer.current = setTimeout(() => { if (!pinned.current) setActive(null); }, 150); };
   const menu = MENUS.find((m) => m.key === active);
-  const wide = menu && (menu.layout === "tiles" ? 840 : menu.groups.length >= 4 ? 1120 : menu.groups.length === 3 ? 920 : 720);
+  const wide = menu && (menu.layout === "flyout" ? 900 : menu.layout === "tiles" ? 760 : menu.groups.length >= 4 ? 1000 : menu.groups.length === 3 ? 820 : 660);
 
   return (
     <header className="sticky top-0 z-50">
@@ -203,8 +268,8 @@ export function Header() {
               return (
                 <button key={m.key} onMouseEnter={() => show(m.key)} onFocus={() => show(m.key)} onClick={() => setActive(on ? null : m.key)}
                   aria-expanded={on} aria-haspopup="true"
-                  className={`acc-${ACCENT[m.key]} group relative flex items-center gap-1.5 whitespace-nowrap rounded-full px-3 py-1.5 text-[13px] font-medium transition ${on ? "bg-acc-soft text-[var(--acc)]" : current ? "text-[var(--acc)]" : "text-ink-2 hover:bg-acc-tint hover:text-[var(--acc)]"}`}>
-                  <I size={15} strokeWidth={1.9} className="hidden text-[var(--acc)] opacity-80 xl:block" />
+                  className={`acc-${ACCENT[m.key]} group relative flex items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-1 text-[12.5px] font-medium transition ${on ? "bg-acc-soft text-[var(--acc)]" : current ? "text-[var(--acc)]" : "text-ink-2 hover:bg-acc-tint hover:text-[var(--acc)]"}`}>
+                  <I size={14} strokeWidth={1.9} className="hidden text-[var(--acc)] opacity-80 xl:block" />
                   {m.label}
                   <ChevronDown size={12} className={`-ml-0.5 opacity-60 transition-transform ${on ? "rotate-180" : ""}`} />
                   {current && <span className="absolute inset-x-3 -bottom-[7px] h-[2px] rounded-full bg-[var(--acc)]" />}
@@ -236,7 +301,7 @@ export function Header() {
       {menu && (
         <div className="absolute left-1/2 top-full hidden -translate-x-1/2 pt-1 lg:block" style={{ width: `min(${wide}px, calc(100vw - 2rem))` }}
           onMouseEnter={() => show(menu.key)} onMouseLeave={hide}>
-          <MegaPanel key={menu.key} menu={menu} onNavigate={() => setActive(null)} />
+          <MegaPanel key={menu.key} menu={menu} onNavigate={() => { pinned.current = false; setActive(null); }} onPin={(b) => { pinned.current = b; }} />
         </div>
       )}
       {mounted && mobile && <MobileMenu onClose={() => setMobile(false)} />}
