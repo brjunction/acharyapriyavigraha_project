@@ -56,8 +56,9 @@ export function Hero() {
   };
   return (
     <>
-    <section className="relative isolate overflow-hidden" onPointerMove={move}>
-      <div aria-hidden className="pointer-events-none absolute inset-x-0 top-7 z-[1]"><VMask name="border-4" repeat="repeat-x" size="auto 100%" pos="center top" className="h-7 w-full text-[#f3b363] opacity-80" /><div className="hero-rule mt-1.5 h-px w-full bg-gradient-to-r from-transparent via-[#f3b363]/70 to-transparent" /></div>
+    {/* Indian border standing on a light strip below the navigation, outside the saffron hero, as its top fringe */}
+    <div aria-hidden className="relative z-[1] bg-[#faf6ef] pt-4"><div className="h-8 w-full overflow-hidden"><VMask name="border-4" repeat="repeat-x" size="auto 100%" pos="center top" className="h-full w-full text-[#8a3a0a]" /></div></div>
+    <section className="relative isolate -mt-px overflow-hidden" onPointerMove={move}>
       <Backdrop src="saffron-dark" flip pos="left center" o={0.4} />
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(70%_80%_at_80%_40%,rgba(243,179,99,0.28),transparent_65%),linear-gradient(100deg,rgba(70,26,3,0.55),transparent_60%)]" />
       <VMask name="mandala-saffron" className="hero-spin-rev pointer-events-none absolute -bottom-56 -left-48 h-[620px] w-[620px] text-[#f3b363] opacity-[0.16]" />
@@ -66,7 +67,7 @@ export function Hero() {
       {[8, 22, 36, 61, 74, 90].map((x, i) => (
         <div key={x} className="pointer-events-none absolute bottom-24" style={{ left: `${x}%` }}><div className="hero-petal" style={{ animationDelay: `${i * 1.5}s` }}><Padma className="h-5 w-5 text-[#ffd48a]" layers={2} /></div></div>
       ))}
-      <div className="relative mx-auto grid max-w-[1240px] grid-cols-[minmax(0,1fr)] items-center gap-10 px-5 pb-16 pt-24 sm:px-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:pb-20 lg:pt-32">
+      <div className="relative mx-auto grid max-w-[1240px] grid-cols-[minmax(0,1fr)] items-center gap-10 px-5 pb-16 pt-14 sm:px-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:pb-20 lg:pt-20">
         <div className="rise order-2 text-center lg:order-1 lg:text-left">
           <span className="hero-pill inline-flex items-center gap-2 rounded-full border border-[#f3b363]/70 bg-[#f3b363]/20 py-1.5 pl-4 pr-4 text-[12.5px] font-semibold text-[#fff1da] backdrop-blur">
             The complete life and teachings of Śrī Śrīmad Gour Govinda Swāmī Gurudeva
