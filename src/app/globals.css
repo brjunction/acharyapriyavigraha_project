@@ -259,7 +259,7 @@ h1, h2, h3, h4 { font-family: var(--font-sans); font-weight: 650; letter-spacing
 
 /* Logo lockup: round medallion joined to a name bar; on hover a gold line travels once around the bar */
 @property --logo-a { syntax: "<angle>"; initial-value: 0deg; inherits: false; }
-.logo-medal { background: #fffaf0; box-shadow: 0 6px 14px -6px rgba(110,50,8,.5), 0 0 0 2px #fff; transition: transform .35s ease; }
+.logo-medal { background: #fffaf0; box-shadow: 0 6px 14px -6px rgba(110,50,8,.4); transition: transform .35s ease; }
 .logo-link:hover .logo-medal { transform: scale(1.05); }
 .logo-box { position: relative; isolation: isolate; border-radius: 999px; background: linear-gradient(180deg, #fffaf0, #f8eedb); border: 1px solid color-mix(in srgb, var(--gold) 38%, transparent); box-shadow: 0 6px 14px -8px rgba(110,50,8,.4); transition: box-shadow .35s ease, transform .35s ease; }
 .logo-box::before { content: ""; position: absolute; inset: -1px; border-radius: inherit; padding: 2px; z-index: -1; opacity: 0; transition: opacity .3s ease;
@@ -291,3 +291,28 @@ h1, h2, h3, h4 { font-family: var(--font-sans); font-weight: 650; letter-spacing
 .hero-pill::after { content: ""; position: absolute; inset: 0; background: linear-gradient(110deg, transparent 35%, rgba(255,240,200,.45) 50%, transparent 65%); transform: translateX(-120%); animation: hero-sheen 5s ease-in-out 1.2s infinite; }
 @keyframes hero-sheen { 0%,60% { transform: translateX(-120%); } 100% { transform: translateX(120%); } }
 @media (prefers-reduced-motion: reduce) { .hero-spin,.hero-spin-rev,.hero-petal,.hero-gold,.hero-pill::after { animation: none; } .hero-word { opacity: 1; animation: none; } }
+
+/* Everything feels alive: words, marks, cards, rows and links respond */
+.live-word { display: inline-block; margin-right: .26em; transition: transform .35s cubic-bezier(.2,.7,.2,1), color .3s ease, text-shadow .3s ease; }
+.live-word:hover { transform: translateY(-4px) scale(1.04); color: var(--saffron); text-shadow: 0 8px 20px color-mix(in srgb, var(--gold) 55%, transparent); }
+.js-reveal .reveal:not(.in) .live-word { opacity: 0; transform: translateY(16px); }
+.js-reveal .reveal.in .live-word { animation: hero-word .8s cubic-bezier(.2,.7,.2,1) both; animation-delay: var(--d, 0s); }
+@keyframes mark-sweep { to { background-size: 100% 100%; } }
+mark.mark-live { background: linear-gradient(#f6d58e, #f6d58e) no-repeat left center / 0% 100%; transition: box-shadow .3s ease, filter .3s ease; }
+.js-reveal .reveal.in mark.mark-live { animation: mark-sweep 1.3s cubic-bezier(.4,.1,.2,1) .7s forwards; }
+html:not(.js-reveal) mark.mark-live { background-size: 100% 100%; }
+mark.mark-live:hover { filter: saturate(1.35) brightness(1.03); box-shadow: 0 0 0 3px rgba(246,213,142,.45); }
+.live-row { transition: background-color .25s ease, padding-left .3s ease, color .25s ease; }
+.live-row:hover { background-color: #fbefd2; padding-left: 1.25rem; }
+.live-row:hover > span:first-child { color: var(--saffron); }
+.kick-live { transition: letter-spacing .45s ease, color .3s ease; }
+.kick-live:hover { letter-spacing: .26em; }
+.card { transition: transform .3s cubic-bezier(.2,.7,.2,1), box-shadow .3s ease, border-color .3s ease; }
+.card:hover { border-color: color-mix(in srgb, var(--acc, var(--saffron)) 45%, var(--line)); box-shadow: 0 14px 30px -16px rgba(80,40,10,.35); }
+main h2, main h3 { transition: color .3s ease, letter-spacing .4s ease, transform .3s ease; }
+main h2:hover { color: var(--acc, var(--saffron)); }
+main section a, main section button { transition-property: color, background-color, border-color, box-shadow, transform, opacity; transition-duration: .25s; }
+main section li > a:hover, main section ol > li > a:hover { transform: translateX(3px); }
+main .btn:hover, main section a.chip:hover { transform: translateY(-2px); }
+main p.hover-glow:hover { color: var(--saffron); }
+@media (prefers-reduced-motion: reduce) { .live-word, mark.mark-live { animation: none !important; opacity: 1 !important; transform: none; background-size: 100% 100%; } }

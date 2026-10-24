@@ -60,7 +60,6 @@ export function Hero() {
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(70%_80%_at_80%_40%,rgba(243,179,99,0.28),transparent_65%),linear-gradient(100deg,rgba(70,26,3,0.55),transparent_60%)]" />
       <VMask name="mandala-saffron" className="hero-spin pointer-events-none absolute -right-48 -top-40 h-[760px] w-[760px] text-[#f3b363] opacity-[0.22]" />
       <VMask name="mandala-saffron" className="hero-spin-rev pointer-events-none absolute -bottom-56 -left-48 h-[620px] w-[620px] text-[#f3b363] opacity-[0.16]" />
-      <RosetteLines className="hero-spin-rev pointer-events-none absolute right-[8%] top-1/2 hidden h-[560px] w-[560px] -translate-y-1/2 text-[#ffd48a] opacity-[0.28] lg:block" />
       <VMask name="paisley-red" repeat="repeat" size="380px" className="pointer-events-none absolute inset-0 text-[#f3b363] opacity-[0.07]" />
       {/* Indian border line along the bottom, edge to edge */}
       <div className="pointer-events-none absolute inset-x-0 bottom-3">
@@ -98,8 +97,10 @@ export function Hero() {
         </div>
 
         {/* Portrait: a plain circular frame, no animation */}
-        <div className="order-1 mx-auto w-full max-w-[250px] sm:max-w-[300px] lg:order-2 lg:max-w-[340px]">
-          <PortraitFrame photo src="/photos/gurudeva-speaking.webp" alt="Śrī Śrīmad Gour Govinda Swāmī Gurudeva" className="mx-auto w-full" />
+        <div className="relative order-1 mx-auto w-full max-w-[250px] sm:max-w-[300px] lg:order-2 lg:max-w-[340px]">
+          <div aria-hidden className="pointer-events-none absolute inset-[-45%]"><RosetteLines className="hero-spin h-full w-full text-[#ffd48a] opacity-[0.3]" /></div>
+          <div aria-hidden className="pointer-events-none absolute inset-[-17%]"><RosetteLines className="hero-spin-rev h-full w-full text-[#ffd48a] opacity-[0.22]" /></div>
+          <div className="relative"><PortraitFrame photo src="/photos/gurudeva-speaking.webp" alt="Śrī Śrīmad Gour Govinda Swāmī Gurudeva" className="mx-auto w-full" /></div>
         </div>
       </div>
     </section>
@@ -320,7 +321,7 @@ export function Radio() {
 }
 
 /* ------------------------------------------------------------ Blessing */
-const hl = (t: string) => t.split(/(«[^»]+»)/).map((x, k) => x.startsWith("«") ? <mark key={k} className="rounded bg-[#f6d58e]/70 px-1 font-semibold text-ink">{x.slice(1, -1)}</mark> : <span key={k}>{x}</span>);
+const hl = (t: string) => t.split(/(«[^»]+»)/).map((x, k) => x.startsWith("«") ? <mark key={k} className="mark-live rounded px-1 font-semibold text-ink">{x.slice(1, -1)}</mark> : <span key={k}>{x}</span>);
 
 export function Blessing() {
   return (
@@ -331,10 +332,10 @@ export function Blessing() {
           <CutOut src="/legacy/prabhupada.webp" alt="Śrīla A.C. Bhaktivedanta Swami Prabhupāda" fade={0} className="mx-auto w-full max-w-[340px]" />
         </div>
         <div className="order-1 col-span-2 pb-6 text-center lg:order-2 lg:col-span-1 lg:pb-10">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-saffron">Śrīla Prabhupāda on Śrīla Gurudeva</p>
-          <p className="mt-4 text-balance text-[23px] font-semibold leading-[1.3] tracking-tight text-ink sm:text-[30px]">“Kṛṣṇa sent him.”</p>
-          <p className="mt-2 text-[13px] text-ink-3">Room conversation, Bombay, 5 January 1977</p>
-          <p className="mx-auto mt-6 max-w-md text-[15px] leading-relaxed text-ink-2"><mark className="rounded bg-[#f6d58e]/70 px-1 font-semibold text-ink">“Krishna is with you and there is no need of disappointment.”</mark></p>
+          <p className="kick-live text-[11px] font-semibold uppercase tracking-[0.18em] text-saffron">Śrīla Prabhupāda on Śrīla Gurudeva</p>
+          <p className="mt-4 text-balance text-[23px] font-semibold leading-[1.3] tracking-tight text-ink sm:text-[30px]">{["“Kṛṣṇa", "sent", "him.”"].map((w, i) => <span key={i} className="live-word" style={{ ["--d" as string]: `${0.1 + i * 0.16}s` } as React.CSSProperties}>{w}</span>)}</p>
+          <p className="hover-glow mt-2 text-[13px] text-ink-3">Room conversation, Bombay, 5 January 1977</p>
+          <p className="mx-auto mt-6 max-w-md text-[15px] leading-relaxed text-ink-2"><mark className="mark-live rounded px-1 font-semibold text-ink">“Krishna is with you and there is no need of disappointment.”</mark></p>
           <p className="mt-2 text-[13px] text-ink-3">Letter, Māyāpur, 12 February 1976</p>
         </div>
         <div className="order-3 self-end">
@@ -347,7 +348,7 @@ export function Blessing() {
           <p className="mb-3 mt-0.5 text-[12px] text-ink-3">{CONVERSATION.speakers}</p>
           <div className="rounded-2xl border border-[#e9d9b8] bg-[#fffbf3]">
             {CONVERSATION.lines.map(([who, line], k) => (
-              <p key={k} className="border-b border-[#efe2c6] px-4 py-2.5 text-[13px] leading-relaxed text-ink-2 last:border-0"><span className={`mr-1.5 font-semibold ${who === "Prabhupāda" ? "text-saffron" : "text-ink"}`}>{who}:</span>{hl(line)}</p>
+              <p key={k} className="live-row border-b border-[#efe2c6] px-4 py-2.5 text-[13px] leading-relaxed text-ink-2 last:border-0"><span className={`mr-1.5 font-semibold ${who === "Prabhupāda" ? "text-saffron" : "text-ink"}`}>{who}:</span>{hl(line)}</p>
             ))}
           </div>
         </section>

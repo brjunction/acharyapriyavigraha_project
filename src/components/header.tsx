@@ -249,7 +249,7 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-50">
-      <div className={`border-b border-[#ecc58c]/70 bg-[linear-gradient(90deg,#fdf0dc,#fbe6c4_50%,#fdf0dc)] transition-shadow ${scrolled ? "shadow-[0_6px_24px_-14px_rgba(60,30,10,0.45)]" : ""}`}>
+      <div className={`border-b border-line bg-white transition-shadow ${scrolled ? "shadow-[0_6px_24px_-14px_rgba(60,30,10,0.45)]" : ""}`}>
         <div className="mx-auto grid h-[58px] max-w-[1320px] grid-cols-[auto_1fr_auto] items-center gap-3 px-4 sm:px-6">
           <Logo />
           <nav className="hidden items-center justify-center gap-0.5 lg:flex" aria-label="Main" onMouseLeave={hide}>
@@ -260,7 +260,7 @@ export function Header() {
               return (
                 <button key={m.key} onMouseEnter={() => show(m.key)} onFocus={() => show(m.key)} onClick={() => setActive(on ? null : m.key)}
                   aria-expanded={on} aria-haspopup="true"
-                  className={`acc-${ACCENT[m.key]} group relative flex items-center gap-1.5 whitespace-nowrap rounded-full px-2 py-1 text-[12px] font-medium transition ${on ? "bg-white/80 text-[var(--acc)] shadow-sm" : current ? "text-[var(--acc)]" : "text-[var(--acc)] hover:bg-white/70"}`}>
+                  className={`acc-${ACCENT[m.key]} group relative flex items-center gap-1.5 whitespace-nowrap rounded-full px-2 py-1 text-[12px] font-medium transition ${on ? "bg-acc-soft text-[var(--acc)]" : current ? "text-[var(--acc)]" : "text-[var(--acc)] hover:bg-acc-tint"}`}>
                   <I size={14} strokeWidth={1.9} className="hidden text-[var(--acc)] opacity-90 xl:block" />
                   {m.label}
                   <ChevronDown size={12} className={`-ml-0.5 opacity-60 transition-transform ${on ? "rotate-180" : ""}`} />
@@ -271,13 +271,13 @@ export function Header() {
           </nav>
           <div className="ml-auto flex items-center gap-1.5">
             <button onClick={() => setSearch(true)} aria-label="Search" title="Search (Ctrl K)"
-              className="flex h-9 items-center gap-2 rounded-full border border-[#e8c48c] bg-white/70 px-3 text-ink-2 transition hover:border-saffron hover:bg-white hover:text-saffron xl:w-40">
+              className="flex h-9 items-center gap-2 rounded-full border border-line bg-band/60 px-3 text-ink-2 transition hover:border-saffron hover:bg-white hover:text-saffron xl:w-40">
               <Search size={15} /><span className="hidden flex-1 whitespace-nowrap text-left text-[12.5px] text-ink-3 xl:inline">Search…</span>
               <kbd className="hidden whitespace-nowrap rounded border border-line bg-surface px-1.5 text-[10px] text-ink-3 xl:inline">Ctrl K</kbd>
             </button>
             <div className="relative" ref={settingsRef}>
               <button onClick={() => { setSettings(!settings); setActive(null); }} aria-label="Settings" aria-expanded={settings} title="Settings"
-                className={`flex h-9 w-9 items-center justify-center rounded-full border transition ${settings ? "border-saffron bg-white text-saffron" : "border-[#e8c48c] bg-white/70 text-ink-2 hover:border-saffron hover:bg-white hover:text-saffron"}`}>
+                className={`flex h-9 w-9 items-center justify-center rounded-full border transition ${settings ? "border-saffron bg-white text-saffron" : "border-line bg-band/60 text-ink-2 hover:border-saffron hover:bg-white hover:text-saffron"}`}>
                 <SlidersHorizontal size={16} />
               </button>
               {settings && (
