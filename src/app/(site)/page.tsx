@@ -3,7 +3,7 @@ import {
   BookOpen, Headphones, FileText, Clapperboard, Quote, Image as ImageIcon, CalendarDays, ArrowRight, HeartHandshake, Network, Mail, Heart, Gift,
   MapPin, ScrollText, Search as SearchIcon, type LucideIcon,
 } from "lucide-react";
-import { LECTURES, STATS } from "@/lib/data";
+import { LECTURES, STATS, fmtDate, fmtDur } from "@/lib/data";
 import { Hero, Blessing, Featured, LifeTimeline, DiaryRail, QuotePanel, LangMarquee, Radio } from "@/components/home-client";
 import { TeachingsOrganiser } from "@/components/teachings-organiser";
 import { TopicExplorer } from "@/components/topic-explorer";
@@ -97,8 +97,21 @@ export default async function Home() {
       <section className="reveal relative isolate mt-16 py-10">
         <SectionBg src="tan-mandala" o={0.3} flip />
         <Container>
-          <Head kicker="For today" title="Quote of the day" />
-          <QuotePanel />
+          <Head kicker="For today" title="A quote, a diary, a date" intro="Something small to carry through the day." />
+          <div className="grid grid-cols-[minmax(0,1fr)] gap-5 lg:grid-cols-[1.15fr_1fr]">
+            <QuotePanel />
+            <div className="acc-leaf card flex flex-col p-6 sm:p-7">
+              <span className="flex items-center gap-2 text-[12px] font-semibold text-[var(--acc)]"><CalendarDays size={15} />This day in his life</span>
+              <p className="mt-2 text-[34px] font-bold leading-none tracking-[-0.04em] sm:text-[40px]">{new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long" })}</p>
+              <ul className="mt-6 divide-y divide-line text-[14px] text-ink-2">
+                {[["1993", "Lecture, Radhadesh", "/teachings/audio"], ["1991", "Letter to a disciple", "/gurudeva/letters"], ["1989", "14 photographs, Bhubaneswar", "/gurudeva/gallery"]].map(([y, t, h]) => (
+                  <li key={y}><Link href={h} className="group flex items-center gap-4 py-3 transition hover:text-[var(--acc)]"><span className="w-12 text-[17px] font-bold tabular text-[var(--acc)]">{y}</span><span className="flex-1">{t}</span><ArrowRight size={14} className="opacity-0 transition group-hover:opacity-100" /></Link></li>
+                ))}
+              </ul>
+              <Link href="/gurudeva/on-this-day" className="mt-auto inline-flex items-center gap-1 pt-5 text-[13px] font-medium text-[var(--acc)]">Pick another date<ArrowRight size={14} /></Link>
+              <p className="mt-2 text-[11px] text-ink-3">Sample entries for the prototype</p>
+            </div>
+          </div>
           <div className="mt-12">
             <Head kicker="Daily Diary" title="Today and the days before" intro="Short videos from HH Haladhara Swāmī Mahārāja's channel, added automatically." action={{ href: "/gurudeva/diaries", label: "All diaries" }} acc="rose" />
             <DiaryRail items={diary} />
@@ -139,7 +152,20 @@ export default async function Home() {
                 <span className="text-[12px] font-semibold uppercase tracking-[0.12em] text-teal">Recently added</span>
                 <Link href="/teachings/audio" className="text-[12.5px] font-medium text-teal">All lectures</Link>
               </div>
-              <div className="flex-1 px-1">{LECTURES.slice(0, 4).map((l) => <LectureRow key={l.slug} l={l} />)}</div>
+              <ol className="flex-1 divide-y divide-line">
+                {LECTURES.slice(0, 5).map((l, i) => (
+                  <li key={l.slug}>
+                    <Link href={`/teachings/audio/${l.slug}`} className="group flex items-center gap-3.5 px-5 py-3.5 transition hover:bg-[var(--acc-tint)]">
+                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[var(--acc-tint)] text-[12px] font-semibold tabular text-teal">{i + 1}</span>
+                      <span className="min-w-0 flex-1">
+                        <span className="block text-[14.5px] font-semibold leading-snug text-ink line-clamp-2 group-hover:text-teal">{l.title}</span>
+                        <span className="mt-0.5 block truncate text-[12px] text-ink-3">{fmtDate(l.date)} · {l.place}</span>
+                      </span>
+                      <span className="shrink-0 rounded-full bg-band px-2.5 py-0.5 text-[11.5px] tabular text-ink-2">{fmtDur(l.duration)}</span>
+                    </Link>
+                  </li>
+                ))}
+              </ol>
             </div>
           </div>
         </Container>
