@@ -199,8 +199,10 @@ export default async function Home() {
       </section>
 
       {/* Archive bento */}
-      <section className="reveal relative isolate mt-16 overflow-hidden bg-[#8a2a2c] py-20">
-        <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b from-[#97302f] via-[#8a2a2c] to-[#7a2224]" />
+      <section className="reveal relative isolate mt-16 overflow-hidden bg-[#6d1a1d] py-20">
+        <Backdrop src="red-gold-mandala" o={0.22} className="-z-10" />
+        <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b from-[#7a2124]/60 via-transparent to-[#7a2124]/60" />
+        <VectorToran flip className="absolute inset-x-0 top-0 text-[#e8b872]/70" />
         <Container>
           <Head light kicker="The archive" title="Everything he left us, in one place" action={{ href: "/teachings", label: "All teachings" }} acc="gold" />
           <div className="stagger grid gap-4 sm:grid-cols-2 lg:auto-rows-[178px] lg:grid-cols-4">
@@ -214,6 +216,7 @@ export default async function Home() {
             <Bento acc="leaf" href="/gurudeva/gallery" icon={ImageIcon} title="Images" desc="His pastimes in photographs." count={`${STATS.imageTags} albums`} className="min-h-[160px] sm:col-span-2" />
           </div>
         </Container>
+              <VectorToran className="absolute inset-x-0 bottom-0 text-[#e8b872]/70" />
       </section>
 
       {/* Life */}
