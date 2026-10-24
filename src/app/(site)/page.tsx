@@ -99,11 +99,12 @@ export default async function Home() {
             </Link>
             <div className="stagger grid auto-rows-fr gap-3 sm:grid-cols-6">
               {[
-                ["acc-saffron sm:col-span-3", "2019 · France", "The wish for one home", "During his European tour, at ISKCON New Māyāpura, Śrīla Haladhara Swāmī Guru Mahārāja expressed his cherished desire to create a platform where all the audio lectures of his spiritual master would be available to everyone, explaining that everything is present in Śrīla Prabhupāda’s books."],
-                ["acc-rose sm:col-span-3", "2020 · The daily offering", "Small clips, every day", "With the help of his disciples and followers he began curating daily selections of quotes and lectures, turned into small audio clips that capture the essence of Gurudeva’s teachings."],
-                ["acc-teal sm:col-span-2", "1992 – 1994", "Joins ISKCON Bhubaneswar", "Meets the devotees in 1992; initiated in 1994 as Halāyudha Dāsa. Serves in the travelling saṅkīrtana party and as head pūjārī of Śrī Śrī Kṛṣṇa-Balarāma Temple."],
+                ["acc-teal sm:col-span-2", "1992", "Meets ISKCON Bhubaneswar", "Comes into contact with the devotees at ISKCON Bhubaneswar and begins to join their service."],
+                ["acc-leaf sm:col-span-2", "1994", "Initiation", "Initiated as Halāyudha Dāsa. Serves in the travelling saṅkīrtana party and as head pūjārī of Śrī Śrī Kṛṣṇa-Balarāma Temple."],
                 ["acc-indigo sm:col-span-2", "2016", "Sannyāsa", "Accepts the renounced order on 20 March 2016, from His Holiness Rādhā-Govinda Swāmī Mahārāja, at Śrī Śrī Kṛṣṇa-Balarāma Temple."],
-                ["acc-leaf sm:col-span-2", "Thirty years", "Simple living, high thinking", "Emphasises serving the spiritual master (śrī guru-sevā) and chanting the holy names (śrī nāma-sevā) without compromise."],
+                ["acc-saffron sm:col-span-2", "2019 · France", "The wish for one home", "During his European tour, at ISKCON New Māyāpura, Śrīla Haladhara Swāmī Guru Mahārāja expressed his cherished desire to create a platform where all the audio lectures of his spiritual master would be available to everyone."],
+                ["acc-rose sm:col-span-2", "2020 · The daily offering", "Small clips, every day", "With the help of his disciples and followers he began curating daily selections of quotes and lectures, turned into small audio clips that capture the essence of Gurudeva’s teachings."],
+                ["acc-gold sm:col-span-2", "Thirty years", "Simple living, high thinking", "Emphasises serving the spiritual master (śrī guru-sevā) and chanting the holy names (śrī nāma-sevā) without compromise."],
               ].map(([c, y, t, d]) => (
                 <div key={y} className={`tile-hue ${c} flex flex-col rounded-2xl border border-line bg-surface p-5`}>
                   <p className="text-[11px] font-semibold uppercase tracking-[0.12em] tabular text-[var(--acc)]">{y}</p>
