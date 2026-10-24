@@ -6,7 +6,7 @@ import { ArrowRight, Search, Play, Pause, SkipForward, ChevronLeft, ChevronRight
 import { CONVERSATION, LETTER } from "@/lib/prabhupada";
 import { LECTURES, fmtDate, DIARY, IMG, LANGUAGES, QUOTE_OF_DAY, TIMELINE } from "@/lib/data";
 import { Img } from "./img";
-import { CutOut, PortraitFrame, Orn, Padma, PaisleyField, Petals, Rosette, LogoMark } from "./motifs";
+import { CutOut, PortraitFrame, Orn, Padma, PaisleyField, Petals, Rosette, LogoMark, VMask, RosetteLines } from "./motifs";
 import { usePrefs, usePlayer } from "./providers";
 import { Backdrop } from "./backdrop";
 
@@ -55,17 +55,31 @@ export function Hero() {
     el.style.setProperty("--py", String(((e.clientY - b.top) / b.height - 0.5).toFixed(3)));
   };
   return (
-    <section className="relative overflow-hidden border-b border-line" onPointerMove={move}>
-      <Backdrop src="saffron-dark" flip pos="left center" o={0.6} />
-      <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[#5a2204]/60 via-[#5a2204]/15 to-transparent" />
-      <div className="relative mx-auto grid max-w-[1240px] grid-cols-[minmax(0,1fr)] items-center gap-10 px-5 pb-14 pt-16 sm:px-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:pb-20 lg:pt-24">
+    <section className="relative isolate overflow-hidden" onPointerMove={move}>
+      <Backdrop src="saffron-dark" flip pos="left center" o={0.4} />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(70%_80%_at_80%_40%,rgba(243,179,99,0.28),transparent_65%),linear-gradient(100deg,rgba(70,26,3,0.55),transparent_60%)]" />
+      <VMask name="mandala-saffron" className="hero-spin pointer-events-none absolute -right-48 -top-40 h-[760px] w-[760px] text-[#f3b363] opacity-[0.22]" />
+      <VMask name="mandala-saffron" className="hero-spin-rev pointer-events-none absolute -bottom-56 -left-48 h-[620px] w-[620px] text-[#f3b363] opacity-[0.16]" />
+      <RosetteLines className="hero-spin-rev pointer-events-none absolute right-[8%] top-1/2 hidden h-[560px] w-[560px] -translate-y-1/2 text-[#ffd48a] opacity-[0.28] lg:block" />
+      <VMask name="paisley-red" repeat="repeat" size="380px" className="pointer-events-none absolute inset-0 text-[#f3b363] opacity-[0.07]" />
+      {/* Indian border line along the bottom, edge to edge */}
+      <div className="pointer-events-none absolute inset-x-0 bottom-3">
+        <VMask name="border-4" repeat="repeat-x" size="auto 100%" pos="center top" className="h-7 w-full rotate-180 text-[#f3b363] opacity-75" />
+        <div className="hero-rule mt-1.5 h-px w-full bg-gradient-to-r from-transparent via-[#f3b363]/70 to-transparent" />
+      </div>
+      {[8, 22, 36, 61, 74, 90].map((x, i) => (
+        <div key={x} className="pointer-events-none absolute bottom-24" style={{ left: `${x}%` }}><div className="hero-petal" style={{ animationDelay: `${i * 1.5}s` }}><Padma className="h-5 w-5 text-[#ffd48a]" layers={2} /></div></div>
+      ))}
+      <div className="relative mx-auto grid max-w-[1240px] grid-cols-[minmax(0,1fr)] items-center gap-10 px-5 pb-24 pt-14 sm:px-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:pb-28 lg:pt-20">
         <div className="rise order-2 text-center lg:order-1 lg:text-left">
-          <span className="inline-flex items-center gap-2 rounded-full border border-[#f3b363]/70 bg-[#f3b363]/20 py-1.5 pl-4 pr-4 text-[12.5px] font-semibold text-[#fff1da] backdrop-blur">
+          <span className="hero-pill inline-flex items-center gap-2 rounded-full border border-[#f3b363]/70 bg-[#f3b363]/20 py-1.5 pl-4 pr-4 text-[12.5px] font-semibold text-[#fff1da] backdrop-blur">
             The complete life and teachings of Śrī Śrīmad Gour Govinda Swāmī Gurudeva
           </span>
-          <h1 className="mt-5 text-[28px] font-bold leading-[1.12] tracking-[-0.03em] sm:text-[32px] lg:text-[38px] text-[#fff1da]">
-            Words that give life<br />to a <span className="text-[#ffc566]">burning heart</span>
+          <h1 className="mt-6 text-[28px] font-bold leading-[1.15] tracking-[-0.03em] text-[#fff1da] sm:text-[32px] lg:text-[42px]">
+            {["Words", "that", "give", "life"].map((w, i) => <span key={w} className="hero-word mr-[0.28em]" style={{ animationDelay: `${0.15 + i * 0.12}s` }}>{w}</span>)}<br />
+            {["to", "a"].map((w, i) => <span key={w} className="hero-word mr-[0.28em]" style={{ animationDelay: `${0.63 + i * 0.12}s` }}>{w}</span>)}<span className="hero-word hero-gold" style={{ animationDelay: "0.9s" }}>burning heart</span>
           </h1>
+          <div className="hero-rule mx-auto mt-5 h-[3px] w-24 rounded-full bg-gradient-to-r from-[#ffc566] to-transparent lg:mx-0" />
           <p className="mx-auto mt-5 max-w-xl text-[15.5px] leading-relaxed text-[#ffe9cc]/90 lg:mx-0">
             Lectures, letters, books, quotes and photographs of a pure devotee, gathered in one searchable home and growing in many languages. Listen, read, and find the exact words you were looking for.
           </p>
@@ -79,7 +93,7 @@ export function Hero() {
             <button className="btn btn-primary !h-10 !px-5">Search</button>
           </form>
           <div className="mx-auto mt-4 flex max-w-xl flex-wrap justify-center gap-1.5 lg:mx-0 lg:justify-start">
-            {CHIPS.map(([l, k]) => <Link key={k} href={`/search?q=${k}`} className="rounded-full border border-[#f3b363]/40 bg-white/10 px-3 py-1 text-[12.5px] text-[#ffe2b8] backdrop-blur transition hover:bg-white/20">{l}</Link>)}
+            {CHIPS.map(([l, k]) => <Link key={k} href={`/search?q=${k}`} className="hero-chip rounded-full border border-[#f3b363]/45 bg-white/10 px-3 py-1 text-[12.5px] text-[#ffe2b8] backdrop-blur">{l}</Link>)}
           </div>
         </div>
 

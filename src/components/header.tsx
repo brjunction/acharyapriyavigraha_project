@@ -13,7 +13,7 @@ import { Img } from "./img";
 export function Logo({ compact = false }: { compact?: boolean }) {
   return (
     <Link href="/" className="logo-link group flex items-center" aria-label="Taptajīvanam home">
-      <span className="logo-medal relative z-10 flex h-10 w-10 shrink-0 items-center justify-center rounded-full"><LogoMark className="h-[34px] w-[34px]" /></span>
+      <span className="logo-medal relative z-10 flex h-10 w-10 shrink-0 items-center justify-center rounded-full"><LogoMark className="h-full w-full" /></span>
       {!compact && <span className="logo-box -ml-3.5 py-[5px] pl-5 pr-3.5 text-[14.5px] font-bold leading-none tracking-[-0.02em] text-ink">Taptajīvanam</span>}
     </Link>
   );
@@ -249,7 +249,7 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-50">
-      <div className={`border-b border-[#f3b363]/60 bg-[linear-gradient(90deg,#9a4812,#ad5a1a_50%,#9a4812)] transition-shadow ${scrolled ? "shadow-[0_6px_24px_-14px_rgba(60,30,10,0.45)]" : ""}`}>
+      <div className={`border-b border-[#ecc58c]/70 bg-[linear-gradient(90deg,#fdf0dc,#fbe6c4_50%,#fdf0dc)] transition-shadow ${scrolled ? "shadow-[0_6px_24px_-14px_rgba(60,30,10,0.45)]" : ""}`}>
         <div className="mx-auto grid h-[58px] max-w-[1320px] grid-cols-[auto_1fr_auto] items-center gap-3 px-4 sm:px-6">
           <Logo />
           <nav className="hidden items-center justify-center gap-0.5 lg:flex" aria-label="Main" onMouseLeave={hide}>
@@ -260,24 +260,24 @@ export function Header() {
               return (
                 <button key={m.key} onMouseEnter={() => show(m.key)} onFocus={() => show(m.key)} onClick={() => setActive(on ? null : m.key)}
                   aria-expanded={on} aria-haspopup="true"
-                  className={`acc-${ACCENT[m.key]} group relative flex items-center gap-1.5 whitespace-nowrap rounded-full px-2 py-1 text-[12px] font-medium transition ${on ? "bg-[#fbf3e3] text-[var(--acc)]" : current ? "text-[#ffc566]" : "text-[#ffe9cc] hover:bg-white/10 hover:text-white"}`}>
-                  <I size={14} strokeWidth={1.9} className={`hidden opacity-90 xl:block ${on ? "text-[var(--acc)]" : "text-[#ffc566]"}`} />
+                  className={`acc-${ACCENT[m.key]} group relative flex items-center gap-1.5 whitespace-nowrap rounded-full px-2 py-1 text-[12px] font-medium transition ${on ? "bg-white/80 text-[var(--acc)] shadow-sm" : current ? "text-[var(--acc)]" : "text-[var(--acc)] hover:bg-white/70"}`}>
+                  <I size={14} strokeWidth={1.9} className="hidden text-[var(--acc)] opacity-90 xl:block" />
                   {m.label}
                   <ChevronDown size={12} className={`-ml-0.5 opacity-60 transition-transform ${on ? "rotate-180" : ""}`} />
-                  {current && <span className="absolute inset-x-3 -bottom-[7px] h-[2px] rounded-full bg-[#ffc566]" />}
+                  {current && <span className="absolute inset-x-3 -bottom-[7px] h-[2px] rounded-full bg-[var(--acc)]" />}
                 </button>
               );
             })}
           </nav>
           <div className="ml-auto flex items-center gap-1.5">
             <button onClick={() => setSearch(true)} aria-label="Search" title="Search (Ctrl K)"
-              className="flex h-9 items-center gap-2 rounded-full border border-[#f3b363]/45 bg-white/10 px-3 text-[#ffe9cc] transition hover:bg-white/20 xl:w-40">
-              <Search size={15} /><span className="hidden flex-1 whitespace-nowrap text-left text-[12.5px] text-[#ffe9cc]/80 xl:inline">Search…</span>
-              <kbd className="hidden whitespace-nowrap rounded border border-[#f3b363]/40 bg-white/10 px-1.5 text-[10px] text-[#ffe9cc] xl:inline">Ctrl K</kbd>
+              className="flex h-9 items-center gap-2 rounded-full border border-[#e8c48c] bg-white/70 px-3 text-ink-2 transition hover:border-saffron hover:bg-white hover:text-saffron xl:w-40">
+              <Search size={15} /><span className="hidden flex-1 whitespace-nowrap text-left text-[12.5px] text-ink-3 xl:inline">Search…</span>
+              <kbd className="hidden whitespace-nowrap rounded border border-line bg-surface px-1.5 text-[10px] text-ink-3 xl:inline">Ctrl K</kbd>
             </button>
             <div className="relative" ref={settingsRef}>
               <button onClick={() => { setSettings(!settings); setActive(null); }} aria-label="Settings" aria-expanded={settings} title="Settings"
-                className={`flex h-9 w-9 items-center justify-center rounded-full border transition ${settings ? "border-[#ffc566] bg-[#fbf3e3] text-saffron" : "border-[#f3b363]/45 bg-white/10 text-[#ffe9cc] hover:bg-white/20"}`}>
+                className={`flex h-9 w-9 items-center justify-center rounded-full border transition ${settings ? "border-saffron bg-white text-saffron" : "border-[#e8c48c] bg-white/70 text-ink-2 hover:border-saffron hover:bg-white hover:text-saffron"}`}>
                 <SlidersHorizontal size={16} />
               </button>
               {settings && (
@@ -286,7 +286,7 @@ export function Header() {
                 </div>
               )}
             </div>
-            <button onClick={() => setMobile(true)} aria-label="Open menu" className="flex h-9 w-9 items-center justify-center rounded-full text-[#ffe9cc] hover:bg-white/10 lg:hidden"><Menu size={21} /></button>
+            <button onClick={() => setMobile(true)} aria-label="Open menu" className="flex h-9 w-9 items-center justify-center rounded-full text-ink hover:bg-white/70 lg:hidden"><Menu size={21} /></button>
           </div>
         </div>
       </div>

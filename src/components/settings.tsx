@@ -27,11 +27,6 @@ export function SettingsPanel({ compact = false }: { compact?: boolean }) {
           {LANGUAGES.map((l) => <option key={l.code} value={l.code}>{l.native}{l.native !== l.name ? ` · ${l.name}` : ""}</option>)}
         </select>
       </Row>
-      <Row label="Appearance">
-        <Seg value={prefs.theme} onChange={(v) => set("theme", v)} options={[
-          { v: "light", label: <><Sun size={13} />Light</> }, { v: "sepia", label: <><Coffee size={13} />Sepia</> },
-          { v: "dark", label: <><Moon size={13} />Dark</> }, { v: "system", label: <><Monitor size={13} />Auto</> }]} />
-      </Row>
       <Row label="Reading size" aside={<span className="tabular text-ink-3">{prefs.size}px</span>}>
         <div className="flex items-center gap-3"><span className="text-xs text-ink-3">A</span>
           <input type="range" min={14} max={24} value={prefs.size} onChange={(e) => set("size", +e.target.value)} className="flex-1 accent-[var(--saffron)]" aria-label="Reading size" />

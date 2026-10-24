@@ -22,8 +22,7 @@ export const usePrefs = () => useContext(PrefsContext)!;
 
 function apply(p: Prefs) {
   const r = document.documentElement;
-  const dark = p.theme === "dark" || (p.theme === "system" && matchMedia("(prefers-color-scheme: dark)").matches);
-  r.dataset.theme = dark ? "dark" : p.theme === "sepia" ? "sepia" : "light";
+  r.dataset.theme = "light"; // dark and sepia themes are not offered for now
   r.dataset.font = p.font;
   r.dataset.motion = p.reduceMotion ? "reduce" : "full";
   r.style.setProperty("--reading-size", `${p.size}px`);

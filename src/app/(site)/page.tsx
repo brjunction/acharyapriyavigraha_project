@@ -28,7 +28,8 @@ function Head({ kicker, title, intro, action, acc = "saffron", light = false }: 
       <div>
         <p className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--acc)]"><Padma className="h-3.5 w-3.5" layers={2} />{kicker}</p>
         <h2 className={`mt-1 text-[21px] leading-tight tracking-[-0.025em] sm:text-[25px] ${light ? "!text-white" : ""}`}>{title}</h2>
-        {intro && <p className={`mt-1 max-w-xl text-[13px] ${light ? "text-white/80" : "text-ink-2"}`}>{intro}</p>}
+        <span className="mt-2 block h-[3px] w-14 rounded-full bg-gradient-to-r from-[var(--acc)] to-transparent" />
+        {intro && <p className={`mt-2 max-w-xl text-[13px] ${light ? "text-white/80" : "text-ink-2"}`}>{intro}</p>}
       </div>
       {action && <Link href={action.href} className={`group flex items-center gap-1 text-[13px] font-medium ${light ? "text-[#f3d9a4]" : "text-[var(--acc)]"}`}>{action.label}<ArrowRight size={14} className="transition-transform group-hover:translate-x-0.5" /></Link>}
     </div>
@@ -123,9 +124,57 @@ export default async function Home() {
       {/* Highlights */}
       <section className="reveal mt-12">
         <Container>
-          <Head kicker="Begin here" title="Where would you like to begin?" intro="Begin with a highlight, or find a lecture by year, month, type and topic." action={{ href: "/teachings", label: "All teachings" }} />
+          <Head kicker="Highlights" title="Where would you like to begin?" />
           <Featured />
-          <div className="mt-8"><TeachingsOrganiser lists={false} /></div>
+        </Container>
+      </section>
+
+      {/* Four ways in */}
+      <section className="reveal mt-10">
+        <Container>
+          <div className="stagger grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <Path acc="teal" icon={Headphones} title="Listen" text="Hari-kathā in his own voice, from 1985 to 1996." links={[["/teachings/audio", "Audio lectures", "1,595"], ["/teachings/transcriptions", "Transcriptions", "130"], ["/teachings/videos", "Videos", "210"]]} />
+            <Path acc="indigo" icon={BookOpen} title="Read" text="Books, letters and quotes, each with its source." links={[["/teachings/books", "Books", "48"], ["/gurudeva/letters", "Letters", "29"], ["/teachings/quotes", "Quotes", "44 subjects"]]} />
+            <Path acc="gold" icon={Network} title="Explore" text="Follow a subject through everything he said on it." links={[["/tattva", "Tattva", "112 topics"], ["/tattva/index/verses", "By verse", "SB, BG, CC"], ["/tattva/index/places", "By place and year", ""]]} />
+            <Path acc="rose" icon={Heart} title="Remember" text="Photographs, memories and glorifications." links={[["/gurudeva/gallery", "Gallery", "38 albums"], ["/gurudeva/memories", "Memories", ""], ["/gurudeva/glorifications", "Glorifications", ""]]} />
+          </div>
+        </Container>
+      </section>
+
+      <PeacockDivider className="mt-12" />
+
+      {/* Teachings */}
+      <section className="reveal relative isolate mt-8 py-6">
+        <SectionBg src="cream-watercolor" o={0.7} />
+        <Container>
+          <Head kicker="His teachings" title="Hear, read and remember" intro="Everything is organised in three places: what you can hear and watch, what you can read, and the compilations drawn from both." action={{ href: "/teachings", label: "All teachings" }} />
+          <TeachingsOrganiser />
+        </Container>
+      </section>
+
+      {/* Today */}
+      <section className="reveal relative isolate mt-12 py-8">
+        <SectionBg src="tan-mandala" o={0.3} flip />
+        <Container>
+          <Head kicker="For today" title="A quote, a diary, a date" intro="Something small to carry through the day." />
+          <div className="grid grid-cols-[minmax(0,1fr)] gap-5 lg:grid-cols-[1.15fr_1fr]">
+            <QuotePanel />
+            <div className="acc-leaf card flex flex-col p-6 sm:p-7">
+              <span className="flex items-center gap-2 text-[12px] font-semibold text-[var(--acc)]"><CalendarDays size={15} />This day in his life</span>
+              <p className="mt-2 text-[34px] font-bold leading-none tracking-[-0.04em] sm:text-[40px]">{new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long" })}</p>
+              <ul className="mt-6 divide-y divide-line text-[14px] text-ink-2">
+                {[["1993", "Lecture, Radhadesh", "/teachings/audio"], ["1991", "Letter to a disciple", "/gurudeva/letters"], ["1989", "14 photographs, Bhubaneswar", "/gurudeva/gallery"]].map(([y, t, h]) => (
+                  <li key={y}><Link href={h} className="group flex items-center gap-4 py-3 transition hover:text-[var(--acc)]"><span className="w-12 text-[17px] font-bold tabular text-[var(--acc)]">{y}</span><span className="flex-1">{t}</span><ArrowRight size={14} className="opacity-0 transition group-hover:opacity-100" /></Link></li>
+                ))}
+              </ul>
+              <Link href="/gurudeva/on-this-day" className="mt-auto inline-flex items-center gap-1 pt-5 text-[13px] font-medium text-[var(--acc)]">Pick another date<ArrowRight size={14} /></Link>
+              <p className="mt-2 text-[11px] text-ink-3">Sample entries for the prototype</p>
+            </div>
+          </div>
+          <div className="mt-12">
+            <Head kicker="Daily Diary" title="Today and the days before" intro="Short videos from Śrīla Haladhara Swāmī Guru Mahārāja's channel, added automatically." action={{ href: "/gurudeva/diaries", label: "All diaries" }} acc="rose" />
+            <DiaryRail items={diary} />
+          </div>
         </Container>
       </section>
 
@@ -178,35 +227,8 @@ export default async function Home() {
               </ol>
             </div>
           </div>
-          <div className="mt-10">
-            <Head kicker="Daily Diary" title="Today and the days before" intro="Short videos from Śrīla Haladhara Swāmī Guru Mahārāja's channel, added automatically." action={{ href: "/gurudeva/diaries", label: "All diaries" }} acc="rose" />
-            <DiaryRail items={diary} />
-          </div>
         </Container>
       </section>
-
-      {/* Today */}
-      <section className="reveal relative isolate mt-12 py-8">
-        <SectionBg src="tan-mandala" o={0.3} flip />
-        <Container>
-          <Head kicker="For today" title="A quote, a diary, a date" intro="Something small to carry through the day." />
-          <div className="grid grid-cols-[minmax(0,1fr)] gap-5 lg:grid-cols-[1.15fr_1fr]">
-            <QuotePanel />
-            <div className="acc-leaf card flex flex-col p-6 sm:p-7">
-              <span className="flex items-center gap-2 text-[12px] font-semibold text-[var(--acc)]"><CalendarDays size={15} />This day in his life</span>
-              <p className="mt-2 text-[34px] font-bold leading-none tracking-[-0.04em] sm:text-[40px]">{new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long" })}</p>
-              <ul className="mt-6 divide-y divide-line text-[14px] text-ink-2">
-                {[["1993", "Lecture, Radhadesh", "/teachings/audio"], ["1991", "Letter to a disciple", "/gurudeva/letters"], ["1989", "14 photographs, Bhubaneswar", "/gurudeva/gallery"]].map(([y, t, h]) => (
-                  <li key={y}><Link href={h} className="group flex items-center gap-4 py-3 transition hover:text-[var(--acc)]"><span className="w-12 text-[17px] font-bold tabular text-[var(--acc)]">{y}</span><span className="flex-1">{t}</span><ArrowRight size={14} className="opacity-0 transition group-hover:opacity-100" /></Link></li>
-                ))}
-              </ul>
-              <Link href="/gurudeva/on-this-day" className="mt-auto inline-flex items-center gap-1 pt-5 text-[13px] font-medium text-[var(--acc)]">Pick another date<ArrowRight size={14} /></Link>
-              <p className="mt-2 text-[11px] text-ink-3">Sample entries for the prototype</p>
-            </div>
-          </div>
-        </Container>
-      </section>
-
 
       {/* Life */}
       <PeacockDivider className="mt-16" size={72} />
