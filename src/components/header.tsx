@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { ChevronDown, ChevronRight, ChevronLeft, Search, SlidersHorizontal, Menu, X, ArrowRight } from "lucide-react";
 import { MENUS, ACCENT, type NavMenu } from "@/lib/nav";
-import { LogoMark, Rosette, PortraitFrame } from "./motifs";
+import { LogoMark, Rosette, CutOut } from "./motifs";
 import { usePrefs } from "./providers";
 import { SettingsPanel } from "./settings";
 import { Img } from "./img";
@@ -45,7 +45,7 @@ function MegaPanel({ menu, onNavigate, onPin }: { menu: NavMenu; onNavigate: () 
         <span className="mega-ic"><T size={14} strokeWidth={1.8} /></span>
         <span className="min-w-0">
           <span className="flex items-center gap-1.5 text-[12px] font-semibold leading-snug text-ink">{it.label}{it.soon && <span className="rounded-full bg-band px-1.5 text-[9px] font-medium text-ink-3">soon</span>}</span>
-          <span className="line-clamp-1 text-[10.5px] leading-snug text-ink-3">{it.desc}</span>
+          <span className="line-clamp-2 text-[10.5px] leading-snug text-ink-3">{it.desc}</span>
         </span>
       </Link>
     );
@@ -53,16 +53,16 @@ function MegaPanel({ menu, onNavigate, onPin }: { menu: NavMenu; onNavigate: () 
   const Chip = ({ it }: { it: (typeof links)[number] }) => (
     <Link href={it.href} onClick={onNavigate} title={it.desc} className="group/c flex items-center gap-2 rounded-lg border border-transparent px-2 py-1.5 transition hover:border-[var(--acc)]/30 hover:bg-acc-tint">
       <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${dot(it.desc, it.soon)}`} />
-      <span className="min-w-0 leading-tight"><span className="block truncate text-[12px] font-semibold text-ink group-hover/c:text-[var(--acc)]">{it.label}</span><span className="block truncate text-[10.5px] text-ink-3">{it.desc.split(" · ")[0]}</span></span>
+      <span className="min-w-0 leading-tight"><span className="block text-[12px] font-semibold text-ink group-hover/c:text-[var(--acc)]">{it.label}</span><span className="block text-[10.5px] text-ink-3">{it.desc.split(" · ")[0]}</span></span>
     </Link>
   );
   return (
     <div className={`acc-${ACCENT[menu.key]} mega-enter overflow-hidden rounded-2xl border border-line bg-surface shadow-[var(--shadow-lg)]`}>
-      <div className="grid" style={{ gridTemplateColumns: fly ? "190px 200px minmax(0,1fr)" : "200px minmax(0,1fr)" }}>
+      <div className="grid min-h-[440px]" style={{ gridTemplateColumns: fly ? "210px 220px minmax(0,1fr)" : "220px minmax(0,1fr)" }}>
         <aside className="relative flex flex-col overflow-hidden p-4 text-white" style={{ background: "linear-gradient(165deg, var(--acc), color-mix(in srgb, var(--acc) 55%, #000))" }}>
           <Rosette className="spin-slow pointer-events-none absolute -bottom-20 -right-20 h-56 w-56 text-white/[0.16]" />
           {menu.feature?.image ? (
-            <PortraitFrame className="mb-2.5 w-[84px]" src={menu.feature.image} alt={menu.feature.title} />
+            <CutOut className="mb-2.5 w-[120px]" src={menu.feature.image} alt={menu.feature.title} />
           ) : (
             <span className="relative mb-2.5 flex h-9 w-9 items-center justify-center rounded-xl bg-white/15 backdrop-blur"><I size={18} strokeWidth={1.7} /></span>
           )}
@@ -75,7 +75,7 @@ function MegaPanel({ menu, onNavigate, onPin }: { menu: NavMenu; onNavigate: () 
 
         {fly ? (
           <>
-            <ul className="max-h-[400px] overflow-y-auto border-r border-line bg-page/50 p-1.5">
+            <ul className="max-h-[calc(100vh-140px)] overflow-y-auto border-r border-line bg-page/50 p-1.5">
               {menu.groups.map((x, k) => (
                 <li key={x.title}>
                   <button onMouseEnter={() => { setGi(k); setQ(""); }} onFocus={() => setGi(k)} onClick={() => { setGi(k); setQ(""); }}
@@ -86,7 +86,7 @@ function MegaPanel({ menu, onNavigate, onPin }: { menu: NavMenu; onNavigate: () 
                 </li>
               ))}
             </ul>
-            <div className="max-h-[400px] min-w-0 overflow-y-auto p-3">
+            <div className="max-h-[calc(100vh-140px)] min-w-0 overflow-y-auto p-3">
               {menu.searchAll && (
                 <div className="sticky -top-3 z-10 -mx-3 -mt-3 mb-2 border-b border-line bg-surface px-3 pb-2 pt-3">
                   <label className="flex items-center gap-2 rounded-lg border border-line bg-page px-2.5 py-1.5 focus-within:border-[var(--acc)]">
@@ -252,7 +252,7 @@ export function Header() {
   const show = (k: string) => { if (timer.current) clearTimeout(timer.current); setActive(k); setSettings(false); };
   const hide = () => { if (timer.current) clearTimeout(timer.current); timer.current = setTimeout(() => { if (!pinned.current) setActive(null); }, 150); };
   const menu = MENUS.find((m) => m.key === active);
-  const wide = menu && (menu.layout === "flyout" ? 900 : menu.layout === "tiles" ? 760 : menu.groups.length >= 4 ? 1000 : menu.groups.length === 3 ? 820 : 660);
+  const wide = menu && (menu.layout === "flyout" ? 1080 : menu.layout === "tiles" ? 880 : menu.groups.length >= 4 ? 1240 : menu.groups.length === 3 ? 980 : 780);
 
   return (
     <header className="sticky top-0 z-50">

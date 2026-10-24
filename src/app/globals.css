@@ -170,7 +170,7 @@ h1, h2, h3, h4 { font-family: var(--font-sans); font-weight: 650; letter-spacing
 /* Mega menu */
 .mega-enter { animation: megaIn .22s cubic-bezier(.2,.7,.2,1) both; }
 @keyframes megaIn { from { opacity: 0; transform: translateY(-6px) scale(.985); } to { opacity: 1; transform: none; } }
-.mega-item { display: flex; gap: .55rem; padding: .3rem .45rem; border-radius: 9px; transition: background-color .15s; align-items: flex-start; }
+.mega-item { display: flex; gap: .6rem; padding: .45rem .55rem; border-radius: 9px; transition: background-color .15s; align-items: flex-start; }
 .mega-item:hover { background: var(--acc-tint); }
 .mega-item:hover .mega-ic { background: var(--acc); color: #fff; border-color: var(--acc); }
 .mega-ic { flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; width: 1.6rem; height: 1.6rem; border-radius: 7px; color: var(--acc); background: var(--acc-soft); border: 1px solid color-mix(in srgb, var(--acc) 16%, transparent); transition: all .15s; }

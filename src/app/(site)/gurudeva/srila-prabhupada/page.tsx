@@ -1,6 +1,6 @@
 import { Crown, Quote as QuoteIcon, Mail } from "lucide-react";
 import { Container, PageHero } from "@/components/ui";
-import { PortraitFrame } from "@/components/motifs";
+import { CutOut } from "@/components/motifs";
 
 export const metadata = { title: "Śrīla Prabhupāda on Śrīla Gurudeva" };
 
@@ -27,7 +27,7 @@ export default function Page() {
   return (
     <>
       <PageHero crumbs={[{ href: "/gurudeva", label: "Śrīla Gurudeva" }, { label: "Śrīla Prabhupāda" }]} icon={Crown} title="Śrīla Prabhupāda on Śrīla Gurudeva" intro="What his spiritual master said about him, in Śrīla Prabhupāda's own words: a room conversation and a letter."
-        aside={<PortraitFrame contain src="/legacy/prabhupada.webp" alt="Śrīla A.C. Bhaktivedanta Swami Prabhupāda" className="mx-auto hidden w-64 lg:block" />} />
+        aside={<CutOut src="/legacy/prabhupada.webp" alt="Śrīla A.C. Bhaktivedanta Swami Prabhupāda" fade={0} className="mx-auto hidden w-64 lg:block" />} />
       <Container className="max-w-3xl py-14">
         <section>
           <div className="flex items-center gap-3"><QuoteIcon className="text-saffron" size={20} /><h2 className="text-[22px]">Room conversation, 5 January 1977, Bombay</h2></div>

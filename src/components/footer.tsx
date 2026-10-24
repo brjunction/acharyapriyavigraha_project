@@ -2,8 +2,7 @@ import Link from "next/link";
 import { Instagram, Facebook, MessageCircle, Youtube, Mail, Phone, MapPin, ArrowUpRight } from "lucide-react";
 import { SITE, IMG } from "@/lib/data";
 import { MENUS } from "@/lib/nav";
-import { LogoMark, Toran, Orn, OrnMask } from "./motifs";
-import { Backdrop } from "./backdrop";
+import { PaisleyField, LogoMark, Toran, Orn, OrnMask } from "./motifs";
 import { Signature } from "./signature";
 
 const SOCIAL_ICONS = { Instagram, Facebook, WhatsApp: MessageCircle, YouTube: Youtube } as const;
@@ -11,10 +10,9 @@ const SOCIAL_ICONS = { Instagram, Facebook, WhatsApp: MessageCircle, YouTube: Yo
 export function Footer() {
   return (
     <footer className="mt-24">
-      <Toran className="text-[#7a1a10]" />
+      <Toran className="text-[#592300]" />
       <div className="footer-paisley relative overflow-hidden">
-        <Backdrop src="maroon-mandala" />
-        <div className="pointer-events-none absolute inset-0 bg-[#4a1a00]/55" />
+        <PaisleyField className="text-[#3d1500]/70" scale={1.3} />
         <div className="pointer-events-none absolute inset-x-0 top-0 h-72 bg-[radial-gradient(60%_100%_at_50%_0%,rgba(232,163,58,0.22),transparent)]" />
         <div className="relative mx-auto max-w-[1180px] px-5 pb-8 pt-14 sm:px-8">
 

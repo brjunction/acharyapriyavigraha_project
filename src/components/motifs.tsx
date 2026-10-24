@@ -225,3 +225,12 @@ export function PortraitFrame({ className = "", src = "/legacy/gurudeva.webp", a
     </div>
   );
 }
+
+/** A background-removed portrait used as it is, with a soft fade at the lower edge. No frame, no backing. */
+export function CutOut({ src, alt, className = "", fade = 12 }: { src: string; alt: string; className?: string; fade?: number }) {
+  const m = `linear-gradient(to bottom, #000 ${100 - fade}%, transparent 100%)`;
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img src={src} alt={alt} className={className} style={{ WebkitMaskImage: m, maskImage: m }} />
+  );
+}

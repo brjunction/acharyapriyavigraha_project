@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { ArrowRight, Search, Play, Pause, ChevronLeft, ChevronRight, Headphones, Quote as QuoteIcon, Copy, Check, PlayCircle } from "lucide-react";
 import { DIARY, IMG, LANGUAGES, QUOTE_OF_DAY, TIMELINE } from "@/lib/data";
 import { Img } from "./img";
-import { PortraitFrame, Orn, Padma, PaisleyField, Petals, Rosette, LogoMark } from "./motifs";
+import { CutOut, Orn, Padma, PaisleyField, Petals, Rosette, LogoMark } from "./motifs";
 import { usePrefs } from "./providers";
 import { Backdrop } from "./backdrop";
 
@@ -55,7 +55,7 @@ export function Hero() {
   };
   return (
     <section className="relative overflow-hidden border-b border-line" onPointerMove={move}>
-      <Backdrop src="cream-mandala" flip pos="left center" />
+      <Backdrop src="cream-mandala" flip pos="left center" o={0.6} />
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[var(--page)]/80 via-[var(--page)]/30 to-transparent" />
       <Petals n={16} />
       <div className="relative mx-auto grid max-w-[1240px] grid-cols-[minmax(0,1fr)] items-center gap-10 px-5 pb-14 pt-12 sm:px-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:pb-20 lg:pt-16">
@@ -92,7 +92,7 @@ export function Hero() {
           <Orn src="mandala-saffron" className="spin-slow absolute -inset-10 h-[calc(100%+5rem)] w-[calc(100%+5rem)] max-w-none opacity-60" />
           <div className="absolute inset-0 rounded-full bg-[radial-gradient(closest-side,color-mix(in_srgb,var(--gold)_35%,transparent),transparent)] blur-2xl" />
           <div className="relative transition-transform duration-300 ease-out" style={{ transform: "translate3d(calc(var(--px) * -10px), calc(var(--py) * -8px), 0)" }}>
-            <PortraitFrame className="mx-auto w-[74%]" />
+            <CutOut src="/legacy/gurudeva.webp" alt="Śrīla Gour Govinda Swāmī" className="mx-auto w-[88%] drop-shadow-[0_18px_30px_rgba(90,40,0,0.3)]" />
           </div>
           <div className="floaty absolute -left-1 top-[18%] w-[52%] rounded-2xl border border-line bg-surface/95 p-3.5 shadow-[var(--shadow-lg)] backdrop-blur sm:-left-6" style={{ ["--r" as string]: "-3deg", transform: "translate3d(calc(var(--px) * 14px), calc(var(--py) * 10px), 0)" }}>
             <p className="flex items-center gap-1.5 text-[10.5px] font-semibold uppercase tracking-[0.1em] text-teal"><span className="eq flex h-3 items-end gap-[2px]"><span style={{ animationDelay: "0s" }} /><span style={{ animationDelay: ".25s" }} /><span style={{ animationDelay: ".5s" }} /></span>Now in the archive</p>
@@ -157,40 +157,22 @@ export function Featured() {
 /* ------------------------------------------------------- Life timeline */
 
 export function LifeTimeline() {
-  const [i, setI] = useState(0);
-  const t = TIMELINE[i];
   return (
-    <div className="relative overflow-hidden rounded-3xl border border-line bg-surface p-6 shadow-[var(--shadow-sm)] sm:p-9">
-      <Orn src="floral-swirl" className="absolute bottom-2 right-28 hidden h-44 w-auto max-w-none rotate-[10deg] opacity-90 xl:block" />
-      <div className="relative">
-        <div className="scrollbar-none -mx-1 overflow-x-auto px-1 pb-2 pt-1">
-          <ol className="relative flex min-w-[640px] justify-between">
-            <span className="absolute left-[3%] right-[3%] top-[11px] h-[2px] bg-line-strong" />
-            <span className="absolute left-[3%] top-[11px] h-[2px] bg-gradient-to-r from-gold to-saffron transition-all duration-500" style={{ width: `${(i / (TIMELINE.length - 1)) * 94}%` }} />
-            {TIMELINE.map((e, k) => (
-              <li key={e.year} className="relative z-10 flex-1 text-center">
-                <button onClick={() => setI(k)} onMouseEnter={() => setI(k)} className="group flex w-full flex-col items-center gap-2" aria-current={k === i}>
-                  <span className={`flex h-6 w-6 items-center justify-center rounded-full border-2 transition ${k === i ? "glow acc-saffron scale-125 border-saffron bg-saffron text-white" : k < i ? "border-saffron bg-surface text-saffron" : "border-line-strong bg-surface text-ink-3"}`}>
-                    <Padma className="h-3.5 w-3.5" layers={2} />
-                  </span>
-                  <span className={`text-[12.5px] font-semibold tabular transition ${k === i ? "text-saffron" : "text-ink-3 group-hover:text-ink"}`}>{e.year}</span>
-                </button>
-              </li>
-            ))}
-          </ol>
-        </div>
-        <div key={i} className="fade-in mt-7 grid items-end gap-6 sm:grid-cols-[1fr_auto]">
-          <div>
-            <p className="text-[12px] font-semibold text-saffron">{t.year}</p>
-            <h3 className="mt-1 text-[24px] tracking-[-0.03em]">{t.title}</h3>
-            <p className="mt-2 max-w-2xl text-[15px] leading-relaxed text-ink-2">{t.text}</p>
-          </div>
-          <div className="flex gap-2">
-            <button onClick={() => setI((i + TIMELINE.length - 1) % TIMELINE.length)} aria-label="Earlier" className="flex h-10 w-10 items-center justify-center rounded-full border border-line-strong text-ink-2 transition hover:border-saffron hover:text-saffron"><ChevronLeft size={18} /></button>
-            <button onClick={() => setI((i + 1) % TIMELINE.length)} aria-label="Later" className="flex h-10 w-10 items-center justify-center rounded-full bg-saffron text-white transition hover:bg-saffron-deep"><ChevronRight size={18} /></button>
-          </div>
-        </div>
-        <Link href="/gurudeva/timeline" className="mt-5 inline-flex items-center gap-1 text-[13px] font-medium text-saffron">Open the full timeline<ArrowRight size={14} /></Link>
+    <div className="overflow-hidden rounded-3xl border border-line bg-surface shadow-[var(--shadow-sm)]">
+      <ol className="grid divide-y divide-line sm:grid-cols-2 sm:divide-y-0 lg:grid-cols-3">
+        {TIMELINE.map((e, k) => (
+          <li key={e.year} className="relative flex gap-4 border-line p-6 sm:border-b sm:[&:nth-last-child(-n+2)]:border-b-0 lg:[&:nth-last-child(-n+2)]:border-b lg:[&:nth-last-child(-n+1)]:border-b-0">
+            <span className="w-16 shrink-0 text-[22px] font-semibold tabular tracking-tight text-saffron">{e.year}</span>
+            <div>
+              <h3 className="text-[16px] font-semibold tracking-[-0.01em]">{e.title}</h3>
+              <p className="mt-1.5 text-[13.5px] leading-relaxed text-ink-2">{e.text}</p>
+            </div>
+            <span className="sr-only">{k + 1}</span>
+          </li>
+        ))}
+      </ol>
+      <div className="border-t border-line bg-band px-6 py-3.5">
+        <Link href="/gurudeva/timeline" className="inline-flex items-center gap-1 text-[13px] font-medium text-saffron">Open the full timeline<ArrowRight size={14} /></Link>
       </div>
     </div>
   );
@@ -293,56 +275,36 @@ export function WavePlayer() {
 }
 
 /* ------------------------------------------------------------ Blessing */
-const BLESSINGS = [
-  { q: "Kṛṣṇa sent him.", src: "Śrīla Prabhupāda, room conversation, Bombay, 5 January 1977", note: "Of Śrīla Gour Govinda Swāmī, who had asked for shelter in Vṛndāvana." },
-  { q: "He's organizing nicely.", src: "Śrīla Prabhupāda, room conversation, Bombay, 5 January 1977", note: "On his work in Orissa, alone for long periods." },
-  { q: "Just think that Krishna is with you and there is no need of disappointment.", src: "Śrīla Prabhupāda, letter, Māyāpur, 12 February 1976", note: "Written when he had completed one cottage in Bhuvaneśvara." },
-  { q: "Krishna will help you. You have my full blessings and you try your best and you will be successful.", src: "Śrīla Prabhupāda, letter, Māyāpur, 12 February 1976", note: "To Gaura Govinda Swāmī, on remaining in Bhuvaneśvara." },
-  { q: "Krishna is so kind, He is always ready to help.", src: "Śrīla Prabhupāda, letter, Māyāpur, 12 February 1976", note: "On publishing books in the Oriya language." },
-];
-
 export function Blessing() {
-  const [i, setI] = useState(0);
-  const [hold, setHold] = useState(false);
-  useEffect(() => {
-    if (hold) return;
-    const t = setTimeout(() => setI((n) => (n + 1) % BLESSINGS.length), 6500);
-    return () => clearTimeout(t);
-  }, [i, hold]);
-  const b = BLESSINGS[i];
   return (
-    <div className="relative overflow-hidden rounded-[28px] border border-[#e8b872]/30 bg-[#3d0f08] text-white shadow-[var(--shadow-lg)]" onMouseEnter={() => setHold(true)} onMouseLeave={() => setHold(false)}>
-      <Backdrop src="red-gold-mandala" className="opacity-60" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_40%,rgba(61,15,8,0.2),rgba(61,15,8,0.82))]" />
-      <div className="relative grid items-center gap-8 px-6 py-12 md:px-12 lg:grid-cols-[1fr_1.25fr_1fr]">
-        <div className={`order-2 text-center transition duration-700 lg:order-1 ${i < 2 ? "scale-105" : "opacity-80"}`}>
-          <PortraitFrame contain src="/legacy/prabhupada.webp" alt="Śrīla A.C. Bhaktivedanta Swami Prabhupāda" className="floaty mx-auto w-[210px] sm:w-[240px]" />
-          <p className="mt-4 text-[13px] font-semibold tracking-wide text-[#f3d9a4]">Śrīla Prabhupāda</p>
-          <p className="text-[11.5px] text-white/60">Founder-ācārya</p>
+    <div className="relative overflow-hidden rounded-[28px] border border-[#e8b872]/30 bg-[#3d0f08] text-white shadow-[var(--shadow-lg)]">
+      <Backdrop src="red-gold-mandala" o={0.4} />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_45%,rgba(61,15,8,0.1),rgba(61,15,8,0.8))]" />
+      <div className="relative grid items-end gap-4 px-5 pt-12 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.5fr)_minmax(0,0.8fr)] lg:px-10">
+        <div className="order-2 hidden self-end lg:order-1 lg:block">
+          <CutOut src="/legacy/prabhupada.webp" alt="Śrīla A.C. Bhaktivedanta Swami Prabhupāda" fade={0} className="mx-auto w-[88%] drop-shadow-[0_14px_26px_rgba(0,0,0,0.45)]" />
         </div>
-        <div className="order-1 text-center lg:order-2">
-          <p className="mx-auto inline-flex items-center gap-2 rounded-full border border-[#e8b872]/40 bg-white/5 px-3.5 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-[#f3d9a4]"><LogoMark className="h-3.5 w-3.5" />His spiritual master said</p>
-          <div key={i} className="mt-6 min-h-[200px] animate-[fadeUp_.7s_ease_both]">
-            <QuoteIcon className="mx-auto text-[#e8b872]" size={30} />
-            <p className="mt-3 text-balance text-[26px] font-semibold leading-[1.25] tracking-tight text-white sm:text-[32px]">“{b.q}”</p>
-            <p className="mt-4 text-[13px] font-medium text-[#f3d9a4]">{b.src}</p>
-            <p className="mt-1 text-[12.5px] text-white/65">{b.note}</p>
-          </div>
-          <div className="mt-5 flex justify-center gap-2">
-            {BLESSINGS.map((_, n) => (
-              <button key={n} aria-label={`Quotation ${n + 1}`} onClick={() => setI(n)} className="group relative h-1.5 w-12 overflow-hidden rounded-full bg-white/20">
-                <span className={`absolute inset-y-0 left-0 rounded-full bg-[#e8b872] ${n < i ? "w-full" : n === i ? (hold ? "w-1/2" : "w-full origin-left animate-[grow_6.5s_linear_both]") : "w-0"}`} />
-              </button>
+        <div className="order-1 pb-12 text-center lg:order-2">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#f3d9a4]">Śrīla Prabhupāda on Śrīla Gurudeva</p>
+          <QuoteIcon className="mx-auto mt-5 text-[#e8b872]" size={28} />
+          <p className="mt-3 text-balance text-[38px] font-semibold leading-[1.3] tracking-tight sm:text-[52px]">“Kṛṣṇa sent him.”</p>
+          <p className="mt-3 text-[13px] text-[#f3d9a4]">Room conversation, Bombay, 5 January 1977</p>
+          <div className="mx-auto mt-8 grid max-w-2xl gap-3 text-left sm:grid-cols-3">
+            {[
+              ["Just think that Krishna is with you and there is no need of disappointment.", "Letter, Māyāpur, 12 February 1976"],
+              ["Krishna will help you. You have my full blessings and you try your best and you will be successful.", "Letter, Māyāpur, 12 February 1976"],
+              ["Krishna is so kind, He is always ready to help.", "Letter, Māyāpur, 12 February 1976"],
+            ].map(([q, src]) => (
+              <figure key={q} className="rounded-2xl border border-white/15 bg-white/[0.07] p-4 backdrop-blur-sm">
+                <blockquote className="text-[13.5px] leading-snug text-white/95">“{q}”</blockquote>
+                <figcaption className="mt-2.5 text-[11.5px] text-[#f3d9a4]">{src}</figcaption>
+              </figure>
             ))}
           </div>
-          <div className="mt-6 flex flex-wrap justify-center gap-3">
-            <Link href="/gurudeva/srila-prabhupada" className="inline-flex items-center gap-1.5 rounded-full bg-[#e8b872] px-5 py-2 text-[13.5px] font-semibold text-[#3d0f08] transition hover:bg-[#f3d9a4]">Read the conversation and letter <ArrowRight size={15} /></Link>
-          </div>
+          <Link href="/gurudeva/srila-prabhupada" className="mt-7 inline-flex items-center gap-1.5 rounded-full bg-[#e8b872] px-5 py-2 text-[13.5px] font-semibold text-[#3d0f08] transition hover:bg-[#f3d9a4]">Read the conversation and the letter <ArrowRight size={15} /></Link>
         </div>
-        <div className={`order-3 text-center transition duration-700 ${i >= 2 ? "scale-105" : "opacity-80"}`}>
-          <PortraitFrame src="/legacy/gurudeva.webp" className="floaty mx-auto w-[210px] sm:w-[240px]" />
-          <p className="mt-4 text-[13px] font-semibold tracking-wide text-[#f3d9a4]">Śrīla Gurudeva</p>
-          <p className="text-[11.5px] text-white/60">Śrī Śrīmad Gour Govinda Swāmī</p>
+        <div className="order-3 self-end">
+          <CutOut src="/legacy/gurudeva.webp" alt="Śrīla Gour Govinda Swāmī" fade={0} className="mx-auto w-[80%] max-w-[330px] lg:w-[96%]" />
         </div>
       </div>
     </div>

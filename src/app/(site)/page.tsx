@@ -70,9 +70,14 @@ export default function Home() {
         <Container><Blessing /></Container>
       </section>
 
+      <div aria-hidden className="mx-auto mt-12 flex max-w-md items-center justify-center gap-5">
+        <Orn src="peacock" className="h-24" />
+        <span className="h-px flex-1 bg-gradient-to-r from-transparent via-gold to-transparent" />
+        <Orn src="peacock" className="h-24 -scale-x-100" />
+      </div>
+
       {/* Highlights */}
-      <section className="reveal relative mt-14">
-        <Orn src="peacock" className="absolute right-[6%] top-[-18px] hidden h-40 md:block" />
+      <section className="reveal relative mt-8">
         <Container>
           <Head kicker="Highlights" title="Where would you like to begin?" />
           <Featured />
@@ -157,14 +162,13 @@ export default function Home() {
       {/* Life */}
       <section className="reveal mt-24">
         <Container>
-          <Head kicker="His life" title="From Jagannāthapura to Māyāpur" intro="Seven moments. Click a year, or move with the arrows." />
+          <Head kicker="His life" title="From Jagannāthapura to Māyāpur" intro="The main moments, from his appearance in 1929 to his departure in 1996." />
           <LifeTimeline />
         </Container>
       </section>
 
       {/* Subjects */}
       <section className="reveal relative mt-24">
-        <Orn src="buta-garden" className="absolute right-[19%] top-[-34px] hidden h-40 lg:block" />
         <Container>
           <Head kicker="Tattva-kośa" title="Explore by subject" intro="Everything Śrīla Gurudeva said on each subject, gathered in one place." action={{ href: "/tattva", label: "Open Tattva-kośa" }} acc="indigo" />
           <TopicExplorer />

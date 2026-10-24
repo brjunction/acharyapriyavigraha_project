@@ -1,7 +1,7 @@
 import { Image as ImageIcon } from "lucide-react";
 import { GALLERY_TAGS } from "@/lib/data";
 import { Container, PageHero } from "@/components/ui";
-import { PortraitFrame } from "@/components/motifs";
+import { CutOut } from "@/components/motifs";
 
 export const metadata = { title: "Gallery" };
 
@@ -19,7 +19,7 @@ export default function Page() {
       <PageHero crumbs={[{ href: "/gurudeva", label: "Śrīla Gurudeva" }, { label: "Gallery" }]} icon={ImageIcon} title="Gallery" intro="Photographs of Śrīla Gurudeva. Each photograph will carry its place, year and source. Albums by theme, place and year are coming." />
       <Container className="py-12">
         <div className="grid items-center gap-8 md:grid-cols-[220px_1fr]">
-          <PortraitFrame className="mx-auto w-[200px]" />
+          <CutOut src="/legacy/gurudeva.webp" alt="Śrīla Gurudeva" className="mx-auto w-[200px]" />
           <p className="text-[15px] leading-relaxed text-ink-2">Select a photograph to open it in full size. Photographs are shown whole and are never cropped across the face.</p>
         </div>
         <div className="mt-10 columns-2 gap-4 md:columns-3">
