@@ -27,7 +27,6 @@ export function Footer() {
             </div>
             <div className="mt-7 flex flex-col items-center gap-2">
               <Signature src={IMG.sign} className="h-12 w-auto brightness-0 invert opacity-90" />
-              <p className="text-[11.5px] tracking-[0.04em] text-[#e6c9b4]/80">Śrīla Gurudeva</p>
             </div>
           </div>
 

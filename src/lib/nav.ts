@@ -24,7 +24,7 @@ export const MENUS: NavMenu[] = [
   {
     key: "gurudeva", label: "Śrīla Gurudeva", href: "/gurudeva", icon: Lotus as unknown as LucideIcon, allLabel: "Overview",
     intro: "His life, his diaries, his lineage, his disciples and his mission.",
-    feature: { title: "Śrī Śrīmad Gour Govinda Swāmī Gurudeva", text: "A dear disciple of Śrīla Prabhupāda, born in 1929 near Purī into a family devoted to Śrī Gopāl Jiu.", image: "/photos/gurudeva-garland.webp", href: "/gurudeva", cta: "Overview" },
+    feature: { title: "Śrī Śrīmad Gour Govinda Swāmī Gurudeva", text: "A dear disciple of Śrīla Prabhupāda, born in 1929 near Purī into a family devoted to Śrī Gopāl Jiu.", image: "/photos/menu-garland.webp", href: "/gurudeva", cta: "Overview" },
     groups: [
       g("His life", [
         l("/gurudeva/who-is-srila-gurudeva", "Who is Śrīla Gurudeva", "Krishna sent him · a brief life story", UserRound),
@@ -65,7 +65,7 @@ export const MENUS: NavMenu[] = [
   {
     key: "teachings", label: "His Teachings", href: "/teachings", icon: BookOpen, allLabel: "All teachings",
     intro: "Hear, read and remember. Every excerpt linked to its exact source.",
-    feature: { title: "1,595 lectures", text: "Recorded between 1985 and 1996, remastered, with transcriptions in progress.", image: "/photos/gurudeva-library.webp", href: "/teachings/audio", cta: "Browse lectures" },
+    feature: { title: "1,595 lectures", text: "Recorded between 1985 and 1996, remastered, with transcriptions in progress.", image: "/photos/menu-library.webp", href: "/teachings/audio", cta: "Browse lectures" },
     groups: [
       g("Hear & watch", [
         l("/teachings/audio", "Audio lectures", "Filter by year, place, verse and topic", Headphones),
@@ -93,7 +93,7 @@ export const MENUS: NavMenu[] = [
   {
     key: "tattva", label: "Tattva", href: "/tattva", icon: Network, allLabel: "All topics",
     intro: "The treasury of truths: everything he said, gathered by subject.",
-    feature: { title: "Start with a topic", text: "Each topic collects quotes, lecture moments, chapters, stories and verses in one place.", image: "/photos/gurudeva-seated-1.webp", href: "/tattva", cta: "Open Tattva" },
+    feature: { title: "Start with a topic", text: "Each topic collects quotes, lecture moments, chapters, stories and verses in one place.", image: "/photos/menu-seated-1.webp", href: "/tattva", cta: "Open Tattva" },
     groups: [
       g("Subjects", [
         l("/tattva/guru-tattva", "Guru-tattva", "Guru, disciple, sādhu-saṅga, paramparā", Network),
@@ -116,7 +116,7 @@ export const MENUS: NavMenu[] = [
   {
     key: "translations", label: "Translations", href: "/translations", icon: Languages, layout: "flyout", dense: true, searchAll: true, allLabel: "All languages",
     intro: "Every language has its own complete site. Pick a region, or search.",
-    feature: { title: "Every language", text: "Each language has its own complete site.", image: "/photos/gurudeva-smile.webp", href: "/translations", cta: "All languages" },
+    feature: { title: "Every language", text: "Each language has its own complete site.", image: "/photos/menu-smile.webp", href: "/translations", cta: "All languages" },
     groups: REGIONS.filter((r) => ALL_LANGUAGES.some((x) => x.region === r.key && x.code !== "en")).map((r) => g(r.title, ALL_LANGUAGES.filter((x) => x.region === r.key && x.code !== "en").map((x) => ({
       href: `/${x.code}`, label: x.native, desc: `${x.name} · ${STATUS_LABEL[x.status]}`, icon: Globe, soon: x.status === "planned",
     })))),
@@ -124,7 +124,7 @@ export const MENUS: NavMenu[] = [
   {
     key: "about", label: "About", href: "/about", icon: Info, layout: "flyout", allLabel: "About overview",
     intro: "The archive, the ācāryas, the scriptures and how to reach us.",
-    feature: { title: "About the archive", text: "Why and how this archive exists.", image: "/photos/gurudeva-marigold.webp", href: "/about", cta: "About overview" },
+    feature: { title: "About the archive", text: "Why and how this archive exists.", image: "/photos/menu-marigold.webp", href: "/about", cta: "About overview" },
     groups: [
       g("Taptajīvanam", [
         l("/about", "About the archive", "Why and how this archive exists", Archive),
