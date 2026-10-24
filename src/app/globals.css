@@ -204,6 +204,7 @@ h1, h2, h3, h4 { font-family: var(--font-sans); font-weight: 650; letter-spacing
 .acc-indigo { --acc: var(--indigo); --acc-soft: var(--indigo-soft); --acc-tint: color-mix(in srgb, var(--indigo-soft) 55%, var(--surface)); }
 .acc-rose { --acc: var(--rose-d); --acc-soft: var(--rose-soft); --acc-tint: color-mix(in srgb, var(--rose-soft) 55%, var(--surface)); }
 .acc-leaf { --acc: var(--leaf); --acc-soft: var(--leaf-soft); --acc-tint: color-mix(in srgb, var(--leaf-soft) 55%, var(--surface)); }
+.acc-plum { --acc: #7b3f9e; --acc-soft: #efe2f6; --acc-tint: color-mix(in srgb, #efe2f6 55%, var(--surface)); }
 .acc-gold { --acc: var(--gold); --acc-soft: var(--gold-soft); --acc-tint: color-mix(in srgb, var(--gold-soft) 55%, var(--surface)); }
 
 /* Festival stripe: marigold, saffron, peacock, indigo, rose */

@@ -203,6 +203,6 @@ export function findLink(href: string): { menu: NavMenu; group: NavGroup; link: 
 }
 
 /** Each menu has its own festival colour (see .acc-* in globals.css). */
-export const ACCENT: Record<string, "saffron" | "teal" | "indigo" | "rose" | "leaf" | "gold"> = {
-  gurudeva: "saffron", teachings: "teal", tattva: "indigo", resources: "gold", translations: "rose", about: "leaf",
+export const ACCENT: Record<string, "saffron" | "teal" | "indigo" | "rose" | "leaf" | "gold" | "plum"> = {
+  gurudeva: "saffron", teachings: "teal", tattva: "indigo", resources: "plum", translations: "rose", about: "leaf",
 };
