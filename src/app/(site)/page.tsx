@@ -123,7 +123,7 @@ export default async function Home() {
       {/* Highlights */}
       <section className="reveal mt-12">
         <Container>
-          <Head kicker="The archive" title="Where would you like to begin?" intro="Begin with a highlight, or find a lecture by year, month, type and topic." action={{ href: "/teachings", label: "All teachings" }} />
+          <Head kicker="Begin here" title="Where would you like to begin?" intro="Begin with a highlight, or find a lecture by year, month, type and topic." action={{ href: "/teachings", label: "All teachings" }} />
           <Featured />
           <div className="mt-8"><TeachingsOrganiser lists={false} /></div>
         </Container>
@@ -136,7 +136,7 @@ export default async function Home() {
         <VectorToran flip className="absolute inset-x-0 top-0 text-[#e8b872]/70" />
         <Container>
           <Head light kicker="The archive" title="Everything he left us, in one place" action={{ href: "/teachings", label: "All teachings" }} acc="gold" />
-          <div className="stagger grid gap-4 sm:grid-cols-2 lg:auto-rows-[158px] lg:grid-cols-4">
+          <div className="stagger grid gap-4 sm:grid-cols-2 lg:auto-rows-[178px] lg:grid-cols-4">
             <Bento acc="teal" href="/teachings/audio" icon={Headphones} title="Audio lectures" desc="Search by year, place, verse and topic." count={`${STATS.lectures.toLocaleString()} lectures`} className="min-h-[220px] sm:col-span-2 lg:row-span-2">
               <div className="mt-5 hidden h-16 items-center gap-[3px] sm:flex">{Array.from({ length: 48 }, (_, i) => <span key={i} className="w-[3px] rounded-full bg-white/50" style={{ height: Math.round(10 + Math.abs(Math.sin(i * 0.6) * 24 + Math.sin(i * 0.2) * 12)) }} />)}</div>
             </Bento>
