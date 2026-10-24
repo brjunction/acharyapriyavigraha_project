@@ -9,7 +9,7 @@ import { Providers } from "@/components/providers";
 export const metadata: Metadata = {
   title: { default: "Taptajīvanam · The teachings of Śrīla Gour Govinda Swāmī", template: "%s · Taptajīvanam" },
   description: "Lectures, transcriptions, books, quotes, letters and photos of Śrīla Gurudeva, Śrī Śrīmad Gour Govinda Swāmī.",
-  icons: { icon: "/icon.svg" },
+  icons: { icon: [{ url: "/icon.png", sizes: "512x512", type: "image/png" }, { url: "/favicon-48.png", sizes: "48x48", type: "image/png" }], shortcut: "/favicon.ico", apple: "/apple-icon.png" },
 };
 export const viewport: Viewport = { themeColor: "#853500" };
 

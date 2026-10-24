@@ -6,7 +6,7 @@ import { ArrowRight, Search, Play, Pause, ChevronLeft, ChevronRight, Headphones,
 import { CONVERSATION, LETTER } from "@/lib/prabhupada";
 import { DIARY, IMG, LANGUAGES, QUOTE_OF_DAY, TIMELINE } from "@/lib/data";
 import { Img } from "./img";
-import { CutOut, Orn, Padma, PaisleyField, Petals, Rosette, LogoMark } from "./motifs";
+import { CutOut, PortraitFrame, Orn, Padma, PaisleyField, Petals, Rosette, LogoMark } from "./motifs";
 import { usePrefs } from "./providers";
 import { Backdrop } from "./backdrop";
 
@@ -93,7 +93,7 @@ export function Hero() {
           <Orn src="mandala-saffron" className="spin-slow absolute -inset-10 h-[calc(100%+5rem)] w-[calc(100%+5rem)] max-w-none opacity-60" />
           <div className="absolute inset-0 rounded-full bg-[radial-gradient(closest-side,color-mix(in_srgb,var(--gold)_35%,transparent),transparent)] blur-2xl" />
           <div className="relative transition-transform duration-300 ease-out" style={{ transform: "translate3d(calc(var(--px) * -10px), calc(var(--py) * -8px), 0)" }}>
-            <CutOut src="/legacy/gurudeva.webp" alt="Śrīla Gour Govinda Swāmī" className="mx-auto w-[88%] drop-shadow-[0_18px_30px_rgba(90,40,0,0.3)]" />
+            <PortraitFrame photo src="/photos/gurudeva-portrait.webp" className="mx-auto w-[78%]" />
           </div>
           <div className="floaty absolute -left-1 top-[18%] w-[52%] rounded-2xl border border-line bg-surface/95 p-3.5 shadow-[var(--shadow-lg)] backdrop-blur sm:-left-6" style={{ ["--r" as string]: "-3deg", transform: "translate3d(calc(var(--px) * 14px), calc(var(--py) * 10px), 0)" }}>
             <p className="flex items-center gap-1.5 text-[10.5px] font-semibold uppercase tracking-[0.1em] text-teal"><span className="eq flex h-3 items-end gap-[2px]"><span style={{ animationDelay: "0s" }} /><span style={{ animationDelay: ".25s" }} /><span style={{ animationDelay: ".5s" }} /></span>Now in the archive</p>
@@ -294,7 +294,7 @@ export function Blessing() {
           <p className="mt-2 text-[13px] text-ink-3">Letter, Māyāpur, 12 February 1976</p>
         </div>
         <div className="order-3 self-end">
-          <CutOut src="/legacy/gurudeva.webp" alt="Śrīla Gour Govinda Swāmī" fade={0} className="mx-auto w-[80%] max-w-[330px] drop-shadow-[0_10px_18px_rgba(90,40,0,0.2)] lg:w-[100%]" />
+          <PortraitFrame photo src="/photos/gurudeva-portrait.webp" className="mx-auto w-[70%] max-w-[300px] lg:w-[84%]" />
         </div>
       </div>
       <div className="relative grid gap-5 border-t border-line bg-white/70 p-5 backdrop-blur-sm sm:p-8 lg:grid-cols-2">

@@ -198,8 +198,6 @@ export default function Home() {
           <div className="relative overflow-hidden rounded-3xl bg-[#7a0a10] px-6 py-16 text-center text-white sm:px-12">
             <Backdrop src="red-gold-mandala" />
             <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[#5a0509]/40 via-[#5a0509]/60 to-[#3d0307]/70" />
-            <Orn src="peacock-mandala" className="absolute -bottom-10 -right-6 hidden h-72 w-72 max-w-none opacity-90 sm:block" />
-            <Orn src="mandala-plum" className="spin-slow absolute -bottom-28 -left-16 h-64 w-64 max-w-none opacity-25 sm:hidden" />
             <HeartHandshake size={28} strokeWidth={1.4} className="relative mx-auto text-[#f1d3a4]" />
             <p className="relative mx-auto mt-4 max-w-2xl text-[17px] leading-relaxed text-white/90">This archive is built by the efforts of the disciples, grand-disciples, followers and admirers of Śrīla Gour Govinda Swāmī.</p>
             <OrnMask src="border-5" repeat="repeat-x" size="auto 100%" className="relative mx-auto mt-6 h-5 max-w-xs text-[#e8b872]/70" />
