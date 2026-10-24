@@ -140,8 +140,8 @@ export default async function Home() {
       {/* Today */}
       <section className="reveal relative isolate mt-12 py-8">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/backgrounds/paint-pink.webp" alt="" loading="lazy" className="pointer-events-none absolute inset-0 -z-10 h-full w-full object-cover opacity-[0.22]" />
-        <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b from-[var(--page)] via-[#fdf3f6]/70 to-[var(--page)]" />
+        <img src="/backgrounds/paint-pink.webp" alt="" loading="lazy" className="pointer-events-none absolute inset-0 -z-10 h-full w-full object-cover opacity-[0.5]" />
+        <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b from-[var(--page)] via-white/20 to-[var(--page)]" />
         <Container>
           <Head kicker="For today" title="A quote, a diary, a date" intro="Something small to carry through the day." />
           <div className="grid grid-cols-[minmax(0,1fr)] gap-5 lg:grid-cols-[1.15fr_1fr]">
@@ -167,7 +167,9 @@ export default async function Home() {
 
       {/* Listen + recent */}
       <section className="reveal relative isolate mt-12 py-8">
-        <SectionBg src="cream-mandala" o={0.55} />
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/backgrounds/paint-blue.webp" alt="" loading="lazy" className="pointer-events-none absolute inset-0 -z-10 h-full w-full object-cover opacity-[0.42]" />
+        <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b from-[var(--page)] via-white/25 to-[var(--page)]" />
         <Container>
           <Head kicker="Śrīla Gurudeva Radio" title="Listen, and let it play on" intro="Hari-kathā in his own voice, one lecture after another, chosen at random." acc="teal" />
           <div className="grid grid-cols-[minmax(0,1fr)] items-stretch gap-5 lg:grid-cols-2">
