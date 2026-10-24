@@ -8,7 +8,7 @@ import { Hero, Blessing, Featured, LifeTimeline, DiaryRail, QuotePanel, LangMarq
 import { TeachingsOrganiser } from "@/components/teachings-organiser";
 import { TopicExplorer } from "@/components/topic-explorer";
 import { Container } from "@/components/ui";
-import { Band, Carve } from "@/components/waves";
+import { Band } from "@/components/waves";
 import { Orn, OrnMask, Padma, PaisleyField, VectorToran, PeacockDivider, PortraitFrame } from "@/components/motifs";
 import { Backdrop } from "@/components/backdrop";
 import { getChannelVideos } from "@/lib/youtube";
@@ -117,14 +117,6 @@ export default async function Home() {
         </Container>
       </section>
 
-      {/* Highlights */}
-      <section className="reveal mt-12">
-        <Container>
-          <Head kicker="Highlights" title="Where would you like to begin?" />
-          <Featured />
-        </Container>
-      </section>
-
       {/* Four ways in */}
       <section className="reveal mt-10">
         <Container>
@@ -137,19 +129,18 @@ export default async function Home() {
         </Container>
       </section>
 
-      <PeacockDivider className="mt-12" />
 
       {/* Teachings */}
-      <section className="reveal relative isolate mt-8 py-6">
-        <SectionBg src="cream-watercolor" o={0.7} />
+      <Band tint="#fbf1de" arc="rgba(200,120,30,.35)" arcFill="rgba(243,179,99,.16)" carve className="mt-[110px] pb-[130px] pt-8 sm:mt-[150px] sm:pb-[190px]">
         <Container>
           <Head kicker="His teachings" title="Hear, read and remember" intro="Everything is organised in three places: what you can hear and watch, what you can read, and the compilations drawn from both." action={{ href: "/teachings", label: "All teachings" }} />
           <TeachingsOrganiser />
         </Container>
-      </section>
+      </Band>
 
       {/* Today */}
-      <Band tint="#fbf0dc" arc="rgba(200,120,30,.35)" arcFill="rgba(243,179,99,.16)" className="mt-[110px] pb-[130px] pt-10 sm:mt-[170px] sm:pb-[200px]">
+      <section className="reveal relative isolate mt-12 py-8">
+        <SectionBg src="tan-mandala" o={0.3} flip />
         <Container>
           <Head kicker="For today" title="A quote, a diary, a date" intro="Something small to carry through the day." />
           <div className="grid grid-cols-[minmax(0,1fr)] gap-5 lg:grid-cols-[1.15fr_1fr]">
@@ -171,27 +162,11 @@ export default async function Home() {
             <DiaryRail items={[]} />
           </div>
         </Container>
-      </Band>
-
-      {/* Archive bento */}
-      <Band tint="#4a0a0c" arc="rgba(232,184,114,.35)" arcFill="rgba(200,60,40,.22)" flip className="pb-[130px] pt-16 sm:pb-[200px]">
-        <Container>
-          <Head light kicker="The archive" title="Everything he left us, in one place" action={{ href: "/teachings", label: "All teachings" }} acc="gold" />
-          <div className="stagger grid gap-4 sm:grid-cols-2 lg:auto-rows-[178px] lg:grid-cols-4">
-            <Bento acc="teal" href="/teachings/audio" icon={Headphones} title="Audio lectures" desc="Search by year, place, verse and topic." count={`${STATS.lectures.toLocaleString()} lectures`} className="min-h-[220px] sm:col-span-2 lg:row-span-2">
-              <div className="mt-5 hidden h-16 items-center gap-[3px] sm:flex">{Array.from({ length: 48 }, (_, i) => <span key={i} className="w-[3px] rounded-full bg-white/50" style={{ height: Math.round(10 + Math.abs(Math.sin(i * 0.6) * 24 + Math.sin(i * 0.2) * 12)) }} />)}</div>
-            </Bento>
-            <Bento acc="indigo" href="/teachings/books" icon={BookOpen} title="Books" desc="Read on the site, from three publishers." count={`${STATS.books} titles`} className="min-h-[200px] lg:row-span-2" />
-            <Bento acc="gold" href="/teachings/transcriptions" icon={FileText} title="Transcriptions" desc="Text that follows the audio." count={`${STATS.transcriptions}`} className="min-h-[160px]" />
-            <Bento acc="rose" href="/teachings/videos" icon={Clapperboard} title="Videos" desc="Lectures you can see." count={`${STATS.videos}`} className="min-h-[160px]" />
-            <Bento acc="saffron" href="/teachings/quotes" icon={Quote} title="Quotes" desc="On people, tattvas and many subjects, each with its source." count={`${STATS.quoteCategories} subjects`} className="min-h-[160px] sm:col-span-2" />
-            <Bento acc="leaf" href="/gurudeva/gallery" icon={ImageIcon} title="Images" desc="His pastimes in photographs." count={`${STATS.imageTags} albums`} className="min-h-[160px] sm:col-span-2" />
-          </div>
-        </Container>
-      </Band>
+      </section>
 
       {/* Listen + recent */}
-      <Band tint="#e4f2ef" arc="rgba(31,138,138,.35)" arcFill="rgba(59,176,160,.14)" className="pb-[130px] pt-10 sm:pb-[200px]">
+      <section className="reveal relative isolate mt-12 py-8">
+        <SectionBg src="cream-mandala" o={0.55} />
         <Container>
           <Head kicker="Śrīla Gurudeva Radio" title="Listen, and let it play on" intro="Hari-kathā in his own voice, one lecture after another, chosen at random." acc="teal" />
           <div className="grid grid-cols-[minmax(0,1fr)] items-stretch gap-5 lg:grid-cols-2">
@@ -218,18 +193,40 @@ export default async function Home() {
             </div>
           </div>
         </Container>
-      </Band>
+      </section>
+
+      {/* Archive bento */}
+      <section className="reveal relative isolate mt-16 overflow-hidden bg-[#4a0a0c] py-20">
+        <Backdrop src="red-gold-mandala" o={0.5} className="-z-10" />
+        <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b from-[#3d0307]/70 via-transparent to-[#3d0307]/70" />
+        <VectorToran flip className="absolute inset-x-0 top-0 text-[#e8b872]/70" />
+        <Container>
+          <Head light kicker="The archive" title="Everything he left us, in one place" action={{ href: "/teachings", label: "All teachings" }} acc="gold" />
+          <div className="stagger grid gap-4 sm:grid-cols-2 lg:auto-rows-[178px] lg:grid-cols-4">
+            <Bento acc="teal" href="/teachings/audio" icon={Headphones} title="Audio lectures" desc="Search by year, place, verse and topic." count={`${STATS.lectures.toLocaleString()} lectures`} className="min-h-[220px] sm:col-span-2 lg:row-span-2">
+              <div className="mt-5 hidden h-16 items-center gap-[3px] sm:flex">{Array.from({ length: 48 }, (_, i) => <span key={i} className="w-[3px] rounded-full bg-white/50" style={{ height: Math.round(10 + Math.abs(Math.sin(i * 0.6) * 24 + Math.sin(i * 0.2) * 12)) }} />)}</div>
+            </Bento>
+            <Bento acc="indigo" href="/teachings/books" icon={BookOpen} title="Books" desc="Read on the site, from three publishers." count={`${STATS.books} titles`} className="min-h-[200px] lg:row-span-2" />
+            <Bento acc="gold" href="/teachings/transcriptions" icon={FileText} title="Transcriptions" desc="Text that follows the audio." count={`${STATS.transcriptions}`} className="min-h-[160px]" />
+            <Bento acc="rose" href="/teachings/videos" icon={Clapperboard} title="Videos" desc="Lectures you can see." count={`${STATS.videos}`} className="min-h-[160px]" />
+            <Bento acc="saffron" href="/teachings/quotes" icon={Quote} title="Quotes" desc="On people, tattvas and many subjects, each with its source." count={`${STATS.quoteCategories} subjects`} className="min-h-[160px] sm:col-span-2" />
+            <Bento acc="leaf" href="/gurudeva/gallery" icon={ImageIcon} title="Images" desc="His pastimes in photographs." count={`${STATS.imageTags} albums`} className="min-h-[160px] sm:col-span-2" />
+          </div>
+        </Container>
+        <VectorToran className="absolute inset-x-0 bottom-0 text-[#e8b872]/70" />
+      </section>
 
       {/* Life */}
-      <Band tint="#fbe8ec" arc="rgba(194,65,91,.32)" arcFill="rgba(224,112,127,.13)" carve className="pb-44 pt-10 sm:pb-52">
+      <section className="reveal relative isolate mt-6 py-10">
+        <SectionBg src="orange-mandala" o={0.28} />
         <Container>
           <Head kicker="His life" title="From Jagannāthapura to Māyāpur" intro="The main moments of his life. Select a year to read more." />
           <LifeTimeline />
         </Container>
-      </Band>
+      </section>
 
       {/* Subjects */}
-      <section className="reveal relative isolate -mt-24 py-10">
+      <section className="reveal relative isolate mt-6 py-10">
         <SectionBg src="cream-watercolor" o={0.7} flip />
         <Container>
           <Head kicker="Tattva" title="Explore by subject" intro="Everything Śrīla Gurudeva said on each subject, gathered in one place." action={{ href: "/tattva", label: "Open Tattva" }} acc="indigo" />
@@ -238,8 +235,7 @@ export default async function Home() {
       </section>
 
       {/* Languages */}
-      <section className="reveal relative mt-16 overflow-hidden pb-28 pt-32 text-white sm:pt-44">
-        <Carve where="top" /><Carve where="bottom" />
+      <section className="reveal relative mt-24 overflow-hidden py-16 text-white">
         <Backdrop src="blue-mandala" />
         <div className="pointer-events-none absolute inset-0 bg-[#0a2c78]/35" />
         <Container>
@@ -254,6 +250,8 @@ export default async function Home() {
         </Container>
         <div className="relative"><LangMarquee /></div>
       </section>
+
+      <PeacockDivider className="mt-16" size={72} />
 
       {/* Thank list */}
       <section className="reveal mt-24">
