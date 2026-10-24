@@ -68,7 +68,7 @@ export function TopicExplorer() {
             <div className="flex flex-wrap items-end justify-between gap-3 border-b border-line pb-4">
               <div>
                 <p className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--acc)]"><span className="h-1 w-1 rounded-full bg-[var(--acc)]" />Subject {String(i + 1).padStart(2, "0")} of {TATTVA.length}</p>
-                <h3 className="mt-1 text-[22px] tracking-[-0.02em]">{t.name}</h3>
+                <h3 className="mt-1 text-[19px] tracking-[-0.02em]">{t.name}</h3>
                 <p className="mt-0.5 text-[12.5px] text-ink-3">{t.count} passages, lectures and quotes · {t.children.length} topics</p>
               </div>
               <Link href={`/tattva/${t.slug}`} className="inline-flex items-center gap-1 rounded-full bg-[var(--acc)] px-4 py-1.5 text-[12.5px] font-medium text-white">Open {t.name}<ArrowRight size={13} /></Link>

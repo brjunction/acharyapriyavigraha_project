@@ -63,7 +63,7 @@ export function Hero() {
           <span className="inline-flex items-center gap-2 rounded-full border border-[#f3b363]/70 bg-[#f3b363]/20 py-1.5 pl-4 pr-4 text-[12.5px] font-semibold text-[#fff1da] backdrop-blur">
             The complete life and teachings of Śrī Śrīmad Gour Govinda Swāmī Gurudeva
           </span>
-          <h1 className="mt-5 text-[28px] font-bold leading-[1.12] tracking-[-0.03em] sm:text-[36px] lg:text-[42px] text-[#fff1da]">
+          <h1 className="mt-5 text-[28px] font-bold leading-[1.12] tracking-[-0.03em] sm:text-[32px] lg:text-[38px] text-[#fff1da]">
             Words that give life<br />to a <span className="text-[#ffc566]">burning heart</span>
           </h1>
           <p className="mx-auto mt-5 max-w-xl text-[15.5px] leading-relaxed text-[#ffe9cc]/90 lg:mx-0">
@@ -86,10 +86,6 @@ export function Hero() {
         {/* Portrait: a plain circular frame, no animation */}
         <div className="order-1 mx-auto w-full max-w-[250px] sm:max-w-[300px] lg:order-2 lg:max-w-[340px]">
           <PortraitFrame photo src="/photos/gurudeva-speaking.webp" alt="Śrī Śrīmad Gour Govinda Swāmī Gurudeva" className="mx-auto w-full" />
-          <Link href="/about/founder" className="mx-auto mt-6 flex w-fit max-w-full items-center gap-3 rounded-full border border-[#f3b363]/50 bg-[#fbf3e3]/95 py-1.5 pl-1.5 pr-5 transition hover:-translate-y-0.5 hover:bg-[#fff8ea]">
-            <img src="/photos/haladhara-sm.webp" alt="Śrīla Haladhara Swāmī Guru Mahārāja" className="h-12 w-12 shrink-0 rounded-full border-2 border-[#e2b25c] object-cover" />
-            <span className="leading-tight"><span className="block text-[10.5px] font-semibold uppercase tracking-[0.1em] text-[#8a3a0a]">Founder of Taptajīvanam</span><span className="block text-[13px] font-semibold text-[#3a1d08]">Śrīla Haladhara Swāmī Guru Mahārāja</span></span>
-          </Link>
         </div>
       </div>
     </section>
@@ -128,7 +124,7 @@ export function Featured() {
         <div className="absolute inset-0 opacity-70" style={{ background: "linear-gradient(120deg, color-mix(in srgb, var(--acc) 65%, transparent), transparent 55%)" }} />
         <Rosette className="spin-slow absolute -right-16 -top-16 h-72 w-72 text-white/15" />
         <div className="rise absolute inset-x-0 bottom-0 p-6 text-white sm:p-9">
-          <p className="text-[24px] font-bold tracking-[-0.03em] sm:text-[32px]">{f.title}</p>
+          <p className="text-[20px] font-bold tracking-[-0.03em] sm:text-[26px]">{f.title}</p>
           <p className="mt-1.5 max-w-lg text-[14px] leading-relaxed text-white/85">{f.text}</p>
           <span className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-white px-4 py-2 text-[13px] font-semibold text-[var(--acc)] transition group-hover:gap-2.5">{f.cta}<ArrowRight size={15} /></span>
         </div>
@@ -238,7 +234,7 @@ export function QuotePanel() {
       <Backdrop src="orange-mandala" />
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[#4c1b00]/90 via-[#4c1b00]/55 to-transparent" />
       <p className="relative flex items-center gap-2 text-[12px] font-medium text-[#f1d3a4]"><QuoteIcon size={15} />Quote of the day</p>
-      <blockquote className="relative mt-5 text-[22px] font-medium leading-[1.35] tracking-[-0.02em] sm:text-[26px]">“{QUOTE_OF_DAY.text}”</blockquote>
+      <blockquote className="relative mt-5 text-[19px] font-medium leading-[1.4] tracking-[-0.015em] sm:text-[22px]">“{QUOTE_OF_DAY.text}”</blockquote>
       <figcaption className="relative mt-auto pt-8">
         <p className="text-[13px] text-white/80"><span className="font-semibold text-white">Śrīla Gurudeva</span><br />{QUOTE_OF_DAY.source}, {QUOTE_OF_DAY.date}, {QUOTE_OF_DAY.place}</p>
         <div className="mt-4 flex flex-wrap gap-2">
@@ -261,7 +257,7 @@ export function LangMarquee() {
           <div className={`marquee ${r ? "marquee-rev" : ""}`} style={{ ["--dur" as string]: r ? "55s" : "70s" } as React.CSSProperties}>
             {[...row, ...row, ...row, ...row].map((l, k) => (
               <Link key={k} href={`/${l.code === "en" ? "" : l.code}`} className="mr-3 flex shrink-0 items-center gap-3 rounded-2xl border border-line bg-surface px-5 py-3 transition hover:-translate-y-0.5 hover:border-rosewood hover:shadow-[var(--shadow-md)]">
-                <span className="text-[22px] font-semibold tracking-[-0.02em] text-ink">{l.native}</span>
+                <span className="text-[18px] font-semibold tracking-[-0.02em] text-ink">{l.native}</span>
                 <span className="text-[11.5px] text-ink-3">{l.name}<br /><span className="text-rosewood">{l.ui}% translated</span></span>
               </Link>
             ))}
@@ -322,7 +318,7 @@ export function Blessing() {
         </div>
         <div className="order-1 col-span-2 pb-6 text-center lg:order-2 lg:col-span-1 lg:pb-10">
           <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-saffron">Śrīla Prabhupāda on Śrīla Gurudeva</p>
-          <p className="mt-4 text-balance text-[28px] font-semibold leading-[1.3] tracking-tight text-ink sm:text-[36px]">“Kṛṣṇa sent him.”</p>
+          <p className="mt-4 text-balance text-[23px] font-semibold leading-[1.3] tracking-tight text-ink sm:text-[30px]">“Kṛṣṇa sent him.”</p>
           <p className="mt-2 text-[13px] text-ink-3">Room conversation, Bombay, 5 January 1977</p>
           <p className="mx-auto mt-6 max-w-md text-[15px] leading-relaxed text-ink-2"><mark className="rounded bg-[#f6d58e]/70 px-1 font-semibold text-ink">“Krishna is with you and there is no need of disappointment.”</mark></p>
           <p className="mt-2 text-[13px] text-ink-3">Letter, Māyāpur, 12 February 1976</p>

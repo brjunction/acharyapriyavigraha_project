@@ -8,7 +8,7 @@ import { Hero, Blessing, Featured, LifeTimeline, DiaryRail, QuotePanel, LangMarq
 import { TeachingsOrganiser } from "@/components/teachings-organiser";
 import { TopicExplorer } from "@/components/topic-explorer";
 import { Container } from "@/components/ui";
-import { Orn, OrnMask, Padma, PaisleyField, VectorToran, PeacockDivider } from "@/components/motifs";
+import { Orn, OrnMask, Padma, PaisleyField, VectorToran, PeacockDivider, PortraitFrame } from "@/components/motifs";
 import { Backdrop } from "@/components/backdrop";
 import { getChannelVideos } from "@/lib/youtube";
 import { LectureRow } from "@/components/lecture";
@@ -24,11 +24,11 @@ function SectionBg({ src, o = 0.4, flip = false, pos = "center" }: { src: string
 
 function Head({ kicker, title, intro, action, acc = "saffron", light = false }: { light?: boolean; kicker: string; title: string; intro?: string; action?: { href: string; label: string }; acc?: string }) {
   return (
-    <div className={`acc-${acc} mb-7 flex flex-wrap items-end justify-between gap-4`}>
+    <div className={`acc-${acc} mb-5 flex flex-wrap items-end justify-between gap-4`}>
       <div>
-        <p className="flex items-center gap-2 text-[12px] font-semibold uppercase tracking-[0.12em] text-[var(--acc)]"><Padma className="h-4 w-4" layers={2} />{kicker}</p>
-        <h2 className={`mt-1.5 text-[26px] leading-tight tracking-[-0.03em] sm:text-[30px] ${light ? "!text-white" : ""}`}>{title}</h2>
-        {intro && <p className={`mt-1.5 max-w-xl text-[14px] ${light ? "text-white/80" : "text-ink-2"}`}>{intro}</p>}
+        <p className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--acc)]"><Padma className="h-3.5 w-3.5" layers={2} />{kicker}</p>
+        <h2 className={`mt-1 text-[21px] leading-tight tracking-[-0.025em] sm:text-[25px] ${light ? "!text-white" : ""}`}>{title}</h2>
+        {intro && <p className={`mt-1 max-w-xl text-[13px] ${light ? "text-white/80" : "text-ink-2"}`}>{intro}</p>}
       </div>
       {action && <Link href={action.href} className={`group flex items-center gap-1 text-[13px] font-medium ${light ? "text-[#f3d9a4]" : "text-[var(--acc)]"}`}>{action.label}<ArrowRight size={14} className="transition-transform group-hover:translate-x-0.5" /></Link>}
     </div>
@@ -37,10 +37,10 @@ function Head({ kicker, title, intro, action, acc = "saffron", light = false }: 
 
 function Path({ acc, icon: I, title, text, links }: { acc: string; icon: LucideIcon; title: string; text: string; links: [string, string, string][] }) {
   return (
-    <div className={`acc-${acc} card card-hover group relative flex flex-col overflow-hidden p-6`}>
+    <div className={`acc-${acc} card card-hover group relative flex flex-col overflow-hidden p-5`}>
       <Padma className="absolute -right-10 -top-10 h-40 w-40 text-[var(--acc)] opacity-[0.07] transition duration-700 group-hover:rotate-45 group-hover:opacity-[0.14]" />
       <span className="relative flex h-11 w-11 items-center justify-center rounded-2xl text-white shadow-[var(--shadow-md)]" style={{ background: "linear-gradient(145deg, var(--acc), color-mix(in srgb, var(--acc) 60%, #000))" }}><I size={21} strokeWidth={1.7} /></span>
-      <h3 className="relative mt-4 text-[18px] tracking-[-0.025em]">{title}</h3>
+      <h3 className="relative mt-3 text-[16px] tracking-[-0.02em]">{title}</h3>
       <p className="relative mt-1 text-[13px] leading-relaxed text-ink-2">{text}</p>
       <ul className="relative mt-4 space-y-0.5 border-t border-line pt-3">
         {links.map(([h, l, d]) => (
@@ -82,8 +82,41 @@ export default async function Home() {
         <Container><Blessing /></Container>
       </section>
 
+
+      {/* Founder */}
+      <section className="reveal relative isolate mt-12 py-8">
+        <SectionBg src="cream-watercolor" o={0.6} flip />
+        <Container>
+          <Head kicker="The founder" title="How Taptajīvanam began" intro="A disciple's wish to place his spiritual master's words within everyone's reach." action={{ href: "/about/founder", label: "Read his biography" }} />
+          <div className="grid items-start gap-5 lg:grid-cols-[300px_minmax(0,1fr)]">
+            <Link href="/about/founder" className="card group flex flex-col items-center p-6 text-center transition hover:-translate-y-0.5">
+              <div className="w-[150px]"><PortraitFrame photo src="/photos/haladhara.webp" alt="Śrīla Haladhara Swāmī Guru Mahārāja" className="w-full" /></div>
+              <p className="mt-4 text-[10.5px] font-semibold uppercase tracking-[0.12em] text-saffron">Founder of Taptajīvanam</p>
+              <p className="mt-1 text-[15px] font-semibold leading-snug text-ink">Śrīla Haladhara Swāmī Guru Mahārāja</p>
+              <p className="mt-1 text-[12px] leading-relaxed text-ink-3">Disciple of Śrī Śrīmad Gour Govinda Swāmī Gurudeva. Born and raised in Odisha; preaches in Odia, Hindi and English.</p>
+            </Link>
+            <div className="stagger grid gap-3 sm:grid-cols-2">
+              {[
+                ["1992 – 1994", "Joins the devotees", "Comes in contact with ISKCON Bhubaneswar in 1992 and is initiated in 1994 as Halāyudha Dāsa."],
+                ["2016", "Sannyāsa", "Accepts the renounced order on 20 March 2016 at Śrī Śrī Kṛṣṇa-Balarāma Temple, Bhubaneswar."],
+                ["2019", "The wish", "On his European tour at ISKCON New Māyāpura, France, he voices his wish for one place where all of Gurudeva’s audio lectures are available to everyone."],
+                ["2020", "The daily offering", "With his disciples and followers he begins curating daily quotes and lectures, shaped into short clips that carry the essence of Gurudeva’s teachings."],
+              ].map(([y, t, d], i) => (
+                <div key={y} className="acc-saffron relative rounded-2xl border border-line bg-surface p-4">
+                  <span className="absolute right-3 top-3 text-[11px] font-semibold tabular text-ink-3">0{i + 1}</span>
+                  <p className="text-[11.5px] font-semibold tabular text-[var(--acc)]">{y}</p>
+                  <p className="mt-0.5 text-[14px] font-semibold text-ink">{t}</p>
+                  <p className="mt-1 text-[12.5px] leading-relaxed text-ink-2">{d}</p>
+                </div>
+              ))}
+              <p className="rounded-2xl border border-[#e8c98d] bg-[#fbf1dc] p-4 text-[12.5px] leading-relaxed text-[#5a3410] sm:col-span-2">His wish was to explain the mission of his spiritual master, and to show that everything is present in Śrīla Prabhupāda’s books: there is no need to seek teachings outside ISKCON.</p>
+            </div>
+          </div>
+        </Container>
+      </section>
+
       {/* Highlights */}
-      <section className="reveal mt-14">
+      <section className="reveal mt-12">
         <Container>
           <Head kicker="Highlights" title="Where would you like to begin?" />
           <Featured />
@@ -91,9 +124,9 @@ export default async function Home() {
       </section>
 
       {/* Four ways in */}
-      <section className="reveal mt-20">
+      <section className="reveal mt-10">
         <Container>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="stagger grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <Path acc="teal" icon={Headphones} title="Listen" text="Hari-kathā in his own voice, from 1985 to 1996." links={[["/teachings/audio", "Audio lectures", "1,595"], ["/teachings/transcriptions", "Transcriptions", "130"], ["/teachings/videos", "Videos", "210"]]} />
             <Path acc="indigo" icon={BookOpen} title="Read" text="Books, letters and quotes, each with its source." links={[["/teachings/books", "Books", "48"], ["/gurudeva/letters", "Letters", "29"], ["/teachings/quotes", "Quotes", "44 subjects"]]} />
             <Path acc="gold" icon={Network} title="Explore" text="Follow a subject through everything he said on it." links={[["/tattva", "Tattva", "112 topics"], ["/tattva/index/verses", "By verse", "SB, BG, CC"], ["/tattva/index/places", "By place and year", ""]]} />
@@ -114,7 +147,7 @@ export default async function Home() {
       </section>
 
       {/* Today */}
-      <section className="reveal relative isolate mt-16 py-10">
+      <section className="reveal relative isolate mt-12 py-8">
         <SectionBg src="tan-mandala" o={0.3} flip />
         <Container>
           <Head kicker="For today" title="A quote, a diary, a date" intro="Something small to carry through the day." />
@@ -161,7 +194,7 @@ export default async function Home() {
       </section>
 
       {/* Listen + recent */}
-      <section className="reveal relative isolate mt-16 py-10">
+      <section className="reveal relative isolate mt-12 py-8">
         <SectionBg src="cream-mandala" o={0.55} />
         <Container>
           <Head kicker="Śrīla Gurudeva Radio" title="Listen, and let it play on" intro="Hari-kathā in his own voice, one lecture after another, chosen at random." acc="teal" />
@@ -220,7 +253,7 @@ export default async function Home() {
             <div>
               <p className="flex items-center gap-2 text-[12px] font-semibold uppercase tracking-[0.12em] text-white/85"><Padma className="h-4 w-4" layers={2} />Translations</p>
               <h2 className="mt-1.5 text-[26px] leading-tight tracking-[-0.03em] text-white sm:text-[30px]">One teaching, many languages</h2>
-              <p className="mt-1.5 max-w-xl text-[14px] text-white/85">Each language is a site of its own, with its own pages, search and archive.</p>
+              <p className="mt-1 max-w-xl text-[13px] text-white/85">Each language is a site of its own, with its own pages, search and archive.</p>
             </div>
             <Link href="/translations" className="group flex items-center gap-1 text-[13px] font-medium text-white">All languages<ArrowRight size={14} className="transition-transform group-hover:translate-x-0.5" /></Link>
           </div>
