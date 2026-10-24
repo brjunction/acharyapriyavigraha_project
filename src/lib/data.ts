@@ -20,6 +20,7 @@ export const SITE = {
   verseSource: "Śrīmad-Bhāgavatam 10.31.9",
   email: "taptajivanam@gmail.com",
   phone: "+91 96687 21555",
+  youtube: "https://www.youtube.com/@taptajivanam",
   social: [
     { name: "Instagram", href: "https://www.instagram.com/taptajivanam" },
     { name: "Facebook", href: "https://www.facebook.com/tapta.jivanam" },

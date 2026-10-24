@@ -50,7 +50,7 @@ export function Footer() {
                 <span className="flex-1 text-[12.5px] leading-snug text-white"><span className="block font-semibold">Gopāl Jiu magazine</span><span className="text-[#f0dfd1]/70">Subscribe to receive it</span></span>
                 <ArrowUpRight size={16} className="text-[#f0dfd1]/60 transition group-hover:text-white" />
               </a>
-              <a href={SITE.social[2].href} target="_blank" rel="noreferrer" className="group mt-2.5 flex items-center gap-3 rounded-2xl border border-white/15 bg-white/[0.07] p-3.5 transition hover:bg-white/[0.12]">
+              <a href={SITE.youtube} target="_blank" rel="noreferrer" className="group mt-2.5 flex items-center gap-3 rounded-2xl border border-white/15 bg-white/[0.07] p-3.5 transition hover:bg-white/[0.12]">
                 <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#e0342b] text-white"><Youtube size={19} /></span>
                 <span className="flex-1 text-[12.5px] leading-snug text-white"><span className="block font-semibold">Taptajīvanam on YouTube</span><span className="text-[#f0dfd1]/70">Watch and subscribe</span></span>
                 <ArrowUpRight size={16} className="text-[#f0dfd1]/60 transition group-hover:text-white" />
