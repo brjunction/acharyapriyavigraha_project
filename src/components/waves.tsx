@@ -1,31 +1,38 @@
-/** Curvy, slowly flowing section dividers and drifting clouds. Decorative only. */
+import type { CSSProperties, ReactNode } from "react";
 
-const WAVE = "M0 60 C 120 10, 240 10, 360 60 S 600 110, 720 60 S 960 10, 1080 60 S 1320 110, 1440 60 L1440 120 L0 120 Z";
-const WAVE2 = "M0 70 C 150 110, 270 110, 400 66 S 640 10, 760 62 S 1010 112, 1120 70 S 1330 22, 1440 70 L1440 120 L0 120 Z";
+/** Big diagonal sweeping edges: a tinted section that rises over the one above it in one long curve. */
+const UP = "M0 220 V150 C 300 250 560 -30 900 70 S 1300 -10 1440 20 V220 Z";
+const DOWN = "M0 0 V 24 C 120 40 420 150 760 170 S 1250 190 1440 214 V0 Z";
 
-/** Three layered waves that drift sideways and slowly change hue. `solid` fills the front wave with a section colour so a dark band flows into the page. */
-export function Waves({ tone = "warm", flip = false, solid, className = "" }: { tone?: "warm" | "rose" | "teal" | "indigo"; flip?: boolean; solid?: string; className?: string }) {
+/** Huge soft ribbons and lines sitting far behind the content of a band. */
+function Arcs({ stroke, fill, flip }: { stroke: string; fill: string; flip?: boolean }) {
   return (
-    <div aria-hidden className={`wave-box pointer-events-none relative h-[72px] w-full overflow-hidden sm:h-[96px] ${flip ? "rotate-180" : ""} ${className}`} data-tone={tone}>
-      {[["wave-a", WAVE, 0.28, 0], ["wave-b", WAVE2, 0.22, 1], ["wave-c", WAVE, 0.2, 2]].map(([c, d, o, i]) => (
-        <svg key={String(c)} className={`${c} wave-hue absolute inset-y-0 left-0 h-full w-[200%]`} style={{ animationDelay: `${-(i as number) * 4}s` }} viewBox="0 0 2880 120" preserveAspectRatio="none">
-          <g fill="currentColor" opacity={o as number}><path d={d as string} /><path d={d as string} transform="translate(1440 0)" /></g>
-        </svg>
-      ))}
-      {solid && (
-        <svg className="wave-solid absolute inset-y-0 left-0 h-full w-[200%]" style={{ color: solid }} viewBox="0 0 2880 120" preserveAspectRatio="none">
-          <g fill="currentColor"><path d={WAVE2} transform="translate(0 6)" /><path d={WAVE2} transform="translate(1440 6)" /></g>
-        </svg>
-      )}
-    </div>
+    <svg aria-hidden className={`arc-drift pointer-events-none absolute inset-0 -z-10 h-full w-full ${flip ? "-scale-x-100" : ""}`} viewBox="0 0 1440 900" preserveAspectRatio="none">
+      <path d="M-120 820 C 260 640 520 760 820 420 S 1280 60 1600 -80 V 300 C 1300 340 1100 640 820 760 S 300 980 -120 980 Z" fill={fill} />
+      <path d="M-140 560 C 240 480 520 520 800 300 S 1240 20 1580 -40" fill="none" stroke={stroke} strokeWidth="1.5" vectorEffect="non-scaling-stroke" />
+      <path d="M-140 700 C 280 600 560 680 860 440 S 1300 140 1600 60" fill="none" stroke={stroke} strokeWidth="1" vectorEffect="non-scaling-stroke" />
+    </svg>
   );
 }
 
-/** A soft cloud that drifts slowly across its section. */
-export function Cloud({ className = "", delay = 0, dur = 90 }: { className?: string; delay?: number; dur?: number }) {
+/** A full-width tinted band whose top edge sweeps diagonally over the previous section. */
+export function Band({ tint, arc, arcFill, flip = false, carve = false, className = "", children }: {
+  tint: string; arc: string; arcFill: string; flip?: boolean; carve?: boolean; className?: string; children: ReactNode;
+}) {
+  const style = { background: tint } as CSSProperties;
   return (
-    <svg aria-hidden viewBox="0 0 220 90" className={`cloud-drift pointer-events-none absolute ${className}`} style={{ animationDuration: `${dur}s`, animationDelay: `${-delay}s` }}>
-      <path fill="currentColor" d="M42 78C18 78 6 64 8 50c2-14 16-22 30-18 4-16 20-26 38-22 14 3 24 12 28 24 6-6 16-8 26-4 12 4 18 14 16 26 12 0 22 8 22 20H42Z" />
-    </svg>
+    <section className={`reveal relative isolate ${className}`} style={style}>
+      <svg aria-hidden className={`pointer-events-none absolute inset-x-0 -top-[139px] h-[140px] w-full sm:-top-[219px] sm:h-[220px] ${flip ? "-scale-x-100" : ""}`} viewBox="0 0 1440 220" preserveAspectRatio="none"><path d={UP} fill={tint} /></svg>
+      <Arcs stroke={arc} fill={arcFill} flip={flip} />
+      {carve && <svg aria-hidden className={`pointer-events-none absolute inset-x-0 -bottom-px h-[140px] w-full sm:h-[220px] ${flip ? "" : "-scale-x-100"} rotate-180`} viewBox="0 0 1440 220" preserveAspectRatio="none"><path d={DOWN} fill="var(--page)" /></svg>}
+      {children}
+    </section>
+  );
+}
+
+/** Carves a long diagonal curve out of the top and/or bottom of a section, in the page colour. */
+export function Carve({ where }: { where: "top" | "bottom" }) {
+  return (
+    <svg aria-hidden className={`pointer-events-none absolute inset-x-0 z-[1] h-[110px] w-full sm:h-[190px] ${where === "top" ? "top-0 -mt-px" : "bottom-0 -mb-px rotate-180"}`} viewBox="0 0 1440 220" preserveAspectRatio="none"><path d={DOWN} fill="var(--page)" /></svg>
   );
 }

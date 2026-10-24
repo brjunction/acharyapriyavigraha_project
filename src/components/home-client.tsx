@@ -212,7 +212,7 @@ export function DiaryRail({ items }: { items?: DiaryItem[] }) {
   const by = (d: number) => ref.current?.scrollBy({ left: d * 480, behavior: "smooth" });
   return (
     <div className="relative">
-      <div ref={ref} className="scrollbar-none snap-x-rail -mx-5 flex gap-4 overflow-x-auto px-5 pb-4 sm:-mx-8 sm:px-8">
+      <div ref={ref} className="scrollbar-none snap-x-rail flex gap-4 overflow-x-auto pb-4">
         {items && items.length ? items.slice(0, 10).map((v, k) => (
           <a key={v.id} href={`https://www.youtube.com/watch?v=${v.id}`} target="_blank" rel="noreferrer" className="group relative aspect-[9/14] w-[168px] shrink-0 overflow-hidden rounded-2xl bg-[#1d1411] text-white transition duration-300 hover:-translate-y-1.5 sm:w-[184px]">
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -222,13 +222,13 @@ export function DiaryRail({ items }: { items?: DiaryItem[] }) {
             <span className="absolute left-1/2 top-1/2 flex h-12 w-12 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white/20 backdrop-blur transition group-hover:scale-110 group-hover:bg-white group-hover:text-saffron"><Play size={18} fill="currentColor" className="ml-0.5" /></span>
             <span className="absolute inset-x-3 bottom-3 line-clamp-2 text-[12.5px] font-semibold leading-snug">{v.title}</span>
           </a>
-        )) : DIARY.map((d, k) => (
-          <a key={d.date} href="https://www.youtube.com/@HaladharaSwami/shorts" target="_blank" rel="noreferrer" className="group relative aspect-[9/14] w-[168px] shrink-0 overflow-hidden rounded-2xl text-white transition duration-300 hover:-translate-y-1.5 sm:w-[184px]"
+        )) : DIARY.slice(0, 7).map((d, k) => (
+          <div key={d.date} className="group relative aspect-[9/14] w-[168px] shrink-0 overflow-hidden rounded-2xl text-white"
             style={{ background: `linear-gradient(160deg, ${HUES[k % HUES.length]}, #1d1411)` }}>
-            <span className="absolute left-3 top-3 rounded-full bg-black/30 px-2.5 py-1 text-[10.5px] font-medium backdrop-blur">{k === 0 ? "Latest" : new Date(d.date).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}</span>
-            <span className="absolute left-1/2 top-1/2 flex h-12 w-12 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white/15 backdrop-blur"><Play size={18} fill="currentColor" className="ml-0.5" /></span>
-            <span className="absolute inset-x-3 bottom-3 text-[12.5px] font-semibold leading-snug">Daily Diary<span className="mt-0.5 block text-[10.5px] font-normal text-white/65">Short · Śrīla Haladhara Swāmī</span></span>
-          </a>
+            <span className="absolute left-3 top-3 rounded-full bg-black/30 px-2.5 py-1 text-[10.5px] font-medium backdrop-blur">Soon</span>
+            <span className="absolute left-1/2 top-1/2 flex h-12 w-12 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white/15 backdrop-blur"><Play size={18} fill="currentColor" /></span>
+            <span className="absolute inset-x-3 bottom-3 text-[12.5px] font-semibold leading-snug">Daily Diary<span className="mt-0.5 block text-[10.5px] font-normal text-white/65">Coming soon</span></span>
+          </div>
         ))}
       </div>
       <div className="mt-1 hidden justify-end gap-2 sm:flex">

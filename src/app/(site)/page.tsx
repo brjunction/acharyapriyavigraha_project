@@ -8,7 +8,7 @@ import { Hero, Blessing, Featured, LifeTimeline, DiaryRail, QuotePanel, LangMarq
 import { TeachingsOrganiser } from "@/components/teachings-organiser";
 import { TopicExplorer } from "@/components/topic-explorer";
 import { Container } from "@/components/ui";
-import { Waves, Cloud } from "@/components/waves";
+import { Band, Carve } from "@/components/waves";
 import { Orn, OrnMask, Padma, PaisleyField, VectorToran, PeacockDivider, PortraitFrame } from "@/components/motifs";
 import { Backdrop } from "@/components/backdrop";
 import { getChannelVideos } from "@/lib/youtube";
@@ -140,8 +140,7 @@ export default async function Home() {
       <PeacockDivider className="mt-12" />
 
       {/* Teachings */}
-      <section className="reveal relative isolate mt-8 overflow-hidden py-6">
-        <Cloud className="top-6 text-[#f0a53c]/15" dur={110} /><Cloud className="bottom-4 w-[300px] text-[#c2415b]/10" dur={140} delay={60} />
+      <section className="reveal relative isolate mt-8 py-6">
         <SectionBg src="cream-watercolor" o={0.7} />
         <Container>
           <Head kicker="His teachings" title="Hear, read and remember" intro="Everything is organised in three places: what you can hear and watch, what you can read, and the compilations drawn from both." action={{ href: "/teachings", label: "All teachings" }} />
@@ -150,9 +149,7 @@ export default async function Home() {
       </section>
 
       {/* Today */}
-      <section className="reveal relative isolate mt-12 overflow-hidden py-8">
-        <Cloud className="top-8 text-[#1f8a8a]/10" dur={120} delay={40} />
-        <SectionBg src="tan-mandala" o={0.3} flip />
+      <Band tint="#fbf0dc" arc="rgba(200,120,30,.35)" arcFill="rgba(243,179,99,.16)" className="mt-[110px] pb-[130px] pt-10 sm:mt-[170px] sm:pb-[200px]">
         <Container>
           <Head kicker="For today" title="A quote, a diary, a date" intro="Something small to carry through the day." />
           <div className="grid grid-cols-[minmax(0,1fr)] gap-5 lg:grid-cols-[1.15fr_1fr]">
@@ -170,18 +167,14 @@ export default async function Home() {
             </div>
           </div>
           <div className="mt-12">
-            <Head kicker="Daily Diary" title="Today and the days before" intro="Short videos from Śrīla Haladhara Swāmī Guru Mahārāja's channel, added automatically." action={{ href: "/gurudeva/diaries", label: "All diaries" }} acc="rose" />
-            <DiaryRail items={diary} />
+            <Head kicker="Daily Diary" title="Today and the days before" intro="Short videos from Śrīla Haladhara Swāmī Guru Mahārāja’s channel will appear here soon." action={{ href: "/gurudeva/diaries", label: "All diaries" }} acc="rose" />
+            <DiaryRail items={[]} />
           </div>
         </Container>
-      </section>
+      </Band>
 
       {/* Archive bento */}
-      <Waves tone="warm" solid="#4a0a0c" className="mt-10 -mb-px" />
-      <section className="reveal relative isolate overflow-hidden bg-[#4a0a0c] py-20">
-        <Backdrop src="red-gold-mandala" o={0.5} className="-z-10" />
-        <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b from-[#3d0307]/70 via-transparent to-[#3d0307]/70" />
-        <VectorToran flip className="absolute inset-x-0 top-0 text-[#e8b872]/70" />
+      <Band tint="#4a0a0c" arc="rgba(232,184,114,.35)" arcFill="rgba(200,60,40,.22)" flip className="pb-[130px] pt-16 sm:pb-[200px]">
         <Container>
           <Head light kicker="The archive" title="Everything he left us, in one place" action={{ href: "/teachings", label: "All teachings" }} acc="gold" />
           <div className="stagger grid gap-4 sm:grid-cols-2 lg:auto-rows-[178px] lg:grid-cols-4">
@@ -195,12 +188,10 @@ export default async function Home() {
             <Bento acc="leaf" href="/gurudeva/gallery" icon={ImageIcon} title="Images" desc="His pastimes in photographs." count={`${STATS.imageTags} albums`} className="min-h-[160px] sm:col-span-2" />
           </div>
         </Container>
-        <VectorToran className="absolute inset-x-0 bottom-0 text-[#e8b872]/70" />
-      </section>
+      </Band>
 
       {/* Listen + recent */}
-      <section className="reveal relative isolate mt-12 py-8">
-        <SectionBg src="cream-mandala" o={0.55} />
+      <Band tint="#e4f2ef" arc="rgba(31,138,138,.35)" arcFill="rgba(59,176,160,.14)" className="pb-[130px] pt-10 sm:pb-[200px]">
         <Container>
           <Head kicker="Śrīla Gurudeva Radio" title="Listen, and let it play on" intro="Hari-kathā in his own voice, one lecture after another, chosen at random." acc="teal" />
           <div className="grid grid-cols-[minmax(0,1fr)] items-stretch gap-5 lg:grid-cols-2">
@@ -227,21 +218,18 @@ export default async function Home() {
             </div>
           </div>
         </Container>
-      </section>
+      </Band>
 
       {/* Life */}
-      <Waves tone="rose" className="mt-10" />
-      <section className="reveal relative isolate mt-6 py-10">
-        <SectionBg src="orange-mandala" o={0.28} />
+      <Band tint="#fbe8ec" arc="rgba(194,65,91,.32)" arcFill="rgba(224,112,127,.13)" carve className="pb-44 pt-10 sm:pb-52">
         <Container>
           <Head kicker="His life" title="From Jagannāthapura to Māyāpur" intro="The main moments of his life. Select a year to read more." />
           <LifeTimeline />
         </Container>
-      </section>
+      </Band>
 
       {/* Subjects */}
-      <Waves tone="teal" flip className="mt-6" />
-      <section className="reveal relative isolate mt-6 py-10">
+      <section className="reveal relative isolate -mt-24 py-10">
         <SectionBg src="cream-watercolor" o={0.7} flip />
         <Container>
           <Head kicker="Tattva" title="Explore by subject" intro="Everything Śrīla Gurudeva said on each subject, gathered in one place." action={{ href: "/tattva", label: "Open Tattva" }} acc="indigo" />
@@ -250,8 +238,8 @@ export default async function Home() {
       </section>
 
       {/* Languages */}
-      <Waves tone="indigo" className="mt-16" />
-      <section className="reveal relative overflow-hidden py-16 text-white">
+      <section className="reveal relative mt-16 overflow-hidden pb-28 pt-32 text-white sm:pt-44">
+        <Carve where="top" /><Carve where="bottom" />
         <Backdrop src="blue-mandala" />
         <div className="pointer-events-none absolute inset-0 bg-[#0a2c78]/35" />
         <Container>
