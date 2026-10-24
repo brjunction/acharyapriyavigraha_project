@@ -3,6 +3,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { ArrowRight, Search, Play, Pause, ChevronLeft, ChevronRight, Headphones, Quote as QuoteIcon, Copy, Check, PlayCircle } from "lucide-react";
+import { CONVERSATION, LETTER } from "@/lib/prabhupada";
 import { DIARY, IMG, LANGUAGES, QUOTE_OF_DAY, TIMELINE } from "@/lib/data";
 import { Img } from "./img";
 import { CutOut, Orn, Padma, PaisleyField, Petals, Rosette, LogoMark } from "./motifs";
@@ -275,37 +276,46 @@ export function WavePlayer() {
 }
 
 /* ------------------------------------------------------------ Blessing */
+const hl = (t: string) => t.split(/(«[^»]+»)/).map((x, k) => x.startsWith("«") ? <mark key={k} className="rounded bg-[#f6d58e]/70 px-1 font-semibold text-ink">{x.slice(1, -1)}</mark> : <span key={k}>{x}</span>);
+
 export function Blessing() {
   return (
-    <div className="relative overflow-hidden rounded-[28px] border border-[#e8b872]/30 bg-[#3d0f08] text-white shadow-[var(--shadow-lg)]">
-      <Backdrop src="red-gold-mandala" o={0.4} />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_45%,rgba(61,15,8,0.1),rgba(61,15,8,0.8))]" />
-      <div className="relative grid items-end gap-4 px-5 pt-12 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.5fr)_minmax(0,0.8fr)] lg:px-10">
+    <div className="relative overflow-hidden rounded-[28px] border border-line bg-gradient-to-b from-white via-[#fffaf0] to-[#fdf1d9] shadow-[var(--shadow-md)]">
+      <Backdrop src="cream-mandala" o={0.35} pos="center" />
+      <div className="relative grid items-end gap-2 px-5 pt-10 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.4fr)_minmax(0,0.9fr)] lg:px-10">
         <div className="order-2 hidden self-end lg:order-1 lg:block">
-          <CutOut src="/legacy/prabhupada.webp" alt="Śrīla A.C. Bhaktivedanta Swami Prabhupāda" fade={0} className="mx-auto w-[88%] drop-shadow-[0_14px_26px_rgba(0,0,0,0.45)]" />
+          <CutOut src="/legacy/prabhupada.webp" alt="Śrīla A.C. Bhaktivedanta Swami Prabhupāda" fade={0} className="mx-auto w-[96%] drop-shadow-[0_10px_18px_rgba(90,40,0,0.25)]" />
         </div>
-        <div className="order-1 pb-12 text-center lg:order-2">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#f3d9a4]">Śrīla Prabhupāda on Śrīla Gurudeva</p>
-          <QuoteIcon className="mx-auto mt-5 text-[#e8b872]" size={28} />
-          <p className="mt-3 text-balance text-[38px] font-semibold leading-[1.3] tracking-tight sm:text-[52px]">“Kṛṣṇa sent him.”</p>
-          <p className="mt-3 text-[13px] text-[#f3d9a4]">Room conversation, Bombay, 5 January 1977</p>
-          <div className="mx-auto mt-8 grid max-w-2xl gap-3 text-left sm:grid-cols-3">
-            {[
-              ["Just think that Krishna is with you and there is no need of disappointment.", "Letter, Māyāpur, 12 February 1976"],
-              ["Krishna will help you. You have my full blessings and you try your best and you will be successful.", "Letter, Māyāpur, 12 February 1976"],
-              ["Krishna is so kind, He is always ready to help.", "Letter, Māyāpur, 12 February 1976"],
-            ].map(([q, src]) => (
-              <figure key={q} className="rounded-2xl border border-white/15 bg-white/[0.07] p-4 backdrop-blur-sm">
-                <blockquote className="text-[13.5px] leading-snug text-white/95">“{q}”</blockquote>
-                <figcaption className="mt-2.5 text-[11.5px] text-[#f3d9a4]">{src}</figcaption>
-              </figure>
-            ))}
-          </div>
-          <Link href="/gurudeva/srila-prabhupada" className="mt-7 inline-flex items-center gap-1.5 rounded-full bg-[#e8b872] px-5 py-2 text-[13.5px] font-semibold text-[#3d0f08] transition hover:bg-[#f3d9a4]">Read the conversation and the letter <ArrowRight size={15} /></Link>
+        <div className="order-1 pb-10 text-center lg:order-2">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-saffron">Śrīla Prabhupāda on Śrīla Gurudeva</p>
+          <p className="mt-4 text-balance text-[40px] font-semibold leading-[1.25] tracking-tight text-ink sm:text-[54px]">“Kṛṣṇa sent him.”</p>
+          <p className="mt-2 text-[13px] text-ink-3">Room conversation, Bombay, 5 January 1977</p>
+          <p className="mx-auto mt-6 max-w-md text-[15px] leading-relaxed text-ink-2">“Just think that Krishna is with you and there is no need of disappointment.” “Krishna will help you.” “Krishna is so kind, He is always ready to help.”</p>
+          <p className="mt-2 text-[13px] text-ink-3">Letter, Māyāpur, 12 February 1976</p>
         </div>
         <div className="order-3 self-end">
-          <CutOut src="/legacy/gurudeva.webp" alt="Śrīla Gour Govinda Swāmī" fade={0} className="mx-auto w-[80%] max-w-[330px] lg:w-[96%]" />
+          <CutOut src="/legacy/gurudeva.webp" alt="Śrīla Gour Govinda Swāmī" fade={0} className="mx-auto w-[80%] max-w-[330px] drop-shadow-[0_10px_18px_rgba(90,40,0,0.2)] lg:w-[100%]" />
         </div>
+      </div>
+      <div className="relative grid gap-5 border-t border-line bg-white/70 p-5 backdrop-blur-sm sm:p-8 lg:grid-cols-2">
+        <section>
+          <h3 className="text-[16px] font-semibold">{CONVERSATION.title}</h3>
+          <p className="mb-3 mt-0.5 text-[12px] text-ink-3">{CONVERSATION.speakers}</p>
+          <div className="rounded-2xl border border-line bg-surface">
+            {CONVERSATION.lines.map(([who, line], k) => (
+              <p key={k} className="border-b border-line px-4 py-2.5 text-[13.5px] leading-relaxed text-ink-2 last:border-0"><span className={`mr-1.5 font-semibold ${who === "Prabhupāda" ? "text-saffron" : "text-ink"}`}>{who}:</span>{hl(line)}</p>
+            ))}
+          </div>
+        </section>
+        <section>
+          <h3 className="text-[16px] font-semibold">{LETTER.title}</h3>
+          <p className="mb-3 mt-0.5 text-[12px] text-ink-3">Letter {LETTER.ref}</p>
+          <article className="space-y-3 rounded-2xl border border-line bg-surface p-5 text-[13.5px] leading-relaxed text-ink-2">
+            <p>{LETTER.salutation}</p>
+            {LETTER.paras.map((t, k) => <p key={k}>{hl(t)}</p>)}
+            <p className="text-ink-3">{LETTER.closing[0]}<br />{LETTER.closing[1]}<br /><span className="text-[12px]">{LETTER.closing[2]}</span></p>
+          </article>
+        </section>
       </div>
     </div>
   );
