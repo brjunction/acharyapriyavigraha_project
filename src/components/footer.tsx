@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Instagram, Facebook, MessageCircle, Youtube, Mail, Phone, MapPin, ArrowUpRight } from "lucide-react";
 import { SITE, IMG } from "@/lib/data";
 import { MENUS } from "@/lib/nav";
-import { PaisleyField, LogoMark, Toran, CornerFlourish, Garland } from "./motifs";
+import { PaisleyField, LogoMark, Toran, Orn, OrnMask } from "./motifs";
 import { Signature } from "./signature";
 
 const SOCIAL_ICONS = { Instagram, Facebook, WhatsApp: MessageCircle, YouTube: Youtube } as const;
@@ -10,19 +10,18 @@ const SOCIAL_ICONS = { Instagram, Facebook, WhatsApp: MessageCircle, YouTube: Yo
 export function Footer() {
   return (
     <footer className="mt-24">
-      <Toran className="text-[#8a3d0f]" />
+      <Toran className="text-[#592300]" />
       <div className="footer-paisley relative overflow-hidden">
-        <PaisleyField className="text-[#4c1b00]" scale={1.5} />
+        <PaisleyField className="text-[#3d1500]/70" scale={1.3} />
         <div className="pointer-events-none absolute inset-x-0 top-0 h-72 bg-[radial-gradient(60%_100%_at_50%_0%,rgba(232,163,58,0.22),transparent)]" />
         <div className="relative mx-auto max-w-[1180px] px-5 pb-8 pt-14 sm:px-8">
 
           {/* The verse: a framed card in the centre, signature beneath */}
-          <div className="mx-auto max-w-3xl text-center">
+          <div className="relative mx-auto max-w-3xl pt-20 text-center">
+            <Orn src="mandala-gold" className="spin-slow absolute left-1/2 top-[44%] h-[560px] w-[560px] max-w-none -translate-x-1/2 -translate-y-1/2 opacity-[0.17]" />
+            <Orn src="crest-gold" className="absolute left-1/2 top-[-6px] z-10 w-[300px] -translate-x-1/2" />
             <div className="relative rounded-[28px] border border-white/20 bg-gradient-to-b from-white/[0.13] to-white/[0.05] px-6 py-10 shadow-[0_34px_70px_-24px_rgba(0,0,0,0.65),inset_0_1px_0_rgba(255,255,255,0.2)] backdrop-blur-sm sm:px-14">
               <div className="pointer-events-none absolute inset-2.5 rounded-[20px] border border-dashed border-[#e9c9a8]/30" />
-              {[["left-3 top-3", ""], ["right-3 top-3", "scale-x-[-1]"], ["bottom-3 left-3", "scale-y-[-1]"], ["bottom-3 right-3", "scale-[-1]"]].map(([pos, flip]) => (
-                <CornerFlourish key={pos} className={`absolute h-12 w-12 text-[#e8b872]/70 ${pos} ${flip}`} />
-              ))}
               <span className="relative inline-flex items-center gap-2 rounded-full border border-[#e8b872]/40 bg-[#e8b872]/10 px-3 py-1 text-[11px] font-medium tracking-[0.06em] text-[#f1d3a4]">
                 <LogoMark className="h-4 w-4 text-[#f1d3a4]" flame="#f1d3a4" />{SITE.verseSource}
               </span>
@@ -35,7 +34,7 @@ export function Footer() {
             </div>
           </div>
 
-          <Garland className="mx-auto mt-10 max-w-md opacity-90" />
+          <OrnMask src="border-5" repeat="repeat-x" size="auto 100%" className="mx-auto mt-10 h-5 max-w-md text-[#e8b872]/60" />
 
           <div className="mt-10 grid gap-9 sm:grid-cols-2 lg:grid-cols-[1fr_1fr_1fr_1.3fr]">
             {MENUS.slice(0, 3).map((m) => (

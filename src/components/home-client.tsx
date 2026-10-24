@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { ArrowRight, Search, Play, Pause, ChevronLeft, ChevronRight, Headphones, Quote as QuoteIcon, Copy, Check, PlayCircle } from "lucide-react";
 import { DIARY, IMG, LANGUAGES, QUOTE_OF_DAY, TIMELINE } from "@/lib/data";
 import { Img } from "./img";
-import { OgeeFrame, Padma, PaisleyField, Petals, Rosette, LogoMark } from "./motifs";
+import { OgeeFrame, Orn, Padma, PaisleyField, Petals, Rosette, LogoMark } from "./motifs";
 import { usePrefs } from "./providers";
 
 /* ------------------------------------------------------------------ Hero */
@@ -88,7 +88,7 @@ export function Hero() {
 
         {/* Portrait stage */}
         <div ref={box} className="relative mx-auto w-full max-w-[440px] [--px:0] [--py:0]">
-          <Rosette className="spin-slow absolute -inset-10 text-saffron/25" />
+          <Orn src="mandala-saffron" className="spin-slow absolute -inset-10 h-[calc(100%+5rem)] w-[calc(100%+5rem)] max-w-none opacity-80" />
           <div className="absolute inset-0 rounded-full bg-[radial-gradient(closest-side,color-mix(in_srgb,var(--gold)_35%,transparent),transparent)] blur-2xl" />
           <div className="relative transition-transform duration-300 ease-out" style={{ transform: "translate3d(calc(var(--px) * -10px), calc(var(--py) * -8px), 0)" }}>
             <OgeeFrame className="mx-auto aspect-[4/5] w-[78%] drop-shadow-[0_24px_40px_rgba(90,40,0,0.35)]">
@@ -162,7 +162,7 @@ export function LifeTimeline() {
   const t = TIMELINE[i];
   return (
     <div className="relative overflow-hidden rounded-3xl border border-line bg-surface p-6 shadow-[var(--shadow-sm)] sm:p-9">
-      <Rosette className="spin-slow pointer-events-none absolute -right-24 -top-24 h-80 w-80 text-saffron/[0.08]" />
+      <Orn src="floral-swirl" className="absolute -top-4 right-4 hidden h-72 w-auto max-w-none rotate-[14deg] opacity-90 lg:block" />
       <div className="relative">
         <div className="scrollbar-none -mx-1 overflow-x-auto px-1 pb-2 pt-1">
           <ol className="relative flex min-w-[640px] justify-between">
@@ -233,7 +233,7 @@ export function QuotePanel() {
   return (
     <figure className="relative flex h-full flex-col overflow-hidden rounded-3xl bg-gradient-to-br from-[#853500] to-[#4c1b00] p-7 text-white sm:p-9">
       <PaisleyField className="text-white/[0.07]" scale={0.9} />
-      <Rosette className="spin-slow pointer-events-none absolute -bottom-24 -right-24 h-80 w-80 text-white/[0.10]" />
+      <Orn src="mandala-gold" className="spin-slow absolute -bottom-28 -right-28 h-96 w-96 max-w-none opacity-40" />
       <p className="relative flex items-center gap-2 text-[12px] font-medium text-[#f1d3a4]"><QuoteIcon size={15} />Quote of the day</p>
       <blockquote className="relative mt-5 text-[22px] font-medium leading-[1.35] tracking-[-0.02em] sm:text-[26px]">“{QUOTE_OF_DAY.text}”</blockquote>
       <figcaption className="relative mt-auto pt-8">

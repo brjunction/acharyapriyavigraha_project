@@ -38,8 +38,13 @@ export function Padma({ className = "", layers = 3 }: { className?: string; laye
   );
 }
 
-/** Mandala of lotus rings with a beaded outer circle. */
+/** The saffron mandala artwork as a recolourable mask. */
 export function Rosette({ className = "" }: { className?: string }) {
+  return <OrnMask src="mandala-saffron" repeat="no-repeat" size="contain" className={className} />;
+}
+
+/** Mandala of lotus rings (hand-drawn SVG version, kept for tiny sizes). */
+export function RosetteLines({ className = "" }: { className?: string }) {
   return (
     <svg viewBox="-100 -100 200 200" className={className} aria-hidden fill="none" stroke="currentColor" strokeLinejoin="round">
       <circle r="97" strokeWidth=".8" />
@@ -68,35 +73,9 @@ function Buta({ stroke = 1.6 }: { stroke?: number }) {
   );
 }
 
-/** Tiled Indian textile print: jali stars alternating with buta (paisley) and lotus. */
+/** Real paisley artwork (from the supplied designs) as a recolourable tiled mask. Colour = text colour. */
 export function PaisleyField({ className = "", scale = 1 }: { className?: string; scale?: number }) {
-  const id = useId().replace(/:/g, "");
-  const s = 240 * scale;
-  const star = (r: number) => {
-    const sq = (a: number) => [0, 1, 2, 3].map((k) => { const t = ((a + k * 90) * Math.PI) / 180; return `${(Math.cos(t) * r).toFixed(1)},${(Math.sin(t) * r).toFixed(1)}`; }).join(" ");
-    return <><polygon points={sq(0)} /><polygon points={sq(45)} /></>;
-  };
-  return (
-    <svg className={`pointer-events-none absolute inset-0 h-full w-full ${className}`} aria-hidden>
-      <defs>
-        <pattern id={`p${id}`} width={s} height={s} patternUnits="userSpaceOnUse" viewBox="0 0 240 240">
-          <g fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round">
-            {/* jali star medallions */}
-            {[[60, 60], [180, 180]].map(([x, y]) => (
-              <g key={x} transform={`translate(${x} ${y})`}>
-                {star(46)}<circle r="46" strokeDasharray="1 4" strokeLinecap="round" /><circle r="30" /><g transform="scale(.46)"><Ring n={8} L={50} w={14} /></g>
-                <circle r="3" fill="currentColor" stroke="none" />
-              </g>
-            ))}
-          </g>
-          <g transform="translate(150 6) scale(.62) rotate(14 60 70)"><Buta stroke={2.4} /></g>
-          <g transform="translate(94 238) scale(-.62 -.62) rotate(14 60 70)"><Buta stroke={2.4} /></g>
-          <g fill="currentColor"><circle cx="120" cy="120" r="2.4" /><circle cx="0" cy="120" r="2.4" /><circle cx="240" cy="120" r="2.4" /><circle cx="120" cy="0" r="2.4" /><circle cx="120" cy="240" r="2.4" /></g>
-        </pattern>
-      </defs>
-      <rect width="100%" height="100%" fill={`url(#p${id})`} />
-    </svg>
-  );
+  return <OrnMask src="paisley-red" repeat="repeat" size={`${400 * scale}px`} className={`absolute inset-0 h-full w-full ${className}`} />;
 }
 
 /** Border band: a chain of small lotuses between two rules, with diamond beads. */
@@ -135,24 +114,9 @@ export function Ornament({ className = "" }: { className?: string }) {
   );
 }
 
-/** Hanging toran: cusped ogee arches, each with an inner contour and a bead at the tip. */
-export function Toran({ className = "", flip = false }: { className?: string; flip?: boolean }) {
-  const id = useId().replace(/:/g, "");
-  return (
-    <div className={`h-[34px] w-full overflow-hidden ${flip ? "rotate-180" : ""} ${className}`} aria-hidden>
-      <svg className="h-full w-full">
-        <defs>
-          <pattern id={`t${id}`} width="52" height="34" patternUnits="userSpaceOnUse">
-            <path d="M0 0H52V11C52 20 38 26 26 33C14 26 0 20 0 11Z" fill="currentColor" opacity=".2" />
-            <path d="M6 0V10C6 17 16 22 26 28C36 22 46 17 46 10V0" fill="none" stroke="currentColor" strokeWidth="1.1" opacity=".75" />
-            <path d="M26 8c2.6 2.8 3.6 5.4 0 8.6-3.6-3.2-2.6-5.8 0-8.6Z" fill="currentColor" opacity=".9" />
-            <circle cx="26" cy="31" r="2" fill="currentColor" /><circle cx="0" cy="11" r="2.4" fill="currentColor" /><circle cx="52" cy="11" r="2.4" fill="currentColor" />
-          </pattern>
-        </defs>
-        <rect width="100%" height="100%" fill={`url(#t${id})`} />
-      </svg>
-    </div>
-  );
+/** Row of arches along a section edge (strip 4 of the supplied henna borders). Colour = text colour. */
+export function Toran({ className = "", flip = false, strip = 4 }: { className?: string; flip?: boolean; strip?: number }) {
+  return <OrnMask src={`border-${strip}`} repeat="repeat-x" size="auto 100%" pos="center top" className={`h-9 w-full ${flip ? "rotate-180" : ""} ${className}`} />;
 }
 
 /** Corner border: right-angle rules with a lotus fanning out of the corner. */
@@ -233,3 +197,15 @@ export function Petals({ n = 14, className = "" }: { n?: number; className?: str
   );
 }
 
+
+/** A supplied ornament cut out as a recolourable mask (needs <name>.mask.png in /public/ornaments). The colour is the text colour. */
+export function OrnMask({ src, className = "", repeat = "no-repeat", size = "contain", pos = "center" }: { src: string; className?: string; repeat?: string; size?: string; pos?: string }) {
+  const u = `url(/ornaments/${src}.mask.png)`;
+  return <div aria-hidden className={`pointer-events-none ${className}`} style={{ backgroundColor: "currentColor", WebkitMaskImage: u, maskImage: u, WebkitMaskRepeat: repeat, maskRepeat: repeat, WebkitMaskSize: size, maskSize: size, WebkitMaskPosition: pos, maskPosition: pos }} />;
+}
+
+/** A supplied full-colour ornament (transparent PNG). */
+export function Orn({ src, className = "" }: { src: string; className?: string }) {
+  // eslint-disable-next-line @next/next/no-img-element
+  return <img src={`/ornaments/${src}.png`} alt="" aria-hidden draggable={false} className={`pointer-events-none select-none ${className}`} />;
+}

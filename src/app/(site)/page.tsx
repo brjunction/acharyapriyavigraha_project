@@ -7,7 +7,7 @@ import { LECTURES, STATS } from "@/lib/data";
 import { Hero, Featured, LifeTimeline, DiaryRail, QuotePanel, LangMarquee, WavePlayer } from "@/components/home-client";
 import { TopicExplorer } from "@/components/topic-explorer";
 import { Container } from "@/components/ui";
-import { Padma, PaisleyField, Rosette, Toran, Garland } from "@/components/motifs";
+import { Orn, OrnMask, Padma, PaisleyField, Toran } from "@/components/motifs";
 import { LectureRow } from "@/components/lecture";
 
 function Head({ kicker, title, intro, action, acc = "saffron" }: { kicker: string; title: string; intro?: string; action?: { href: string; label: string }; acc?: string }) {
@@ -65,7 +65,8 @@ export default function Home() {
       <Hero />
 
       {/* Highlights */}
-      <section className="reveal mt-14">
+      <section className="reveal relative mt-14">
+        <Orn src="peacock" className="absolute right-[6%] top-[-18px] hidden h-40 md:block" />
         <Container>
           <Head kicker="Highlights" title="Where would you like to begin?" />
           <Featured />
@@ -156,7 +157,8 @@ export default function Home() {
       </section>
 
       {/* Subjects */}
-      <section className="reveal mt-24">
+      <section className="reveal relative mt-24">
+        <Orn src="buta-garden" className="absolute right-[19%] top-[-34px] hidden h-40 lg:block" />
         <Container>
           <Head kicker="Tattva-kośa" title="Explore by subject" intro="Everything Śrīla Gurudeva said on each subject, gathered in one place." action={{ href: "/tattva", label: "Open Tattva-kośa" }} acc="indigo" />
           <TopicExplorer />
@@ -174,11 +176,12 @@ export default function Home() {
         <Container>
           <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#592300] to-[#2f1407] px-6 py-14 text-center text-white sm:px-12">
             <PaisleyField className="text-white/[0.06]" scale={0.9} />
-            <Rosette className="spin-slow pointer-events-none absolute -left-24 -top-24 h-72 w-72 text-white/[0.08]" />
-            <Rosette className="spin-slow pointer-events-none absolute -bottom-24 -right-24 h-72 w-72 text-white/[0.08]" />
+            <Orn src="mandala-gold" className="spin-slow absolute -left-28 -top-28 h-80 w-80 max-w-none opacity-30" />
+            <Orn src="peacock-mandala" className="absolute -bottom-10 -right-6 hidden h-72 w-72 max-w-none opacity-90 sm:block" />
+            <Orn src="mandala-plum" className="spin-slow absolute -bottom-28 -left-16 h-64 w-64 max-w-none opacity-25 sm:hidden" />
             <HeartHandshake size={28} strokeWidth={1.4} className="relative mx-auto text-[#f1d3a4]" />
             <p className="relative mx-auto mt-4 max-w-2xl text-[17px] leading-relaxed text-white/90">This archive is built by the efforts of the disciples, grand-disciples, followers and admirers of Śrīla Gour Govinda Swāmī.</p>
-            <Garland className="relative mx-auto mt-5 max-w-xs" />
+            <OrnMask src="border-5" repeat="repeat-x" size="auto 100%" className="relative mx-auto mt-6 h-5 max-w-xs text-[#e8b872]/70" />
             <Link href="/thank-list" className="btn relative mt-4 !h-11 bg-white !px-6 text-[#592300] hover:bg-[#f6ebe3]">Our Thank List<ArrowRight size={15} /></Link>
           </div>
         </Container>
