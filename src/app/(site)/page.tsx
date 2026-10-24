@@ -151,7 +151,7 @@ export default function Home() {
       {/* Life */}
       <section className="reveal mt-24">
         <Container>
-          <Head kicker="His life" title="From Jagannāthapura to Māyāpur" intro="The main moments, from his appearance in 1929 to his departure in 1996." />
+          <Head kicker="His life" title="From Jagannāthapura to Māyāpur" intro="The main moments from 1929 to 1996. Select a year to read more." />
           <LifeTimeline />
         </Container>
       </section>

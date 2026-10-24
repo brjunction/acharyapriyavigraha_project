@@ -65,7 +65,7 @@ export function Hero() {
             <span className="flex h-5 w-5 items-center justify-center rounded-full bg-saffron text-white"><LogoMark className="h-3.5 w-3.5" flame="#f4c27a" /></span>
             The complete teachings of Śrīla Gour Govinda Swāmī
           </span>
-          <h1 className="mt-5 text-[34px] font-bold leading-[1.08] tracking-[-0.035em] text-ink sm:text-[46px] lg:text-[52px]">
+          <h1 className="mt-5 text-[28px] font-bold leading-[1.12] tracking-[-0.03em] text-ink sm:text-[36px] lg:text-[42px]">
             Words that give life<br />to a <span className="text-shine">burning heart</span>
           </h1>
           <p className="mt-5 max-w-xl text-[15.5px] leading-relaxed text-ink-2">
@@ -94,10 +94,10 @@ export function Hero() {
           <Orn src="mandala-gold" className="spin-slow absolute left-1/2 top-1/2 h-[118%] w-[118%] max-w-none -translate-x-1/2 -translate-y-1/2 opacity-90" />
           <Orn src="mandala-saffron" className="absolute left-1/2 top-1/2 h-[104%] w-[104%] max-w-none -translate-x-1/2 -translate-y-1/2 opacity-70 [animation:spin_90s_linear_infinite_reverse]" />
           <div className="relative transition-transform duration-300 ease-out" style={{ transform: "translate3d(calc(var(--px) * -8px), calc(var(--py) * -6px), 0)" }}>
-            <PortraitFrame photo src="/photos/gurudeva-portrait.webp" className="mx-auto w-[74%] drop-shadow-[0_24px_40px_rgba(90,40,0,0.35)]" />
+            <PortraitFrame photo src="/photos/gurudeva-portrait.webp" className="mx-auto w-[74%]" />
           </div>
-          <div className="relative mx-auto mt-7 w-fit rounded-full border border-[#e8b872]/60 bg-surface/90 px-6 py-2.5 text-center shadow-[var(--shadow-md)] backdrop-blur">
-            <p className="text-[15px] font-semibold tracking-tight text-ink">Śrī Śrīmad Gour Govinda Swāmī</p>
+          <div className="relative mx-auto mt-7 w-fit rounded-full border border-[#e8b872]/60 bg-[#fffbf3] px-5 py-2 text-center">
+            <p className="text-[13.5px] font-semibold tracking-tight text-ink">Śrī Śrīmad Gour Govinda Swāmī</p>
             <p className="text-[11.5px] tracking-[0.12em] text-ink-3">1929 – 1996</p>
           </div>
         </div>
@@ -153,23 +153,53 @@ export function Featured() {
 /* ------------------------------------------------------- Life timeline */
 
 export function LifeTimeline() {
+  const [i, setI] = useState(0);
+  const n = TIMELINE.length;
+  const t = TIMELINE[i];
   return (
-    <div className="overflow-hidden rounded-3xl border border-line bg-surface shadow-[var(--shadow-sm)]">
-      <ol className="grid divide-y divide-line sm:grid-cols-2 sm:divide-y-0 lg:grid-cols-3">
-        {TIMELINE.map((e, k) => (
-          <li key={e.year} className="relative flex gap-4 border-line p-6 sm:border-b sm:[&:nth-last-child(-n+2)]:border-b-0 lg:[&:nth-last-child(-n+2)]:border-b lg:[&:nth-last-child(-n+1)]:border-b-0">
-            <span className="w-16 shrink-0 text-[22px] font-semibold tabular tracking-tight text-saffron">{e.year}</span>
-            <div>
-              <h3 className="text-[16px] font-semibold tracking-[-0.01em]">{e.title}</h3>
-              <p className="mt-1.5 text-[13.5px] leading-relaxed text-ink-2">{e.text}</p>
-            </div>
-            <span className="sr-only">{k + 1}</span>
+    <div className="rounded-3xl border border-line bg-surface p-5 sm:p-8">
+      {/* Desktop and tablet: a horizontal rail */}
+      <div className="hidden md:block">
+        <div className="relative">
+          <span className="absolute left-[calc(50%/7)] right-[calc(50%/7)] top-[9px] h-[2px] rounded-full bg-line-strong" />
+          <span className="absolute left-[calc(50%/7)] top-[9px] h-[2px] rounded-full bg-gradient-to-r from-gold to-saffron transition-all duration-500" style={{ width: `calc((100% - 100%/${n}) * ${i / (n - 1)})` }} />
+          <ol className="relative grid" style={{ gridTemplateColumns: `repeat(${n}, minmax(0, 1fr))` }}>
+            {TIMELINE.map((e, k) => (
+              <li key={e.year} className="flex flex-col items-center text-center">
+                <button onClick={() => setI(k)} onMouseEnter={() => setI(k)} aria-current={k === i} className="group flex flex-col items-center">
+                  <span className={`block h-5 w-5 rounded-full border-[3px] transition ${k === i ? "scale-125 border-saffron bg-white ring-4 ring-saffron/20" : k < i ? "border-saffron bg-saffron" : "border-line-strong bg-surface group-hover:border-saffron"}`} />
+                  <span className={`mt-3 text-[15px] font-semibold tabular transition ${k === i ? "text-saffron" : "text-ink-2 group-hover:text-saffron"}`}>{e.year}</span>
+                  <span className={`mt-0.5 px-1 text-[12px] leading-snug transition ${k === i ? "font-medium text-ink" : "text-ink-3"}`}>{e.title}</span>
+                </button>
+              </li>
+            ))}
+          </ol>
+        </div>
+        <div key={i} className="fade-in mt-8 flex items-center gap-5 rounded-2xl bg-saffron-tint p-5">
+          <div className="flex-1">
+            <p className="text-[12px] font-semibold text-saffron">{t.year}</p>
+            <h3 className="mt-0.5 text-[18px] font-semibold tracking-[-0.01em]">{t.title}</h3>
+            <p className="mt-1.5 max-w-3xl text-[14px] leading-relaxed text-ink-2">{t.text}</p>
+          </div>
+          <div className="flex shrink-0 gap-2">
+            <button onClick={() => setI((i + n - 1) % n)} aria-label="Earlier" className="flex h-9 w-9 items-center justify-center rounded-full border border-line-strong text-ink-2 transition hover:border-saffron hover:text-saffron"><ChevronLeft size={16} /></button>
+            <button onClick={() => setI((i + 1) % n)} aria-label="Later" className="flex h-9 w-9 items-center justify-center rounded-full bg-saffron text-white transition hover:bg-saffron-deep"><ChevronRight size={16} /></button>
+          </div>
+        </div>
+      </div>
+      {/* Phone: a vertical timeline, everything visible */}
+      <ol className="relative md:hidden">
+        <span className="absolute bottom-2 left-[9px] top-2 w-[2px] rounded-full bg-gradient-to-b from-gold to-saffron" />
+        {TIMELINE.map((e) => (
+          <li key={e.year} className="relative pb-6 pl-9 last:pb-0">
+            <span className="absolute left-0 top-1 block h-5 w-5 rounded-full border-[3px] border-saffron bg-white" />
+            <p className="text-[13px] font-semibold tabular text-saffron">{e.year}</p>
+            <h3 className="text-[15px] font-semibold">{e.title}</h3>
+            <p className="mt-1 text-[13px] leading-relaxed text-ink-2">{e.text}</p>
           </li>
         ))}
       </ol>
-      <div className="border-t border-line bg-band px-6 py-3.5">
-        <Link href="/gurudeva/timeline" className="inline-flex items-center gap-1 text-[13px] font-medium text-saffron">Open the full timeline<ArrowRight size={14} /></Link>
-      </div>
+      <Link href="/gurudeva/timeline" className="mt-5 inline-flex items-center gap-1 text-[13px] font-medium text-saffron">Open the full timeline<ArrowRight size={14} /></Link>
     </div>
   );
 }
@@ -275,37 +305,37 @@ const hl = (t: string) => t.split(/(«[^»]+»)/).map((x, k) => x.startsWith("«
 
 export function Blessing() {
   return (
-    <div className="relative overflow-hidden rounded-[28px] border border-line bg-gradient-to-b from-white via-[#fffaf0] to-[#fdf1d9] shadow-[var(--shadow-md)]">
+    <div className="relative overflow-hidden rounded-[28px] border border-line bg-[#f8efdd]">
       <Backdrop src="cream-mandala" o={0.35} pos="center" />
       <div className="relative grid items-end gap-2 px-5 pt-10 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.4fr)_minmax(0,0.9fr)] lg:px-10">
-        <div className="order-2 hidden self-end lg:order-1 lg:block">
-          <CutOut src="/legacy/prabhupada.webp" alt="Śrīla A.C. Bhaktivedanta Swami Prabhupāda" fade={0} className="mx-auto w-[96%] drop-shadow-[0_10px_18px_rgba(90,40,0,0.25)]" />
+        <div className="order-2 self-end lg:order-1">
+          <CutOut src="/legacy/prabhupada.webp" alt="Śrīla A.C. Bhaktivedanta Swami Prabhupāda" fade={0} className="mx-auto w-[62%] max-w-[250px]" />
         </div>
         <div className="order-1 pb-10 text-center lg:order-2">
           <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-saffron">Śrīla Prabhupāda on Śrīla Gurudeva</p>
-          <p className="mt-4 text-balance text-[40px] font-semibold leading-[1.25] tracking-tight text-ink sm:text-[54px]">“Kṛṣṇa sent him.”</p>
+          <p className="mt-4 text-balance text-[28px] font-semibold leading-[1.3] tracking-tight text-ink sm:text-[36px]">“Kṛṣṇa sent him.”</p>
           <p className="mt-2 text-[13px] text-ink-3">Room conversation, Bombay, 5 January 1977</p>
           <p className="mx-auto mt-6 max-w-md text-[15px] leading-relaxed text-ink-2">“Just think that Krishna is with you and there is no need of disappointment.” “Krishna will help you.” “Krishna is so kind, He is always ready to help.”</p>
           <p className="mt-2 text-[13px] text-ink-3">Letter, Māyāpur, 12 February 1976</p>
         </div>
         <div className="order-3 self-end">
-          <PortraitFrame photo src="/photos/gurudeva-portrait.webp" className="mx-auto w-[70%] max-w-[300px] lg:w-[84%]" />
+          <PortraitFrame photo src="/photos/gurudeva-portrait.webp" className="mx-auto w-[56%] max-w-[210px] lg:w-[64%]" />
         </div>
       </div>
-      <div className="relative grid gap-5 border-t border-line bg-white/70 p-5 backdrop-blur-sm sm:p-8 lg:grid-cols-2">
+      <div className="relative grid gap-5 border-t border-[#e9d9b8] bg-[#fbf5e8] p-4 sm:p-7 lg:grid-cols-2">
         <section>
           <h3 className="text-[16px] font-semibold">{CONVERSATION.title}</h3>
           <p className="mb-3 mt-0.5 text-[12px] text-ink-3">{CONVERSATION.speakers}</p>
-          <div className="rounded-2xl border border-line bg-surface">
+          <div className="rounded-2xl border border-[#e9d9b8] bg-[#fffbf3]">
             {CONVERSATION.lines.map(([who, line], k) => (
-              <p key={k} className="border-b border-line px-4 py-2.5 text-[13.5px] leading-relaxed text-ink-2 last:border-0"><span className={`mr-1.5 font-semibold ${who === "Prabhupāda" ? "text-saffron" : "text-ink"}`}>{who}:</span>{hl(line)}</p>
+              <p key={k} className="border-b border-[#efe2c6] px-4 py-2.5 text-[13px] leading-relaxed text-ink-2 last:border-0"><span className={`mr-1.5 font-semibold ${who === "Prabhupāda" ? "text-saffron" : "text-ink"}`}>{who}:</span>{hl(line)}</p>
             ))}
           </div>
         </section>
         <section>
           <h3 className="text-[16px] font-semibold">{LETTER.title}</h3>
           <p className="mb-3 mt-0.5 text-[12px] text-ink-3">Letter {LETTER.ref}</p>
-          <article className="space-y-3 rounded-2xl border border-line bg-surface p-5 text-[13.5px] leading-relaxed text-ink-2">
+          <article className="space-y-3 rounded-2xl border border-[#e9d9b8] bg-[#fffbf3] p-5 text-[13px] leading-relaxed text-ink-2">
             <p>{LETTER.salutation}</p>
             {LETTER.paras.map((t, k) => <p key={k}>{hl(t)}</p>)}
             <p className="text-ink-3">{LETTER.closing[0]}<br />{LETTER.closing[1]}<br /><span className="text-[12px]">{LETTER.closing[2]}</span></p>

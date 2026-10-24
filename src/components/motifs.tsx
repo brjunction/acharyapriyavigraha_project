@@ -214,7 +214,7 @@ export function Orn({ src, className = "" }: { src: string; className?: string }
 export function PortraitFrame({ className = "", src = "/legacy/gurudeva.webp", alt = "Śrīla Gour Govinda Swāmī", contain = false, photo = false }: { className?: string; src?: string; alt?: string; contain?: boolean; photo?: boolean }) {
   return (
     <div className={`relative aspect-square ${className}`}>
-      <span className="absolute inset-0 rounded-full bg-gradient-to-b from-[#e9b85f] via-[#fff1d0] to-[#e9b85f] p-[3px] shadow-[0_18px_40px_rgba(90,40,0,0.35)]">
+      <span className="absolute inset-0 rounded-full bg-gradient-to-b from-[#e9b85f] via-[#fff1d0] to-[#e9b85f] p-[3px]">
         <span className="block h-full w-full rounded-full bg-white p-[4px]">
           <span className="relative block h-full w-full overflow-hidden rounded-full bg-[radial-gradient(circle_at_50%_35%,#fff7e3,#f6d9a0_60%,#e7b66a)]">
             {/* eslint-disable-next-line @next/next/no-img-element */}
