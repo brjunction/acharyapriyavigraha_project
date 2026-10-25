@@ -9,7 +9,7 @@ import { TeachingsOrganiser } from "@/components/teachings-organiser";
 import { TopicExplorer } from "@/components/topic-explorer";
 import { Container } from "@/components/ui";
 import { Band } from "@/components/waves";
-import { Orn, OrnMask, Padma, PaisleyField, VectorToran, PeacockDivider, PortraitFrame, VMask } from "@/components/motifs";
+import { Orn, OrnMask, Padma, PaisleyField, VectorToran, PortraitFrame, VMask } from "@/components/motifs";
 import { Backdrop } from "@/components/backdrop";
 import { getChannelVideos } from "@/lib/youtube";
 import { LectureRow } from "@/components/lecture";
@@ -29,7 +29,6 @@ function Head({ kicker, title, intro, action, acc = "saffron", light = false }: 
       <div>
         <p className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--acc)]"><Padma className="h-3.5 w-3.5" layers={2} />{kicker}</p>
         <h2 className={`mt-1 text-[21px] leading-tight tracking-[-0.025em] sm:text-[25px] ${light ? "!text-white" : ""}`}>{title}</h2>
-        <span className="mt-2 block h-[3px] w-14 rounded-full bg-gradient-to-r from-[var(--acc)] to-transparent" />
         {intro && <p className={`mt-2 max-w-xl text-[13px] ${light ? "text-white/80" : "text-ink-2"}`}>{intro}</p>}
       </div>
       {action && <Link href={action.href} className={`group flex items-center gap-1 text-[13px] font-medium ${light ? "text-[#f3d9a4]" : "text-[var(--acc)]"}`}>{action.label}<ArrowRight size={14} className="transition-transform group-hover:translate-x-0.5" /></Link>}
@@ -163,7 +162,6 @@ export default async function Home() {
           </div>
         </Container>
       </section>
-      <PeacockDivider className="mt-16" size={72} />
 
 
       {/* Teachings */}
