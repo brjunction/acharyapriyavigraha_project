@@ -250,7 +250,7 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-50">
-      <div className={`border-b border-line bg-[#fff8f0] transition-shadow ${scrolled ? "shadow-[0_6px_24px_-14px_rgba(60,30,10,0.45)]" : ""}`}>
+      <div className={`border-b border-line bg-[#ffffff] transition-shadow ${scrolled ? "shadow-[0_6px_24px_-14px_rgba(60,30,10,0.45)]" : ""}`}>
         <div className="mx-auto grid h-[58px] max-w-[1320px] grid-cols-[auto_1fr_auto] items-center gap-3 px-4 sm:px-6">
           <Logo />
           <nav className="hidden items-center justify-center gap-0.5 lg:flex" aria-label="Main" onMouseLeave={hide}>
@@ -261,7 +261,7 @@ export function Header() {
               return (
                 <button key={m.key} onMouseEnter={() => show(m.key)} onFocus={() => show(m.key)} onClick={() => setActive(on ? null : m.key)}
                   aria-expanded={on} aria-haspopup="true"
-                  className={`acc-${ACCENT[m.key]} group relative flex items-center gap-1.5 whitespace-nowrap rounded-full px-2 py-1 text-[12px] font-medium transition ${on ? "bg-acc-soft text-[var(--acc)]" : current ? "text-[var(--acc)]" : "text-[var(--acc)] hover:bg-acc-tint"}`}>
+                  className={`acc-${ACCENT[m.key]} group relative flex items-center gap-1.5 whitespace-nowrap rounded-full px-2 py-1 text-[12px] font-medium text-ink transition ${on ? "bg-acc-soft" : "hover:bg-acc-tint"}`}>
                   <I size={14} strokeWidth={1.9} className="hidden text-[var(--acc)] opacity-90 xl:block" />
                   {m.label}
                   <ChevronDown size={12} className={`-ml-0.5 opacity-60 transition-transform ${on ? "rotate-180" : ""}`} />
