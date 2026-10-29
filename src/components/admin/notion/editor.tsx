@@ -4,6 +4,8 @@ import "@blocknote/core/fonts/inter.css";
 import "@blocknote/mantine/style.css";
 import { filterSuggestionItems, insertOrUpdateBlockForSlashMenu } from "@blocknote/core";
 import { BlockNoteView } from "@blocknote/mantine";
+import { Plugin } from "prosemirror-state";
+import { createExtension } from "@blocknote/core";
 import { SuggestionMenuController, getDefaultReactSlashMenuItems, useCreateBlockNote, type DefaultReactSuggestionItem } from "@blocknote/react";
 import { FileText, Database, Sparkles, Quote, ScrollText, Youtube, LayoutGrid, MousePointerClick, Minus, ListTree, BookOpen, Milestone, BookMarked, PanelLeft, LayoutTemplate, MessageCircleQuestion, BarChart3, Flag, Headphones } from "lucide-react";
 import { schema, type Editor } from "./schema";
@@ -63,8 +65,16 @@ async function mentionItems(editor: Editor, pageId: string, q: string): Promise<
   return items;
 }
 
+/** Typing or clicking in a custom block's own form (verse, portrait card, Edit panels…) belongs to that form. The text editor is told to leave those events alone, so it can no longer grab the focus or close the panel. */
+const FORM = "input, textarea, select, button, label, summary, [data-form]";
+const mine = (e: Event) => { const t = e.target as HTMLElement | null; return !!t?.closest?.(FORM) && !!t.closest('[contenteditable="false"]'); };
+const formIsolation = createExtension({
+  key: "formIsolation",
+  prosemirrorPlugins: [new Plugin({ props: { handleDOMEvents: Object.fromEntries(["mousedown", "mouseup", "click", "dblclick", "touchstart", "keydown", "keypress", "keyup", "beforeinput", "input", "paste", "cut", "copy", "focus", "blur", "drop", "dragstart"].map((n) => [n, (_v: any, e: Event) => mine(e)])) } })],
+});
+
 export default function NotionEditor({ initial, pageId, onChange, editable = true }: { initial: any[]; pageId: string; onChange: (blocks: any[]) => void; editable?: boolean }) {
-  const editor = useCreateBlockNote({ schema, initialContent: initial?.length ? initial : undefined, uploadFile: upload }) as Editor;
+  const editor = useCreateBlockNote({ schema, initialContent: initial?.length ? initial : undefined, uploadFile: upload, extensions: [formIsolation] }) as Editor;
   return (
     <BlockNoteView editor={editor} editable={editable} theme="light" slashMenu={false} className="tj-editor" onChange={() => onChange(editor.document as any[])}>
       <SuggestionMenuController triggerCharacter="/" getItems={async (q) => filterSuggestionItems([...getDefaultReactSlashMenuItems(editor), ...customItems(editor, pageId)], q)} />

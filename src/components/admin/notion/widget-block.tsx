@@ -49,16 +49,19 @@ function StyleForm({ s, set }: { s: WStyle; set: (s: WStyle) => void }) {
   );
 }
 
+/** Which panel is open on which block, kept outside the block so it survives the editor redrawing it. */
+const OPEN = new Map<string, "" | "edit" | "style">();
 export const Widget = createReactBlockSpec(
   { type: "widget", propSchema: { kind: { default: "sectionHead" }, data: { default: "{}" }, style: { default: "{}" } }, content: "none" },
   { render: ({ block, editor }) => {
     const def = WIDGET[block.props.kind]; const d = parse(block.props.data); const s = parse(block.props.style) as WStyle;
-    const [tab, setTab] = useState<"" | "edit" | "style">(Object.keys(d).length ? "" : "edit");
+    const [tab, setTabState] = useState<"" | "edit" | "style">(() => OPEN.get(block.id) ?? (Object.keys(d).length ? "" : "edit"));
+    const setTab = (t: "" | "edit" | "style") => { OPEN.set(block.id, t); setTabState(t); };
     const setD = (k: string, v: any) => editor.updateBlock(block, { props: { data: JSON.stringify({ ...d, [k]: v }) } } as any);
     if (!def) return <div className="text-ink-3">Unknown element</div>;
     return (
       <div contentEditable={false} className="group/w relative w-full">
-        <div className="absolute -top-3 right-2 z-10 hidden gap-0.5 rounded-lg border border-line bg-white p-0.5 shadow-md group-hover/w:flex">
+        <div className={`absolute -top-3 right-2 z-10 gap-0.5 rounded-lg border border-line bg-white p-0.5 shadow-md group-hover/w:flex group-focus-within/w:flex ${tab ? "flex" : "hidden"}`}>
           <span className="px-2 py-1 text-[11.5px] font-semibold text-ink-3">{def.title}</span>
           <button onClick={() => setTab(tab === "edit" ? "" : "edit")} className={`flex items-center gap-1 rounded-md px-2 py-1 text-[12px] ${tab === "edit" ? "bg-saffron text-white" : "hover:bg-band"}`}><Settings2 size={13} />Edit</button>
           <button onClick={() => setTab(tab === "style" ? "" : "style")} className={`flex items-center gap-1 rounded-md px-2 py-1 text-[12px] ${tab === "style" ? "bg-saffron text-white" : "hover:bg-band"}`}><Paintbrush size={13} />Look</button>
