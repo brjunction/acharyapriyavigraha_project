@@ -349,3 +349,17 @@ main p.hover-glow:hover { color: var(--saffron); }
 .cms-text a { color: var(--saffron); text-decoration: underline; text-underline-offset: 3px; }
 .cms-text blockquote { border-left: 3px solid var(--gold); padding-left: 1em; font-style: italic; margin: 0 0 .9em; }
 .cms-text h2, .cms-text h3, .cms-text h4 { color: var(--ink); font-weight: 700; margin: 1em 0 .4em; }
+
+/* ---- Studio editor: looks like the published page ---- */
+.tj-editor .bn-editor { font-family: "Inter Variable", Inter, system-ui, sans-serif; color: var(--ink-2); background: transparent; }
+.tj-editor .bn-editor .bn-inline-content { font-size: 16.5px; line-height: 1.8; }
+.tj-editor [data-content-type="heading"] .bn-inline-content { color: var(--ink); font-weight: 700; letter-spacing: -0.025em; line-height: 1.25; }
+.tj-editor [data-content-type="heading"][data-level="1"] .bn-inline-content { font-size: 32px; }
+.tj-editor [data-content-type="heading"][data-level="2"] .bn-inline-content { font-size: 25px; }
+.tj-editor [data-content-type="heading"][data-level="3"] .bn-inline-content { font-size: 20px; }
+.tj-editor [data-content-type="quote"] { border-left: 3px solid color-mix(in srgb, var(--saffron) 70%, white); background: #fdf6e8; padding: 4px 14px; border-radius: 0 10px 10px 0; }
+.tj-editor [data-content-type="quote"] .bn-inline-content { font-style: italic; font-size: 17.5px; color: var(--ink); }
+.tj-editor .bn-block-content[data-content-type="bulletListItem"]::before, .tj-editor .bn-block-content[data-content-type="numberedListItem"]::before { color: var(--saffron); }
+.tj-editor a { color: var(--saffron); text-decoration: underline; text-underline-offset: 2px; }
+.tj-editor .bn-visual-media { border-radius: 16px; }
+.tj-editor table { font-size: 14.5px; }

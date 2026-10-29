@@ -14,7 +14,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
   const cur = (await sql`select * from pages where id = ${id}`)[0]; if (!cur) return fail("Not found", 404);
   const publishing = b.status === "published" || b.status === "draft";
   if (publishing && g.user.role === "contributor") return fail("Contributors can save drafts; an editor publishes.", 403);
-  if (b.blocks) { await sql`insert into page_versions (page_id, title, blocks, saved_by) values (${id}, ${cur.title}, ${JSON.stringify(cur.blocks)}::jsonb, ${g.user.id})`;
+  if (b.blocks && !(await sql`select 1 from page_versions where page_id = ${id} and created_at > now() - interval '10 minutes'`).length) { await sql`insert into page_versions (page_id, title, blocks, saved_by) values (${id}, ${cur.title}, ${JSON.stringify(cur.blocks)}::jsonb, ${g.user.id})`;
     await sql`delete from page_versions where page_id = ${id} and id not in (select id from page_versions where page_id = ${id} order by created_at desc limit 30)`; }
   let path = cur.path, slug = cur.slug, parent = cur.parent_id;
   if ((b.slug && slugify(b.slug) !== cur.slug) || (b.parent_id !== undefined && b.parent_id !== cur.parent_id)) {
@@ -33,7 +33,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
   const settings = b.settings ? JSON.stringify(b.settings) : JSON.stringify(cur.settings);
   const status = b.status || cur.status;
   await sql`update pages set title = ${title}, slug = ${slug}, path = ${path}, parent_id = ${parent}, blocks = ${blocks}::jsonb, seo = ${seo}::jsonb, settings = ${settings}::jsonb,
-    status = ${status}, position = ${b.position ?? cur.position}, updated_by = ${g.user.id}, updated_at = now(),
+    status = ${status}, type = coalesce(${b.type ?? null}, type), position = ${b.position ?? cur.position}, updated_by = ${g.user.id}, updated_at = now(),
     published_at = case when ${status} = 'published' and published_at is null then now() else published_at end where id = ${id}`;
   revalidatePath(path); revalidatePath(cur.path); revalidatePath("/sitemap.xml");
   return json({ ok: true, path });

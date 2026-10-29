@@ -3,26 +3,29 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { sql, hasDb } from "@/lib/db";
 import { Blocks } from "@/components/cms/blocks-view";
+import { Render, docText, headings } from "@/components/cms/doc";
 import { Container } from "@/components/ui";
 import { ChevronRight, ChevronLeft, BookOpen } from "lucide-react";
 import type { Block } from "./blocks";
 
-type P = { id: string; parent_id: string | null; path: string; title: string; type: string; blocks: Block[]; seo: Record<string, any>; updated_at: string; position: number };
+type P = { id: string; parent_id: string | null; path: string; title: string; type: string; blocks: any[]; seo: Record<string, any>; settings: Record<string, any>; updated_at: string; position: number };
+const isOld = (bs: any[]) => bs?.length > 0 && "data" in bs[0];
 export const SITE = process.env.NEXT_PUBLIC_SITE_URL || "https://taptajivanam.com";
 
 async function load(segments: string[]): Promise<P | null> {
   if (!hasDb()) return null;
   const path = "/" + segments.map(decodeURIComponent).join("/");
-  try { return ((await sql`select id, parent_id, path, title, type, blocks, seo, updated_at, position from pages where path = ${path} and status = 'published'`)[0] as P) || null; } catch { return null; }
+  try { return ((await sql`select id, parent_id, path, title, type, blocks, seo, settings, updated_at, position from pages where path = ${path} and status = 'published'`)[0] as P) || null; } catch { return null; }
 }
-const plain = (bs: Block[]) => bs.filter((b) => b.type === "text").map((b) => String(b.data.html).replace(/<[^>]+>/g, " ")).join(" ").replace(/\s+/g, " ").trim().slice(0, 155);
+const plain = (bs: any[]) => (isOld(bs) ? plainOld(bs) : docText(bs));
+const plainOld = (bs: Block[]) => bs.filter((b) => b.type === "text").map((b) => String(b.data.html).replace(/<[^>]+>/g, " ")).join(" ").replace(/\s+/g, " ").trim().slice(0, 155);
 
 export const hasCms = async (segments: string[]) => Boolean(await load(segments));
 
 export async function cmsMetadata(segments: string[]): Promise<Metadata> {
   const p = await load(segments); if (!p) return {};
   const title = p.seo?.title || p.title, description = p.seo?.description || plain(p.blocks);
-  const img = p.seo?.image || (p.blocks.find((b) => b.type === "image" && b.data.src)?.data.src as string | undefined);
+  const img = p.seo?.image || p.settings?.cover || (p.blocks.find((b: any) => b.type === "image" && (b.props?.url || b.data?.src)) as any)?.props?.url;
   return { title, description, alternates: { canonical: p.path }, robots: p.seo?.noindex ? { index: false } : undefined,
     openGraph: { title, description, type: "article", url: p.path, images: img ? [img] : undefined }, twitter: { card: img ? "summary_large_image" : "summary" } };
 }
@@ -38,7 +41,9 @@ export async function CmsPage({ segments }: { segments: string[] }) {
     const rootPath = await bookRoot(p);
     tree = (await sql`select id, parent_id, path, title, position from pages where (path = ${rootPath} or path like ${rootPath + "/%"}) and status='published' order by path`) as any;
   }
-  if (p.type === "collection" || p.type === "book" || p.type === "chapter") kids = (await sql`select title, path, blocks from pages where parent_id = ${p.id} and status='published' order by position, title`) as any[];
+  kids = (await sql`select id, title, path, settings from pages where parent_id = ${p.id} and status='published' order by position, title`) as any[];
+  const linkedIds = new Set(JSON.stringify(p.blocks).match(/"pageId":"[0-9a-f-]{36}"/g)?.map((x) => x.slice(10, -1)) || []);
+  const unlinked = kids.filter((k: any) => !linkedIds.has(k.id));
   const flat = isBook ? flatten(tree, tree.find((t) => !t.parent_id || !tree.some((x) => x.id === t.parent_id))?.id || p.id) : [];
   const i = flat.findIndex((x) => x.id === p.id), prev = flat[i - 1], next = flat[i + 1];
   const ld = { "@context": "https://schema.org", "@type": p.type === "book" ? "Book" : "Article", headline: p.title, name: p.title, description: p.seo?.description || plain(p.blocks), dateModified: p.updated_at, mainEntityOfPage: SITE + p.path, inLanguage: "en", publisher: { "@type": "Organization", name: "Taptajivanam", url: SITE } };
@@ -50,8 +55,10 @@ export async function CmsPage({ segments }: { segments: string[] }) {
       <div className={isBook ? "grid gap-10 lg:grid-cols-[270px_1fr]" : ""}>
         {isBook && <aside className="lg:sticky lg:top-24 lg:h-[calc(100vh-8rem)] lg:overflow-y-auto"><p className="mb-3 flex items-center gap-2 text-[12px] font-semibold uppercase tracking-[0.12em] text-saffron"><BookOpen size={14} />Contents</p><Tree nodes={tree} cur={p.path} /></aside>}
         <article className={isBook ? "min-w-0 max-w-[760px]" : "mx-auto max-w-[820px]"}>
-          <Blocks blocks={p.blocks} />
-          {kids.length > 0 && p.type !== "chapter" && p.type !== "book" && <ul className="mt-10 grid gap-3 sm:grid-cols-2">{kids.map((k) => <li key={k.path}><Link href={k.path} className="card block p-4 font-semibold transition hover:-translate-y-0.5 hover:text-saffron">{k.title}</Link></li>)}</ul>}
+          {p.settings?.cover && /* eslint-disable-next-line @next/next/no-img-element */ <img src={p.settings.cover} alt="" className="mb-8 h-[200px] w-full rounded-3xl object-cover sm:h-[280px]" style={{ objectPosition: `center ${p.settings.coverY ?? 50}%` }} />}
+          {p.settings?.hideTitle !== true && !isOld(p.blocks) && <h1 className="mb-6 text-[32px] font-bold leading-[1.15] tracking-[-0.03em] text-ink sm:text-[42px]">{p.settings?.icon && <span className="mr-3">{p.settings.icon}</span>}{p.title}</h1>}
+          {isOld(p.blocks) ? <Blocks blocks={p.blocks} /> : <Render doc={p.blocks} toc={<Toc items={isBook && p.type === "book" ? kids.map((k: any) => ({ text: k.title, href: k.path, level: 2 })) : headings(p.blocks).map((h) => ({ text: h.text, href: `#${h.id}`, level: h.level }))} />} />}
+          {unlinked.length > 0 && (p.type === "collection" || p.type === "page") && <ul className="mt-10 grid gap-3 sm:grid-cols-2">{unlinked.map((k) => <li key={k.path}><Link href={k.path} className="card block p-4 font-semibold transition hover:-translate-y-0.5 hover:text-saffron">{k.title}</Link></li>)}</ul>}
           {isBook && (prev || next) && <nav className="mt-12 flex justify-between gap-3 border-t border-line pt-6">{prev ? <Link href={prev.path} className="flex items-center gap-1.5 text-[14.5px] font-medium hover:text-saffron"><ChevronLeft size={16} />{prev.title}</Link> : <span />}{next && <Link href={next.path} className="flex items-center gap-1.5 text-right text-[14.5px] font-medium hover:text-saffron">{next.title}<ChevronRight size={16} /></Link>}</nav>}
         </article>
       </div>
@@ -62,7 +69,7 @@ export async function CmsPage({ segments }: { segments: string[] }) {
 async function bookRoot(p: P): Promise<string> {
   let cur = p;
   while (cur.parent_id) {
-    const r = (await sql`select id, parent_id, path, title, type, blocks, seo, updated_at, position from pages where id = ${cur.parent_id}`)[0] as P | undefined;
+    const r = (await sql`select id, parent_id, path, title, type, blocks, seo, settings, updated_at, position from pages where id = ${cur.parent_id}`)[0] as P | undefined;
     if (!r || (r.type !== "book" && r.type !== "chapter")) break; cur = r;
   }
   return cur.path;
@@ -75,4 +82,9 @@ function Tree({ nodes, cur }: { nodes: { id: string; parent_id: string | null; p
   const root = nodes.find((t) => !t.parent_id || !nodes.some((x) => x.id === t.parent_id)); if (!root) return null;
   const list = (id: string, d: number): React.ReactNode => { const kids = nodes.filter((n) => n.parent_id === id).sort((a, b) => a.position - b.position); return kids.length ? <ul className={d ? "ml-3 border-l border-line pl-3" : ""}>{kids.map((k) => <li key={k.id}><Link href={k.path} className={`block rounded-lg px-2 py-1.5 text-[14px] leading-snug ${k.path === cur ? "bg-saffron-soft font-semibold text-saffron" : "text-ink-2 hover:bg-band"}`}>{k.title}</Link>{list(k.id, d + 1)}</li>)}</ul> : null; };
   return <div><Link href={root.path} className={`mb-1 block rounded-lg px-2 py-1.5 text-[15px] font-bold ${root.path === cur ? "text-saffron" : ""}`}>{root.title}</Link>{list(root.id, 0)}</div>;
+}
+
+function Toc({ items }: { items: { text: string; href: string; level: number }[] }) {
+  if (!items.length) return null;
+  return <nav aria-label="Contents" className="my-6 rounded-2xl border border-line bg-[#fdfaf4] p-5"><p className="mb-2 text-[12px] font-semibold uppercase tracking-[0.12em] text-saffron">Contents</p><ol className="space-y-1">{items.map((i) => <li key={i.href} style={{ paddingLeft: (i.level - 1) * 14 }}><Link href={i.href} className="text-[15px] text-ink-2 hover:text-saffron">{i.text}</Link></li>)}</ol></nav>;
 }

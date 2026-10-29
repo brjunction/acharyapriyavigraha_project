@@ -46,8 +46,8 @@ export function Providers({ children }: { children: React.ReactNode }) {
   useEffect(() => { apply(prefs); if (loaded.current) { try { localStorage.setItem("tj-prefs-v3", JSON.stringify(prefs)); } catch {} } }, [prefs]);
   useEffect(() => {
     const k = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") { e.preventDefault(); setSearch(true); }
-      if (e.key === "/" && !(e.target as HTMLElement)?.closest("input,textarea")) { e.preventDefault(); setSearch(true); }
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k" && !location.pathname.startsWith("/admin")) { e.preventDefault(); setSearch(true); }
+      if (e.key === "/" && !(e.target as HTMLElement)?.closest("input,textarea,[contenteditable=true]") && !location.pathname.startsWith("/admin")) { e.preventDefault(); setSearch(true); }
       if (e.key === "Escape") setSearch(false);
     };
     window.addEventListener("keydown", k); return () => window.removeEventListener("keydown", k);
