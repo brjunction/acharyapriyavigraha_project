@@ -1,10 +1,16 @@
+import { cmsOverride } from "@/lib/cms/render";
 import { Quote, Shuffle } from "lucide-react";
 import { QUOTE_CATEGORIES, QUOTE_OF_DAY } from "@/lib/data";
 import { Container, PageHero, QuoteCard, SectionHead } from "@/components/ui";
 
 export const metadata = { title: "Quotes" };
 
-export default function Page() {
+export default async function Page() {
+  const cms = await cmsOverride('/teachings/quotes'); if (cms) return cms;
+  return <Original />;
+}
+
+function Original() {
   const groups = QUOTE_CATEGORIES.reduce<Record<string, string[]>>((a, c) => { (a[c[0].toUpperCase()] ??= []).push(c); return a; }, {});
   return (
     <>

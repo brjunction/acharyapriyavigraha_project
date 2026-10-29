@@ -1,3 +1,4 @@
+import { cmsOverride } from "@/lib/cms/render";
 import { Image as ImageIcon } from "lucide-react";
 import { GALLERY_TAGS } from "@/lib/data";
 import { Container, PageHero } from "@/components/ui";
@@ -13,7 +14,12 @@ const PHOTOS = [
   { n: "library", t: "In a library, laughing", pos: "40% 55%" },
 ];
 
-export default function Page() {
+export default async function Page() {
+  const cms = await cmsOverride('/gurudeva/gallery'); if (cms) return cms;
+  return <Original />;
+}
+
+function Original() {
   return (
     <>
       <PageHero crumbs={[{ href: "/gurudeva", label: "Śrīla Gurudeva" }, { label: "Gallery" }]} icon={ImageIcon} title="Gallery" intro="Photographs of Śrīla Gurudeva. Each photograph will carry its place, year and source. Albums by theme, place and year are coming." />

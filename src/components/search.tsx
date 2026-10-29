@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Search, CornerDownLeft, Headphones, Network, Quote, ScrollText, FileText, ArrowRight } from "lucide-react";
 import { usePrefs } from "./providers";
 import { LECTURES, QUOTE_CATEGORIES, TATTVA, fmtDate } from "@/lib/data";
-import { MENUS } from "@/lib/nav";
+import { useMenus } from "./menus-context";
 
 export const norm = (s: string) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/krishna/g, "krsna").replace(/gaura|gaur/g, "gour");
 
@@ -15,6 +15,7 @@ export function SearchPalette() {
   const [q, setQ] = useState("");
   const [sel, setSel] = useState(0);
   const router = useRouter();
+  const MENUS = useMenus();
   const input = useRef<HTMLInputElement>(null);
   useEffect(() => { if (search) { setQ(""); setSel(0); requestAnimationFrame(() => input.current?.focus()); document.body.style.overflow = "hidden"; } else document.body.style.overflow = ""; }, [search]);
 

@@ -1,3 +1,4 @@
+import { cmsOverride } from "@/lib/cms/render";
 import { Crown, Quote as QuoteIcon, Mail } from "lucide-react";
 import { Container, PageHero } from "@/components/ui";
 import { CutOut } from "@/components/motifs";
@@ -7,7 +8,12 @@ export const metadata = { title: "Śrīla Prabhupāda on Śrīla Gurudeva" };
 import { CONVERSATION as C, LETTER as L } from "@/lib/prabhupada";
 const hl = (t: string) => t.split(/(«[^»]+»)/).map((x, k) => x.startsWith("«") ? <mark key={k} className="rounded bg-[#f6d58e]/70 px-1 font-semibold text-ink">{x.slice(1, -1)}</mark> : <span key={k}>{x}</span>);
 
-export default function Page() {
+export default async function Page() {
+  const cms = await cmsOverride('/gurudeva/srila-prabhupada'); if (cms) return cms;
+  return <Original />;
+}
+
+function Original() {
   return (
     <>
       <PageHero crumbs={[{ href: "/gurudeva", label: "Śrīla Gurudeva" }, { label: "Śrīla Prabhupāda" }]} icon={Crown} title="Śrīla Prabhupāda on Śrīla Gurudeva" intro="What his spiritual master said about him, in Śrīla Prabhupāda's own words: a room conversation and a letter."

@@ -1,10 +1,16 @@
+import { cmsOverride } from "@/lib/cms/render";
 import { Mail, ArrowRight } from "lucide-react";
 import { LETTERS, fmtDate } from "@/lib/data";
 import { Container, PageHero } from "@/components/ui";
 
 export const metadata = { title: "Letters" };
 
-export default function Page() {
+export default async function Page() {
+  const cms = await cmsOverride('/gurudeva/letters'); if (cms) return cms;
+  return <Original />;
+}
+
+function Original() {
   const groups: [string, number][] = [["With Śrīla Prabhupāda", 25], ["With disciples", 0], ["With others", 4]];
   return (
     <>

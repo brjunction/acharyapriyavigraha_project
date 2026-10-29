@@ -1,9 +1,15 @@
+import { cmsOverride } from "@/lib/cms/render";
 import { MenuHub } from "@/components/sections";
 import { Container } from "@/components/ui";
 
 export const metadata = { title: "About" };
 
-export default function Page() {
+export default async function Page() {
+  const cms = await cmsOverride('/about'); if (cms) return cms;
+  return <Original />;
+}
+
+function Original() {
   return (
     <MenuHub menuKey="about" before={
       <Container className="pt-12">

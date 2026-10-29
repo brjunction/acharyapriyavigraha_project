@@ -20,6 +20,9 @@ async function load(segments: string[]): Promise<P | null> {
 const plain = (bs: any[]) => (isOld(bs) ? plainOld(bs) : docText(bs));
 const plainOld = (bs: Block[]) => bs.filter((b) => b.type === "text").map((b) => String(b.data.html).replace(/<[^>]+>/g, " ")).join(" ").replace(/\s+/g, " ").trim().slice(0, 155);
 
+/** When editors have published their own page at a designed address, show theirs instead. */
+export async function cmsOverride(path: string) { const segs = path.split("/").filter(Boolean); return (await load(segs)) ? <CmsPage segments={segs} /> : null; }
+
 export const hasCms = async (segments: string[]) => Boolean(await load(segments));
 
 export async function cmsMetadata(segments: string[]): Promise<Metadata> {

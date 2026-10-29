@@ -25,12 +25,14 @@ export async function startSession(userId: string) {
   const exp = new Date(Date.now() + 1000 * 60 * 60 * 24 * 30);
   await sql`insert into sessions (id, user_id, expires_at) values (${sha(token)}, ${userId}, ${exp.toISOString()})`;
   await sql`update users set last_login = now() where id = ${userId}`;
-  (await cookies()).set(COOKIE, token, { httpOnly: true, sameSite: "lax", secure: process.env.NODE_ENV === "production", path: "/", expires: exp });
+  const c = await cookies();
+  c.set(COOKIE, token, { httpOnly: true, sameSite: "lax", secure: process.env.NODE_ENV === "production", path: "/", expires: exp });
+  c.set("tj_editor", "1", { sameSite: "lax", secure: process.env.NODE_ENV === "production", path: "/", expires: exp }); // only shows the Edit button; grants nothing
 }
 export async function endSession() {
   const c = await cookies(); const t = c.get(COOKIE)?.value;
   if (t) await sql`delete from sessions where id = ${sha(t)}`;
-  c.delete(COOKIE);
+  c.delete(COOKIE); c.delete("tj_editor");
 }
 export async function getUser(): Promise<User | null> {
   try {

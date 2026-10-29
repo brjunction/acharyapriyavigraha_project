@@ -1,13 +1,14 @@
 import Link from "next/link";
 import { Instagram, Facebook, Youtube, Mail, Phone, MapPin, ArrowUpRight } from "lucide-react";
 import { SITE, IMG } from "@/lib/data";
-import { MENUS } from "@/lib/nav";
+import { getMenus } from "@/lib/menus-server";
 import { PaisleyField, LogoMark, Toran, Orn } from "./motifs";
 import { Signature } from "./signature";
 
 const SOCIAL_ICONS = { Instagram, Facebook, YouTube: Youtube } as const;
 
-export function Footer() {
+export async function Footer() {
+  const MENUS = await getMenus();
   return (
     <footer className="mt-24">
       <Toran className="text-[#592300]" />

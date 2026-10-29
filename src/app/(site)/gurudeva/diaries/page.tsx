@@ -1,3 +1,4 @@
+import { cmsOverride } from "@/lib/cms/render";
 import { PlayCircle } from "lucide-react";
 import { DIARY, fmtDate } from "@/lib/data";
 import { Container, PageHero } from "@/components/ui";
@@ -5,7 +6,12 @@ import { PaisleyField } from "@/components/motifs";
 
 export const metadata = { title: "Daily Diary" };
 
-export default function Page() {
+export default async function Page() {
+  const cms = await cmsOverride('/gurudeva/diaries'); if (cms) return cms;
+  return <Original />;
+}
+
+function Original() {
   return (
     <>
       <PageHero crumbs={[{ href: "/gurudeva", label: "Śrīla Gurudeva" }, { label: "Daily Diary" }]} icon={PlayCircle} title="Daily Diary" intro="A short every day from Śrīla Haladhara Swāmī Guru Mahārāja's YouTube channel, brought in automatically. Swipe through them on a phone." />

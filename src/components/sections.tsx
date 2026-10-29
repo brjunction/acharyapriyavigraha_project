@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowRight, Hourglass } from "lucide-react";
-import { MENUS, findLink, type NavMenu } from "@/lib/nav";
+import { type NavMenu } from "@/lib/nav";
+import { getMenus } from "@/lib/menus-server";
 import { Container, EmptyState, LinkCard, PageHero, SectionHead } from "./ui";
 import { FlowerBand } from "./motifs";
 
@@ -10,7 +11,8 @@ const HERO_BG: Record<string, [string, boolean]> = {
 };
 
 /** A menu's overview page: every group of the menu as a row of link cards. */
-export function MenuHub({ menuKey, children, aside, before }: { menuKey: string; children?: React.ReactNode; aside?: React.ReactNode; before?: React.ReactNode }) {
+export async function MenuHub({ menuKey, children, aside, before }: { menuKey: string; children?: React.ReactNode; aside?: React.ReactNode; before?: React.ReactNode }) {
+  const MENUS = await getMenus();
   const menu = MENUS.find((m) => m.key === menuKey) as NavMenu;
   return (
     <>
@@ -42,8 +44,10 @@ export function MenuHub({ menuKey, children, aside, before }: { menuKey: string;
 const slug = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-");
 
 /** Template for a section that will be filled from the database. */
-export function SectionPage({ href }: { href: string }) {
-  const hit = findLink(href);
+export async function SectionPage({ href }: { href: string }) {
+  const MENUS = await getMenus();
+  let hit: { menu: NavMenu; group: NavMenu["groups"][number]; link: NavMenu["groups"][number]["links"][number] } | null = null;
+  for (const menu of MENUS) for (const group of menu.groups) for (const link of group.links) if (!hit && link.href === href) hit = { menu, group, link };
   if (!hit) notFound();
   const { menu, group, link } = hit;
   const siblings = group.links.filter((l) => l.href !== link.href);

@@ -1,10 +1,16 @@
+import { cmsOverride } from "@/lib/cms/render";
 import { Clock } from "lucide-react";
 import { TIMELINE } from "@/lib/data";
 import { Container, PageHero } from "@/components/ui";
 
 export const metadata = { title: "Life timeline" };
 
-export default function Page() {
+export default async function Page() {
+  const cms = await cmsOverride('/gurudeva/timeline'); if (cms) return cms;
+  return <Original />;
+}
+
+function Original() {
   return (
     <>
       <PageHero crumbs={[{ href: "/gurudeva", label: "Śrīla Gurudeva" }, { label: "Life timeline" }]} icon={Clock} title="Life timeline" intro="Each period opens into the lectures, letters and photos from that time." />

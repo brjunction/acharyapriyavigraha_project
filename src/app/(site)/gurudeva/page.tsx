@@ -1,3 +1,4 @@
+import { cmsOverride } from "@/lib/cms/render";
 import { MenuHub } from "@/components/sections";
 import { Img } from "@/components/ui";
 import { Rosette, PortraitFrame } from "@/components/motifs";
@@ -5,7 +6,12 @@ import { IMG } from "@/lib/data";
 
 export const metadata = { title: "Śrīla Gurudeva" };
 
-export default function Page() {
+export default async function Page() {
+  const cms = await cmsOverride('/gurudeva'); if (cms) return cms;
+  return <Original />;
+}
+
+function Original() {
   return (
     <MenuHub menuKey="gurudeva" aside={
       <div className="relative mx-auto hidden h-64 w-64 lg:block">

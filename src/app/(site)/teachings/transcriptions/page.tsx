@@ -1,3 +1,4 @@
+import { cmsOverride } from "@/lib/cms/render";
 import { FileText } from "lucide-react";
 import { PageHero } from "@/components/ui";
 import { TranscriptionBrowser } from "./browser";
@@ -5,7 +6,12 @@ import { STATS } from "@/lib/data";
 
 export const metadata = { title: "Transcriptions" };
 
-export default function Page() {
+export default async function Page() {
+  const cms = await cmsOverride('/teachings/transcriptions'); if (cms) return cms;
+  return <Original />;
+}
+
+function Original() {
   return (
     <>
       <PageHero crumbs={[{ href: "/teachings", label: "His Teachings" }, { label: "Transcriptions" }]} icon={FileText} title="Transcriptions"

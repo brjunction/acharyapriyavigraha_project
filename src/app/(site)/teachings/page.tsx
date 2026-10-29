@@ -1,3 +1,4 @@
+import { cmsOverride } from "@/lib/cms/render";
 import { BookOpen, Headphones, Clapperboard } from "lucide-react";
 import { MenuHub } from "@/components/sections";
 import { ArchiveTile, Container } from "@/components/ui";
@@ -5,7 +6,12 @@ import { STATS } from "@/lib/data";
 
 export const metadata = { title: "His Teachings" };
 
-export default function Page() {
+export default async function Page() {
+  const cms = await cmsOverride('/teachings'); if (cms) return cms;
+  return <Original />;
+}
+
+function Original() {
   return (
     <MenuHub menuKey="teachings" before={
       <Container className="pt-12">

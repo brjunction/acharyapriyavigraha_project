@@ -1,3 +1,4 @@
+import { cmsOverride } from "@/lib/cms/render";
 import Link from "next/link";
 import { ArrowRight, UserRound } from "lucide-react";
 import { PageHero, Container } from "@/components/ui";
@@ -5,7 +6,12 @@ import { PortraitFrame } from "@/components/motifs";
 
 export const metadata = { title: "Śrīla Haladhara Swāmī Guru Mahārāja" };
 
-export default function Page() {
+export default async function Page() {
+  const cms = await cmsOverride('/about/founder'); if (cms) return cms;
+  return <Original />;
+}
+
+function Original() {
   return (
     <>
       <PageHero crumbs={[{ href: "/about", label: "About" }, { label: "Founder of Taptajīvanam" }]} icon={UserRound} title="Śrīla Haladhara Swāmī Guru Mahārāja"

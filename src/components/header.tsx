@@ -4,7 +4,8 @@ import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { ChevronDown, ChevronRight, ChevronLeft, Search, SlidersHorizontal, Menu, X, ArrowRight } from "lucide-react";
-import { MENUS, ACCENT, type NavMenu } from "@/lib/nav";
+import { ACCENT, type NavMenu } from "@/lib/nav";
+import { useMenus } from "./menus-context";
 import { LogoMark, Rosette } from "./motifs";
 import { usePrefs } from "./providers";
 import { SettingsPanel } from "./settings";
@@ -139,6 +140,7 @@ function MegaPanel({ menu, onNavigate, onPin }: { menu: NavMenu; onNavigate: () 
 
 function MobileMenu({ onClose }: { onClose: () => void }) {
   const path = usePathname();
+  const MENUS = useMenus();
   const [open, setOpen] = useState<NavMenu | null>(null);
   const [og, setOg] = useState<string | null>(null);
   const { setSearch } = usePrefs();
@@ -216,6 +218,7 @@ function MobileMenu({ onClose }: { onClose: () => void }) {
 
 export function Header() {
   const path = usePathname();
+  const MENUS = useMenus();
   const { setSearch } = usePrefs();
   const [active, setActive] = useState<string | null>(null);
   const [settings, setSettings] = useState(false);
