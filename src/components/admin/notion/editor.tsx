@@ -50,10 +50,13 @@ function customItems(editor: Editor, pageId: string): DefaultReactSuggestionItem
 
 let pageCache: { at: number; list: { id: string; title: string; path: string; icon?: string }[] } | null = null;
 /** “@” — link to any page from inside a line, or make a new one. */
+let articleCache: { at: number; list: any[] } | null = null;
 async function mentionItems(editor: Editor, pageId: string, q: string): Promise<DefaultReactSuggestionItem[]> {
   if (!pageCache || Date.now() - pageCache.at > 30000) pageCache = { at: Date.now(), list: await api<any[]>("/api/admin/pages").catch(() => []) };
   const f = q.toLowerCase(); const hits = pageCache.list.filter((p) => p.title.toLowerCase().includes(f)).slice(0, 12);
   const items: DefaultReactSuggestionItem[] = hits.map((p) => ({ title: p.title, subtext: p.path, group: "Link to a page", icon: <FileText size={16} />, onItemClick: () => editor.insertInlineContent([{ type: "pageLink", props: { pageId: p.id, title: p.title, path: p.path, icon: p.icon || "" } } as any, " "]) }));
+  if (!articleCache || Date.now() - articleCache.at > 30000) articleCache = { at: Date.now(), list: await api<{ rows: any[] }>("/api/admin/articles").then((r) => r.rows || []).catch(() => []) };
+  articleCache.list.filter((a) => a.title.toLowerCase().includes(f)).slice(0, 6).forEach((a) => items.push({ title: a.title, subtext: a.author || "Article", group: "Link to an article", icon: <FileText size={16} />, onItemClick: () => editor.insertInlineContent([{ type: "pageLink", props: { pageId: "", title: a.title, path: `/teachings/articles/${a.slug}`, icon: "" } } as any, " "]) }));
   if (q.trim()) items.push({ title: `New page “${q.trim()}”`, subtext: "Make a page inside this one and link to it here", group: "New", icon: <FileText size={16} />, onItemClick: async () => { const r = await api<{ id: string; path: string }>("/api/admin/pages", "POST", { parent_id: pageId || null, template: "blank", title: q.trim() }); pageCache = null; editor.insertInlineContent([{ type: "pageLink", props: { pageId: r.id, title: q.trim(), path: r.path } } as any, " "]); window.dispatchEvent(new Event("tj:pages-changed")); } });
   return items;
 }

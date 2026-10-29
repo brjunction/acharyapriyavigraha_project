@@ -105,3 +105,20 @@ create index if not exists calendar_events_date on calendar_events(location, dat
 create table if not exists diary_entries (id uuid primary key default gen_random_uuid(), slug text not null unique, date date, date_note text, place text, title text, original text, original_lang text default 'or', translation text, scan_url text, notes text, volume text, page text, position int not null default 0, status text not null default 'published', search text not null default '', created_at timestamptz not null default now(), updated_at timestamptz not null default now());
 create index if not exists diary_entries_date on diary_entries(date, position);
 create index if not exists diary_search on diary_entries using gin (search gin_trgm_ops);
+
+create table if not exists articles (
+  id uuid primary key default gen_random_uuid(), slug text not null unique, title text not null, subtitle text,
+  author text, series text, series_part int, section text, date date, summary text, cover text,
+  body jsonb not null default '[]', topics text[] not null default '{}', source text, source_url text,
+  position int not null default 0, status text not null default 'published', search text not null default '',
+  created_at timestamptz not null default now(), updated_at timestamptz not null default now()
+);
+create index if not exists articles_search on articles using gin (search gin_trgm_ops);
+create index if not exists articles_author on articles(author);
+create index if not exists articles_series on articles(series, series_part);
+
+create table if not exists magazines (
+  id uuid primary key default gen_random_uuid(), title text not null, publisher text, description text, cover text, url text,
+  issues jsonb not null default '[]', position int not null default 0, status text not null default 'published',
+  created_at timestamptz not null default now(), updated_at timestamptz not null default now()
+);

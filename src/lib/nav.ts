@@ -66,7 +66,7 @@ export const MENUS: NavMenu[] = [
       g("Read", [
         l("/teachings/books", "Books", "Publications on his teachings and pastimes", BookOpen),
         l("/teachings/magazines", "Magazines", "Gopāl Jiu magazine and more", Newspaper),
-        l("/teachings/articles", "Articles", "Essays and write-ups", FileText, true),
+        l("/teachings/articles", "Articles", "Essays by author and series", FileText),
       ]),
       g("Compilations", [
         l("/teachings/desires", "Desires", "His heart’s wishes", Heart, true),

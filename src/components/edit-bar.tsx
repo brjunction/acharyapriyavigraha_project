@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { PenLine, PanelsTopLeft, LayoutDashboard, X } from "lucide-react";
-import { isDynamic } from "@/lib/cms/dynamic";
+import { isDynamic, adminOf } from "@/lib/cms/dynamic";
 
 /** A small bar for signed-in editors: edit this page, edit menus, open the Studio. Visitors never see it. */
 export function EditBar() {
@@ -21,7 +21,7 @@ export function EditBar() {
   return (
     <div className="fixed bottom-4 left-1/2 z-[140] flex -translate-x-1/2 items-center gap-1 rounded-full border border-line bg-white/95 p-1 shadow-[0_12px_40px_-12px_rgba(40,20,5,.45)] backdrop-blur">
       {page ? <a href={`/admin/pages/${page.id}`} className={`${btn} bg-saffron text-white`}><PenLine size={15} />Edit this page</a>
-        : page === null && !isDynamic(path) && path !== "/" ? <button onClick={make} className={`${btn} bg-saffron text-white`}><PenLine size={15} />Make this page editable</button> : page === undefined ? <span className={`${btn} text-ink-3`}>…</span> : null}
+        : page === null && !isDynamic(path) && path !== "/" ? <button onClick={make} className={`${btn} bg-saffron text-white`}><PenLine size={15} />Make this page editable</button> : page === null && isDynamic(path) && adminOf(path) ? <a href={adminOf(path)![0]} className={`${btn} bg-saffron text-white`}><PenLine size={15} />Manage {adminOf(path)![1]}</a> : page === undefined ? <span className={`${btn} text-ink-3`}>…</span> : null}
       <a href="/admin/menus" className={`${btn} text-ink-2 hover:bg-band`}><PanelsTopLeft size={15} />Menus</a>
       <a href="/admin" className={`${btn} text-ink-2 hover:bg-band`}><LayoutDashboard size={15} />Studio</a>
       <button onClick={() => setHide(true)} aria-label="Hide" className="flex h-9 w-9 items-center justify-center rounded-full text-ink-3 hover:bg-band"><X size={15} /></button>
