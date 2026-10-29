@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { ChevronRight, Plus, MoreHorizontal, Search, LayoutDashboard, Database, Image as Img, Megaphone, Users, Settings, LogOut, ExternalLink, Menu as MenuIcon, X, FileText, PanelsTopLeft, Trash2, ArrowUp, ArrowDown, Copy, Palette, Headphones, Music, Clapperboard, Quote, BookOpen, Languages, BookMarked, ChevronsUpDown, Globe } from "lucide-react";
+import { ChevronRight, Plus, MoreHorizontal, Search, LayoutDashboard, Database, Image as Img, Megaphone, Users, Settings, LogOut, ExternalLink, Menu as MenuIcon, X, FileText, PanelsTopLeft, Trash2, ArrowUp, ArrowDown, Copy, Palette, Headphones, Music, Clapperboard, Quote, BookOpen, Languages, BookMarked, ChevronsUpDown, Globe, CalendarDays, NotebookPen } from "lucide-react";
 import { api, toast } from "./ui";
 import type { MenuJ } from "@/lib/menus";
 import { PageIcon } from "../page-icon";
@@ -69,6 +69,8 @@ export function Shell({ user, children }: { user: { name: string; email: string;
         <Nav href="/admin/books" icon={BookOpen} label="Books" />
         <Nav href="/admin/translations" icon={Languages} label="Translations" />
         <Nav href="/admin/webfolio" icon={BookMarked} label="WebFolio" />
+        <Nav href="/admin/calendar" icon={CalendarDays} label="Vaiṣṇava calendar" />
+        <Nav href="/admin/diary" icon={NotebookPen} label="His Diary" />
         <Label>Website</Label>
         <Nav href="/admin/menus" icon={PanelsTopLeft} label="Menus" />
         <Nav href="/admin/design" icon={Palette} label="Design" />

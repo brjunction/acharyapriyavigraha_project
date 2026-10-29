@@ -99,3 +99,9 @@ create table if not exists folio_sections (
   title text not null, source text not null, config jsonb not null default '{}',
   position int not null default 0, enabled boolean not null default true
 );
+
+create table if not exists calendar_events (id uuid primary key default gen_random_uuid(), date date not null, title text not null, kind text not null default 'festival', fasting text, paran text, description text, location text not null default 'Bhubaneswar', link text, status text not null default 'published', created_at timestamptz not null default now(), updated_at timestamptz not null default now());
+create index if not exists calendar_events_date on calendar_events(location, date);
+create table if not exists diary_entries (id uuid primary key default gen_random_uuid(), slug text not null unique, date date, date_note text, place text, title text, original text, original_lang text default 'or', translation text, scan_url text, notes text, volume text, page text, position int not null default 0, status text not null default 'published', search text not null default '', created_at timestamptz not null default now(), updated_at timestamptz not null default now());
+create index if not exists diary_entries_date on diary_entries(date, position);
+create index if not exists diary_search on diary_entries using gin (search gin_trgm_ops);
