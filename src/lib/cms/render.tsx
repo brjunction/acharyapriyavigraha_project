@@ -17,6 +17,8 @@ async function load(segments: string[]): Promise<P | null> {
 }
 const plain = (bs: Block[]) => bs.filter((b) => b.type === "text").map((b) => String(b.data.html).replace(/<[^>]+>/g, " ")).join(" ").replace(/\s+/g, " ").trim().slice(0, 155);
 
+export const hasCms = async (segments: string[]) => Boolean(await load(segments));
+
 export async function cmsMetadata(segments: string[]): Promise<Metadata> {
   const p = await load(segments); if (!p) return {};
   const title = p.seo?.title || p.title, description = p.seo?.description || plain(p.blocks);
