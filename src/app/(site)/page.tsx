@@ -28,10 +28,10 @@ function Head({ kicker, title, intro, action, acc = "saffron", light = false }: 
     <div className={`acc-${acc} mb-5 flex flex-wrap items-end justify-between gap-4`}>
       <div>
         <p className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--acc)]"><Padma className="h-3.5 w-3.5" layers={2} />{kicker}</p>
-        <h2 className={`mt-1 text-[21px] leading-tight tracking-[-0.025em] sm:text-[25px] ${light ? "!text-white" : ""}`}>{title}</h2>
-        {intro && <p className={`mt-2 max-w-xl text-[13px] ${light ? "text-white/80" : "text-ink-2"}`}>{intro}</p>}
+        <h2 className={`mt-1 text-[19.5px] leading-tight tracking-[-0.025em] sm:text-[23px] ${light ? "!text-white" : ""}`}>{title}</h2>
+        {intro && <p className={`mt-2 max-w-xl text-[12.5px] ${light ? "text-white/80" : "text-ink-2"}`}>{intro}</p>}
       </div>
-      {action && <Link href={action.href} className={`group flex items-center gap-1 text-[13px] font-medium ${light ? "text-[#f3d9a4]" : "text-[var(--acc)]"}`}>{action.label}<ArrowRight size={14} className="transition-transform group-hover:translate-x-0.5" /></Link>}
+      {action && <Link href={action.href} className={`group flex items-center gap-1 text-[12.5px] font-medium ${light ? "text-[#f3d9a4]" : "text-[var(--acc)]"}`}>{action.label}<ArrowRight size={14} className="transition-transform group-hover:translate-x-0.5" /></Link>}
     </div>
   );
 }
@@ -52,11 +52,11 @@ function Path({ acc, icon: I, title, text, links }: { acc: string; icon: LucideI
   return (
     <div className={`path-card acc-${acc} card tile-hue group relative flex flex-col overflow-hidden p-3.5 sm:p-5`}>
       <span className="relative flex h-9 w-9 items-center justify-center rounded-xl text-white shadow sm:h-11 sm:w-11 sm:rounded-2xl-[var(--shadow-md)]" style={{ background: "linear-gradient(145deg, var(--acc), color-mix(in srgb, var(--acc) 60%, #000))" }}><I size={21} strokeWidth={1.7} /></span>
-      <h3 className="relative mt-3 text-[16px] tracking-[-0.02em]">{title}</h3>
-      <p className="relative mt-1 text-[12px] leading-snug text-ink-2 sm:text-[13px] sm:leading-relaxed">{text}</p>
+      <h3 className="relative mt-3 text-[14.5px] tracking-[-0.02em]">{title}</h3>
+      <p className="relative mt-1 text-[11.5px] leading-snug text-ink-2 sm:text-[12.5px] sm:leading-relaxed">{text}</p>
       <ul className="relative mt-4 hidden space-y-0.5 border-t border-line pt-3 sm:block">
         {links.map(([h, l, d]) => (
-          <li key={h}><Link href={h} className="group/l flex items-center justify-between rounded-lg px-2 py-1.5 text-[13px] transition hover:bg-acc-tint">
+          <li key={h}><Link href={h} className="group/l flex items-center justify-between rounded-lg px-2 py-1.5 text-[12.5px] transition hover:bg-acc-tint">
             <span><span className="font-medium text-ink group-hover/l:text-[var(--acc)]">{l}</span><span className="ml-2 text-[11.5px] text-ink-3">{d}</span></span>
             <ArrowRight size={13} className="text-[var(--acc)] opacity-0 transition group-hover/l:translate-x-0.5 group-hover/l:opacity-100" />
           </Link></li>
@@ -72,16 +72,18 @@ function Bento({ href, acc, className = "", icon: I, title, desc, count, childre
       <PaisleyField className="text-white/[0.08]" scale={0.6} />
       <Padma className="motif absolute -bottom-12 -right-12 -z-10 h-52 w-52 text-white opacity-[0.16]" />
       <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/18 ring-1 ring-white/30 backdrop-blur"><I size={26} strokeWidth={1.8} /></span>
-      <h3 className="mt-3 text-[18px] tracking-[-0.025em] text-white">{title}</h3>
-      <p className="mt-1 max-w-xs text-[12.5px] leading-snug text-white/80">{desc}</p>
+      <h3 className="mt-3 text-[16.5px] tracking-[-0.025em] text-white">{title}</h3>
+      <p className="mt-1 max-w-xs text-[12px] leading-snug text-white/80">{desc}</p>
       {children}
-      <div className="mt-auto flex items-center justify-between pt-4 text-[12px]">
+      <div className="mt-auto flex items-center justify-between pt-4 text-[11.5px]">
         <span className="rounded-full bg-white/18 px-2.5 py-1 font-medium backdrop-blur">{count}</span>
         <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white/0 transition group-hover:bg-white group-hover:text-[var(--acc)]"><ArrowRight size={14} /></span>
       </div>
     </Link>
   );
 }
+
+const SHOW_TRANSLATIONS = false;
 
 export default async function Home() {
   const diary = await getChannelVideos();
@@ -103,8 +105,8 @@ export default async function Home() {
             <FounderHeroCard contentClassName="flex flex-col items-center p-5 text-center sm:p-6">
               <div className="w-[150px] shrink-0"><PortraitFrame photo src="/photos/haladhara.webp" alt="Śrīla Haladhara Swāmī Guru Mahārāja" className="w-full" /></div>
               <p className="mt-4 text-[10.5px] font-semibold uppercase tracking-[0.12em] text-[#f3d9a4]">Founder of Taptajīvanam</p>
-              <p className="mt-1 text-[15px] font-semibold leading-snug text-white">Śrīla Haladhara Swāmī <br />Guru Mahārāja</p>
-              <p className="mt-2 text-[12px] leading-relaxed text-white/80">ISKCON Guru and Sannyasi — travels and preaches Krsna Consciousness all around the world, sharing the teachings of Śrīla Prabhupāda and Śrī Śrīmad Gour Govinda Swāmī Gurudeva.</p>
+              <p className="mt-1 text-[14px] font-semibold leading-snug text-white">Śrīla Haladhara Swāmī <br />Guru Mahārāja</p>
+              <p className="mt-2 text-[11.5px] leading-relaxed text-white/80">ISKCON Guru and Sannyasi — travels and preaches Krsna Consciousness all around the world, sharing the teachings of Śrīla Prabhupāda and Śrī Śrīmad Gour Govinda Swāmī Gurudeva.</p>
               <div className="mt-5 w-full border-t border-white/25 pt-4 text-left">
                 <p className="mb-3 flex items-center justify-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-white/70">
                   <MapPin size={12} className="text-[#f3d9a4]" /> His service and mission
@@ -112,15 +114,15 @@ export default async function Home() {
                 <dl className="space-y-3">
                   <div>
                     <dt className="text-[10px] font-semibold uppercase tracking-[0.1em] text-white/65">Disciple of</dt>
-                    <dd className="mt-0.5 text-[12px] font-medium text-white">Śrīla Gurudeva</dd>
+                    <dd className="mt-0.5 text-[11.5px] font-medium text-white">Śrīla Gurudeva</dd>
                   </div>
                   <div>
                     <dt className="text-[10px] font-semibold uppercase tracking-[0.1em] text-white/65">Grand Disciple of</dt>
-                    <dd className="mt-0.5 text-[12px] font-medium text-white">Śrīla Prabhupāda</dd>
+                    <dd className="mt-0.5 text-[11.5px] font-medium text-white">Śrīla Prabhupāda</dd>
                   </div>
                   <div>
                     <dt className="text-[10px] font-semibold uppercase tracking-[0.1em] text-white/65">Preaches in</dt>
-                    <dd className="mt-0.5 text-[12px] font-medium text-white">Odia · Hindi · English</dd>
+                    <dd className="mt-0.5 text-[11.5px] font-medium text-white">Odia · Hindi · English</dd>
                   </div>
                 </dl>
               </div>
@@ -141,8 +143,8 @@ export default async function Home() {
                 <li key={y} className={`${c} relative pb-6 pl-6 last:pb-0 sm:pl-8`}>
                   <span aria-hidden="true" className="absolute -left-[5px] top-1.5 size-[9px] rounded-full bg-[var(--acc)] ring-4 ring-surface" />
                   <p className="text-[11px] font-semibold uppercase tracking-[0.12em] tabular text-[var(--acc)]">{y}</p>
-                  <p className="mt-1 text-[14px] font-semibold text-ink">{t}</p>
-                  <p className="mt-1.5 text-[11.5px] leading-[1.6] text-ink-2 sm:text-[12.5px] sm:leading-[1.7]">{d}</p>
+                  <p className="mt-1 text-[13px] font-semibold text-ink">{t}</p>
+                  <p className="mt-1.5 text-[11.5px] leading-[1.6] text-ink-2 sm:text-[12px] sm:leading-[1.7]">{d}</p>
                 </li>
               ))}
               </ol>
@@ -186,24 +188,24 @@ export default async function Home() {
       </section>
       
 
-      {/* Languages */}
+      {/* Languages: hidden until translations are ready */}
+      {SHOW_TRANSLATIONS && (<>
       <section className="reveal relative mt-24 overflow-hidden py-16 text-white">
         <Backdrop src="blue-mandala" />
         <div className="pointer-events-none absolute inset-0 bg-[#0a2c78]/35" />
         <Container>
           <div className="relative mb-8 flex flex-wrap items-end justify-between gap-4">
             <div>
-              <p className="flex items-center gap-2 text-[12px] font-semibold uppercase tracking-[0.12em] text-[#f3d9a4]"><Padma className="h-3.5 w-3.5" layers={2} />Translations</p>
-              <h2 className="mt-1 text-[21px] leading-tight tracking-[-0.025em] text-white sm:text-[25px]">One teaching, many languages</h2>
-              <p className="mt-1 max-w-xl text-[13px] text-white/85">Each language is a site of its own, with its own pages, search and archive.</p>
+              <p className="flex items-center gap-2 text-[11.5px] font-semibold uppercase tracking-[0.12em] text-[#f3d9a4]"><Padma className="h-3.5 w-3.5" layers={2} />Translations</p>
+              <h2 className="mt-1 text-[19.5px] leading-tight tracking-[-0.025em] text-white sm:text-[23px]">One teaching, many languages</h2>
+              <p className="mt-1 max-w-xl text-[12.5px] text-white/85">Each language is a site of its own, with its own pages, search and archive.</p>
             </div>
-            <Link href="/translations" className="group flex items-center gap-1 text-[13px] font-medium text-white">All languages<ArrowRight size={14} className="transition-transform group-hover:translate-x-0.5" /></Link>
+            <Link href="/translations" className="group flex items-center gap-1 text-[12.5px] font-medium text-white">All languages<ArrowRight size={14} className="transition-transform group-hover:translate-x-0.5" /></Link>
           </div>
         </Container>
         <div className="relative"><LangMarquee /></div>
       </section>
-
-      
+      </>)}
 
       {/* Thank list */}
       <section className="reveal mt-24">
@@ -212,8 +214,8 @@ export default async function Home() {
             <Backdrop src="red-gold-mandala" o={0} className="-z-10 opacity-60" />
             <VectorToran flip className="absolute inset-x-0 top-0 text-[#e8b872]/30" />
             <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-white/12 ring-1 ring-[#e8b872]/50"><HeartHandshake size={26} strokeWidth={1.8} className="text-[#f1d3a4]" /></span>
-            <h2 className="mt-3 text-[22px] !text-white sm:text-[26px]">Our Thank List</h2>
-            <p className="mx-auto mt-3 max-w-2xl text-[15px] leading-relaxed text-white/85">This archive is built by the efforts of the disciples, grand-disciples, followers and admirers of Śrī Śrīmad Gour Govinda Swāmī Gurudeva, in many countries.</p>
+            <h2 className="mt-3 text-[20px] !text-white sm:text-[24px]">Our Thank List</h2>
+            <p className="mx-auto mt-3 max-w-2xl text-[14px] leading-relaxed text-white/85">This archive is built by the efforts of the disciples, grand-disciples, followers and admirers of Śrī Śrīmad Gour Govinda Swāmī Gurudeva, in many countries.</p>
             <Link href="/thank-list" className="btn mt-6 !h-10 bg-gradient-to-r from-saffron to-[#e8b872] !px-5 text-white shadow-[0_6px_18px_-8px_rgba(243,179,99,0.8)] hover:brightness-110">Read the Thank List<ArrowRight size={15} /></Link>
           </div>
         </Container>

@@ -17,7 +17,7 @@ export function EditBar() {
     const r = await fetch("/api/admin/pages", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ path, title }) });
     const j = await r.json(); if (!r.ok) return alert(j.error || "Could not create the page."); window.location.href = `/admin/pages/${j.id}`;
   };
-  const btn = "flex h-9 items-center gap-1.5 rounded-full px-3.5 text-[13px] font-medium transition";
+  const btn = "flex h-9 items-center gap-1.5 rounded-full px-3.5 text-[12.5px] font-medium transition";
   return (
     <div className="fixed bottom-4 left-1/2 z-[140] flex -translate-x-1/2 items-center gap-1 rounded-full border border-line bg-white/95 p-1 shadow-[0_12px_40px_-12px_rgba(40,20,5,.45)] backdrop-blur">
       {page ? <a href={`/admin/pages/${page.id}`} className={`${btn} bg-saffron text-white`}><PenLine size={15} />Edit this page</a>

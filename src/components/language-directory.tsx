@@ -18,9 +18,9 @@ export function LanguageDirectory() {
         <div className="flex flex-wrap items-center gap-3">
           <label className="flex h-10 min-w-[240px] flex-1 items-center gap-2 rounded-xl border border-line bg-surface px-3 focus-within:border-[var(--acc)] sm:max-w-sm">
             <Search size={15} className="text-ink-3" />
-            <input value={q} onChange={(e) => setQ(e.target.value)} placeholder={`Search ${ALL_LANGUAGES.length} languages, e.g. Telugu or తెలుగు`} aria-label="Search languages" className="w-full bg-transparent text-[13.5px] outline-none placeholder:text-ink-3" />
+            <input value={q} onChange={(e) => setQ(e.target.value)} placeholder={`Search ${ALL_LANGUAGES.length} languages, e.g. Telugu or తెలుగు`} aria-label="Search languages" className="w-full bg-transparent text-[13px] outline-none placeholder:text-ink-3" />
           </label>
-          <div className="flex rounded-full border border-line bg-surface p-0.5 text-[12px]">
+          <div className="flex rounded-full border border-line bg-surface p-0.5 text-[11.5px]">
             {([["all", `All ${ALL_LANGUAGES.length}`], ["live", `Live ${count("live")}`], ["building", `In progress ${count("building")}`], ["planned", `Planned ${count("planned")}`]] as const).map(([k, l]) => (
               <button key={k} onClick={() => setStatus(k)} className={`rounded-full px-3 py-1.5 transition ${status === k ? "bg-[var(--acc)] font-medium text-white" : "text-ink-2 hover:text-ink"}`}>{l}</button>
             ))}
@@ -38,18 +38,18 @@ export function LanguageDirectory() {
           if (!items.length) return null;
           return (
             <section key={r.key} className="mb-10">
-              <div className="mb-3 flex items-baseline gap-3"><h2 className="text-[18px] tracking-[-0.02em]">{r.title}</h2><span className="text-[12px] text-ink-3">{items.length} · {r.blurb}</span></div>
+              <div className="mb-3 flex items-baseline gap-3"><h2 className="text-[16.5px] tracking-[-0.02em]">{r.title}</h2><span className="text-[11.5px] text-ink-3">{items.length} · {r.blurb}</span></div>
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 {items.map((l) => (
                   <Link key={l.code} href={l.code === "en" ? "/" : `/${l.code}`} className="card card-hover group flex flex-col p-4" dir={l.rtl ? "rtl" : undefined}>
                     <div className="flex items-start justify-between gap-2">
-                      <div><p className="text-[18px] font-semibold leading-tight tracking-[-0.02em] group-hover:text-[var(--acc)]">{l.native}</p><p className="mt-0.5 text-[12px] text-ink-3" dir="ltr">{l.name} · /{l.code}</p></div>
+                      <div><p className="text-[16.5px] font-semibold leading-tight tracking-[-0.02em] group-hover:text-[var(--acc)]">{l.native}</p><p className="mt-0.5 text-[11.5px] text-ink-3" dir="ltr">{l.name} · /{l.code}</p></div>
                       <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10.5px] font-medium ${TONE[l.status]}`}>{STATUS_LABEL[l.status]}</span>
                     </div>
                     {l.status !== "planned" ? (
                       <div className="mt-4" dir="ltr"><div className="mb-1 flex justify-between text-[11px] text-ink-3"><span>Interface</span><span className="tabular">{l.ui}%</span></div><div className="h-1 overflow-hidden rounded-full bg-band"><div className="h-full rounded-full bg-[var(--acc)]" style={{ width: `${l.ui}%` }} /></div></div>
                     ) : <p className="mt-4 text-[11.5px] text-ink-3" dir="ltr">Not started. Help begin this language.</p>}
-                    <span className="mt-3 flex items-center gap-1 text-[12px] font-medium text-[var(--acc)]" dir="ltr">{l.status === "planned" ? "Open portal" : "Open site"}<ArrowRight size={13} className="transition-transform group-hover:translate-x-0.5" /></span>
+                    <span className="mt-3 flex items-center gap-1 text-[11.5px] font-medium text-[var(--acc)]" dir="ltr">{l.status === "planned" ? "Open portal" : "Open site"}<ArrowRight size={13} className="transition-transform group-hover:translate-x-0.5" /></span>
                   </Link>
                 ))}
               </div>

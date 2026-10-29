@@ -29,7 +29,7 @@ function Drop({ title, all, value, options, onChange }: { title: string; all: st
   return (
     <label className="relative block">
       <span className="mb-1 block text-[11.5px] font-semibold uppercase tracking-[0.12em] text-ink-3">{title}</span>
-      <select value={value} onChange={(e) => onChange(e.target.value)} className={`h-11 w-full appearance-none rounded-xl border bg-surface pl-3.5 pr-9 text-[14px] outline-none transition focus:border-saffron ${value ? "border-saffron/60 font-medium text-saffron" : "border-line text-ink-2"}`}>
+      <select value={value} onChange={(e) => onChange(e.target.value)} className={`h-11 w-full appearance-none rounded-xl border bg-surface pl-3.5 pr-9 text-[13px] outline-none transition focus:border-saffron ${value ? "border-saffron/60 font-medium text-saffron" : "border-line text-ink-2"}`}>
         <option value="">{all}</option>
         {options.map(([v, n]) => <option key={v} value={v}>{v} ({n})</option>)}
       </select>
@@ -64,14 +64,14 @@ export function AudioLibrary({ lectures = LECTURES }: { lectures?: Lecture[] }) 
       <div className="rounded-3xl border border-line bg-[#fdfaf4] p-4 sm:p-6">
         <div className="flex items-center gap-2 rounded-xl border border-line bg-surface px-4 focus-within:border-saffron">
           <Search size={18} className="text-saffron" />
-          <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search by title, place, verse, topic or date" className="h-12 min-w-0 flex-1 bg-transparent text-[15px] outline-none" />
+          <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search by title, place, verse, topic or date" className="h-12 min-w-0 flex-1 bg-transparent text-[14px] outline-none" />
           {q && <button onClick={() => setQ("")} aria-label="Clear"><X size={16} className="text-ink-3" /></button>}
         </div>
         <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {main.map((d) => <Drop key={d.k} title={d.title} all={d.all} value={f[d.k] || ""} options={options[d.k]} onChange={(v) => setF((p) => ({ ...p, [d.k]: v }))} />)}
         </div>
         {more && <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">{extra.map((d) => <Drop key={d.k} title={d.title} all={d.all} value={f[d.k] || ""} options={options[d.k]} onChange={(v) => setF((p) => ({ ...p, [d.k]: v }))} />)}</div>}
-        <div className="mt-4 flex flex-wrap items-center gap-3 text-[13.5px]">
+        <div className="mt-4 flex flex-wrap items-center gap-3 text-[13px]">
           {extra.length > 0 && <button onClick={() => setMore(!more)} className="font-medium text-saffron">{more ? "Fewer filters" : `More filters (${extra.map((d) => d.title.toLowerCase()).join(", ")})`}</button>}
           <label className="flex cursor-pointer items-center gap-2 text-ink-2"><input type="checkbox" checked={text} onChange={(e) => setText(e.target.checked)} className="h-4 w-4 accent-[var(--saffron)]" />With transcription</label>
           <span className="ml-auto flex items-center gap-2">
@@ -83,7 +83,7 @@ export function AudioLibrary({ lectures = LECTURES }: { lectures?: Lecture[] }) 
           </span>
         </div>
       </div>
-      <div className="mt-5 flex min-h-8 flex-wrap items-center gap-2 text-[13px]">
+      <div className="mt-5 flex min-h-8 flex-wrap items-center gap-2 text-[12.5px]">
         <span className="font-medium text-ink-2">{list.length.toLocaleString()} lectures</span>
         {active.map(([k, v]) => <button key={k} onClick={() => setF((p) => ({ ...p, [k]: "" }))} className="flex items-center gap-1 rounded-full bg-saffron-soft px-2.5 py-1 text-saffron">{v}<X size={12} /></button>)}
         {(active.length > 0 || text || q) && <button onClick={() => { setF({}); setText(false); setQ(""); }} className="text-ink-3 underline-offset-2 hover:underline">Clear all</button>}
@@ -92,11 +92,11 @@ export function AudioLibrary({ lectures = LECTURES }: { lectures?: Lecture[] }) 
         {view === "list" ? <div className="card px-2">{list.slice(0, 400).map((l) => <LectureRow key={l.slug} l={l} />)}</div> :
           Object.keys(byYear).sort().reverse().map((y) => (
             <section key={y} className="mb-8">
-              <div className="sticky top-[72px] z-10 flex items-baseline gap-3 bg-page/95 py-3 backdrop-blur"><h2 className="text-[26px] text-saffron">{y}</h2><span className="text-[13px] text-ink-3">{byYear[y].length} lectures</span></div>
+              <div className="sticky top-[72px] z-10 flex items-baseline gap-3 bg-page/95 py-3 backdrop-blur"><h2 className="text-[24px] text-saffron">{y}</h2><span className="text-[12.5px] text-ink-3">{byYear[y].length} lectures</span></div>
               <div className="card px-2">{byYear[y].map((l) => <LectureRow key={l.slug} l={l} />)}</div>
             </section>
           ))}
-        {list.length > 400 && view === "list" && <p className="mt-3 text-center text-[13px] text-ink-3">Showing the first 400. Choose a year or place to narrow the list.</p>}
+        {list.length > 400 && view === "list" && <p className="mt-3 text-center text-[12.5px] text-ink-3">Showing the first 400. Choose a year or place to narrow the list.</p>}
         {!list.length && <p className="card p-12 text-center text-ink-2">No lectures match these filters. Remove a filter to see more.</p>}
       </div>
     </div>

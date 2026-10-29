@@ -139,6 +139,7 @@ function Drawer({ onClose, page, all, title, slug, setSlug, parent, setParent, t
             <div className="flex flex-wrap gap-1 rounded-lg bg-band p-0.5">{[["narrow", "Narrow"], ["", "Normal"], ["wide", "Wide"], ["full", "Full"]].map(([k, l]) => <button key={k} onClick={() => setS("width", k)} className={`rounded-md px-2 py-1 text-[12px] ${(settings.width || "") === k ? "bg-white font-semibold shadow-sm" : "text-ink-3"}`}>{l}</button>)}</div>
           </div>
           <label className="flex items-center justify-between rounded-xl border border-line px-3 py-2.5 text-[13.5px]">Full width<input type="checkbox" checked={!!settings.fullWidth} onChange={(e) => setS("fullWidth", e.target.checked)} /></label>
+          <label className="flex items-center justify-between rounded-xl border border-line px-3 py-2.5 text-[13.5px]">Hide the top menu bar on this page<input type="checkbox" checked={!!settings.hideNav} onChange={(e) => setS("hideNav", e.target.checked)} /></label>
           <label className="flex items-center justify-between rounded-xl border border-line px-3 py-2.5 text-[13.5px]">Show the title on the website<input type="checkbox" checked={settings.hideTitle !== true} onChange={(e) => setS("hideTitle", !e.target.checked)} /></label>
           <div className="rounded-2xl border border-line p-3.5">
             <p className="mb-2 flex items-center gap-1.5 text-[12px] font-semibold uppercase tracking-[0.12em] text-saffron"><Globe size={13} />Search engines</p>

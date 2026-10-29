@@ -30,7 +30,7 @@ export const MENUS: NavMenu[] = [
         l("/gurudeva/who-is-srila-gurudeva", "Who is Śrīla Gurudeva?", "His biographies", UserRound),
         l("/gurudeva/radha-gopal-jiu", "His beloved Deity", "Śrī Śrī Rādhā-Gopāl Jiu", Sparkles),
         l("/gurudeva/timeline", "Life timeline", "His life, year by year", Clock),
-        l("/gurudeva/diaries", "His diary", "A short every day", PlayCircle),
+        l("/gurudeva/diaries", "His diary", "His prayers to Śrī Gopāl Jiu", NotebookPen),
         l("/gurudeva/memories", "Memories & pastimes", "Disciples remembering him", HandHeart),
         l("/gurudeva/glorifications", "Glorifications", "Vyāsa-pūjā offerings and poems", Gift),
       ]),

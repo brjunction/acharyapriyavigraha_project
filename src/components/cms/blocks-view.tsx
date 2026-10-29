@@ -6,9 +6,9 @@ import { clean, slugify, type Block } from "@/lib/cms/blocks";
 
 export const ALIGN: Record<string, string> = { left: "text-left", center: "text-center", right: "text-right", justify: "text-justify" };
 export const textCls = (d: Record<string, any>) =>
-  `cms-text ${ALIGN[d.align || "left"]} ${d.size === "lg" ? "text-[18px] leading-[1.85]" : d.size === "sm" ? "text-[14px] leading-[1.7]" : "text-[16px] leading-[1.8]"} text-ink-2`;
+  `cms-text ${ALIGN[d.align || "left"]} ${d.size === "lg" ? "text-[16.5px] leading-[1.85]" : d.size === "sm" ? "text-[13px] leading-[1.7]" : "text-[14.5px] leading-[1.8]"} text-ink-2`;
 export const headingCls = (d: Record<string, any>) =>
-  `${ALIGN[d.align || "left"]} font-bold tracking-[-0.025em] text-ink ${d.level === 1 ? "text-[30px] sm:text-[38px] leading-[1.15]" : d.level === 3 ? "text-[19px] sm:text-[22px]" : d.level === 4 ? "text-[16px]" : "text-[23px] sm:text-[28px]"}`;
+  `${ALIGN[d.align || "left"]} font-bold tracking-[-0.025em] text-ink ${d.level === 1 ? "text-[27.5px] sm:text-[35px] leading-[1.15]" : d.level === 3 ? "text-[17.5px] sm:text-[20px]" : d.level === 4 ? "text-[14.5px]" : "text-[21px] sm:text-[26px]"}`;
 export const frameCls = (f: string) =>
   f === "gold" ? "p-1.5 bg-gradient-to-b from-[#e9b85f] via-[#fff1d0] to-[#e9b85f] rounded-2xl" : f === "indic" ? "p-2 rounded-2xl border-2 border-[#b9770e]/70 bg-[#fbf1de] outline outline-1 outline-offset-2 outline-[#b9770e]/40" : f === "shadow" ? "rounded-2xl shadow-[0_24px_50px_-24px_rgba(60,30,10,.45)]" : f === "round" ? "rounded-full overflow-hidden" : "";
 export const widthCls = (w: string) => (w === "small" ? "max-w-xs" : w === "narrow" ? "max-w-xl" : w === "full" ? "max-w-none" : "max-w-3xl");
@@ -30,11 +30,11 @@ async function DatabaseBlock({ d }: { d: Record<string, any> }) {
   const fields: { key: string; label: string }[] = (db.fields || []).slice(0, 5);
   return (
     <div>
-      {d.title && <h3 className="mb-3 text-[19px] font-bold">{d.title}</h3>}
+      {d.title && <h3 className="mb-3 text-[17.5px] font-bold">{d.title}</h3>}
       {d.view === "table" ? (
         <div className="overflow-x-auto rounded-2xl border border-line bg-surface">
-          <table className="w-full text-left text-[14px]">
-            <thead className="bg-band text-[12px] uppercase tracking-wider text-ink-3"><tr><th className="px-4 py-2.5">Title</th>{fields.map((f) => <th key={f.key} className="px-4 py-2.5">{f.label}</th>)}</tr></thead>
+          <table className="w-full text-left text-[13px]">
+            <thead className="bg-band text-[11.5px] uppercase tracking-wider text-ink-3"><tr><th className="px-4 py-2.5">Title</th>{fields.map((f) => <th key={f.key} className="px-4 py-2.5">{f.label}</th>)}</tr></thead>
             <tbody>{rows.map((r) => <tr key={r.slug || r.title} className="border-t border-line"><td className="px-4 py-2.5 font-medium">{r.slug ? <Link href={`/d/${db.slug}/${r.slug}`} className="hover:text-saffron">{r.title}</Link> : r.title}</td>{fields.map((f) => <td key={f.key} className="px-4 py-2.5 text-ink-2">{String(r.data?.[f.key] ?? "")}</td>)}</tr>)}</tbody>
           </table>
         </div>
@@ -43,7 +43,7 @@ async function DatabaseBlock({ d }: { d: Record<string, any> }) {
           {rows.map((r) => (
             <Link key={r.slug || r.title} href={r.slug ? `/d/${db.slug}/${r.slug}` : "#"} className={d.view === "cards" ? "card p-5 transition hover:-translate-y-0.5" : "flex items-center justify-between gap-3 px-5 py-3.5 transition hover:bg-band/50"}>
               <span className="font-medium text-ink">{r.title}</span>
-              {fields[0] && <span className="text-[13px] text-ink-3">{String(r.data?.[fields[0].key] ?? "")}</span>}
+              {fields[0] && <span className="text-[12.5px] text-ink-3">{String(r.data?.[fields[0].key] ?? "")}</span>}
             </Link>
           ))}
         </div>
@@ -70,7 +70,7 @@ export function BlockView({ block }: { block: Block }) {
       return (
         <figure className={`${widthCls(d.width)} ${alignBox(d.align)}`}>
           <div className={frameCls(d.frame)}>{/* eslint-disable-next-line @next/next/no-img-element */}<img src={d.src} alt={d.alt || ""} loading="lazy" className={`w-full ${d.frame === "round" ? "aspect-square object-cover" : "rounded-xl"}`} /></div>
-          {d.caption && <figcaption className="mt-2 text-center text-[13px] text-ink-3">{d.caption}</figcaption>}
+          {d.caption && <figcaption className="mt-2 text-center text-[12.5px] text-ink-3">{d.caption}</figcaption>}
         </figure>
       );
     }
@@ -85,20 +85,20 @@ export function BlockView({ block }: { block: Block }) {
     case "quote":
       return (
         <blockquote className={d.style === "plain" ? "border-l-4 border-saffron pl-5" : "card relative overflow-hidden p-6 sm:p-8"}>
-          <p className="text-[19px] font-medium leading-[1.6] tracking-[-0.01em] text-ink sm:text-[22px]">“{d.text}”</p>
-          {d.source && <footer className="mt-3 text-[13px] font-medium text-saffron">— {d.source}</footer>}
+          <p className="text-[17.5px] font-medium leading-[1.6] tracking-[-0.01em] text-ink sm:text-[20px]">“{d.text}”</p>
+          {d.source && <footer className="mt-3 text-[12.5px] font-medium text-saffron">— {d.source}</footer>}
         </blockquote>
       );
     case "callout":
-      return <Rich html={d.html} className={`acc-${d.tone || "saffron"} cms-text rounded-2xl border border-[color-mix(in_srgb,var(--acc)_30%,white)] bg-[var(--acc-tint)] p-5 text-[15.5px] leading-[1.75] text-ink-2 sm:p-6`} />;
+      return <Rich html={d.html} className={`acc-${d.tone || "saffron"} cms-text rounded-2xl border border-[color-mix(in_srgb,var(--acc)_30%,white)] bg-[var(--acc-tint)] p-5 text-[14.5px] leading-[1.75] text-ink-2 sm:p-6`} />;
     case "cards":
       return (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {(d.items || []).map((c: any, i: number) => (
             <Link key={i} href={c.href || "#"} className={`acc-${c.tone || "saffron"} card tile-hue group flex flex-col p-5`}>
-              <h3 className="text-[17px] font-semibold tracking-[-0.02em]">{c.title}</h3>
-              <p className="mt-1.5 flex-1 text-[14px] leading-relaxed text-ink-2">{c.text}</p>
-              <span className="mt-3 inline-flex items-center gap-1 text-[13px] font-medium text-[var(--acc)]">Open<ArrowRight size={14} className="transition group-hover:translate-x-0.5" /></span>
+              <h3 className="text-[15.5px] font-semibold tracking-[-0.02em]">{c.title}</h3>
+              <p className="mt-1.5 flex-1 text-[13px] leading-relaxed text-ink-2">{c.text}</p>
+              <span className="mt-3 inline-flex items-center gap-1 text-[12.5px] font-medium text-[var(--acc)]">Open<ArrowRight size={14} className="transition group-hover:translate-x-0.5" /></span>
             </Link>
           ))}
         </div>
@@ -116,13 +116,13 @@ export function BlockView({ block }: { block: Block }) {
         </div>
       );
     case "video": { const id = ytId(d.url); return id ? (
-      <figure className="mx-auto max-w-3xl"><div className="aspect-video overflow-hidden rounded-2xl bg-black"><iframe src={`https://www.youtube-nocookie.com/embed/${id}`} title={d.caption || "Video"} loading="lazy" allowFullScreen className="h-full w-full" /></div>{d.caption && <figcaption className="mt-2 text-center text-[13px] text-ink-3">{d.caption}</figcaption>}</figure>
+      <figure className="mx-auto max-w-3xl"><div className="aspect-video overflow-hidden rounded-2xl bg-black"><iframe src={`https://www.youtube-nocookie.com/embed/${id}`} title={d.caption || "Video"} loading="lazy" allowFullScreen className="h-full w-full" /></div>{d.caption && <figcaption className="mt-2 text-center text-[12.5px] text-ink-3">{d.caption}</figcaption>}</figure>
     ) : <div className="flex aspect-video max-w-3xl items-center justify-center rounded-2xl bg-band text-ink-3"><Play /></div>; }
     case "audio": return d.url ? (
-      <div className="card mx-auto flex max-w-3xl items-center gap-4 p-4"><span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-saffron text-white"><Headphones size={20} /></span><div className="min-w-0 flex-1"><p className="truncate text-[14.5px] font-semibold">{d.title || "Audio"}</p><audio controls preload="none" src={d.url} className="mt-1 h-9 w-full" /></div></div>
+      <div className="card mx-auto flex max-w-3xl items-center gap-4 p-4"><span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-saffron text-white"><Headphones size={20} /></span><div className="min-w-0 flex-1"><p className="truncate text-[13.5px] font-semibold">{d.title || "Audio"}</p><audio controls preload="none" src={d.url} className="mt-1 h-9 w-full" /></div></div>
     ) : null;
     case "button":
-      return <div className={ALIGN[d.align || "left"]}><Link href={d.href || "#"} className={`acc-${d.tone || "saffron"} inline-flex h-11 items-center gap-2 rounded-full bg-[var(--acc)] px-6 text-[14.5px] font-semibold text-white shadow-[var(--shadow-md)] transition hover:-translate-y-0.5`}>{d.label}<ArrowRight size={16} /></Link></div>;
+      return <div className={ALIGN[d.align || "left"]}><Link href={d.href || "#"} className={`acc-${d.tone || "saffron"} inline-flex h-11 items-center gap-2 rounded-full bg-[var(--acc)] px-6 text-[13.5px] font-semibold text-white shadow-[var(--shadow-md)] transition hover:-translate-y-0.5`}>{d.label}<ArrowRight size={16} /></Link></div>;
     case "divider":
       return d.style === "line" ? <hr className="border-line" /> : d.style === "lotus" ? <div className="flex items-center justify-center gap-3 text-saffron/70"><span className="h-px w-24 bg-line-strong" /><span aria-hidden>❖</span><span className="h-px w-24 bg-line-strong" /></div> : <VMask name={d.style || "border-4"} repeat="repeat-x" size="auto 100%" className="mx-auto h-7 w-full max-w-3xl text-[#b9770e]/75" />;
     case "spacer": return <div style={{ height: Math.min(240, Math.max(8, d.h || 40)) }} aria-hidden />;
@@ -137,7 +137,7 @@ export function Blocks({ blocks }: { blocks: Block[] }) {
   return (
     <div className="space-y-7">
       {blocks.map((b) => b.type === "toc"
-        ? <nav key={b.id} className="card p-5"><p className="text-[12px] font-semibold uppercase tracking-[0.12em] text-saffron">On this page</p><ul className="mt-2 space-y-1.5 text-[14.5px]">{heads.map((h) => <li key={h}><a href={`#${slugify(h)}`} className="text-ink-2 hover:text-saffron">{h}</a></li>)}</ul></nav>
+        ? <nav key={b.id} className="card p-5"><p className="text-[11.5px] font-semibold uppercase tracking-[0.12em] text-saffron">On this page</p><ul className="mt-2 space-y-1.5 text-[13.5px]">{heads.map((h) => <li key={h}><a href={`#${slugify(h)}`} className="text-ink-2 hover:text-saffron">{h}</a></li>)}</ul></nav>
         : <BlockView key={b.id} block={b} />)}
     </div>
   );

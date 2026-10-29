@@ -36,7 +36,7 @@ export function CompilationsPanel() {
         <Btn onClick={() => setImp(true)}><Upload />Import</Btn><Btn kind="primary" onClick={() => setEdit("new")}><Plus />Add a {def.one}</Btn>
       </PageHeader>
       <div className="grid gap-6 lg:grid-cols-[220px_minmax(0,1fr)]">
-        <nav className="space-y-0.5">{KINDS.map((x) => <button key={x.k} onClick={() => { setKind(x.k); setPage(1); setSel(new Set()); }} className={cn("flex h-9 w-full items-center gap-2 rounded-md px-2.5 text-[13.5px]", kind === x.k ? "bg-zinc-100 font-medium text-zinc-950" : "text-zinc-600 hover:bg-zinc-50")}><x.icon className="size-4 text-zinc-500" /><span className="flex-1 text-left">{x.label}</span><span className="text-[12px] tabular-nums text-zinc-400">{n(x.k) || ""}</span></button>)}</nav>
+        <nav className="space-y-0.5">{KINDS.map((x) => <button key={x.k} onClick={() => { setKind(x.k); setPage(1); setSel(new Set()); }} className={cn("flex h-9 w-full items-center gap-2 rounded-md px-2.5 text-[13px]", kind === x.k ? "bg-zinc-100 font-medium text-zinc-950" : "text-zinc-600 hover:bg-zinc-50")}><x.icon className="size-4 text-zinc-500" /><span className="flex-1 text-left">{x.label}</span><span className="text-[11.5px] tabular-nums text-zinc-400">{n(x.k) || ""}</span></button>)}</nav>
         <div>
           <div className="mb-3 relative"><Search className="absolute left-2.5 top-2.5 size-4 text-zinc-400" /><Input value={qq} onChange={(e) => { setQq(e.target.value); clearTimeout(t.current); t.current = setTimeout(() => { setQ(e.target.value); setPage(1); }, 300); }} placeholder={`Search ${def.label.toLowerCase()} (no diacritics needed)`} className="pl-8" /></div>
           {sel.size > 0 && <BulkTopics n={sel.size} bulk={bulk} onClear={() => setSel(new Set())} />}
@@ -45,12 +45,12 @@ export function CompilationsPanel() {
               <div key={r.id} className={cn("flex gap-3 px-4 py-3.5 hover:bg-zinc-50", sel.has(r.id) && "bg-zinc-50")}>
                 <input type="checkbox" checked={sel.has(r.id)} onChange={() => setSel((s) => { const x = new Set(s); if (x.has(r.id)) x.delete(r.id); else x.add(r.id); return x; })} className="mt-1 size-4 accent-zinc-900" />
                 <button onClick={() => setEdit(r.id)} className="min-w-0 flex-1 text-left">
-                  {(r.title || r.verse_ref) && <p className="text-[14px] font-medium">{r.title || r.verse_ref}</p>}
-                  <p className={cn("line-clamp-2 text-[14px] leading-relaxed", r.title ? "text-zinc-600" : "text-zinc-900")}>{r.text}</p>
-                  <p className="mt-1 flex flex-wrap items-center gap-1.5 text-[12.5px] text-zinc-500">{r.lecture ? <span>🎧 {r.lecture}{r.at_sec ? ` · ${durText(r.at_sec)}` : ""}</span> : r.source || r.author}{r.topics?.map((x) => <Badge key={x} tone="outline">{x}</Badge>)}{r.status !== "published" && <Badge>Hidden</Badge>}</p>
+                  {(r.title || r.verse_ref) && <p className="text-[13px] font-medium">{r.title || r.verse_ref}</p>}
+                  <p className={cn("line-clamp-2 text-[13px] leading-relaxed", r.title ? "text-zinc-600" : "text-zinc-900")}>{r.text}</p>
+                  <p className="mt-1 flex flex-wrap items-center gap-1.5 text-[12px] text-zinc-500">{r.lecture ? <span>🎧 {r.lecture}{r.at_sec ? ` · ${durText(r.at_sec)}` : ""}</span> : r.source || r.author}{r.topics?.map((x) => <Badge key={x} tone="outline">{x}</Badge>)}{r.status !== "published" && <Badge>Hidden</Badge>}</p>
                 </button>
               </div>))}</Card>)}
-          {data && data.total > 60 && <div className="mt-4 flex justify-center gap-2"><Btn size="sm" disabled={page <= 1} onClick={() => setPage(page - 1)}>Previous</Btn><span className="self-center text-[13px] text-zinc-500">Page {page} of {Math.ceil(data.total / 60)}</span><Btn size="sm" disabled={page * 60 >= data.total} onClick={() => setPage(page + 1)}>Next</Btn></div>}
+          {data && data.total > 60 && <div className="mt-4 flex justify-center gap-2"><Btn size="sm" disabled={page <= 1} onClick={() => setPage(page - 1)}>Previous</Btn><span className="self-center text-[12.5px] text-zinc-500">Page {page} of {Math.ceil(data.total / 60)}</span><Btn size="sm" disabled={page * 60 >= data.total} onClick={() => setPage(page + 1)}>Next</Btn></div>}
         </div>
       </div>
       {edit && <ExcerptEditor id={edit} def={def} onClose={() => setEdit(null)} onSaved={load} />}
@@ -61,7 +61,7 @@ export function CompilationsPanel() {
 
 function BulkTopics({ n, bulk, onClear }: { n: number; bulk: (b: any, m: string) => void; onClear: () => void }) {
   const [t, setT] = useState("");
-  return <div className="mb-3 flex flex-wrap items-center gap-2 rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-[13px]"><b>{n} selected</b><Input value={t} onChange={(e) => setT(e.target.value)} placeholder="Topic" className="!h-8 !w-44" /><Btn size="sm" onClick={() => t && bulk({ addTopic: t }, "Topic added.")}><Tag />Add topic</Btn>
+  return <div className="mb-3 flex flex-wrap items-center gap-2 rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-[12.5px]"><b>{n} selected</b><Input value={t} onChange={(e) => setT(e.target.value)} placeholder="Topic" className="!h-8 !w-44" /><Btn size="sm" onClick={() => t && bulk({ addTopic: t }, "Topic added.")}><Tag />Add topic</Btn>
     <Btn size="sm" onClick={() => bulk({ set: { status: "published" } }, "Live.")}><Eye />Make live</Btn><Btn size="sm" onClick={() => bulk({ set: { status: "draft" } }, "Hidden.")}><EyeOff />Hide</Btn><Btn size="sm" kind="danger" onClick={() => confirm(`Delete ${n}?`) && bulk({ delete: true }, "Deleted.")}><Trash2 />Delete</Btn><button onClick={onClear} className="ml-auto text-zinc-500">Clear</button></div>;
 }
 
@@ -81,7 +81,7 @@ function ExcerptEditor({ id, def, onClose, onSaved }: { id: string; def: (typeof
         ) : f === "topics" ? <Field key={f} label="Topics"><TopicsInput value={e.topics || []} onChange={(v) => set("topics", v)} /></Field>
           : f === "day" ? <Field key={f} label="Day of the year to show it" hint="For the daily nectar drop. Leave empty to use it at random."><Input type="number" min={1} max={366} value={e.day_of_year ?? ""} onChange={(x) => set("day_of_year", x.target.value)} /></Field>
           : f === "date" ? <Field key={f} label="Date"><Input type="date" value={e.date || ""} onChange={(x) => set("date", x.target.value)} /></Field>
-          : <Field key={f} label={f === "text" && d.k === "verse" ? "His explanation" : f === "text" ? (d.k === "qa" ? "Answer" : d.one[0].toUpperCase() + d.one.slice(1)) : f === "title" && d.k === "qa" ? "Question" : LBL[f]}>{big(f) ? <Textarea rows={f === "text" ? 6 : 3} value={e[f] || ""} onChange={(x) => set(f, x.target.value)} className={f === "original" ? "text-[16px]" : ""} /> : <Input value={e[f] || ""} onChange={(x) => set(f, x.target.value)} />}</Field>)}
+          : <Field key={f} label={f === "text" && d.k === "verse" ? "His explanation" : f === "text" ? (d.k === "qa" ? "Answer" : d.one[0].toUpperCase() + d.one.slice(1)) : f === "title" && d.k === "qa" ? "Question" : LBL[f]}>{big(f) ? <Textarea rows={f === "text" ? 6 : 3} value={e[f] || ""} onChange={(x) => set(f, x.target.value)} className={f === "original" ? "text-[14.5px]" : ""} /> : <Input value={e[f] || ""} onChange={(x) => set(f, x.target.value)} />}</Field>)}
         <Field label="Shown on the website"><Select value={e.status} onChange={(x) => set("status", x.target.value)}><option value="published">Yes, live</option><option value="draft">No, hidden</option></Select></Field>
         {id !== "new" && <div className="flex justify-end border-t border-zinc-200 pt-4"><Btn size="sm" kind="danger" onClick={async () => { if (!confirm("Delete this entry?")) return; await api(`/api/admin/excerpts/${id}`, "DELETE"); onSaved(); onClose(); }}><Trash2 />Delete</Btn></div>}
       </div>
@@ -96,8 +96,8 @@ function ExcerptImport({ def, onClose, onDone }: { def: (typeof KINDS)[number]; 
     setRows(r); setMap((r[0] || []).map((h) => cols.find((c) => h.toLowerCase().replace(/[^a-z]/g, "").startsWith(c.replace(/_/g, "").slice(0, 4))) || "")); };
   return (
     <Modal wide title={`Import ${def.label.toLowerCase()}`} description="A CSV with one entry per row. Topics can be separated by semicolons." onClose={onClose}>
-      <input type="file" accept=".csv,.tsv,.txt" onChange={(e) => e.target.files?.[0] && read(e.target.files[0])} className="text-[13.5px]" />
-      {rows && <><div className="mt-4 max-h-[40vh] overflow-auto rounded-lg border border-zinc-200">{(rows[0] || []).map((h, i) => <div key={i} className="grid grid-cols-[1fr_1fr_200px] items-center gap-2 border-b border-zinc-100 px-3 py-2 text-[13px]"><b>{h}</b><span className="truncate text-zinc-500">{rows[1]?.[i]}</span><Select className="!h-8" value={map[i] || ""} onChange={(e) => setMap(map.map((m, j) => (j === i ? e.target.value : m)))}><option value="">Skip</option>{cols.map((c) => <option key={c} value={c}>{LBL[c] || c}</option>)}</Select></div>)}</div>
+      <input type="file" accept=".csv,.tsv,.txt" onChange={(e) => e.target.files?.[0] && read(e.target.files[0])} className="text-[13px]" />
+      {rows && <><div className="mt-4 max-h-[40vh] overflow-auto rounded-lg border border-zinc-200">{(rows[0] || []).map((h, i) => <div key={i} className="grid grid-cols-[1fr_1fr_200px] items-center gap-2 border-b border-zinc-100 px-3 py-2 text-[12.5px]"><b>{h}</b><span className="truncate text-zinc-500">{rows[1]?.[i]}</span><Select className="!h-8" value={map[i] || ""} onChange={(e) => setMap(map.map((m, j) => (j === i ? e.target.value : m)))}><option value="">Skip</option>{cols.map((c) => <option key={c} value={c}>{LBL[c] || c}</option>)}</Select></div>)}</div>
         <div className="mt-4 flex justify-end gap-2"><Btn onClick={onClose}>Cancel</Btn><Btn kind="primary" busy={busy} onClick={async () => { setBusy(true); const items = rows.slice(1).map((r) => { const o: any = { kind: def.k }; map.forEach((k, i) => { if (k && r[i]?.trim()) o[k] = k === "topics" ? r[i].split(/[;|]/).map((x) => x.trim()) : r[i].trim(); }); return o; });
           let added = 0; for (let i = 0; i < items.length; i += 300) added += (await api<{ added: number }>("/api/admin/excerpts/bulk", "POST", { import: items.slice(i, i + 300) })).added; toast(`${added} added.`); onDone(); }}><Upload />Import {rows.length - 1}</Btn></div></>}
     </Modal>

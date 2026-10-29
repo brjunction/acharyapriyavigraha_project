@@ -3,7 +3,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { ChevronDown, ChevronRight, ChevronLeft, Search, SlidersHorizontal, Menu, X, ArrowRight } from "lucide-react";
+import { ChevronDown, ChevronRight, ChevronLeft, ChevronUp, Search, SlidersHorizontal, Menu, X, ArrowRight } from "lucide-react";
 import { ACCENT, type NavMenu } from "@/lib/nav";
 import { useMenus } from "./menus-context";
 import { LogoMark, Rosette } from "./motifs";
@@ -15,8 +15,8 @@ export function Logo({ compact = false }: { compact?: boolean }) {
   return (
     <Link href="/" className="logo-link group flex items-center" aria-label="Taptajīvanam home"
       onClick={(e) => { if (window.location.pathname === "/") { e.preventDefault(); window.scrollTo({ top: 0, behavior: "smooth" }); } }}>
-      <span className="logo-medal relative z-10 flex h-10 w-10 shrink-0 items-center justify-center rounded-full">{/* eslint-disable-next-line @next/next/no-img-element */}<img src="/logo.png" alt="" className="h-full w-full rounded-full object-cover" /></span>
-      {!compact && <span className="logo-box -ml-3.5 py-[5px] pl-5 pr-3.5 text-[14.5px] font-bold leading-none tracking-[-0.02em] text-ink">Taptajīvanam</span>}
+      <span className="logo-medal relative z-10 flex h-9 w-9 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-full">{/* eslint-disable-next-line @next/next/no-img-element */}<img src="/logo.png" alt="" className="h-full w-full rounded-full object-cover" /></span>
+      {!compact && <span className="logo-box -ml-3.5 py-[5px] pl-5 pr-3.5 text-[13.5px] font-bold leading-none tracking-[-0.02em] text-ink">Taptajīvanam</span>}
     </Link>
   );
 }
@@ -44,7 +44,7 @@ function MegaPanel({ menu, onNavigate, onPin }: { menu: NavMenu; onNavigate: () 
       <Link href={it.href} {...(it.href.startsWith("http") ? { target: "_blank", rel: "noreferrer" } : {})} onClick={onNavigate} aria-current={sel(it.href) ? "page" : undefined} className={`mega-item ${sel(it.href) ? "!border-[var(--acc)] bg-acc-soft" : ""}`} title={it.desc}>
         <span className="mega-ic"><T size={14} strokeWidth={1.8} /></span>
         <span className="min-w-0">
-          <span className="flex items-center gap-1.5 text-[12px] font-semibold leading-snug text-ink">{it.label}{it.soon && <span className="rounded-full bg-band px-1.5 text-[9px] font-medium text-ink-3">soon</span>}</span>
+          <span className="flex items-center gap-1.5 text-[11.5px] font-semibold leading-snug text-ink">{it.label}{it.soon && <span className="rounded-full bg-band px-1.5 text-[9px] font-medium text-ink-3">soon</span>}</span>
           <span className="line-clamp-2 text-[10.5px] leading-snug text-ink-3">{it.desc}</span>
         </span>
       </Link>
@@ -53,7 +53,7 @@ function MegaPanel({ menu, onNavigate, onPin }: { menu: NavMenu; onNavigate: () 
   const Chip = ({ it }: { it: (typeof links)[number] }) => (
     <Link href={it.href} onClick={onNavigate} title={it.desc} aria-current={sel(it.href) ? "page" : undefined} className={`group/c flex items-center gap-2 rounded-lg border px-2 py-1.5 transition hover:border-[var(--acc)]/30 hover:bg-acc-tint ${sel(it.href) ? "border-[var(--acc)] bg-acc-soft" : "border-transparent"}`}>
       <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${dot(it.desc, it.soon)}`} />
-      <span className="min-w-0 leading-tight"><span className="block text-[12px] font-semibold text-ink group-hover/c:text-[var(--acc)]">{it.label}</span><span className="block text-[10.5px] text-ink-3">{it.desc.split(" · ")[0]}</span></span>
+      <span className="min-w-0 leading-tight"><span className="block text-[11.5px] font-semibold text-ink group-hover/c:text-[var(--acc)]">{it.label}</span><span className="block text-[10.5px] text-ink-3">{it.desc.split(" · ")[0]}</span></span>
     </Link>
   );
   return (
@@ -62,7 +62,7 @@ function MegaPanel({ menu, onNavigate, onPin }: { menu: NavMenu; onNavigate: () 
         <aside className="relative flex flex-col overflow-hidden p-4 text-white" style={{ background: "linear-gradient(165deg, var(--acc), color-mix(in srgb, var(--acc) 55%, #000))" }}>
           <Rosette className="spin-slow pointer-events-none absolute -bottom-20 -right-20 h-56 w-56 text-white/[0.16]" />
           <span className="relative mb-2.5 flex h-9 w-9 items-center justify-center rounded-xl bg-white/15 backdrop-blur"><I size={18} strokeWidth={1.7} /></span>
-          <p className="relative text-[15px] font-semibold leading-tight tracking-[-0.02em]">{menu.label}</p>
+          <p className="relative text-[14px] font-semibold leading-tight tracking-[-0.02em]">{menu.label}</p>
           <p className="relative mt-1 text-[11px] leading-relaxed text-white/80">{menu.intro}</p>
           <Link href={menu.href} onClick={onNavigate} className="group relative mt-auto inline-flex w-fit items-center gap-1.5 rounded-full bg-white/15 px-2.5 py-1 text-[11px] font-medium backdrop-blur transition hover:bg-white hover:text-[var(--acc)]">
             {menu.allLabel ?? "Overview"} <ArrowRight size={12} className="transition-transform group-hover:translate-x-0.5" />
@@ -76,7 +76,7 @@ function MegaPanel({ menu, onNavigate, onPin }: { menu: NavMenu; onNavigate: () 
                 <li key={x.title}>
                   <button onMouseEnter={() => { setGi(k); setQ(""); }} onFocus={() => setGi(k)} onClick={() => { setGi(k); setQ(""); }}
                     className={`flex w-full items-center justify-between gap-2 rounded-lg px-2.5 py-2 text-left transition ${k === gi && !nq ? "bg-acc-soft text-[var(--acc)]" : "text-ink-2 hover:bg-acc-tint"}`}>
-                    <span className="text-[12px] font-semibold leading-tight">{x.title}</span>
+                    <span className="text-[11.5px] font-semibold leading-tight">{x.title}</span>
                     <span className="flex items-center gap-1 text-[10.5px] tabular text-ink-3">{x.links.length}<ChevronRight size={12} /></span>
                   </button>
                 </li>
@@ -87,7 +87,7 @@ function MegaPanel({ menu, onNavigate, onPin }: { menu: NavMenu; onNavigate: () 
                 <div className="sticky -top-3 z-10 -mx-3 -mt-3 mb-2 border-b border-line bg-surface px-3 pb-2 pt-3">
                   <label className="flex items-center gap-2 rounded-lg border border-line bg-page px-2.5 py-1.5 focus-within:border-[var(--acc)]">
                     <Search size={13} className="text-ink-3" />
-                    <input value={q} onChange={(e) => setQ(e.target.value)} onFocus={() => onPin(true)} onBlur={() => onPin(false)} placeholder={`Search ${links.length} languages…`} aria-label="Search languages" className="w-full bg-transparent text-[12px] outline-none placeholder:text-ink-3" />
+                    <input value={q} onChange={(e) => setQ(e.target.value)} onFocus={() => onPin(true)} onBlur={() => onPin(false)} placeholder={`Search ${links.length} languages…`} aria-label="Search languages" className="w-full bg-transparent text-[11.5px] outline-none placeholder:text-ink-3" />
                   </label>
                 </div>
               )}
@@ -95,7 +95,7 @@ function MegaPanel({ menu, onNavigate, onPin }: { menu: NavMenu; onNavigate: () 
                 <>
                   <p className="px-1 pb-1.5 text-[10.5px] font-semibold uppercase tracking-[0.1em] text-ink-3">{found.length} result{found.length === 1 ? "" : "s"}</p>
                   <div className="grid grid-cols-2 gap-0.5 xl:grid-cols-3">{found.map((it) => <Chip key={it.href} it={it} />)}</div>
-                  {!found.length && <p className="px-1 py-4 text-[12px] text-ink-3">No match. <Link href={menu.href} onClick={onNavigate} className="text-[var(--acc)]">Browse all</Link></p>}
+                  {!found.length && <p className="px-1 py-4 text-[11.5px] text-ink-3">No match. <Link href={menu.href} onClick={onNavigate} className="text-[var(--acc)]">Browse all</Link></p>}
                 </>
               ) : (
                 <>
@@ -113,7 +113,7 @@ function MegaPanel({ menu, onNavigate, onPin }: { menu: NavMenu; onNavigate: () 
               return (
                 <Link key={it.href + it.label} href={it.href} onClick={onNavigate} className="rounded-xl border border-line p-3 transition hover:border-[var(--acc)] hover:bg-acc-tint">
                   <span className="mega-ic"><T size={14} strokeWidth={1.8} /></span>
-                  <span className="mt-1.5 block text-[12px] font-semibold text-ink">{it.label}</span>
+                  <span className="mt-1.5 block text-[11.5px] font-semibold text-ink">{it.label}</span>
                   <span className="mt-0.5 block text-[10.5px] leading-snug text-ink-3">{it.desc}</span>
                 </Link>
               );
@@ -147,13 +147,12 @@ function MobileMenu({ onClose }: { onClose: () => void }) {
   return createPortal(
     <div className="fixed inset-0 z-[100] flex flex-col bg-surface lg:hidden">
       <div className="relative flex h-14 shrink-0 items-center justify-between border-b border-line px-4">
-        <Logo compact />
-        <span className="absolute left-14 text-[17px] font-bold tracking-[-0.02em]">Taptajīvanam</span>
+        <Logo />
         <button onClick={onClose} aria-label="Close menu" className="relative rounded-full p-2 text-ink hover:bg-band"><X size={22} strokeWidth={1.8} /></button>
       </div>
       <div className="relative flex-1 overflow-hidden">
         <nav className={`absolute inset-0 overflow-y-auto px-4 py-4 transition-transform duration-300 ${open ? "-translate-x-full" : "translate-x-0"}`}>
-          <button onClick={() => { onClose(); setSearch(true); }} className="mb-4 flex w-full items-center gap-3 rounded-xl border border-line bg-page px-4 py-3 text-left text-[14px] text-ink-3">
+          <button onClick={() => { onClose(); setSearch(true); }} className="mb-4 flex w-full items-center gap-3 rounded-xl border border-line bg-page px-4 py-3 text-left text-[13px] text-ink-3">
             <Search size={17} /> Search lectures, quotes, verses…
           </button>
           {MENUS.map((m) => {
@@ -161,7 +160,7 @@ function MobileMenu({ onClose }: { onClose: () => void }) {
             return (
               <button key={m.key} onClick={() => setOpen(m)} className={`acc-${ACCENT[m.key]} flex w-full items-center gap-3.5 rounded-xl px-2.5 py-3 text-left hover:bg-acc-tint`}>
                 <span className="mega-ic !h-10 !w-10 !rounded-xl"><I size={19} strokeWidth={1.7} /></span>
-                <span className="flex-1"><span className="block text-[15px] font-semibold">{m.label}</span><span className="block text-[12px] leading-snug text-ink-3">{m.intro}</span></span>
+                <span className="flex-1"><span className="block text-[14px] font-semibold">{m.label}</span><span className="block text-[11.5px] leading-snug text-ink-3">{m.intro}</span></span>
                 <ChevronRight size={17} className="text-ink-3" />
               </button>
             );
@@ -170,27 +169,27 @@ function MobileMenu({ onClose }: { onClose: () => void }) {
         <nav className={`absolute inset-0 overflow-y-auto px-4 py-4 transition-transform duration-300 ${open ? "translate-x-0" : "translate-x-full"}`}>
           {open && (
             <div className={`acc-${ACCENT[open.key]}`}>
-              <button onClick={() => setOpen(null)} className="mb-2 flex items-center gap-1 rounded-lg px-1 py-2 text-[13px] text-ink-2"><ChevronLeft size={16} />All menus</button>
+              <button onClick={() => setOpen(null)} className="mb-2 flex items-center gap-1 rounded-lg px-1 py-2 text-[12.5px] text-ink-2"><ChevronLeft size={16} />All menus</button>
               <Link href={open.href} onClick={onClose} className="mb-3 flex items-center justify-between rounded-xl px-4 py-3.5 text-white" style={{ background: "linear-gradient(135deg, var(--acc), color-mix(in srgb, var(--acc) 55%, #000))" }}>
-                <span className="text-[17px] font-semibold">{open.label}</span><span className="flex items-center gap-1 text-[13px] opacity-90">{open.allLabel ?? "Overview"}<ArrowRight size={14} /></span>
+                <span className="text-[15.5px] font-semibold">{open.label}</span><span className="flex items-center gap-1 text-[12.5px] opacity-90">{open.allLabel ?? "Overview"}<ArrowRight size={14} /></span>
               </Link>
               {open.layout === "flyout" ? open.groups.map((g) => (
                 <div key={g.title} className="border-b border-line">
                   <button onClick={() => setOg(og === g.title ? null : g.title)} className="flex w-full items-center justify-between px-2 py-3 text-left">
-                    <span className="text-[14px] font-semibold">{g.title}</span>
-                    <span className="flex items-center gap-1.5 text-[12px] text-ink-3">{g.links.length}<ChevronDown size={15} className={`transition-transform ${og === g.title ? "rotate-180" : ""}`} /></span>
+                    <span className="text-[13px] font-semibold">{g.title}</span>
+                    <span className="flex items-center gap-1.5 text-[11.5px] text-ink-3">{g.links.length}<ChevronDown size={15} className={`transition-transform ${og === g.title ? "rotate-180" : ""}`} /></span>
                   </button>
                   {og === g.title && (
                     <div className={`pb-3 ${open.dense ? "grid grid-cols-2 gap-1" : ""}`}>
                       {g.links.map((it) => open.dense ? (
                         <Link key={it.href + it.label} href={it.href} onClick={onClose} className={`flex items-center gap-2 rounded-lg px-2 py-2 hover:bg-acc-tint ${hit(path, it.href) ? "bg-acc-soft font-semibold" : ""}`}>
                           <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${dot(it.desc, it.soon)}`} />
-                          <span className="min-w-0 leading-tight"><span className="block truncate text-[13px] font-medium">{it.label}</span><span className="block truncate text-[11px] text-ink-3">{it.desc.split(" · ")[0]}</span></span>
+                          <span className="min-w-0 leading-tight"><span className="block truncate text-[12.5px] font-medium">{it.label}</span><span className="block truncate text-[11px] text-ink-3">{it.desc.split(" · ")[0]}</span></span>
                         </Link>
                       ) : (
                         <Link key={it.href + it.label} href={it.href} onClick={onClose} className={`flex items-center gap-3 rounded-xl px-2 py-2 hover:bg-acc-tint ${hit(path, it.href) ? "bg-acc-soft font-semibold" : ""}`}>
                           <span className="mega-ic"><it.icon size={15} strokeWidth={1.8} /></span>
-                          <span><span className="block text-[13.5px] font-medium">{it.label}</span><span className="block text-[11px] leading-snug text-ink-3">{it.desc}</span></span>
+                          <span><span className="block text-[13px] font-medium">{it.label}</span><span className="block text-[11px] leading-snug text-ink-3">{it.desc}</span></span>
                         </Link>
                       ))}
                     </div>
@@ -202,7 +201,7 @@ function MobileMenu({ onClose }: { onClose: () => void }) {
                   {g.links.map((it) => { const I = it.icon; return (
                     <Link key={it.href + it.label} href={it.href} onClick={onClose} className={`flex items-center gap-3 rounded-xl px-2 py-2 hover:bg-acc-tint ${hit(path, it.href) ? "bg-acc-soft font-semibold" : ""}`}>
                       <span className="mega-ic"><I size={15} strokeWidth={1.8} /></span>
-                      <span><span className="block text-[13.5px] font-medium">{it.label}</span><span className="block text-[11px] leading-snug text-ink-3">{it.desc}</span></span>
+                      <span><span className="block text-[13px] font-medium">{it.label}</span><span className="block text-[11px] leading-snug text-ink-3">{it.desc}</span></span>
                     </Link>
                   ); })}
                 </div>
@@ -252,9 +251,9 @@ export function Header() {
   const wide = menu && (menu.layout === "flyout" ? 1080 : menu.layout === "tiles" ? 880 : menu.groups.length >= 4 ? 1240 : menu.groups.length === 3 ? 980 : 780);
 
   return (
-    <header className="sticky top-0 z-50">
+    <header className="site-header sticky top-0 z-50">
       <div className={`border-b border-line bg-[var(--header-bg,#ffffff)] transition-shadow ${scrolled ? "shadow-[0_6px_24px_-14px_rgba(60,30,10,0.45)]" : ""}`}>
-        <div className="mx-auto grid h-[58px] max-w-[1320px] grid-cols-[auto_1fr_auto] items-center gap-3 px-4 sm:px-6">
+        <div className="mx-auto grid h-[52px] max-w-[1320px] sm:h-[58px] grid-cols-[auto_1fr_auto] items-center gap-3 px-4 sm:px-6">
           <Logo />
           <nav className="hidden items-center justify-center gap-0.5 lg:flex" aria-label="Main" onMouseLeave={hide}>
             {MENUS.map((m) => {
@@ -264,7 +263,7 @@ export function Header() {
               return (
                 <button key={m.key} onMouseEnter={() => show(m.key)} onFocus={() => show(m.key)} onClick={() => setActive(on ? null : m.key)}
                   aria-expanded={on} aria-haspopup="true"
-                  className={`acc-${ACCENT[m.key]} group relative flex items-center gap-1.5 whitespace-nowrap rounded-full px-2 py-1 text-[12px] font-medium text-ink transition ${on ? "bg-acc-soft" : "hover:bg-acc-tint"}`}>
+                  className={`acc-${ACCENT[m.key]} group relative flex items-center gap-1.5 whitespace-nowrap rounded-full px-2 py-1 text-[11.5px] font-medium text-ink transition ${on ? "bg-acc-soft" : "hover:bg-acc-tint"}`}>
                   <I size={14} strokeWidth={1.9} className="hidden text-[var(--acc)] opacity-90 xl:block" />
                   {m.label}
                   <ChevronDown size={12} className={`-ml-0.5 opacity-60 transition-transform ${on ? "rotate-180" : ""}`} />
@@ -275,22 +274,24 @@ export function Header() {
           </nav>
           <div className="ml-auto flex items-center gap-1.5">
             <button onClick={() => setSearch(true)} aria-label="Search" title="Search (Ctrl K)"
-              className="flex h-9 items-center gap-2 rounded-full border border-line bg-band/60 px-3 text-ink-2 transition hover:border-saffron hover:bg-white hover:text-saffron xl:w-40">
-              <Search size={15} /><span className="hidden flex-1 whitespace-nowrap text-left text-[12.5px] text-ink-3 xl:inline">Search…</span>
+              className="flex h-8 items-center gap-2 rounded-full border border-line bg-band/60 px-2.5 sm:h-9 sm:px-3 text-ink-2 transition hover:border-saffron hover:bg-white hover:text-saffron xl:w-40">
+              <Search size={15} /><span className="hidden flex-1 whitespace-nowrap text-left text-[12px] text-ink-3 xl:inline">Search…</span>
               <kbd className="hidden whitespace-nowrap rounded border border-line bg-surface px-1.5 text-[10px] text-ink-3 xl:inline">Ctrl K</kbd>
             </button>
             <div className="relative" ref={settingsRef}>
               <button onClick={() => { setSettings(!settings); setActive(null); }} aria-label="Settings" aria-expanded={settings} title="Settings"
-                className={`flex h-9 w-9 items-center justify-center rounded-full border transition ${settings ? "border-saffron bg-white text-saffron" : "border-line bg-band/60 text-ink-2 hover:border-saffron hover:bg-white hover:text-saffron"}`}>
+                className={`flex h-8 w-8 items-center justify-center rounded-full border transition sm:h-9 sm:w-9 ${settings ? "border-saffron bg-white text-saffron" : "border-line bg-band/60 text-ink-2 hover:border-saffron hover:bg-white hover:text-saffron"}`}>
                 <SlidersHorizontal size={16} />
               </button>
               {settings && (
-                <div className="mega-enter absolute right-0 top-[calc(100%+14px)] z-[60] max-h-[calc(100vh-90px)] w-[330px] max-lg:fixed max-lg:inset-x-3 max-lg:top-[66px] max-lg:w-auto overflow-y-auto rounded-2xl border border-line bg-surface p-5 text-ink shadow-[var(--shadow-lg)]">
+                <div className="mega-enter absolute right-0 top-[calc(100%+14px)] z-[60] max-h-[calc(100vh-90px)] w-[330px] max-lg:fixed max-lg:inset-x-3 max-lg:top-[60px] max-lg:w-auto overflow-y-auto rounded-2xl border border-line bg-surface p-5 text-ink shadow-[var(--shadow-lg)]">
                   <SettingsPanel />
                 </div>
               )}
             </div>
-            <button onClick={() => setMobile(true)} aria-label="Open menu" className="flex h-9 w-9 items-center justify-center rounded-full text-ink hover:bg-white/70 lg:hidden"><Menu size={21} /></button>
+            <button onClick={() => { document.documentElement.classList.add("nav-hidden"); try { localStorage.setItem("tj_nav_hidden", "1"); } catch {} window.dispatchEvent(new Event("tj:nav")); }} aria-label="Hide the top bar" title="Hide the top bar"
+              className="flex h-8 w-8 items-center justify-center rounded-full border border-line bg-band/60 text-ink-2 transition hover:border-saffron hover:bg-white hover:text-saffron sm:h-9 sm:w-9"><ChevronUp size={16} /></button>
+            <button onClick={() => setMobile(true)} aria-label="Open menu" className="flex h-8 w-8 items-center justify-center rounded-full text-ink hover:bg-white/70 lg:hidden"><Menu size={21} /></button>
           </div>
         </div>
       </div>

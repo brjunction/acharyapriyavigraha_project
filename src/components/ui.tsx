@@ -7,7 +7,7 @@ export { Img } from "./img";
 
 export function Crumbs({ items }: { items: { href?: string; label: string }[] }) {
   return (
-    <nav aria-label="Breadcrumb" className="flex flex-wrap items-center gap-1 text-[13px] text-ink-3">
+    <nav aria-label="Breadcrumb" className="flex flex-wrap items-center gap-1 text-[12.5px] text-ink-3">
       <Link href="/" className="hover:text-saffron">Home</Link>
       {items.map((i) => (
         <span key={i.label} className="flex items-center gap-1"><ChevronRight size={13} />{i.href ? <Link href={i.href} className="hover:text-saffron">{i.label}</Link> : <span className="text-ink-2">{i.label}</span>}</span>
@@ -29,9 +29,9 @@ export function PageHero({ crumbs, title, intro, icon: Icon, children, aside, bg
           {crumbs && <Crumbs items={crumbs} />}
           <div className="mt-5 flex items-center gap-4">
             {Icon && <span className="hidden h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-saffron text-white shadow-[var(--shadow-md)] sm:flex"><Icon size={26} strokeWidth={1.6} /></span>}
-            <h1 className="text-[28px] leading-[1.08] text-ink sm:text-[36px]">{title}</h1>
+            <h1 className="text-[26px] leading-[1.08] text-ink sm:text-[33px]">{title}</h1>
           </div>
-          {intro && <p className="mt-4 max-w-2xl text-[17px] leading-relaxed text-ink-2">{intro}</p>}
+          {intro && <p className="mt-4 max-w-2xl text-[15.5px] leading-relaxed text-ink-2">{intro}</p>}
           {children}
         </div>
         {aside}
@@ -45,17 +45,17 @@ export function SectionHead({ title, intro, action, align = "center" }: { title:
   if (align === "left") {
     return (
       <div className="mb-7 flex flex-wrap items-end justify-between gap-4">
-        <div><h2 className="text-[24px] leading-tight text-ink sm:text-[26px]">{title}</h2>{intro && <p className="mt-1.5 max-w-2xl text-[15px] text-ink-2">{intro}</p>}</div>
-        {action && <Link href={action.href} className="group flex items-center gap-1 text-[14px] font-medium text-saffron">{action.label}<ArrowRight size={15} className="transition-transform group-hover:translate-x-0.5" /></Link>}
+        <div><h2 className="text-[22px] leading-tight text-ink sm:text-[24px]">{title}</h2>{intro && <p className="mt-1.5 max-w-2xl text-[14px] text-ink-2">{intro}</p>}</div>
+        {action && <Link href={action.href} className="group flex items-center gap-1 text-[13px] font-medium text-saffron">{action.label}<ArrowRight size={15} className="transition-transform group-hover:translate-x-0.5" /></Link>}
       </div>
     );
   }
   return (
     <div className="mb-10 text-center">
-      <h2 className="text-[25px] leading-tight text-ink sm:text-[28px]">{title}</h2>
+      <h2 className="text-[23px] leading-tight text-ink sm:text-[26px]">{title}</h2>
       <Ornament className="mt-3" />
-      {intro && <p className="mx-auto mt-4 max-w-2xl text-[16px] leading-relaxed text-ink-2">{intro}</p>}
-      {action && <Link href={action.href} className="group mt-4 inline-flex items-center gap-1 text-[14px] font-medium text-saffron">{action.label}<ArrowRight size={15} className="transition-transform group-hover:translate-x-0.5" /></Link>}
+      {intro && <p className="mx-auto mt-4 max-w-2xl text-[14.5px] leading-relaxed text-ink-2">{intro}</p>}
+      {action && <Link href={action.href} className="group mt-4 inline-flex items-center gap-1 text-[13px] font-medium text-saffron">{action.label}<ArrowRight size={15} className="transition-transform group-hover:translate-x-0.5" /></Link>}
     </div>
   );
 }
@@ -70,11 +70,11 @@ export function LinkCard({ href, icon: Icon, title, desc, soon, count }: { href:
     <Link href={href} {...(href.startsWith("http") ? { target: "_blank", rel: "noreferrer" } : {})} className="card card-hover group flex gap-4 p-5">
       <span className="mega-ic !h-11 !w-11 group-hover:!border-saffron group-hover:!bg-saffron group-hover:!text-white"><Icon size={20} strokeWidth={1.7} /></span>
       <span className="min-w-0 flex-1">
-        <span className="flex items-center gap-2 text-[16px] font-semibold text-ink group-hover:text-saffron">
+        <span className="flex items-center gap-2 text-[14.5px] font-semibold text-ink group-hover:text-saffron">
           {title}{soon && <span className="rounded-full border border-line px-1.5 text-[10.5px] font-normal text-ink-3">soon</span>}
         </span>
-        <span className="mt-1 block text-[13.5px] leading-snug text-ink-2">{desc}</span>
-        {count && <span className="mt-2 inline-block text-[12.5px] font-medium text-saffron">{count}</span>}
+        <span className="mt-1 block text-[13px] leading-snug text-ink-2">{desc}</span>
+        {count && <span className="mt-2 inline-block text-[12px] font-medium text-saffron">{count}</span>}
       </span>
     </Link>
   );
@@ -86,9 +86,9 @@ export function ArchiveTile({ href, icon: Icon, title, desc, count, tone }: { hr
     <Link href={href} className={`tile tile-${tone} group flex min-h-[230px] flex-col p-7`}>
       <Rosette className="tile-motif text-white" />
       <Icon size={30} strokeWidth={1.3} className="opacity-95" />
-      <h3 className="mt-5 text-[20px] text-white">{title}</h3>
-      <p className="mt-2 max-w-sm text-[14.5px] leading-relaxed text-white/80">{desc}</p>
-      <div className="mt-auto flex items-center justify-between pt-6 text-[13px]">
+      <h3 className="mt-5 text-[18.5px] text-white">{title}</h3>
+      <p className="mt-2 max-w-sm text-[13.5px] leading-relaxed text-white/80">{desc}</p>
+      <div className="mt-auto flex items-center justify-between pt-6 text-[12.5px]">
         {count ? <span className="rounded-full bg-white/15 px-3 py-1 font-medium">{count}</span> : <span />}
         <span className="flex items-center gap-1 font-medium opacity-0 transition group-hover:opacity-100">Open<ArrowRight size={15} /></span>
       </div>
@@ -99,9 +99,9 @@ export function ArchiveTile({ href, icon: Icon, title, desc, count, tone }: { hr
 export function QuoteCard({ text, source, date, place, sample, large }: { text: string; source: string; date?: string; place?: string; sample?: boolean; large?: boolean }) {
   return (
     <figure className="card relative flex h-full flex-col overflow-hidden p-7">
-      <span className="absolute right-5 top-2 font-serif text-[90px] leading-none text-saffron/10" aria-hidden>”</span>
-      <blockquote className={`relative font-serif ${large ? "text-[21px]" : "text-[21px]"} leading-snug ${sample ? "italic text-ink-3" : "text-ink"}`}>{text}</blockquote>
-      <figcaption className="relative mt-auto pt-6 text-[13px] leading-relaxed text-ink-3">
+      <span className="absolute right-5 top-2 font-serif text-[83px] leading-none text-saffron/10" aria-hidden>”</span>
+      <blockquote className={`relative font-serif ${large ? "text-[19.5px]" : "text-[19.5px]"} leading-snug ${sample ? "italic text-ink-3" : "text-ink"}`}>{text}</blockquote>
+      <figcaption className="relative mt-auto pt-6 text-[12.5px] leading-relaxed text-ink-3">
         <span className="font-semibold text-saffron">Śrīla Gurudeva</span>
         <span className="block">{[source, date, place].filter(Boolean).join(", ")}</span>
       </figcaption>
@@ -113,8 +113,8 @@ export function EmptyState({ title, text, icon: Icon }: { title: string; text: s
   return (
     <div className="card flex flex-col items-center px-6 py-16 text-center">
       <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-saffron-soft text-saffron"><Icon size={26} strokeWidth={1.5} /></span>
-      <p className="mt-5 font-serif text-[18px]">{title}</p>
-      <p className="mt-2 max-w-md text-[14.5px] text-ink-2">{text}</p>
+      <p className="mt-5 font-serif text-[16.5px]">{title}</p>
+      <p className="mt-2 max-w-md text-[13.5px] text-ink-2">{text}</p>
     </div>
   );
 }

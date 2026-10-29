@@ -19,10 +19,10 @@ function Original() {
           {TIMELINE.map((e) => (
             <li key={e.year} className="reveal relative mb-12">
               <span className="absolute -left-[49px] top-2 flex h-4 w-4 items-center justify-center rounded-full border-[3px] border-page bg-saffron ring-4 ring-saffron/15" />
-              <p className="font-serif text-[26px] font-bold leading-none text-saffron">{e.year}</p>
-              <h3 className="mt-2 text-[20px]">{e.title}</h3>
-              <p className="mt-1.5 text-[16px] leading-relaxed text-ink-2">{e.text}</p>
-              <div className="mt-3 flex gap-2 text-[12.5px]">{["Lectures", "Letters", "Photos"].map((x) => <span key={x} className="rounded-full border border-line bg-surface px-2.5 py-0.5 text-ink-2">{x}</span>)}</div>
+              <p className="font-serif text-[24px] font-bold leading-none text-saffron">{e.year}</p>
+              <h3 className="mt-2 text-[18.5px]">{e.title}</h3>
+              <p className="mt-1.5 text-[14.5px] leading-relaxed text-ink-2">{e.text}</p>
+              <div className="mt-3 flex gap-2 text-[12px]">{["Lectures", "Letters", "Photos"].map((x) => <span key={x} className="rounded-full border border-line bg-surface px-2.5 py-0.5 text-ink-2">{x}</span>)}</div>
             </li>
           ))}
         </ol>

@@ -54,7 +54,7 @@ export function SearchPalette() {
               if (e.key === "ArrowUp") { e.preventDefault(); setSel((s) => Math.max(0, s - 1)); }
               if (e.key === "Enter" && flat[sel]) go(flat[sel].href);
             }}
-            placeholder="Search lectures, quotes, verses, places, dates…" className="h-[60px] flex-1 bg-transparent text-[16px] text-ink outline-none placeholder:text-ink-3" />
+            placeholder="Search lectures, quotes, verses, places, dates…" className="h-[60px] flex-1 bg-transparent text-[14.5px] text-ink outline-none placeholder:text-ink-3" />
           <kbd className="rounded-md border border-line px-1.5 py-0.5 text-[11px] text-ink-3">Esc</kbd>
         </div>
         <div className="max-h-[56vh] overflow-y-auto p-2">
@@ -65,7 +65,7 @@ export function SearchPalette() {
                 <button key={r.href + r.label} onMouseEnter={() => setSel(i)} onClick={() => go(r.href)}
                   className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition ${sel === i ? "bg-saffron-tint" : ""}`}>
                   <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${sel === i ? "bg-saffron text-white" : "bg-band text-saffron"}`}><I size={16} strokeWidth={1.8} /></span>
-                  <span className="min-w-0 flex-1"><span className="block truncate text-[14.5px] font-medium text-ink">{r.label}</span>{r.sub && <span className="block truncate text-[12.5px] text-ink-3">{r.sub}</span>}</span>
+                  <span className="min-w-0 flex-1"><span className="block truncate text-[13.5px] font-medium text-ink">{r.label}</span>{r.sub && <span className="block truncate text-[12px] text-ink-3">{r.sub}</span>}</span>
                   {sel === i ? <CornerDownLeft size={15} className="text-saffron" /> : <ArrowRight size={14} className="text-ink-3 opacity-0" />}
                 </button>
               ); })}

@@ -47,14 +47,14 @@ export async function ItemPage({ route, slug }: { route: string; slug: string })
   const e = (await sql`select e.*, a.title as lecture, a.slug as lslug from excerpts e left join audios a on a.id = e.audio_id where e.slug = ${slug} and e.kind = ${r.kind} and e.status = 'published'`.catch(() => []))[0] as any; if (!e) notFound();
   return (
     <Container className="max-w-[820px] py-14">
-      <p className="mb-3 text-[13px] text-ink-3"><Link href={route} className="hover:text-saffron">{r.title}</Link></p>
-      {(e.title || e.verse_ref) && <h1 className="mb-5 text-[28px] font-bold tracking-[-0.025em] sm:text-[34px]">{e.title || e.verse_ref}</h1>}
-      {e.original && <p className="whitespace-pre-line text-center text-[20px] leading-[1.9] text-[#7a3a06]">{e.original}</p>}
-      {e.transliteration && <p className="mt-3 whitespace-pre-line text-center text-[16px] italic leading-[1.85] text-ink-2">{e.transliteration}</p>}
-      {e.translation && <p className="mt-6 text-[18px] font-medium leading-[1.7] text-ink">{e.translation}</p>}
-      {e.text && <blockquote className={`mt-6 whitespace-pre-line leading-[1.8] text-ink ${r.kind === "quote" || r.kind === "desire" || r.kind === "nectar" ? "text-[24px] font-medium" : "text-[17px]"}`}>{r.kind === "quote" ? `“${e.text}”` : e.text}</blockquote>}
-      <p className="mt-6 text-[14px] font-medium text-saffron">{e.lslug ? <Link href={`/teachings/audio/${e.lslug}`} className="hover:underline">{e.lecture}{e.at_sec ? `, at ${durText(e.at_sec)}` : ""}</Link> : e.source || e.author}</p>
-      {e.topics?.length > 0 && <p className="mt-4 flex flex-wrap gap-1.5">{e.topics.map((t: string) => <Link key={t} href={`/search?q=${encodeURIComponent(t)}`} className="rounded-full bg-band px-3 py-1 text-[13px] text-ink-2">{t}</Link>)}</p>}
+      <p className="mb-3 text-[12.5px] text-ink-3"><Link href={route} className="hover:text-saffron">{r.title}</Link></p>
+      {(e.title || e.verse_ref) && <h1 className="mb-5 text-[26px] font-bold tracking-[-0.025em] sm:text-[31.5px]">{e.title || e.verse_ref}</h1>}
+      {e.original && <p className="whitespace-pre-line text-center text-[18.5px] leading-[1.9] text-[#7a3a06]">{e.original}</p>}
+      {e.transliteration && <p className="mt-3 whitespace-pre-line text-center text-[14.5px] italic leading-[1.85] text-ink-2">{e.transliteration}</p>}
+      {e.translation && <p className="mt-6 text-[16.5px] font-medium leading-[1.7] text-ink">{e.translation}</p>}
+      {e.text && <blockquote className={`mt-6 whitespace-pre-line leading-[1.8] text-ink ${r.kind === "quote" || r.kind === "desire" || r.kind === "nectar" ? "text-[22px] font-medium" : "text-[15.5px]"}`}>{r.kind === "quote" ? `“${e.text}”` : e.text}</blockquote>}
+      <p className="mt-6 text-[13px] font-medium text-saffron">{e.lslug ? <Link href={`/teachings/audio/${e.lslug}`} className="hover:underline">{e.lecture}{e.at_sec ? `, at ${durText(e.at_sec)}` : ""}</Link> : e.source || e.author}</p>
+      {e.topics?.length > 0 && <p className="mt-4 flex flex-wrap gap-1.5">{e.topics.map((t: string) => <Link key={t} href={`/search?q=${encodeURIComponent(t)}`} className="rounded-full bg-band px-3 py-1 text-[12.5px] text-ink-2">{t}</Link>)}</p>}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": r.kind === "quote" ? "Quotation" : "CreativeWork", text: e.text || e.translation, name: e.title || undefined, creator: { "@type": "Person", name: "Śrī Śrīmad Gour Govinda Swāmī Gurudeva" }, isPartOf: r.title }) }} />
     </Container>
   );

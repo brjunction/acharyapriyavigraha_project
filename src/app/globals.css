@@ -29,7 +29,7 @@
   --gold: #b9780a; --gold-soft: #fbf0d2;
   --acc: var(--saffron); --acc-soft: var(--saffron-soft); --acc-tint: var(--saffron-tint);
 
-  --page: #f6f4f1;
+  --page: #ffffff;
   --band: #eeeceb;
   --surface: #ffffff;
   --ink: #1f1a17;
@@ -38,7 +38,7 @@
   --line: #e4ded8;
   --line-strong: #d3c9bf;
 
-  --reading-size: 17px;
+  --reading-size: 16px;
   --reading-leading: 1.75;
   --reading-width: 42rem;
   --shadow-sm: 0 1px 2px rgb(60 30 10 / 0.06);
@@ -117,7 +117,7 @@ body {
   background: var(--page);
   color: var(--ink);
   font-family: var(--font-sans);
-  font-size: 15px;
+  font-size: 14px;
   line-height: 1.55;
   font-feature-settings: "cv05", "ss03";
   -webkit-font-smoothing: antialiased;
@@ -352,11 +352,11 @@ main p.hover-glow:hover { color: var(--saffron); }
 
 /* ---- Studio editor: looks like the published page ---- */
 .tj-editor .bn-editor { font-family: "Inter Variable", Inter, system-ui, sans-serif; color: var(--ink-2); background: transparent; }
-.tj-editor .bn-editor .bn-inline-content { font-size: 16.5px; line-height: 1.8; }
+.tj-editor .bn-editor .bn-inline-content { font-size: 15px; line-height: 1.8; }
 .tj-editor [data-content-type="heading"] .bn-inline-content { color: var(--ink); font-weight: 700; letter-spacing: -0.025em; line-height: 1.25; }
-.tj-editor [data-content-type="heading"][data-level="1"] .bn-inline-content { font-size: 32px; }
-.tj-editor [data-content-type="heading"][data-level="2"] .bn-inline-content { font-size: 25px; }
-.tj-editor [data-content-type="heading"][data-level="3"] .bn-inline-content { font-size: 20px; }
+.tj-editor [data-content-type="heading"][data-level="1"] .bn-inline-content { font-size: 29px; }
+.tj-editor [data-content-type="heading"][data-level="2"] .bn-inline-content { font-size: 23px; }
+.tj-editor [data-content-type="heading"][data-level="3"] .bn-inline-content { font-size: 18.5px; }
 .tj-editor [data-content-type="quote"] { border-left: 3px solid color-mix(in srgb, var(--saffron) 70%, white); background: #fdf6e8; padding: 4px 14px; border-radius: 0 10px 10px 0; }
 .tj-editor [data-content-type="quote"] .bn-inline-content { font-style: italic; font-size: 17.5px; color: var(--ink); }
 .tj-editor .bn-block-content[data-content-type="bulletListItem"]::before, .tj-editor .bn-block-content[data-content-type="numberedListItem"]::before { color: var(--saffron); }
@@ -375,5 +375,8 @@ main p.hover-glow:hover { color: var(--saffron); }
 
 /* ---- Studio (admin) look: neutral, shadcn-like. The page canvas keeps the website's own colours. ---- */
 .admin { --ink: #09090b; --ink-2: #3f3f46; --ink-3: #71717a; --line: #e4e4e7; --line-strong: #d4d4d8; --band: #f4f4f5; --page: #ffffff; --surface: #ffffff; --saffron: #18181b; --saffron-soft: #f4f4f5; --saffron-tint: #fafafa; font-size: 14px; color: #09090b; }
-.admin .site-canvas { --ink: #1f1a17; --ink-2: #57504a; --ink-3: #8a827b; --line: #e4ded8; --line-strong: #d3c9bf; --band: #eeeceb; --page: #f6f4f1; --surface: #ffffff; --saffron: #853500; --saffron-soft: #f6ebe3; --saffron-tint: #fbf5f0; }
+.admin .site-canvas { --ink: #1f1a17; --ink-2: #57504a; --ink-3: #8a827b; --line: #e4ded8; --line-strong: #d3c9bf; --band: #eeeceb; --page: #ffffff; --surface: #ffffff; --saffron: #853500; --saffron-soft: #f6ebe3; --saffron-tint: #fbf5f0; }
 .admin .shadow-xs { box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05); }
+
+/* Top bar can be hidden by the reader, or by a page setting */
+html.nav-hidden .site-header { display: none; }

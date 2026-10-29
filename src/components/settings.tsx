@@ -8,22 +8,22 @@ function Seg<T extends string | number>({ value, options, onChange }: { value: T
     <div className="grid gap-1 rounded-xl bg-band p-1" style={{ gridTemplateColumns: `repeat(${options.length}, minmax(0,1fr))` }}>
       {options.map((o) => (
         <button key={String(o.v)} onClick={() => onChange(o.v)} aria-pressed={value === o.v}
-          className={`flex items-center justify-center gap-1.5 rounded-lg px-1.5 py-1.5 text-[12.5px] transition ${value === o.v ? "bg-surface font-medium text-ink shadow-[var(--shadow-sm)]" : "text-ink-3 hover:text-ink"}`}>{o.label}</button>
+          className={`flex items-center justify-center gap-1.5 rounded-lg px-1.5 py-1.5 text-[12px] transition ${value === o.v ? "bg-surface font-medium text-ink shadow-[var(--shadow-sm)]" : "text-ink-3 hover:text-ink"}`}>{o.label}</button>
       ))}
     </div>
   );
 }
 const Row = ({ label, children, aside }: { label: string; children: React.ReactNode; aside?: React.ReactNode }) => (
-  <div><div className="mb-1.5 flex items-center justify-between text-[12.5px] font-medium text-ink-2"><span>{label}</span>{aside}</div>{children}</div>
+  <div><div className="mb-1.5 flex items-center justify-between text-[12px] font-medium text-ink-2"><span>{label}</span>{aside}</div>{children}</div>
 );
 
 export function SettingsPanel({ compact = false }: { compact?: boolean }) {
   const { prefs, set, reset } = usePrefs();
   return (
     <div className="space-y-4">
-      {!compact && <div className="flex items-center justify-between"><p className="font-serif text-lg">Settings</p><button onClick={reset} className="flex items-center gap-1 text-[12px] text-ink-3 hover:text-saffron"><RotateCcw size={12} />Reset</button></div>}
+      {!compact && <div className="flex items-center justify-between"><p className="font-serif text-lg">Settings</p><button onClick={reset} className="flex items-center gap-1 text-[11.5px] text-ink-3 hover:text-saffron"><RotateCcw size={12} />Reset</button></div>}
       <Row label="Language">
-        <select value={prefs.lang} onChange={(e) => set("lang", e.target.value)} className="h-9 w-full rounded-xl border border-line bg-surface px-3 text-[13.5px] text-ink outline-none focus:border-saffron">
+        <select value={prefs.lang} onChange={(e) => set("lang", e.target.value)} className="h-9 w-full rounded-xl border border-line bg-surface px-3 text-[13px] text-ink outline-none focus:border-saffron">
           {LANGUAGES.map((l) => <option key={l.code} value={l.code}>{l.native}{l.native !== l.name ? ` · ${l.name}` : ""}</option>)}
         </select>
       </Row>
@@ -43,7 +43,7 @@ export function SettingsPanel({ compact = false }: { compact?: boolean }) {
       </Row>
       <div className="space-y-1 border-t border-line pt-3">
         {([["diacritics", "Show diacritics (Śrīmad)"], ["reduceMotion", "Reduce motion"]] as const).map(([k, l]) => (
-          <label key={k} className="flex cursor-pointer items-center justify-between rounded-lg py-1.5 text-[13.5px]">
+          <label key={k} className="flex cursor-pointer items-center justify-between rounded-lg py-1.5 text-[13px]">
             {l}
             <span className="relative inline-flex">
               <input type="checkbox" checked={prefs[k] as boolean} onChange={(e) => set(k, e.target.checked)} className="peer sr-only" />

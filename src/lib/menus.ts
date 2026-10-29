@@ -31,13 +31,16 @@ export function toJson(menus: NavMenu[] = MENUS): MenuJ[] {
 }
 
 /** Applies saved menus over the built-in ones, keeping layout options and generated menus. */
+/** Menus switched off for now (translations come later). */
+export const HIDDEN_MENUS = ["translations"];
 export function hydrate(saved: MenuJ[] | null | undefined): NavMenu[] {
-  if (!saved?.length) return MENUS;
-  return MENUS.flatMap((base) => {
+  const base0 = MENUS.filter((m) => !HIDDEN_MENUS.includes(m.key));
+  if (!saved?.length) return base0;
+  return base0.flatMap((base) => {
     if (!EDITABLE(base)) return [base];
     const s = saved.find((x) => x.key === base.key); if (!s) return [base];
     if (s.hidden) return [];
     return [{ ...base, label: s.label || base.label, href: s.href || base.href, icon: iconOf(s.icon, base.icon), intro: s.intro ?? base.intro, allLabel: s.allLabel || base.allLabel,
-      groups: s.groups.map((g) => ({ title: g.title, links: g.links.filter((l) => !l.hidden).map((l) => ({ href: l.href, label: l.label, desc: l.desc, icon: iconOf(l.icon, ICONS.FileText), soon: l.soon })) })) }];
+      groups: s.groups.map((g) => ({ title: g.title, links: g.links.filter((l) => !l.hidden).map((l) => (l.href === "/gurudeva/diaries" && /short/i.test(l.desc || "") ? { href: l.href, label: l.label, desc: "His prayers to Śrī Gopāl Jiu", icon: ICONS.NotebookPen || iconOf(l.icon, ICONS.FileText), soon: l.soon } : { href: l.href, label: l.label, desc: l.desc, icon: iconOf(l.icon, ICONS.FileText), soon: l.soon })) })) }];
   });
 }

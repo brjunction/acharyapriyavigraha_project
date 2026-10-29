@@ -18,7 +18,7 @@ export async function MenuHub({ menuKey, children, aside, before }: { menuKey: s
     <>
       <PageHero crumbs={[{ label: menu.label }]} title={menu.label} intro={menu.intro} icon={menu.icon} aside={aside} bg={HERO_BG[menuKey]?.[0] ?? "cream-watercolor"} flip={HERO_BG[menuKey]?.[1] ?? false}>
         <div className="mt-6 flex flex-wrap gap-2">
-          {menu.groups.map((g) => <a key={g.title} href={`#${slug(g.title)}`} className="rounded-full border border-line bg-surface px-3.5 py-1.5 text-[13px] text-ink-2 transition hover:border-saffron hover:text-saffron">{g.title}</a>)}
+          {menu.groups.map((g) => <a key={g.title} href={`#${slug(g.title)}`} className="rounded-full border border-line bg-surface px-3.5 py-1.5 text-[12.5px] text-ink-2 transition hover:border-saffron hover:text-saffron">{g.title}</a>)}
         </div>
       </PageHero>
       {before}
@@ -26,9 +26,9 @@ export async function MenuHub({ menuKey, children, aside, before }: { menuKey: s
         {menu.groups.map((g, i) => (
           <section key={g.title} id={slug(g.title)} className="reveal scroll-mt-28 pb-14">
             <div className="mb-5 flex items-center gap-4">
-              <h2 className="text-[22px]">{g.title}</h2>
+              <h2 className="text-[20px]">{g.title}</h2>
               <span className="h-px flex-1 bg-gradient-to-r from-line-strong to-transparent" />
-              <span className="text-[13px] text-ink-3">{g.links.length} {g.links.length === 1 ? "section" : "sections"}</span>
+              <span className="text-[12.5px] text-ink-3">{g.links.length} {g.links.length === 1 ? "section" : "sections"}</span>
             </div>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {g.links.map((l) => <LinkCard key={l.href + l.label} href={l.href} icon={l.icon} title={l.label} desc={l.desc} soon={l.soon} />)}
@@ -60,17 +60,17 @@ export async function SectionPage({ href }: { href: string }) {
             text={`This page is designed and ready. Its content comes from the Taptajīvanam archive and is managed in the dashboard.`} />
         </div>
         <aside>
-          <p className="mb-3 text-[12px] font-semibold uppercase tracking-[0.14em] text-saffron">{group.title}</p>
+          <p className="mb-3 text-[11.5px] font-semibold uppercase tracking-[0.14em] text-saffron">{group.title}</p>
           <div className="card divide-y divide-line">
             {siblings.map((l) => { const I = l.icon; return (
               <Link key={l.href + l.label} href={l.href} className="group flex items-center gap-3 px-4 py-3 hover:bg-saffron-tint">
                 <I size={17} strokeWidth={1.7} className="shrink-0 text-saffron" />
-                <span className="flex-1 text-[14.5px] font-medium group-hover:text-saffron">{l.label}</span>
+                <span className="flex-1 text-[13.5px] font-medium group-hover:text-saffron">{l.label}</span>
                 <ArrowRight size={14} className="text-ink-3 opacity-0 transition group-hover:opacity-100" />
               </Link>
             ); })}
           </div>
-          <Link href={menu.href} className="mt-4 inline-flex items-center gap-1 text-[14px] font-medium text-saffron">All of {menu.label}<ArrowRight size={15} /></Link>
+          <Link href={menu.href} className="mt-4 inline-flex items-center gap-1 text-[13px] font-medium text-saffron">All of {menu.label}<ArrowRight size={15} /></Link>
         </aside>
       </Container>
     </>

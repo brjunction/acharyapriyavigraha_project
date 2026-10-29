@@ -28,11 +28,11 @@ export default async function Row({ params }: { params: Promise<{ db: string; sl
     <Container className="py-12">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ld) }} />
       <article className="mx-auto max-w-[760px]">
-        <p className="mb-2 text-[13px] text-ink-3"><Link href="/" className="hover:text-saffron">Home</Link> / {r.dbname}</p>
-        <h1 className="mb-6 text-[30px] font-bold leading-tight tracking-[-0.025em] sm:text-[38px]">{r.title}</h1>
+        <p className="mb-2 text-[12.5px] text-ink-3"><Link href="/" className="hover:text-saffron">Home</Link> / {r.dbname}</p>
+        <h1 className="mb-6 text-[27.5px] font-bold leading-tight tracking-[-0.025em] sm:text-[35px]">{r.title}</h1>
         <dl className="grid gap-x-6 gap-y-3 rounded-2xl border border-line bg-[#fdfaf4] p-5 sm:grid-cols-[180px_minmax(0,1fr)]">{fields.map((f) => { const v = r.data?.[f.key]; if (v === undefined || v === null || v === "" || (Array.isArray(v) && !v.length)) return null; const t = ({ short: "text", link: "url", image: "file" } as any)[f.type] || f.type; return (
-          <div key={f.key} className="contents"><dt className="text-[13px] font-semibold text-ink-3">{f.label}</dt>
-            <dd className="min-w-0 text-[15.5px] leading-relaxed text-ink-2">{t === "select" || t === "multi" ? <span className="flex flex-wrap gap-1.5">{(Array.isArray(v) ? v : [v]).map((n: string) => { const o = opts((f as any).options).find((x) => x.name === n) || { name: n, color: "gray" }; return <span key={n} className="rounded px-2 py-0.5 text-[13px]" style={{ background: COLORS[o.color]?.bg, color: COLORS[o.color]?.text }}>{n}</span>; })}</span>
+          <div key={f.key} className="contents"><dt className="text-[12.5px] font-semibold text-ink-3">{f.label}</dt>
+            <dd className="min-w-0 text-[14.5px] leading-relaxed text-ink-2">{t === "select" || t === "multi" ? <span className="flex flex-wrap gap-1.5">{(Array.isArray(v) ? v : [v]).map((n: string) => { const o = opts((f as any).options).find((x) => x.name === n) || { name: n, color: "gray" }; return <span key={n} className="rounded px-2 py-0.5 text-[12.5px]" style={{ background: COLORS[o.color]?.bg, color: COLORS[o.color]?.text }}>{n}</span>; })}</span>
               : t === "audio" ? <audio src={String(v)} controls preload="none" className="w-full" />
               : t === "video" ? (ytId(String(v)) ? <div className="aspect-video overflow-hidden rounded-xl"><iframe src={`https://www.youtube-nocookie.com/embed/${ytId(String(v))}`} className="h-full w-full" title={r.title} allowFullScreen /></div> : <video src={String(v)} controls className="w-full rounded-xl" />)
               : t === "file" ? (/\.(png|jpe?g|webp|gif|svg|avif)$|\/api\/media\//i.test(v) ? /* eslint-disable-next-line @next/next/no-img-element */ <img src={String(v)} alt={r.title} className="max-h-[360px] rounded-xl" /> : <a href={String(v)} className="text-saffron underline">Download</a>)

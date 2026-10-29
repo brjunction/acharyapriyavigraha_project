@@ -12,16 +12,11 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 export default async function Entry({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params; const e = await get(slug); if (!e) notFound();
   return (
-    <Container className="max-w-[1000px] py-14">
-      <p className="text-[13px] text-ink-3"><Link href="/gurudeva/diaries" className="hover:text-saffron">His Diary</Link></p>
-      <h1 className="mt-2 font-[Gentium_Book_Plus,Georgia,serif] text-[30px] italic text-[#7a2a1c]">{when(e)}</h1>
-      {(e.title || e.place) && <p className="mt-1 text-[13px] uppercase tracking-[0.14em] text-ink-3">{[e.title, e.place].filter(Boolean).join(" · ")}</p>}
-      <div className="mt-8 grid gap-8 md:grid-cols-2">
-        {e.original && <div className="rounded-2xl bg-[#fbf2dc] p-7"><p className="mb-3 text-[11.5px] font-semibold uppercase tracking-[0.2em] text-[#a07a45]">His words</p><p lang={e.original_lang || undefined} className="whitespace-pre-line text-[18px] leading-[1.9] text-[#2a1606]">{e.original}</p></div>}
-        {e.translation && <div className="rounded-2xl border border-[#ead7ae] p-7"><p className="mb-3 text-[11.5px] font-semibold uppercase tracking-[0.2em] text-[#a07a45]">Translation</p><p className="whitespace-pre-line text-[17px] leading-[1.85] text-ink">{e.translation}</p></div>}
-      </div>
-      {e.scan_url && /* eslint-disable-next-line @next/next/no-img-element */ <img src={e.scan_url} alt={`Handwritten page, ${when(e)}`} className="mx-auto mt-8 max-h-[80vh] rounded-xl shadow-lg" />}
-      <p className="mt-10 text-center"><Link href={`/gurudeva/diaries?e=${e.slug}`} className="inline-flex h-11 items-center rounded-full bg-[#5a1d14] px-6 font-medium text-[#f6dca6]">Open this page in the diary</Link></p>
+    <Container className="max-w-[760px] py-10 sm:py-14">
+      <p className="text-[12.5px] text-ink-3"><Link href="/gurudeva/diaries" className="hover:text-saffron">His Diary</Link></p>
+      <h1 className="mt-2 font-[Gentium_Book_Plus,Georgia,serif] text-[22px] italic sm:text-[25px] text-[#7a2a1c]">{when(e)}</h1>
+      <div className="mt-6 rounded-2xl border border-[#ead7ae] bg-[#fffcf5] p-6 sm:p-8"><p className="whitespace-pre-line text-[15px] leading-[1.85] text-ink">{e.translation}</p></div>
+      <p className="mt-10 text-center"><Link href={`/gurudeva/diaries?e=${e.slug}`} className="inline-flex h-10 items-center rounded-full bg-[#5a1d14] px-5 text-[13.5px] font-medium text-[#f6dca6]">Open this page in the diary</Link></p>
     </Container>
   );
 }

@@ -14,7 +14,7 @@ export function FolioPanel() {
       <PageHeader icon={BookMarked} title="WebFolio" description="The whole archive as one document, like a folio: a contents tree on the left and every text on the right, searchable with F2. It is built from the same lectures, books and pages, so nothing is entered twice.">
         <a href="/webfolio" target="_blank"><Btn><ExternalLink />Open WebFolio</Btn></a><Btn kind="primary" busy={busy} onClick={async () => { setBusy(true); try { await api("/api/admin/folio", "PUT", { sections: s }); toast("Saved."); } catch (e: any) { toast(e.message, true); } finally { setBusy(false); } }}>Save</Btn>
       </PageHeader>
-      <p className="mb-3 text-[14px] font-medium">Sections, in the order readers see them</p>
+      <p className="mb-3 text-[13px] font-medium">Sections, in the order readers see them</p>
       <Card className="divide-y divide-zinc-100">{s.map((x, i) => (
         <div key={i} className="flex flex-wrap items-center gap-2 px-3 py-2.5">
           <GripVertical className="size-4 text-zinc-300" />

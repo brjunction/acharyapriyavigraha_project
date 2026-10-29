@@ -27,7 +27,7 @@ export function VideosPanel() {
         <div className="relative ml-auto min-w-[220px]"><Search className="absolute left-2.5 top-2.5 size-4 text-zinc-400" /><Input value={qq} onChange={(e) => { setQq(e.target.value); clearTimeout(t.current); t.current = setTimeout(() => { setQ(e.target.value); setPage(1); }, 300); }} placeholder="Search videos" className="pl-8" /></div>
         <Select value={year} onChange={(e) => { setYear(e.target.value); setPage(1); }} className="!w-auto"><option value="">All years</option>{data?.years.map((y) => <option key={y.year} value={y.year}>{y.year} ({y.n})</option>)}</Select>
       </div>
-      {sel.size > 0 && <div className="mb-3 flex flex-wrap items-center gap-2 rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-[13px]"><b>{sel.size} selected</b>
+      {sel.size > 0 && <div className="mb-3 flex flex-wrap items-center gap-2 rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-[12.5px]"><b>{sel.size} selected</b>
         <Select className="!h-8 !w-48" value="" onChange={(e) => e.target.value && bulk({ set: { kind: e.target.value } }, "Kind changed.")}><option value="">Set kind…</option>{VIDEO_KINDS.map(([k, l]) => <option key={k} value={k}>{l}</option>)}</Select>
         <Btn size="sm" onClick={() => bulk({ set: { status: "published" } }, "Live.")}><Eye />Make live</Btn><Btn size="sm" onClick={() => bulk({ set: { status: "draft" } }, "Hidden.")}><EyeOff />Hide</Btn>
         <Btn size="sm" kind="danger" onClick={() => confirm(`Delete ${sel.size} videos?`) && bulk({ delete: true }, "Deleted.")}><Trash2 />Delete</Btn><button onClick={() => setSel(new Set())} className="ml-auto text-zinc-500">Clear</button></div>}
@@ -37,9 +37,9 @@ export function VideosPanel() {
             <div className="relative aspect-video cursor-pointer bg-zinc-100" onClick={() => setEdit(r.id)}>{r.youtube_id && /* eslint-disable-next-line @next/next/no-img-element */ <img src={`https://i.ytimg.com/vi/${r.youtube_id}/mqdefault.jpg`} alt="" className="h-full w-full object-cover" />}
               <input type="checkbox" checked={sel.has(r.id)} onClick={(e) => e.stopPropagation()} onChange={() => setSel((s) => { const n = new Set(s); if (n.has(r.id)) n.delete(r.id); else n.add(r.id); return n; })} className={cn("absolute left-2 top-2 size-4 accent-zinc-900", !sel.size && "opacity-0 group-hover:opacity-100")} />
               {r.status !== "published" && <Badge className="absolute right-2 top-2">Hidden</Badge>}</div>
-            <button onClick={() => setEdit(r.id)} className="block w-full p-3 text-left"><p className="line-clamp-2 text-[14px] font-medium leading-snug">{r.title}</p><p className="mt-1 text-[12.5px] text-zinc-500">{[VIDEO_KINDS.find(([k]) => k === r.kind)?.[1], r.date && new Date(r.date).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }), r.place].filter(Boolean).join(" · ")}</p></button>
+            <button onClick={() => setEdit(r.id)} className="block w-full p-3 text-left"><p className="line-clamp-2 text-[13px] font-medium leading-snug">{r.title}</p><p className="mt-1 text-[12px] text-zinc-500">{[VIDEO_KINDS.find(([k]) => k === r.kind)?.[1], r.date && new Date(r.date).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }), r.place].filter(Boolean).join(" · ")}</p></button>
           </Card>))}</div>)}
-      {data && data.total > 60 && <div className="mt-4 flex justify-center gap-2"><Btn size="sm" disabled={page <= 1} onClick={() => setPage(page - 1)}>Previous</Btn><span className="self-center text-[13px] text-zinc-500">Page {page} of {Math.ceil(data.total / 60)}</span><Btn size="sm" disabled={page * 60 >= data.total} onClick={() => setPage(page + 1)}>Next</Btn></div>}
+      {data && data.total > 60 && <div className="mt-4 flex justify-center gap-2"><Btn size="sm" disabled={page <= 1} onClick={() => setPage(page - 1)}>Previous</Btn><span className="self-center text-[12.5px] text-zinc-500">Page {page} of {Math.ceil(data.total / 60)}</span><Btn size="sm" disabled={page * 60 >= data.total} onClick={() => setPage(page + 1)}>Next</Btn></div>}
       {edit && <VideoEditor id={edit} onClose={() => setEdit(null)} onSaved={load} />}
       {yt && <YouTubeImport onClose={() => setYt(false)} onDone={() => { setYt(false); load(); }} />}
     </div>
@@ -64,7 +64,7 @@ function VideoEditor({ id, onClose, onSaved }: { id: string; onClose: () => void
         <Field label="Topics"><TopicsInput value={v.topics || []} onChange={(x) => set("topics", x)} /></Field>
         <Field label="Description"><Textarea value={v.description || ""} onChange={(e) => set("description", e.target.value)} /></Field>
         <Field label="Shown on the website"><Select value={v.status} onChange={(e) => set("status", e.target.value)}><option value="published">Yes, live</option><option value="draft">No, hidden</option></Select></Field>
-        {id !== "new" && <div className="flex justify-between border-t border-zinc-200 pt-4">{y && <a href={`https://www.youtube.com/watch?v=${y}`} target="_blank" className="flex items-center gap-1 text-[13px] text-zinc-600"><ExternalLink className="size-4" />Open on YouTube</a>}<Btn size="sm" kind="danger" onClick={async () => { if (!confirm("Delete this video?")) return; await api(`/api/admin/videos/${id}`, "DELETE"); onSaved(); onClose(); }}><Trash2 />Delete</Btn></div>}
+        {id !== "new" && <div className="flex justify-between border-t border-zinc-200 pt-4">{y && <a href={`https://www.youtube.com/watch?v=${y}`} target="_blank" className="flex items-center gap-1 text-[12.5px] text-zinc-600"><ExternalLink className="size-4" />Open on YouTube</a>}<Btn size="sm" kind="danger" onClick={async () => { if (!confirm("Delete this video?")) return; await api(`/api/admin/videos/${id}`, "DELETE"); onSaved(); onClose(); }}><Trash2 />Delete</Btn></div>}
       </div>
     </Sheet>
   );

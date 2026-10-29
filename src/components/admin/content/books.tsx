@@ -23,13 +23,13 @@ export function BooksPanel() {
       {books && !books.length && <Empty icon={BookOpen} title="No books yet" text="Make the first book, then add its parts and chapters."><Btn kind="primary" onClick={() => setNw(true)}><Plus />New book</Btn></Empty>}
       {cats.map((c) => (
         <section key={c} className="mb-8">
-          <h2 className="mb-3 text-[14px] font-semibold text-zinc-500">{c}</h2>
+          <h2 className="mb-3 text-[13px] font-semibold text-zinc-500">{c}</h2>
           <div className="grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-5">{(books || []).filter((b) => (b.category || "Books") === c).map((b) => (
             <Link key={b.id} href={`/admin/books/${b.id}`} className="group">
               <div className="relative aspect-[3/4] overflow-hidden rounded-[3px_10px_10px_3px] border border-zinc-200 bg-gradient-to-br from-zinc-700 to-zinc-900 shadow-sm transition group-hover:-translate-y-1 group-hover:shadow-lg">
-                {b.cover_url ? /* eslint-disable-next-line @next/next/no-img-element */ <img src={b.cover_url} alt="" className="h-full w-full object-cover" /> : <div className="flex h-full flex-col items-center justify-center gap-3 p-4 text-center text-white"><span className="text-[28px]">{b.icon || "📖"}</span><span className="text-[14px] font-semibold leading-snug">{b.title}</span></div>}
+                {b.cover_url ? /* eslint-disable-next-line @next/next/no-img-element */ <img src={b.cover_url} alt="" className="h-full w-full object-cover" /> : <div className="flex h-full flex-col items-center justify-center gap-3 p-4 text-center text-white"><span className="text-[26px]">{b.icon || "📖"}</span><span className="text-[13px] font-semibold leading-snug">{b.title}</span></div>}
                 <span className="absolute inset-y-0 left-0 w-2 bg-gradient-to-r from-black/30 to-transparent" />{b.status !== "published" && <Badge className="absolute right-2 top-2">Draft</Badge>}</div>
-              <p className="mt-2 truncate text-[14px] font-medium">{b.title}</p><p className="text-[12.5px] text-zinc-500">{b.chapters} chapters · {LAYOUTS.find((l) => l[0] === b.layout)?.[1]}</p>
+              <p className="mt-2 truncate text-[13px] font-medium">{b.title}</p><p className="text-[12px] text-zinc-500">{b.chapters} chapters · {LAYOUTS.find((l) => l[0] === b.layout)?.[1]}</p>
             </Link>))}</div>
         </section>))}
       {nw && <Modal title="New book" onClose={() => setNw(false)}>
@@ -55,7 +55,7 @@ export function BookEditor({ id }: { id: string }) {
 
   const Tree = ({ p, depth }: { p: string | null; depth: number }) => <>{kids(p).map((n, i, arr) => { const ch = kids(n.id); const prev = arr[i - 1]; return (
     <div key={n.id}>
-      <div className={cn("group flex h-8 items-center gap-1 rounded-md pr-1 text-[13.5px]", cur === n.id ? "bg-zinc-200/70 font-medium" : "hover:bg-zinc-100")} style={{ paddingLeft: 4 + depth * 14 }}>
+      <div className={cn("group flex h-8 items-center gap-1 rounded-md pr-1 text-[13px]", cur === n.id ? "bg-zinc-200/70 font-medium" : "hover:bg-zinc-100")} style={{ paddingLeft: 4 + depth * 14 }}>
         <button onClick={() => setOpen((o) => ({ ...o, [n.id]: !o[n.id] }))} className="flex size-5 items-center justify-center rounded text-zinc-400 hover:bg-zinc-200"><ChevronRight className={cn("size-3.5 transition", open[n.id] && "rotate-90", !ch.length && "opacity-30")} /></button>
         <button onClick={() => setCur(n.id)} className="flex min-w-0 flex-1 items-center gap-1.5 text-left">{n.kind === "part" ? <Folder className="size-4 shrink-0 text-zinc-500" /> : <FileText className="size-4 shrink-0 text-zinc-400" />}<span className="text-[11.5px] tabular-nums text-zinc-400">{number[n.id]}</span><span className="truncate">{n.title}</span>{!n.has_text && n.kind !== "part" && <span className="size-1.5 shrink-0 rounded-full bg-amber-400" title="No text yet" />}</button>
         <span className="hidden items-center group-hover:flex">
@@ -73,13 +73,13 @@ export function BookEditor({ id }: { id: string }) {
   return (
     <div className="flex min-h-screen">
       <aside className="sticky top-0 h-screen w-[300px] shrink-0 overflow-y-auto border-r border-zinc-200 bg-white p-3">
-        <Link href="/admin/books" className="mb-3 flex items-center gap-1.5 px-1 text-[13px] text-zinc-500 hover:text-zinc-900"><ArrowLeft className="size-4" />All books</Link>
+        <Link href="/admin/books" className="mb-3 flex items-center gap-1.5 px-1 text-[12.5px] text-zinc-500 hover:text-zinc-900"><ArrowLeft className="size-4" />All books</Link>
         <button onClick={() => setCur(null)} className={cn("mb-3 flex w-full items-center gap-3 rounded-lg border p-2.5 text-left", !cur ? "border-zinc-900 bg-zinc-50" : "border-zinc-200 hover:bg-zinc-50")}>
-          <span className="flex h-14 w-10 shrink-0 items-center justify-center overflow-hidden rounded-[2px_6px_6px_2px] bg-zinc-800 text-[18px]">{book.cover_url ? /* eslint-disable-next-line @next/next/no-img-element */ <img src={book.cover_url} alt="" className="h-full w-full object-cover" /> : book.icon || "📖"}</span>
-          <span className="min-w-0"><span className="block truncate text-[14px] font-semibold">{book.title}</span><span className="flex items-center gap-1 text-[12px] text-zinc-500"><Settings2 className="size-3" />Book details & layout</span></span>
+          <span className="flex h-14 w-10 shrink-0 items-center justify-center overflow-hidden rounded-[2px_6px_6px_2px] bg-zinc-800 text-[16.5px]">{book.cover_url ? /* eslint-disable-next-line @next/next/no-img-element */ <img src={book.cover_url} alt="" className="h-full w-full object-cover" /> : book.icon || "📖"}</span>
+          <span className="min-w-0"><span className="block truncate text-[13px] font-semibold">{book.title}</span><span className="flex items-center gap-1 text-[11.5px] text-zinc-500"><Settings2 className="size-3" />Book details & layout</span></span>
         </button>
-        <div className="mb-1 flex items-center justify-between px-1 text-[12px] font-medium text-zinc-500"><span>Contents</span><span className="flex gap-1"><button onClick={() => add(null, "part")} className="rounded px-1.5 py-0.5 hover:bg-zinc-100">+ Part</button><button onClick={() => add(null)} className="rounded px-1.5 py-0.5 hover:bg-zinc-100">+ Chapter</button></span></div>
-        {nodes.length ? <Tree p={null} depth={0} /> : <p className="px-2 py-3 text-[13px] text-zinc-500">No chapters yet. Add a part (like “Volume One”) or a chapter.</p>}
+        <div className="mb-1 flex items-center justify-between px-1 text-[11.5px] font-medium text-zinc-500"><span>Contents</span><span className="flex gap-1"><button onClick={() => add(null, "part")} className="rounded px-1.5 py-0.5 hover:bg-zinc-100">+ Part</button><button onClick={() => add(null)} className="rounded px-1.5 py-0.5 hover:bg-zinc-100">+ Chapter</button></span></div>
+        {nodes.length ? <Tree p={null} depth={0} /> : <p className="px-2 py-3 text-[12.5px] text-zinc-500">No chapters yet. Add a part (like “Volume One”) or a chapter.</p>}
       </aside>
       <main className="min-w-0 flex-1">{cur ? <NodeEditor key={cur} id={cur} book={book} number={number[cur]} onChanged={load} /> : <BookDetails book={book} onSaved={load} />}</main>
     </div>
@@ -92,9 +92,9 @@ function BookDetails({ book, onSaved }: { book: any; onSaved: () => void }) {
   const save = async (extra: any = {}) => { setBusy(true); try { await api(`/api/admin/books/${book.id}`, "PATCH", { ...b, ...extra }); toast("Saved."); onSaved(); if (extra.status) set("status", extra.status); } catch (e: any) { toast(e.message, true); } finally { setBusy(false); } };
   return (
     <div className="mx-auto max-w-3xl p-8">
-      <div className="mb-6 flex items-center justify-between"><h1 className="text-[22px] font-semibold tracking-tight">Book details</h1><div className="flex gap-2">{b.status === "published" && <a href={`/books/${b.slug}`} target="_blank"><Btn><ExternalLink />View</Btn></a>}<Btn onClick={() => save({ status: b.status === "published" ? "draft" : "published" })}>{b.status === "published" ? "Hide" : "Publish"}</Btn><Btn kind="primary" busy={busy} onClick={() => save()}>Save</Btn></div></div>
+      <div className="mb-6 flex items-center justify-between"><h1 className="text-[20px] font-semibold tracking-tight">Book details</h1><div className="flex gap-2">{b.status === "published" && <a href={`/books/${b.slug}`} target="_blank"><Btn><ExternalLink />View</Btn></a>}<Btn onClick={() => save({ status: b.status === "published" ? "draft" : "published" })}>{b.status === "published" ? "Hide" : "Publish"}</Btn><Btn kind="primary" busy={busy} onClick={() => save()}>Save</Btn></div></div>
       <div className="grid gap-6 sm:grid-cols-[180px_minmax(0,1fr)]">
-        <div><button onClick={() => setPic(true)} className="flex aspect-[3/4] w-full items-center justify-center overflow-hidden rounded-[3px_10px_10px_3px] border border-dashed border-zinc-300 bg-zinc-50 text-[13px] text-zinc-500 hover:border-zinc-400">{b.cover_url ? /* eslint-disable-next-line @next/next/no-img-element */ <img src={b.cover_url} alt="" className="h-full w-full object-cover" /> : <span className="flex flex-col items-center gap-1"><ImageIcon className="size-5" />Choose cover</span>}</button>{b.cover_url && <button onClick={() => set("cover_url", "")} className="mt-1 text-[12px] text-zinc-500">Remove cover</button>}
+        <div><button onClick={() => setPic(true)} className="flex aspect-[3/4] w-full items-center justify-center overflow-hidden rounded-[3px_10px_10px_3px] border border-dashed border-zinc-300 bg-zinc-50 text-[12.5px] text-zinc-500 hover:border-zinc-400">{b.cover_url ? /* eslint-disable-next-line @next/next/no-img-element */ <img src={b.cover_url} alt="" className="h-full w-full object-cover" /> : <span className="flex flex-col items-center gap-1"><ImageIcon className="size-5" />Choose cover</span>}</button>{b.cover_url && <button onClick={() => set("cover_url", "")} className="mt-1 text-[11.5px] text-zinc-500">Remove cover</button>}
           <Field label="Icon (emoji)" className="mt-4"><Input value={b.icon || ""} onChange={(e) => set("icon", e.target.value)} placeholder="📖" /></Field></div>
         <div className="space-y-4">
           <Field label="Title"><Input value={b.title} onChange={(e) => set("title", e.target.value)} /></Field>
@@ -105,8 +105,8 @@ function BookDetails({ book, onSaved }: { book: any; onSaved: () => void }) {
           <Field label="Web address" hint={`taptajivanam.com/books/${b.slug}`}><Input value={b.slug} onChange={(e) => set("slug", e.target.value)} /></Field>
         </div>
       </div>
-      <h2 className="mb-3 mt-8 text-[15px] font-semibold">Layout</h2>
-      <div className="grid gap-3 sm:grid-cols-2">{LAYOUTS.map(([k, l, d]) => <button key={k} onClick={() => set("layout", k)} className={cn("rounded-xl border p-4 text-left transition", b.layout === k ? "border-zinc-900 ring-1 ring-zinc-900" : "border-zinc-200 hover:bg-zinc-50")}><LayoutSketch k={k} /><p className="mt-3 font-medium">{l}</p><p className="text-[13px] text-zinc-500">{d}</p></button>)}</div>
+      <h2 className="mb-3 mt-8 text-[14px] font-semibold">Layout</h2>
+      <div className="grid gap-3 sm:grid-cols-2">{LAYOUTS.map(([k, l, d]) => <button key={k} onClick={() => set("layout", k)} className={cn("rounded-xl border p-4 text-left transition", b.layout === k ? "border-zinc-900 ring-1 ring-zinc-900" : "border-zinc-200 hover:bg-zinc-50")}><LayoutSketch k={k} /><p className="mt-3 font-medium">{l}</p><p className="text-[12.5px] text-zinc-500">{d}</p></button>)}</div>
       <div className="mt-10 flex justify-end border-t border-zinc-200 pt-5"><Btn kind="danger" onClick={async () => { if (!confirm("Delete this whole book and all its chapters?")) return; await api(`/api/admin/books/${book.id}`, "DELETE"); window.location.href = "/admin/books"; }}><Trash2 />Delete book</Btn></div>
       {pic && <MediaPicker onClose={() => setPic(false)} onPick={(i) => { set("cover_url", i[0].url); setPic(false); }} />}
     </div>
@@ -132,13 +132,13 @@ function NodeEditor({ id, book, number, onChanged }: { id: string; book: any; nu
   return (
     <div>
       <div className="sticky top-0 z-20 flex h-12 items-center gap-2 border-b border-zinc-200 bg-white/95 px-5 backdrop-blur">
-        <span className="truncate text-[13px] text-zinc-500">{book.title} <ChevronRight className="inline size-3.5" /> {number} {title}</span><span className="ml-auto text-[12.5px] text-zinc-400">{state}</span>
+        <span className="truncate text-[12.5px] text-zinc-500">{book.title} <ChevronRight className="inline size-3.5" /> {number} {title}</span><span className="ml-auto text-[12px] text-zinc-400">{state}</span>
         <Select value={n.kind} onChange={(e) => { setN({ ...n, kind: e.target.value }); save({ kind: e.target.value }); }} className="!h-8 !w-36"><option value="part">Part</option><option value="chapter">Chapter</option><option value="section">Section</option></Select>
         <Select value={n.status} onChange={(e) => { setN({ ...n, status: e.target.value }); save({ status: e.target.value }); }} className="!h-8 !w-32"><option value="published">Shown</option><option value="draft">Hidden</option></Select>
       </div>
       <div className="site-canvas mx-auto max-w-[860px] px-6 pb-40 pt-12 sm:px-14">
-        <p className="text-[13px] font-semibold uppercase tracking-[0.14em] text-saffron">{n.kind === "part" ? "Part" : "Chapter"} {number}</p>
-        <input value={title} onChange={(e) => { setTitle(e.target.value); later(); }} onBlur={() => title !== n.title && save({ title })} className="mt-1 w-full bg-transparent text-[34px] font-bold tracking-[-0.03em] outline-none" />
+        <p className="text-[12.5px] font-semibold uppercase tracking-[0.14em] text-saffron">{n.kind === "part" ? "Part" : "Chapter"} {number}</p>
+        <input value={title} onChange={(e) => { setTitle(e.target.value); later(); }} onBlur={() => title !== n.title && save({ title })} className="mt-1 w-full bg-transparent text-[31.5px] font-bold tracking-[-0.03em] outline-none" />
         <div className="-mx-[54px] mt-4"><NotionEditor initial={blocks.current} pageId="" onChange={(b) => { blocks.current = b; later(); }} /></div>
       </div>
     </div>

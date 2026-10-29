@@ -38,7 +38,7 @@ function Recordings({ songs }: { songs: boolean }) {
       {data && <div className="mb-5 grid grid-cols-2 gap-3 lg:grid-cols-4">
         {[["All", data.totals.all, ""], ["Without MP3 link", data.totals.no_audio, "audio"], ["Without transcription", data.totals.no_text, "transcript"], ["Without date", data.totals.no_date, "date"]].map(([l, n, need]) => (
           <button key={l as string} onClick={() => setFilter("need", f.need === need ? "" : (need as string))} className={cn("rounded-xl border bg-white p-4 text-left shadow-xs transition hover:border-zinc-300", f.need === need && need ? "border-zinc-900 ring-1 ring-zinc-900" : "border-zinc-200")}>
-            <p className="text-[13px] text-zinc-500">{l}</p><p className="mt-1 text-[24px] font-semibold tabular-nums tracking-tight">{Number(n).toLocaleString()}</p></button>))}
+            <p className="text-[12.5px] text-zinc-500">{l}</p><p className="mt-1 text-[22px] font-semibold tabular-nums tracking-tight">{Number(n).toLocaleString()}</p></button>))}
       </div>}
 
       <div className="mb-3 flex flex-wrap items-center gap-2">
@@ -57,8 +57,8 @@ function Recordings({ songs }: { songs: boolean }) {
 
       <Card className="overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[900px] text-[13.5px]">
-            <thead><tr className="border-b border-zinc-200 bg-zinc-50/80 text-left text-[12.5px] text-zinc-500">
+          <table className="w-full min-w-[900px] text-[13px]">
+            <thead><tr className="border-b border-zinc-200 bg-zinc-50/80 text-left text-[12px] text-zinc-500">
               <th className="w-10 px-3 py-2.5"><input type="checkbox" checked={!!all} onChange={() => setSel(all ? new Set() : new Set(data?.rows.map((r) => r.id)))} className="size-4 accent-zinc-900" /></th>
               <th className="px-3 py-2.5 font-medium">Date</th><th className="px-3 py-2.5 font-medium">Title</th><th className="px-3 py-2.5 font-medium">Place</th><th className="px-3 py-2.5 font-medium">{songs ? "Series" : "Verse"}</th><th className="px-3 py-2.5 font-medium">Length</th><th className="px-3 py-2.5 font-medium">MP3</th>{!songs && <th className="px-3 py-2.5 font-medium">Text</th>}<th className="px-3 py-2.5 font-medium">Status</th>
             </tr></thead>
@@ -66,7 +66,7 @@ function Recordings({ songs }: { songs: boolean }) {
               <tr key={r.id} onClick={() => setEdit(r.id)} className={cn("cursor-pointer border-b border-zinc-100 last:border-0 hover:bg-zinc-50", sel.has(r.id) && "bg-zinc-50")}>
                 <td className="px-3 py-2.5" onClick={(e) => e.stopPropagation()}><input type="checkbox" checked={sel.has(r.id)} onChange={() => setSel((s) => { const n = new Set(s); if (n.has(r.id)) n.delete(r.id); else n.add(r.id); return n; })} className="size-4 accent-zinc-900" /></td>
                 <td className="whitespace-nowrap px-3 py-2.5 tabular-nums text-zinc-600">{r.date ? fmt(r.date) : <span className="text-zinc-400">{r.date_note || "—"}</span>}</td>
-                <td className="max-w-[360px] px-3 py-2.5"><p className="truncate font-medium text-zinc-900">{r.title}</p>{r.topics?.length > 0 && <p className="truncate text-[12px] text-zinc-500">{r.topics.join(", ")}</p>}</td>
+                <td className="max-w-[360px] px-3 py-2.5"><p className="truncate font-medium text-zinc-900">{r.title}</p>{r.topics?.length > 0 && <p className="truncate text-[11.5px] text-zinc-500">{r.topics.join(", ")}</p>}</td>
                 <td className="whitespace-nowrap px-3 py-2.5 text-zinc-600">{r.place || <span className="text-zinc-400">—</span>}</td>
                 <td className="whitespace-nowrap px-3 py-2.5 text-zinc-600">{songs ? r.series || "" : verseRef(r) || <span className="text-zinc-400">—</span>}</td>
                 <td className="whitespace-nowrap px-3 py-2.5 tabular-nums text-zinc-600">{durText(r.duration_sec)}</td>
@@ -77,7 +77,7 @@ function Recordings({ songs }: { songs: boolean }) {
           </table>
         </div>
         {data && !data.rows.length && <div className="p-6"><Empty icon={songs ? Music : Headphones} title={Object.values(f).some((v) => v && v !== "new") ? "Nothing matches these filters" : songs ? "No songs yet" : "No lectures yet"} text="Add one by one, or import a spreadsheet of many at once."><div className="flex gap-2"><Btn onClick={() => setImporting(true)}><Upload />Import</Btn><Btn kind="primary" onClick={() => setEdit("new")}><Plus />Add</Btn></div></Empty></div>}
-        {data && data.total > 50 && <div className="flex items-center justify-between border-t border-zinc-200 px-4 py-2.5 text-[13px] text-zinc-500"><span>{((page - 1) * 50 + 1).toLocaleString()}–{Math.min(page * 50, data.total).toLocaleString()} of {data.total.toLocaleString()}</span><div className="flex gap-1"><Btn size="sm" disabled={page <= 1} onClick={() => setPage(page - 1)}><ChevronLeft />Previous</Btn><Btn size="sm" disabled={page >= pages} onClick={() => setPage(page + 1)}>Next<ChevronRight /></Btn></div></div>}
+        {data && data.total > 50 && <div className="flex items-center justify-between border-t border-zinc-200 px-4 py-2.5 text-[12.5px] text-zinc-500"><span>{((page - 1) * 50 + 1).toLocaleString()}–{Math.min(page * 50, data.total).toLocaleString()} of {data.total.toLocaleString()}</span><div className="flex gap-1"><Btn size="sm" disabled={page <= 1} onClick={() => setPage(page - 1)}><ChevronLeft />Previous</Btn><Btn size="sm" disabled={page >= pages} onClick={() => setPage(page + 1)}>Next<ChevronRight /></Btn></div></div>}
       </Card>
       {edit && <Editor id={edit} songs={songs} onClose={() => setEdit(null)} onSaved={load} />}
       {importing && <Importer songs={songs} onClose={() => setImporting(false)} onDone={() => { setImporting(false); load(); }} />}
@@ -89,7 +89,7 @@ function BulkBar({ n, onClear, bulk, songs }: { n: number; onClear: () => void; 
   const [mode, setMode] = useState<"" | "place" | "series" | "topic" | "kind">(""); const [v, setV] = useState("");
   const go = () => { if (!v) return; if (mode === "topic") bulk({ addTopic: v }, `Topic added to ${n}.`); else bulk({ set: { [mode]: v } }, `Updated ${n}.`); setMode(""); setV(""); };
   return (
-    <div className="mb-3 flex flex-wrap items-center gap-2 rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-[13px]">
+    <div className="mb-3 flex flex-wrap items-center gap-2 rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-[12.5px]">
       <b>{n} selected</b><span className="text-zinc-300">|</span>
       {mode ? <><Input autoFocus value={v} onChange={(e) => setV(e.target.value)} onKeyDown={(e) => e.key === "Enter" && go()} placeholder={mode === "place" ? "Place" : mode === "series" ? "Series name" : mode === "topic" ? "Topic to add" : ""} className="!h-8 !w-56" />
         {mode === "kind" && <Select value={v} onChange={(e) => setV(e.target.value)} className="!h-8 !w-44"><option value="" />{AUDIO_KINDS.filter(([k]) => isSong(k) === songs).map(([k, l]) => <option key={k} value={k}>{l}</option>)}</Select>}
@@ -114,7 +114,7 @@ function Topics({ value, onChange }: { value: string[]; onChange: (v: string[]) 
   return (
     <div className="flex min-h-9 flex-wrap items-center gap-1.5 rounded-md border border-zinc-200 bg-white px-2 py-1.5 shadow-xs focus-within:ring-[3px] focus-within:ring-zinc-400/30">
       {value.map((x) => <Badge key={x} tone="outline">{x}<button onClick={() => onChange(value.filter((y) => y !== x))}><X /></button></Badge>)}
-      <input list="v-topics" value={t} onChange={(e) => setT(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter" || e.key === ",") { e.preventDefault(); add(t); } }} onBlur={() => t && add(t)} placeholder={value.length ? "" : "Type a topic and press Enter"} className="min-w-[140px] flex-1 bg-transparent text-[14px] outline-none" />
+      <input list="v-topics" value={t} onChange={(e) => setT(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter" || e.key === ",") { e.preventDefault(); add(t); } }} onBlur={() => t && add(t)} placeholder={value.length ? "" : "Type a topic and press Enter"} className="min-w-[140px] flex-1 bg-transparent text-[13px] outline-none" />
       <datalist id="v-topics">{opts.filter((o) => !value.includes(o)).map((o) => <option key={o} value={o} />)}</datalist>
     </div>
   );
@@ -164,7 +164,7 @@ function Editor({ id, songs, onClose, onSaved }: { id: string; songs: boolean; o
             {a.scripture && a.scripture !== "OTHER" && <Field label="Chapter"><Input type="number" min={1} value={a.chapter ?? ""} onChange={(e) => set("chapter", e.target.value)} /></Field>}
             {a.scripture && <Field label={a.scripture === "OTHER" ? "Reference" : "Verse"} className={a.scripture === "OTHER" ? "sm:col-span-2" : ""}><Input value={a.verse || ""} onChange={(e) => set("verse", e.target.value)} placeholder={a.scripture === "OTHER" ? "e.g. Śikṣāṣṭakam 3" : "e.g. 6 or 6-7"} /></Field>}
           </div>
-          <p className="mt-2 text-[12.5px] text-zinc-500">Shown as <b className="text-zinc-800">{verseRef(a) || "—"}</b>. Or type a reference: <input onKeyDown={(e) => { if (e.key === "Enter") { const p = parseRef((e.target as HTMLInputElement).value); setA((x: any) => ({ ...x, ...p })); (e.target as HTMLInputElement).value = ""; } }} placeholder="SB 1.2.6 ↵" className="ml-1 w-28 rounded border border-zinc-200 px-1.5 py-0.5 text-[12px] outline-none" /></p>
+          <p className="mt-2 text-[12px] text-zinc-500">Shown as <b className="text-zinc-800">{verseRef(a) || "—"}</b>. Or type a reference: <input onKeyDown={(e) => { if (e.key === "Enter") { const p = parseRef((e.target as HTMLInputElement).value); setA((x: any) => ({ ...x, ...p })); (e.target as HTMLInputElement).value = ""; } }} placeholder="SB 1.2.6 ↵" className="ml-1 w-28 rounded border border-zinc-200 px-1.5 py-0.5 text-[11.5px] outline-none" /></p>
         </Group>}
         {song && <Group title="The song">
           <div className="grid gap-4 sm:grid-cols-3">
@@ -198,7 +198,7 @@ function Editor({ id, songs, onClose, onSaved }: { id: string; songs: boolean; o
             <Field label="Shown on the website"><Select value={a.status} onChange={(e) => set("status", e.target.value)}><option value="published">Yes, live</option><option value="draft">No, hidden</option></Select></Field>
             <Field label="Notes for the team" hint="Never shown on the website."><Input value={a.notes || ""} onChange={(e) => set("notes", e.target.value)} /></Field>
           </div>
-          {id !== "new" && <div className="mt-5 flex justify-between border-t border-zinc-200 pt-4"><span className="text-[12.5px] text-zinc-500">Address: /teachings/audio/{a.slug}</span><Btn size="sm" kind="danger" onClick={async () => { if (!confirm("Delete this recording?")) return; await api(`/api/admin/audios/${id}`, "DELETE"); onSaved(); onClose(); }}><Trash2 />Delete</Btn></div>}
+          {id !== "new" && <div className="mt-5 flex justify-between border-t border-zinc-200 pt-4"><span className="text-[12px] text-zinc-500">Address: /teachings/audio/{a.slug}</span><Btn size="sm" kind="danger" onClick={async () => { if (!confirm("Delete this recording?")) return; await api(`/api/admin/audios/${id}`, "DELETE"); onSaved(); onClose(); }}><Trash2 />Delete</Btn></div>}
         </Group>
       </div>
       {text && <div className="fixed inset-0 z-[95] flex flex-col bg-white">
@@ -208,7 +208,7 @@ function Editor({ id, songs, onClose, onSaved }: { id: string; songs: boolean; o
     </Sheet>
   );
 }
-const Group = ({ title, children }: { title: string; children: React.ReactNode }) => <section className="border-t border-zinc-200 pt-5"><h3 className="mb-3 text-[13px] font-semibold uppercase tracking-wide text-zinc-500">{title}</h3>{children}</section>;
+const Group = ({ title, children }: { title: string; children: React.ReactNode }) => <section className="border-t border-zinc-200 pt-5"><h3 className="mb-3 text-[12.5px] font-semibold uppercase tracking-wide text-zinc-500">{title}</h3>{children}</section>;
 
 /* ------------------------------------------------------------------ shared lists */
 function Vocab({ kind }: { kind: string }) {
@@ -219,11 +219,11 @@ function Vocab({ kind }: { kind: string }) {
   const shown = (rows || []).filter((r) => fold(r.name).includes(fold(q)));
   return (
     <div>
-      <p className="mb-4 max-w-2xl text-[14px] text-zinc-500">One spelling for every {label}, so filters on the website stay clean. Renaming here changes it on every recording. To join two spellings, rename one to the other.</p>
+      <p className="mb-4 max-w-2xl text-[13px] text-zinc-500">One spelling for every {label}, so filters on the website stay clean. Renaming here changes it on every recording. To join two spellings, rename one to the other.</p>
       <div className="mb-3 flex gap-2"><div className="relative flex-1"><Search className="absolute left-2.5 top-2.5 size-4 text-zinc-400" /><Input value={q} onChange={(e) => setQ(e.target.value)} placeholder={`Search ${label}s`} className="pl-8" /></div>
         <Btn kind="primary" onClick={async () => { const n = prompt(`New ${label}`); if (n) { await api("/api/admin/vocab", "POST", { kind, name: n }); load(); } }}><Plus />Add</Btn></div>
       <Card className="divide-y divide-zinc-100">
-        {shown.map((r) => <div key={r.id} className="flex items-center gap-3 px-4 py-2.5"><span className="flex-1 font-medium">{r.name}</span><span className="text-[12.5px] tabular-nums text-zinc-500">used {r.used}×</span>
+        {shown.map((r) => <div key={r.id} className="flex items-center gap-3 px-4 py-2.5"><span className="flex-1 font-medium">{r.name}</span><span className="text-[12px] tabular-nums text-zinc-500">used {r.used}×</span>
           <Btn size="sm" onClick={() => { setRen(r); setTo(r.name); }}><Pencil />Rename / join</Btn>
           <Btn size="sm" onClick={async () => { if (r.used && !confirm("It is still used. Remove it from the list anyway? (The recordings keep their value.)")) return; await api("/api/admin/vocab", "DELETE", { kind, name: r.name }); load(); }}><Trash2 /></Btn></div>)}
         {rows && !shown.length && <p className="p-6 text-center text-zinc-500">Nothing yet. Lists fill themselves as you add recordings.</p>}
@@ -261,13 +261,13 @@ function Importer({ songs, onClose, onDone }: { songs: boolean; onClose: () => v
   };
   return (
     <Modal wide title="Import from a spreadsheet" description="Save the sheet as CSV (Excel or Google Sheets → Download → CSV). The first row must hold column names. Dates like 1996-01-21 or 21 Jan 1996 both work." onClose={onClose}>
-      <input type="file" accept=".csv,.tsv,.txt" onChange={(e) => e.target.files?.[0] && read(e.target.files[0])} className="text-[13.5px] file:mr-3 file:rounded-md file:border file:border-zinc-200 file:bg-white file:px-3 file:py-1.5 file:text-[13px] file:font-medium" />
+      <input type="file" accept=".csv,.tsv,.txt" onChange={(e) => e.target.files?.[0] && read(e.target.files[0])} className="text-[13px] file:mr-3 file:rounded-md file:border file:border-zinc-200 file:bg-white file:px-3 file:py-1.5 file:text-[12.5px] file:font-medium" />
       {rows && <>
-        <p className="mb-2 mt-5 text-[13.5px] font-medium">{rows.length - 1} rows. Match each column of your sheet:</p>
-        <div className="max-h-[45vh] overflow-auto rounded-lg border border-zinc-200"><table className="w-full text-[13px]"><tbody>{(rows[0] || []).map((h, i) => (
+        <p className="mb-2 mt-5 text-[13px] font-medium">{rows.length - 1} rows. Match each column of your sheet:</p>
+        <div className="max-h-[45vh] overflow-auto rounded-lg border border-zinc-200"><table className="w-full text-[12.5px]"><tbody>{(rows[0] || []).map((h, i) => (
           <tr key={i} className="border-b border-zinc-100 last:border-0"><td className="px-3 py-2 font-medium">{h}</td><td className="max-w-[220px] truncate px-3 py-2 text-zinc-500">{preview.map((r) => r[i]).filter(Boolean).join(" · ")}</td>
             <td className="px-3 py-2"><Select value={map[i] || ""} onChange={(e) => setMap(map.map((m, j) => (j === i ? e.target.value : m)))} className="!h-8"><option value="">Skip</option>{COLS.map(([k, l]) => <option key={k} value={k}>{l}</option>)}</Select></td></tr>))}</tbody></table></div>
-        <div className="mt-4 flex items-center justify-end gap-3"><span className="text-[13px] text-zinc-500">{busy}</span><Btn onClick={onClose}>Cancel</Btn><Btn kind="primary" busy={!!busy} onClick={run}><Upload />Import {rows.length - 1}</Btn></div>
+        <div className="mt-4 flex items-center justify-end gap-3"><span className="text-[12.5px] text-zinc-500">{busy}</span><Btn onClick={onClose}>Cancel</Btn><Btn kind="primary" busy={!!busy} onClick={run}><Upload />Import {rows.length - 1}</Btn></div>
       </>}
     </Modal>
   );

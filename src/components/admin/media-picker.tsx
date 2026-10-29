@@ -20,7 +20,7 @@ export function MediaPicker({ onPick, onClose, multiple }: { onPick: (items: { u
       <div className="mb-4 flex flex-wrap items-center gap-3">
         <Btn kind="soft" busy={busy} onClick={() => file.current?.click()}><Upload size={16} />Upload new pictures</Btn>
         <input ref={file} type="file" accept="image/*" multiple className="hidden" onChange={(e) => upload(e.target.files)} />
-        <span className="text-[13px] text-ink-3">PNG, JPG, WebP, GIF or SVG, up to 4 MB each.</span>
+        <span className="text-[12.5px] text-ink-3">PNG, JPG, WebP, GIF or SVG, up to 4 MB each.</span>
       </div>
       <div className="grid max-h-[55vh] grid-cols-2 gap-3 overflow-y-auto sm:grid-cols-4 lg:grid-cols-5">
         {items.map((m) => (
@@ -30,7 +30,7 @@ export function MediaPicker({ onPick, onClose, multiple }: { onPick: (items: { u
             {sel.includes(m.id) && <span className="absolute right-1.5 top-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-saffron text-white"><Check size={14} /></span>}
           </button>
         ))}
-        {!items.length && <p className="col-span-full py-10 text-center text-[14px] text-ink-3">No pictures yet. Upload your first one.</p>}
+        {!items.length && <p className="col-span-full py-10 text-center text-[13px] text-ink-3">No pictures yet. Upload your first one.</p>}
       </div>
       <div className="mt-5 flex justify-end gap-2"><Btn onClick={onClose}>Cancel</Btn><Btn kind="primary" disabled={!sel.length} onClick={() => { onPick(sel.map((id) => ({ url: `/api/media/${id}`, alt: items.find((i) => i.id === id)?.alt || "" }))); onClose(); }}>Use {sel.length > 1 ? `${sel.length} pictures` : "this picture"}</Btn></div>
     </Modal>

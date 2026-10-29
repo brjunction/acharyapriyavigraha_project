@@ -23,12 +23,12 @@ export function PlayButton({ l, size = 40 }: { l: Lecture; size?: number }) {
 
 export function LectureRow({ l, index }: { l: Lecture; index?: number }) {
   return (
-    <div className="group flex items-center gap-4 border-b border-line px-2 py-3.5 last:border-0 sm:px-4">
-      {index !== undefined && <span className="hidden w-6 text-right text-[13px] tabular text-ink-3 sm:block">{index}</span>}
+    <div className="group flex items-center gap-3 border-b border-line px-1 py-3 last:border-0 sm:gap-4 sm:px-4 sm:py-3.5">
+      {index !== undefined && <span className="hidden w-6 text-right text-[12.5px] tabular text-ink-3 sm:block">{index}</span>}
       <PlayButton l={l} />
       <div className="min-w-0 flex-1">
-        <Link href={l.href || `/teachings/audio/${l.slug}`} className="block truncate font-serif text-[18px] font-bold text-ink transition-colors group-hover:text-saffron">{l.title}</Link>
-        <p className="mt-0.5 truncate text-[13px] text-ink-3">
+        <Link href={l.href || `/teachings/audio/${l.slug}`} className="line-clamp-2 block font-serif text-[14.5px] font-bold leading-snug sm:truncate sm:text-[16.5px] text-ink transition-colors group-hover:text-saffron">{l.title}</Link>
+        <p className="mt-0.5 line-clamp-2 text-[11.5px] text-ink-3 sm:truncate sm:text-[12.5px]">
           {fmtDate(l.date)} <span className="mx-1 text-line-strong">/</span> {l.place}, {l.country} <span className="mx-1 text-line-strong">/</span> {l.type}
           {l.scripture && <> <span className="mx-1 text-line-strong">/</span> <span className="text-saffron">{l.scripture}</span></>}
         </p>
@@ -37,7 +37,7 @@ export function LectureRow({ l, index }: { l: Lecture; index?: number }) {
         {l.transcribed && <span title="Transcription available" className="flex items-center gap-1 rounded-full bg-band px-2 py-0.5 text-[11.5px] text-ink-2"><FileText size={12} />Text</span>}
         {l.languages.length > 1 && <span title="Translations available" className="flex items-center gap-1 rounded-full bg-band px-2 py-0.5 text-[11.5px] text-ink-2"><Languages size={12} />{l.languages.length}</span>}
       </div>
-      <span className="w-[4.6rem] shrink-0 whitespace-nowrap text-right text-[13px] tabular text-ink-3">{fmtDur(l.duration)}</span>
+      <span className="w-auto shrink-0 whitespace-nowrap text-right text-[11.5px] sm:w-[4.6rem] sm:text-[12.5px] tabular text-ink-3">{fmtDur(l.duration)}</span>
     </div>
   );
 }
@@ -50,7 +50,7 @@ export function LectureHeroControls({ l }: { l: Lecture }) {
     <div className="card mt-8 flex flex-wrap items-center gap-5 p-4 sm:p-5">
       <PlayButton l={l} size={58} />
       <div className="min-w-[220px] flex-1">
-        <div className="flex justify-between text-[12px] tabular text-ink-3"><span>{fmtClock(mine ? time : 0)}</span><span>{fmtClock(l.duration)}</span></div>
+        <div className="flex justify-between text-[11.5px] tabular text-ink-3"><span>{fmtClock(mine ? time : 0)}</span><span>{fmtClock(l.duration)}</span></div>
         <div className="relative mt-1.5 h-9 cursor-pointer" onClick={(e) => { if (!mine) return; const r = e.currentTarget.getBoundingClientRect(); seek(((e.clientX - r.left) / r.width) * l.duration); }}>
           <div className="absolute inset-0 flex items-center gap-[3px]">
             {Array.from({ length: 72 }, (_, i) => {
@@ -62,7 +62,7 @@ export function LectureHeroControls({ l }: { l: Lecture }) {
       </div>
       <div className="flex flex-wrap gap-2">
         {[{ i: Download, t: "MP3" }, { i: Share2, t: "Share" }, { i: Copy, t: "Cite" }].map(({ i: I, t }) => (
-          <button key={t} className="btn btn-ghost !h-9 !px-3.5 text-[13px]"><I size={15} />{t}</button>
+          <button key={t} className="btn btn-ghost !h-9 !px-3.5 text-[12.5px]"><I size={15} />{t}</button>
         ))}
       </div>
     </div>
@@ -87,12 +87,12 @@ export function Transcript({ l }: { l: Lecture }) {
             {p.kind === "verse" ? (
               <div className="my-3 rounded-xl border border-saffron/20 bg-saffron-tint px-6 py-5 text-center italic">
                 {p.text.split("\n").map((x) => <p key={x}>{x}</p>)}
-                <p className="mt-2 font-sans text-[12.5px] font-semibold not-italic text-saffron">{p.cite}</p>
+                <p className="mt-2 font-sans text-[12px] font-semibold not-italic text-saffron">{p.cite}</p>
               </div>
             ) : p.kind === "note" ? (
-              <p className="text-center font-sans text-[13px] tracking-wide text-ink-3">{p.text}</p>
+              <p className="text-center font-sans text-[12.5px] tracking-wide text-ink-3">{p.text}</p>
             ) : (
-              <p>{p.speaker && <span className="mr-1.5 font-sans text-[13px] font-semibold text-saffron">{p.speaker}:</span>}{p.text}</p>
+              <p>{p.speaker && <span className="mr-1.5 font-sans text-[12.5px] font-semibold text-saffron">{p.speaker}:</span>}{p.text}</p>
             )}
             <span className="absolute right-2 top-2 hidden gap-1 group-hover:flex">
               <span className="rounded-md border border-line bg-surface p-1 text-ink-3" title="Make a quote"><Quote size={13} /></span>
@@ -117,7 +117,7 @@ export function MiniPlayer() {
           {playing ? <Pause size={18} fill="currentColor" /> : <Play size={18} className="ml-0.5" fill="currentColor" />}
         </button>
         <div className="min-w-0 flex-1">
-          <Link href={track.href || `/teachings/audio/${track.slug}`} className="block truncate font-serif text-[16px] font-bold hover:text-saffron">{track.title}</Link>
+          <Link href={track.href || `/teachings/audio/${track.slug}`} className="block truncate font-serif text-[14.5px] font-bold hover:text-saffron">{track.title}</Link>
           <div className="mt-1 flex items-center gap-2 text-[11px] tabular text-ink-3">
             <span>{fmtClock(time)}</span>
             <div className="h-1 flex-1 cursor-pointer rounded-full bg-band" onClick={(e) => { const r = e.currentTarget.getBoundingClientRect(); seek(((e.clientX - r.left) / r.width) * track.duration); }}>

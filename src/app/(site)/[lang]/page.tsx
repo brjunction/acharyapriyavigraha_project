@@ -31,12 +31,12 @@ export default async function LanguageHome({ params }: { params: Promise<{ lang:
         <PaisleyField className="text-white/[0.04]" />
         <Rosette className="spin-slow absolute -left-32 top-1/2 h-[560px] w-[560px] -translate-y-1/2 text-[#c47f6e]/20" />
         <Container className="relative py-20 text-center sm:py-28">
-          <p className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-3 py-1 text-[13px] text-white/80"><Languages size={14} />{l.native} · {l.name} · {STATUS_LABEL[l.status]}</p>
-          <h1 className="mt-6 text-[32px] leading-tight text-white sm:text-[40px]">{c.welcome}</h1>
-          <p className="mx-auto mt-4 max-w-2xl text-[18px] text-white/80">{c.intro}</p>
+          <p className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-3 py-1 text-[12.5px] text-white/80"><Languages size={14} />{l.native} · {l.name} · {STATUS_LABEL[l.status]}</p>
+          <h1 className="mt-6 text-[29.5px] leading-tight text-white sm:text-[37px]">{c.welcome}</h1>
+          <p className="mx-auto mt-4 max-w-2xl text-[16.5px] text-white/80">{c.intro}</p>
           <div className="mx-auto mt-8 flex max-w-md items-center gap-4">
             <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-white/15"><div className="h-full rounded-full bg-[#d8907e]" style={{ width: `${l.ui}%` }} /></div>
-            <span className="text-[13px] text-white/70">{l.status === "planned" ? "Not started yet" : `${l.ui}% translated`}</span>
+            <span className="text-[12.5px] text-white/70">{l.status === "planned" ? "Not started yet" : `${l.ui}% translated`}</span>
           </div>
         </Container>
       </section>
@@ -50,8 +50,8 @@ export default async function LanguageHome({ params }: { params: Promise<{ lang:
         <div className="mt-12 grid grid-cols-[minmax(0,1fr)] gap-6 lg:grid-cols-2">
           <QuoteCard large text={QUOTE_OF_DAY.text} source={`${QUOTE_OF_DAY.source}. Translation shown here once reviewed.`} />
           <div className="card flex flex-col justify-center p-8">
-            <h2 className="text-[21px]">Help translate into {l.name}</h2>
-            <p className="mt-2 text-[15px] leading-relaxed text-ink-2">Translators work in the dashboard, paragraph by paragraph, with a reviewer for every language.</p>
+            <h2 className="text-[19.5px]">Help translate into {l.name}</h2>
+            <p className="mt-2 text-[14px] leading-relaxed text-ink-2">Translators work in the dashboard, paragraph by paragraph, with a reviewer for every language.</p>
             <Link href="/about/contact" className="btn btn-primary mt-5 self-start">Join the team<ArrowRight size={16} /></Link>
           </div>
         </div>

@@ -4,7 +4,7 @@ import { Upload, Trash2, Plus, Copy } from "lucide-react";
 import { Btn, Field, Input, Modal, Select, Textarea, api, toast } from "./ui";
 
 const Head = ({ t, s, children }: { t: string; s: string; children?: React.ReactNode }) => (
-  <div className="mb-6 flex flex-wrap items-center justify-between gap-3"><div><h1 className="text-[28px] font-bold tracking-[-0.03em]">{t}</h1><p className="text-ink-3">{s}</p></div>{children}</div>
+  <div className="mb-6 flex flex-wrap items-center justify-between gap-3"><div><h1 className="text-[26px] font-bold tracking-[-0.03em]">{t}</h1><p className="text-ink-3">{s}</p></div>{children}</div>
 );
 
 export function MediaLibrary() {
@@ -41,7 +41,7 @@ export function Announcements() {
     <div>
       <Head t="Announcements" s="A pop-up that each visitor sees once. The newest active one is shown."><Btn kind="primary" onClick={() => setEd({ title: "", body: "", kind: "notice", active: true })}><Plus size={16} />New announcement</Btn></Head>
       <div className="card divide-y divide-line">{!rows ? <p className="p-5 text-ink-3">Loading…</p> : !rows.length ? <p className="p-6 text-ink-3">Nothing yet.</p> : rows.map((r) => (
-        <div key={r.id} className="flex items-center gap-3 px-4 py-3"><button className="min-w-0 flex-1 text-left" onClick={() => setEd({ ...r, starts_at: r.starts_at?.slice(0, 10) || "", ends_at: r.ends_at?.slice(0, 10) || "" })}><b>{r.title}</b><span className="block truncate text-[13px] text-ink-3">{r.body}</span></button>
+        <div key={r.id} className="flex items-center gap-3 px-4 py-3"><button className="min-w-0 flex-1 text-left" onClick={() => setEd({ ...r, starts_at: r.starts_at?.slice(0, 10) || "", ends_at: r.ends_at?.slice(0, 10) || "" })}><b>{r.title}</b><span className="block truncate text-[12.5px] text-ink-3">{r.body}</span></button>
           <span className={`rounded-full px-2.5 py-0.5 text-[11.5px] font-semibold ${r.active ? "bg-[#e3f3e6] text-[#256a39]" : "bg-band text-ink-3"}`}>{r.active ? "Showing" : "Off"}</span>
           <button onClick={async () => { if (confirm("Delete this announcement?")) { await api(`/api/admin/announcements/${r.id}`, "DELETE"); load(); } }} className="text-[#a3281e]"><Trash2 size={16} /></button></div>))}</div>
       {ed && <Modal title={ed.id ? "Edit announcement" : "New announcement"} onClose={() => setEd(null)}><div className="space-y-3.5">
@@ -66,7 +66,7 @@ export function UsersAdmin() {
     <div>
       <Head t="People & roles" s="Choose who can write, publish or manage."><Btn kind="primary" onClick={() => setNw({ name: "", email: "", password: "", role: "editor" })}><Plus size={16} />Add a person</Btn></Head>
       <div className="card divide-y divide-line">{!rows ? <p className="p-5 text-ink-3">Loading…</p> : rows.map((u) => (
-        <div key={u.id} className="flex flex-wrap items-center gap-3 px-4 py-3"><div className="min-w-0 flex-1"><b>{u.name || u.email}</b><span className="block text-[13px] text-ink-3">{u.email}</span></div>
+        <div key={u.id} className="flex flex-wrap items-center gap-3 px-4 py-3"><div className="min-w-0 flex-1"><b>{u.name || u.email}</b><span className="block text-[12.5px] text-ink-3">{u.email}</span></div>
           <Select className="!w-56" value={u.role} onChange={(e) => patch(u.id, { role: e.target.value })}>{ROLES.map(([v, l]) => <option key={v} value={v}>{l}</option>)}</Select>
           <Btn onClick={() => { const p = prompt("New password (at least 8 characters):"); if (p) patch(u.id, { password: p }); }}>Reset password</Btn>
           <Btn kind={u.active ? "danger" : "soft"} onClick={() => patch(u.id, { active: !u.active })}>{u.active ? "Turn off" : "Turn on"}</Btn></div>))}</div>
