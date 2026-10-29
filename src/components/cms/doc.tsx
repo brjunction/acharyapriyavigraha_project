@@ -5,6 +5,10 @@ import { sql } from "@/lib/db";
 import { ytId } from "./blocks-view";
 import { DbView } from "./db-view";
 import { PageIcon } from "../page-icon";
+import { LectureCard } from "./lecture-card";
+import { WidgetView, Styled, type LiveData } from "./widgets";
+import { WIDGET } from "@/lib/cms/widget-defs";
+import { getLectures } from "@/lib/cms/library";
 
 export type Doc = DBlock[];
 export type DBlock = { id: string; type: string; props: Record<string, any>; content?: any; children?: DBlock[] };
@@ -13,6 +17,8 @@ import { COLORS } from "@/lib/cms/colors";
 export { COLORS };
 const col = (c?: string, bg = false) => (c && c !== "default" ? (bg ? COLORS[c]?.bg : COLORS[c]?.text) : undefined);
 const style = (p: Record<string, any>) => ({ color: col(p.textColor), backgroundColor: col(p.backgroundColor, true), textAlign: p.textAlignment && p.textAlignment !== "left" ? p.textAlignment : undefined } as React.CSSProperties);
+const J1 = (v: any) => { try { return typeof v === "string" ? JSON.parse(v || "{}") : v || {}; } catch { return {}; } };
+const J = (v: any) => { try { const x = typeof v === "string" ? JSON.parse(v || "[]") : v; return Array.isArray(x) ? x : []; } catch { return []; } };
 const safeHref = (h: string) => (/^(https?:|mailto:|tel:|\/|#)/i.test(h || "") ? h : "#");
 
 export function plainText(content: any): string {
@@ -52,7 +58,8 @@ const H = ["", "text-[30px] sm:text-[36px] leading-[1.15] mt-10 mb-3", "text-[24
 
 function Kids({ b }: { b: DBlock }) { return b.children?.length ? <div className="pl-6"><Render doc={b.children} /></div> : null; }
 
-async function Block({ b, n, toc }: { b: DBlock; n: number; toc?: ReactNode }): Promise<ReactNode> {
+export type Ctx = { pageId?: string; path?: string };
+async function Block({ b, n, toc, ctx }: { b: DBlock; n: number; toc?: ReactNode; ctx?: Ctx }): Promise<ReactNode> {
   const p = b.props || {};
   switch (b.type) {
     case "paragraph": {
@@ -96,13 +103,45 @@ async function Block({ b, n, toc }: { b: DBlock; n: number; toc?: ReactNode }): 
     case "subpage": { if (!p.pageId) return null; const r = (await sql`select title, path, settings from pages where id = ${p.pageId} and status='published'`.catch(() => []))[0]; return r ? <Link href={r.path as string} className="my-1.5 flex items-center gap-2.5 rounded-xl px-2 py-2 text-[16px] font-medium text-ink underline decoration-line-strong underline-offset-4 hover:bg-band"><PageIcon icon={(r.settings as any)?.icon || "📄"} size={19} />{r.title as string}</Link> : null; }
     case "database": return <div className="my-7"><DbView db={p.db} view={p.view} title={p.title} limit={Number(p.limit) || 50} /></div>;
     case "toc": return toc || null;
+    case "widget": {
+      const def = WIDGET[p.kind]; if (!def) return null;
+      const d = J1(p.data), st = J1(p.style); const live: LiveData = {};
+      try {
+        if (p.kind === "pageList") {
+          const rows = d.path ? await sql`select c.title, c.path, c.settings, c.blocks from pages c join pages par on c.parent_id = par.id where par.path = ${d.path} and c.status = 'published' order by c.position, c.title` : ctx?.pageId ? await sql`select title, path, settings, blocks from pages where parent_id = ${ctx.pageId} and status = 'published' order by position, title` : [];
+          live.pages = rows.map((r: any) => ({ title: r.title, path: r.path, icon: r.settings?.icon, cover: r.settings?.cover, text: docText(r.blocks || [], 120) }));
+        } else if (p.kind === "latest") {
+          const rows = await sql`select r.title, r.slug, r.data, d.slug as db from db_rows r join dbs d on d.id = r.db_id where d.slug = ${d.collection || "audio-lectures"} and r.status = 'published' order by r.created_at desc limit ${Math.min(30, Number(d.count) || 6)}`;
+          live.latest = rows.map((r: any) => ({ title: r.title, href: `/d/${r.db}/${r.slug}`, sub: [r.data?.date, r.data?.place, r.data?.source].filter(Boolean).join(" · "), text: r.data?.text }));
+        } else if (p.kind === "quoteOfDay") {
+          const c = Number((await sql`select count(*)::int as n from db_rows r join dbs d on d.id = r.db_id where d.slug = 'quotes' and r.status = 'published'`)[0]?.n) || 0;
+          if (c) { const day = Math.floor(Date.now() / 864e5) % c; const q = (await sql`select r.title, r.slug, r.data from db_rows r join dbs d on d.id = r.db_id where d.slug = 'quotes' and r.status = 'published' order by r.created_at offset ${day} limit 1`)[0]; if (q) live.quote = { text: (q.data as any)?.text || (q.title as string), source: (q.data as any)?.source || "", href: `/d/quotes/${q.slug}` }; }
+        }
+      } catch {}
+      return <Styled s={st}><WidgetView kind={p.kind} d={d} live={live} id={String(b.id || n)} /></Styled>;
+    }
+    case "timeline": { const items = J(p.items); return items.length ? <ol className="my-8 ml-2 border-l-2 border-[#e3cf9f]">{items.map((it: any, i: number) => <li key={i} className="relative pb-7 pl-7 last:pb-0"><span className="absolute -left-[8px] top-1.5 h-3.5 w-3.5 rounded-full border-[3px] border-white bg-saffron shadow-[0_0_0_2px_#e3cf9f]" /><p className="text-[12px] font-bold uppercase tracking-[0.12em] text-saffron">{it.year}</p>{it.title && <p className="mt-0.5 text-[17px] font-semibold text-ink">{it.title}</p>}{it.text && <p className="mt-1 whitespace-pre-line text-[15px] leading-relaxed text-ink-2">{it.text}</p>}</li>)}</ol> : null; }
+    case "verse": return <figure className="my-8 rounded-3xl border border-[#e3cf9f] bg-[#fdf6e8] px-6 py-7 sm:px-10">{p.reference && <figcaption className="mb-3 text-center text-[12px] font-bold uppercase tracking-[0.16em] text-saffron">{p.reference}</figcaption>}{p.original && <p className="whitespace-pre-line text-center text-[19px] leading-[1.9] text-[#7a3a06]">{p.original}</p>}{p.transliteration && <p className="mt-3 whitespace-pre-line text-center text-[15.5px] italic leading-[1.85] text-ink-2">{p.transliteration}</p>}{p.translation && <><div className="mx-auto my-5 h-px w-24 bg-[#e3cf9f]" /><p className="text-[16.5px] font-medium leading-[1.75] text-ink"><span className="mr-2 text-[11px] font-bold uppercase tracking-[0.14em] text-saffron">Translation</span>{p.translation}</p></>}{p.purport && <p className="mt-3 whitespace-pre-line text-[15.5px] leading-[1.8] text-ink-2">{p.purport}</p>}</figure>;
+    case "imageText": return <div className={`my-8 flex flex-col gap-6 sm:items-center ${p.side === "right" ? "sm:flex-row-reverse" : "sm:flex-row"}`}>{p.url && /* eslint-disable-next-line @next/next/no-img-element */ <img src={p.url} alt={p.caption || ""} loading="lazy" className="w-full rounded-2xl sm:w-[42%]" />}<div className="min-w-0 flex-1 text-[16.5px] leading-[1.8] text-ink-2"><Inline c={b.content} /></div></div>;
+    case "linkCards": { const items = J(p.items); return items.length ? <div className={`lc-${String(b.id).replace(/[^a-z0-9-]/gi, "")} my-7 grid gap-4 sm:grid-cols-2`}><style>{`@media(min-width:1024px){.lc-${String(b.id).replace(/[^a-z0-9-]/gi, "")}{grid-template-columns:repeat(${Math.min(4, Number(p.cols) || 3)},minmax(0,1fr))}}`}</style>{items.map((it: any, i: number) => <Link key={i} href={safeHref(it.href || "#")} className="card group block overflow-hidden transition hover:-translate-y-0.5">{it.image && /* eslint-disable-next-line @next/next/no-img-element */ <img src={it.image} alt="" loading="lazy" className="aspect-[16/10] w-full object-cover" />}<div className="p-5"><p className="text-[16px] font-semibold group-hover:text-saffron">{it.title}</p>{it.text && <p className="mt-1 text-[14px] leading-relaxed text-ink-3">{it.text}</p>}</div></Link>)}</div> : null; }
+    case "faq": { const items = J(p.items).filter((x: any) => x.q); return items.length ? <div className="my-7 divide-y divide-line rounded-2xl border border-line bg-surface"><script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "FAQPage", mainEntity: items.map((x: any) => ({ "@type": "Question", name: x.q, acceptedAnswer: { "@type": "Answer", text: x.a || "" } })) }) }} />{items.map((x: any, i: number) => <details key={i} className="group px-5 py-4"><summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-[16px] font-semibold text-ink [&::-webkit-details-marker]:hidden">{x.q}<span className="text-saffron transition group-open:rotate-45">+</span></summary><p className="mt-2 whitespace-pre-line text-[15.5px] leading-[1.75] text-ink-2">{x.a}</p></details>)}</div> : null; }
+    case "stats": { const items = J(p.items); return items.length ? <div className="my-8 grid grid-cols-2 gap-3 sm:grid-cols-4">{items.map((x: any, i: number) => <div key={i} className="rounded-2xl border border-[#ead7ae] bg-[#fdf6e8] p-5 text-center"><p className="text-[30px] font-bold tracking-[-0.03em] text-saffron">{x.n}</p><p className="mt-0.5 text-[13.5px] text-ink-2">{x.label}</p></div>)}</div> : null; }
+    case "banner": return <section className="relative my-9 overflow-hidden rounded-3xl px-6 py-12 text-center sm:px-12" style={{ background: COLORS[p.tone || "orange"]?.bg }}>{p.image && /* eslint-disable-next-line @next/next/no-img-element */ <img src={p.image} alt="" className="absolute inset-0 h-full w-full object-cover opacity-25" />}<div className="relative">{p.title && <h2 className="text-[26px] font-bold tracking-[-0.025em] text-ink sm:text-[32px]">{p.title}</h2>}{p.text && <p className="mx-auto mt-2 max-w-xl text-[16px] leading-relaxed text-ink-2">{p.text}</p>}{p.label && p.href && <Link href={safeHref(p.href)} className="mt-5 inline-flex h-11 items-center rounded-full bg-saffron px-6 text-[14.5px] font-medium text-white">{p.label}</Link>}</div></section>;
+    case "chapters": {
+      if (!p.pageId) return null;
+      const kids = await sql`select title, path, settings from pages where parent_id = ${p.pageId} and status = 'published' order by position, title`.catch(() => [] as any[]);
+      if (!kids.length) return null;
+      return p.style === "cards" ? <div className="my-8 grid gap-3 sm:grid-cols-2">{kids.map((k: any, i: number) => <Link key={k.path} href={k.path} className="card group flex items-center gap-4 p-5 transition hover:-translate-y-0.5"><span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#fdf6e8] text-[15px] font-bold text-saffron ring-1 ring-[#e3cf9f]">{i + 1}</span><span className="text-[16px] font-semibold group-hover:text-saffron">{k.title}</span></Link>)}</div>
+        : <nav aria-label="Chapters" className="my-8 rounded-3xl border border-[#e3cf9f] bg-[#fdfaf3] p-6 sm:p-8"><p className="mb-4 text-center text-[12px] font-bold uppercase tracking-[0.18em] text-saffron">Contents</p><ol className="space-y-1">{kids.map((k: any, i: number) => <li key={k.path}><Link href={k.path} className="group flex items-baseline gap-3 rounded-lg px-2 py-2 hover:bg-white"><span className="w-8 shrink-0 text-right text-[14px] font-bold text-saffron">{i + 1}.</span><span className="flex-1 border-b border-dotted border-[#d9c39a] pb-0.5 text-[16px] font-medium text-ink group-hover:text-saffron">{k.title}</span></Link></li>)}</ol></nav>;
+    }
+    case "lecture": { if (!p.slug) return null; const l = (await getLectures())?.find((x) => x.slug === p.slug); return l ? <LectureCard l={l} /> : null; }
     case "bulletListItem": case "numberedListItem": return null; // grouped below
     default: return null;
   }
 }
 
 /** Renders a document. Neighbouring list items are grouped into one list. */
-export function Render({ doc, toc }: { doc: Doc; toc?: ReactNode }) {
+export function Render({ doc, toc, ctx }: { doc: Doc; toc?: ReactNode; ctx?: Ctx }) {
   const out: ReactNode[] = []; let i = 0;
   const list = doc || [];
   while (i < list.length) {
@@ -114,7 +153,7 @@ export function Render({ doc, toc }: { doc: Doc; toc?: ReactNode }) {
       out.push(<L key={b.id} start={t === "numberedListItem" ? items[0].props?.start : undefined} className={`my-3 space-y-1.5 pl-6 text-[16.5px] leading-[1.75] text-ink-2 ${L === "ul" ? "list-disc marker:text-saffron" : "list-decimal marker:font-semibold marker:text-saffron"}`}>{items.map((it) => <li key={it.id} style={style(it.props || {})}><Inline c={it.content} />{it.children?.length ? <Render doc={it.children} /> : null}</li>)}</L>);
       continue;
     }
-    out.push(<Fragment key={b.id || i}><Block b={b} n={i} toc={toc} /></Fragment>); i++;
+    out.push(<Fragment key={b.id || i}><Block b={b} n={i} toc={toc} ctx={ctx} /></Fragment>); i++;
   }
   return <>{out}</>;
 }

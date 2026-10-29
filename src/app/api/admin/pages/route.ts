@@ -7,7 +7,7 @@ export async function GET(req: Request) {
   const g = await guard("viewer"); if ("res" in g) return g.res;
   const at = new URL(req.url).searchParams.get("path");
   if (at) return json((await sql`select id, title, status from pages where path = ${at}`)[0] || null);
-  return json(await sql`select id, parent_id, slug, path, title, type, template, status, position, updated_at, settings->>'icon' as icon from pages order by position, title`);
+  return json(await sql`select id, parent_id, slug, path, title, type, template, status, position, updated_at, settings->>'icon' as icon, settings->>'redirect' as redirect from pages order by position, title`);
 }
 export async function POST(req: Request) {
   const g = await guard("contributor"); if ("res" in g) return g.res;

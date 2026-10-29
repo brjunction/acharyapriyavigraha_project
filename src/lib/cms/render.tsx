@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import type { Metadata } from "next";
 import { sql, hasDb } from "@/lib/db";
 import { Blocks } from "@/components/cms/blocks-view";
@@ -36,6 +36,7 @@ export async function cmsMetadata(segments: string[]): Promise<Metadata> {
 
 export async function CmsPage({ segments }: { segments: string[] }) {
   const p = await load(segments); if (!p) notFound();
+  if (p.settings?.redirect && /^(https?:\/\/|\/)/.test(p.settings.redirect)) redirect(p.settings.redirect);
   const isBook = p.type === "book" || p.type === "chapter";
   // crumbs: ancestors by path prefix
   const prefixes = segments.slice(0, -1).map((_, i) => "/" + segments.slice(0, i + 1).join("/"));
@@ -53,22 +54,29 @@ export async function CmsPage({ segments }: { segments: string[] }) {
   const ld = { "@context": "https://schema.org", "@type": p.type === "book" ? "Book" : "Article", headline: p.title, name: p.title, description: p.seo?.description || plain(p.blocks), dateModified: p.updated_at, mainEntityOfPage: SITE + p.path, inLanguage: "en", publisher: { "@type": "Organization", name: "Taptajivanam", url: SITE } };
   const crumbs = { "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: [...anc, { path: p.path, title: p.title }].map((a: any, n) => ({ "@type": "ListItem", position: n + 1, name: a.title, item: SITE + a.path })) };
   return (
+    <div className="relative isolate" style={{ background: bgOf(p.settings?.bg) }}>
+    {p.settings?.bgImage && /* eslint-disable-next-line @next/next/no-img-element */ <img src={p.settings.bgImage} alt="" aria-hidden className="pointer-events-none absolute inset-0 -z-10 h-full w-full object-cover" style={{ opacity: (p.settings.bgOpacity ?? 12) / 100 }} />}
+    {p.settings?.titleStyle === "banner" && p.settings?.cover && <div className="relative h-[260px] overflow-hidden sm:h-[340px]">{/* eslint-disable-next-line @next/next/no-img-element */}<img src={p.settings.cover} alt="" className="h-full w-full object-cover" style={{ objectPosition: `center ${p.settings.coverY ?? 50}%` }} /><div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/20 to-transparent" /><Container className="absolute inset-x-0 bottom-0 pb-8"><h1 className="text-[34px] font-bold leading-[1.1] tracking-[-0.03em] !text-white sm:text-[46px]">{p.title}</h1></Container></div>}
     <Container className="py-10 sm:py-14">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify([ld, crumbs]) }} />
       {anc.length > 0 && <nav aria-label="Breadcrumb" className="mb-6 flex flex-wrap items-center gap-1 text-[13px] text-ink-3">{anc.map((a: any) => <span key={a.path} className="flex items-center gap-1"><Link href={a.path} className="hover:text-saffron">{a.title}</Link><ChevronRight size={13} /></span>)}<span className="text-ink-2">{p.title}</span></nav>}
       <div className={isBook ? "grid gap-10 lg:grid-cols-[270px_1fr]" : ""}>
         {isBook && <aside className="lg:sticky lg:top-24 lg:h-[calc(100vh-8rem)] lg:overflow-y-auto"><p className="mb-3 flex items-center gap-2 text-[12px] font-semibold uppercase tracking-[0.12em] text-saffron"><BookOpen size={14} />Contents</p><Tree nodes={tree} cur={p.path} /></aside>}
-        <article className={isBook ? "min-w-0 max-w-[760px]" : "mx-auto max-w-[820px]"}>
-          {p.settings?.cover && /* eslint-disable-next-line @next/next/no-img-element */ <img src={p.settings.cover} alt="" className="mb-8 h-[200px] w-full rounded-3xl object-cover sm:h-[280px]" style={{ objectPosition: `center ${p.settings.coverY ?? 50}%` }} />}
-          {p.settings?.hideTitle !== true && !isOld(p.blocks) && <h1 className="mb-6 text-[32px] font-bold leading-[1.15] tracking-[-0.03em] text-ink sm:text-[42px]">{p.settings?.icon && <PageIcon icon={p.settings.icon} size={40} className="mr-3" />}{p.title}</h1>}
-          {isOld(p.blocks) ? <Blocks blocks={p.blocks} /> : <Render doc={p.blocks} toc={<Toc items={isBook && p.type === "book" ? kids.map((k: any) => ({ text: k.title, href: k.path, level: 2 })) : headings(p.blocks).map((h) => ({ text: h.text, href: `#${h.id}`, level: h.level }))} />} />}
+        <article className={isBook ? "min-w-0 max-w-[760px]" : `mx-auto ${({ narrow: "max-w-[680px]", wide: "max-w-[1040px]", full: "max-w-none" } as Record<string, string>)[p.settings?.width] || "max-w-[820px]"}`}>
+          {p.settings?.cover && p.settings?.titleStyle !== "banner" && /* eslint-disable-next-line @next/next/no-img-element */ <img src={p.settings.cover} alt="" className="mb-8 h-[200px] w-full rounded-3xl object-cover sm:h-[280px]" style={{ objectPosition: `center ${p.settings.coverY ?? 50}%` }} />}
+          {p.settings?.hideTitle !== true && p.settings?.titleStyle !== "banner" && !isOld(p.blocks) && <div className={`mb-8 ${p.settings?.titleStyle === "center" || p.settings?.titleStyle === "ornate" ? "text-center" : ""}`}>{p.settings?.titleStyle === "ornate" && <p aria-hidden className="mb-2 text-[20px] tracking-[0.4em] text-[#c98a2b]">❀ ✦ ❀</p>}<h1 className="text-[32px] font-bold leading-[1.15] tracking-[-0.03em] text-ink sm:text-[42px]">{p.settings?.icon && <PageIcon icon={p.settings.icon} size={40} className="mr-3" />}{p.title}</h1>{p.settings?.titleStyle === "ornate" && <span aria-hidden className="mx-auto mt-4 block h-[3px] w-20 rounded-full bg-gradient-to-r from-transparent via-saffron to-transparent" />}</div>}
+          {isOld(p.blocks) ? <Blocks blocks={p.blocks} /> : <Render doc={p.blocks} ctx={{ pageId: p.id, path: p.path }} toc={<Toc items={isBook && p.type === "book" ? kids.map((k: any) => ({ text: k.title, href: k.path, level: 2 })) : headings(p.blocks).map((h) => ({ text: h.text, href: `#${h.id}`, level: h.level }))} />} />}
           {unlinked.length > 0 && (p.type === "collection" || p.type === "page") && <ul className="mt-10 grid gap-3 sm:grid-cols-2">{unlinked.map((k) => <li key={k.path}><Link href={k.path} className="card block p-4 font-semibold transition hover:-translate-y-0.5 hover:text-saffron">{k.title}</Link></li>)}</ul>}
           {isBook && (prev || next) && <nav className="mt-12 flex justify-between gap-3 border-t border-line pt-6">{prev ? <Link href={prev.path} className="flex items-center gap-1.5 text-[14.5px] font-medium hover:text-saffron"><ChevronLeft size={16} />{prev.title}</Link> : <span />}{next && <Link href={next.path} className="flex items-center gap-1.5 text-right text-[14.5px] font-medium hover:text-saffron">{next.title}<ChevronRight size={16} /></Link>}</nav>}
         </article>
       </div>
     </Container>
+    </div>
   );
 }
+
+const BG: Record<string, string> = { cream: "#fdf8ef", saffron: "#fdf1e2", tulasi: "#f1f7ef", lotus: "#fbf0f2", sky: "#f0f5fc", gold: "#fbf3dc", lilac: "#f5f0fa", stone: "#f3f1ee" };
+const bgOf = (v?: string) => (!v ? undefined : v.startsWith("#") ? v : BG[v]);
 
 async function bookRoot(p: P): Promise<string> {
   let cur = p;

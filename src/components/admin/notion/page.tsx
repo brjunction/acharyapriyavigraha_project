@@ -100,8 +100,10 @@ export function NotionPage({ pageId }: { pageId: string }) {
   );
 }
 
+const PAGE_BG: Record<string, string> = { cream: "#fdf8ef", saffron: "#fdf1e2", tulasi: "#f1f7ef", lotus: "#fbf0f2", sky: "#f0f5fc", gold: "#fbf3dc", lilac: "#f5f0fa", stone: "#f3f1ee" };
+
 function Drawer({ onClose, page, all, title, slug, setSlug, parent, setParent, type, setType, seo, setSeo, settings, setS, onRestore }: any) {
-  const [vers, setVers] = useState<{ id: string; created_at: string }[] | null>(null);
+  const [vers, setVers] = useState<{ id: string; created_at: string }[] | null>(null); const [bgPic, setBgPic] = useState(false);
   const s = (k: string, v: any) => setSeo({ ...seo, [k]: v });
   const parents = (all as Lite[]).filter((p) => p.id !== page.id && !p.path.startsWith(page.path + "/"));
   const pp = parents.find((p) => p.id === parent)?.path || "";
@@ -112,7 +114,23 @@ function Drawer({ onClose, page, all, title, slug, setSlug, parent, setParent, t
         <div className="space-y-4">
           <Field label="What is this page?"><Select value={type} onChange={(e) => setType(e.target.value)}>{TYPES.map(([v, l]) => <option key={v} value={v}>{l}</option>)}</Select></Field>
           <Field label="Web address" hint={`taptajivanam.com${pp}/${slug}`}><Input value={slug} onChange={(e) => setSlug(slugify(e.target.value))} /></Field>
+          <Field label="Send visitors to another website" hint="Leave empty for a normal page. If filled, opening this page goes straight to that address."><Input value={settings.redirect || ""} onChange={(e) => setS("redirect", e.target.value.trim())} placeholder="https://…" /></Field>
           <Field label="Sits inside" hint="Choose a book to make this a chapter, or any page to make this a sub-page."><Select value={parent} onChange={(e) => setParent(e.target.value)}><option value="">Top level</option>{parents.map((p) => <option key={p.id} value={p.id}>{"  ".repeat(p.path.split("/").length - 2)}{p.title}</option>)}</Select></Field>
+          <div className="rounded-2xl border border-line p-3.5">
+            <p className="mb-2 text-[12px] font-semibold uppercase tracking-[0.12em] text-saffron">Look of this page</p>
+            <p className="mb-1 text-[12.5px] text-ink-3">Background</p>
+            <div className="flex flex-wrap items-center gap-1.5">
+              <button onClick={() => setS("bg", "")} title="None" className={`h-7 w-7 rounded-full border border-dashed border-line-strong ${!settings.bg ? "ring-2 ring-saffron" : ""}`} />
+              {Object.entries(PAGE_BG).map(([k, c]) => <button key={k} title={k} onClick={() => setS("bg", k)} className={`h-7 w-7 rounded-full ring-1 ring-black/10 ${settings.bg === k ? "ring-2 ring-saffron ring-offset-1" : ""}`} style={{ background: c }} />)}
+              <input type="color" value={settings.bg?.startsWith("#") ? settings.bg : "#fdf6e8"} onChange={(e) => setS("bg", e.target.value)} title="Any colour" className="h-7 w-8 cursor-pointer rounded border-0 bg-transparent" />
+            </div>
+            <div className="mt-3 flex items-center gap-2 text-[12.5px]"><button onClick={() => setBgPic(true)} className="rounded-lg border border-line px-2.5 py-1 hover:border-saffron">{settings.bgImage ? "Change background picture" : "Background picture"}</button>{settings.bgImage && <button onClick={() => setS("bgImage", "")} className="text-ink-3">Remove</button>}</div>
+            {settings.bgImage && <label className="mt-2 block text-[12.5px] text-ink-3">Strength {settings.bgOpacity ?? 12}%<input type="range" min={4} max={60} value={settings.bgOpacity ?? 12} onChange={(e) => setS("bgOpacity", Number(e.target.value))} className="w-full" /></label>}
+            <p className="mb-1 mt-3 text-[12.5px] text-ink-3">Title</p>
+            <div className="flex flex-wrap gap-1 rounded-lg bg-band p-0.5">{[["", "Plain"], ["center", "Centred"], ["banner", "On the cover picture"], ["ornate", "With ornaments"]].map(([k, l]) => <button key={k} onClick={() => setS("titleStyle", k)} className={`rounded-md px-2 py-1 text-[12px] ${(settings.titleStyle || "") === k ? "bg-white font-semibold shadow-sm" : "text-ink-3"}`}>{l}</button>)}</div>
+            <p className="mb-1 mt-3 text-[12.5px] text-ink-3">Reading width</p>
+            <div className="flex flex-wrap gap-1 rounded-lg bg-band p-0.5">{[["narrow", "Narrow"], ["", "Normal"], ["wide", "Wide"], ["full", "Full"]].map(([k, l]) => <button key={k} onClick={() => setS("width", k)} className={`rounded-md px-2 py-1 text-[12px] ${(settings.width || "") === k ? "bg-white font-semibold shadow-sm" : "text-ink-3"}`}>{l}</button>)}</div>
+          </div>
           <label className="flex items-center justify-between rounded-xl border border-line px-3 py-2.5 text-[13.5px]">Full width<input type="checkbox" checked={!!settings.fullWidth} onChange={(e) => setS("fullWidth", e.target.checked)} /></label>
           <label className="flex items-center justify-between rounded-xl border border-line px-3 py-2.5 text-[13.5px]">Show the title on the website<input type="checkbox" checked={settings.hideTitle !== true} onChange={(e) => setS("hideTitle", !e.target.checked)} /></label>
           <div className="rounded-2xl border border-line p-3.5">
@@ -124,6 +142,7 @@ function Drawer({ onClose, page, all, title, slug, setSlug, parent, setParent, t
           </div>
           <Btn onClick={async () => setVers(await api(`/api/admin/pages/${page.id}/versions`).catch(() => []))}><History size={15} />Earlier versions</Btn>
           {vers && <div className="space-y-1">{vers.length ? vers.map((v) => <button key={v.id} onClick={async () => { const r = await api<{ blocks: any[] }>(`/api/admin/pages/${page.id}/versions?v=${v.id}`); onRestore(r.blocks); toast("Earlier version restored."); onClose(); }} className="block w-full rounded-lg border border-line px-3 py-1.5 text-left text-[13px] hover:bg-band">{new Date(v.created_at).toLocaleString()}</button>) : <p className="text-[13px] text-ink-3">No earlier versions yet.</p>}</div>}
+          {bgPic && <MediaPicker onClose={() => setBgPic(false)} onPick={(i) => { setS("bgImage", i[0].url); setBgPic(false); }} />}
           <Btn kind="danger" onClick={async () => { if (!confirm("Delete this page and every page inside it?")) return; await api(`/api/admin/pages/${page.id}`, "DELETE"); window.dispatchEvent(new Event("tj:pages-changed")); window.location.href = "/admin"; }}><Trash2 size={15} />Delete page</Btn>
         </div>
       </aside>

@@ -1,0 +1,1 @@
+export const TONE_BG: Record<string, string> = { gray: "#f1ece6", brown: "#f4e7da", red: "#fbe4e1", orange: "#fdebd6", yellow: "#fbf1cc", green: "#e3f1e5", blue: "#e2eaf8", purple: "#efe6f7", pink: "#f9e3ea" };

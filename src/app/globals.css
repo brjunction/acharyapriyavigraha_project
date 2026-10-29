@@ -363,3 +363,12 @@ main p.hover-glow:hover { color: var(--saffron); }
 .tj-editor a { color: var(--saffron); text-decoration: underline; text-underline-offset: 2px; }
 .tj-editor .bn-visual-media { border-radius: 16px; }
 .tj-editor table { font-size: 14.5px; }
+
+/* Tabs element (works without JavaScript) */
+.tj-tabs { display: flex; flex-wrap: wrap; gap: 4px; border-bottom: 1px solid var(--line); }
+.tj-tab { order: 0; cursor: pointer; padding: 8px 16px; border-radius: 10px 10px 0 0; font-size: 14.5px; font-weight: 600; color: var(--ink-3); }
+.tj-tab:hover { color: var(--saffron); }
+.tj-panel { order: 1; width: 100%; display: none; padding: 18px 2px 4px; }
+.tj-tabs input:checked + .tj-tab { color: var(--saffron); background: var(--saffron-tint); box-shadow: inset 0 -2px 0 var(--saffron); }
+.tj-tabs input:checked + .tj-tab + .tj-panel { display: block; }
+.tj-tabs input:focus-visible + .tj-tab { outline: 2px solid var(--saffron); }

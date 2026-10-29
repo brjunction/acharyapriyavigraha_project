@@ -1,6 +1,7 @@
 import { Header } from "@/components/header";
 import { MenusProvider } from "@/components/menus-context";
-import { getSavedMenus } from "@/lib/menus-server";
+import { getSavedMenus, getTheme } from "@/lib/menus-server";
+import { themeCss, fontHref } from "@/lib/theme";
 import { Footer } from "@/components/footer";
 import { SearchPalette } from "@/components/search";
 import { MiniPlayer } from "@/components/lecture";
@@ -8,9 +9,12 @@ import { Announcement } from "@/components/announcement";
 import { EditBar } from "@/components/edit-bar";
 
 export default async function SiteLayout({ children }: { children: React.ReactNode }) {
-  const saved = await getSavedMenus();
+  const [saved, theme] = await Promise.all([getSavedMenus(), getTheme()]);
+  const css = themeCss(theme); const fonts = fontHref(theme);
   return (
     <MenusProvider saved={saved}>
+      {fonts && <link rel="stylesheet" href={fonts} />}
+      {css && <style dangerouslySetInnerHTML={{ __html: css }} />}
       <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-[200] focus:rounded-lg focus:bg-surface focus:px-4 focus:py-2">Skip to content</a>
       <Header />
       <main id="main" className="min-h-[60vh]">{children}</main>

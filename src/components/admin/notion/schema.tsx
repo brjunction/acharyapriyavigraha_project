@@ -6,9 +6,12 @@ import { Database, FileText, Image as ImageIcon, Plus, Youtube, X, ListTree } fr
 import { MediaPicker } from "../media-picker";
 import { api } from "../ui";
 import { PageIcon } from "../../page-icon";
+import { Widget } from "./widget-block";
+import { Timeline, Verse, ImageText, LinkCards, Faq, Stats, Banner, Chapters, Lecture } from "./blocks-extra";
 
 export const TONES = ["orange", "yellow", "green", "blue", "purple", "pink", "red", "gray", "brown"] as const;
-export const TONE_BG: Record<string, string> = { gray: "#f1ece6", brown: "#f4e7da", red: "#fbe4e1", orange: "#fdebd6", yellow: "#fbf1cc", green: "#e3f1e5", blue: "#e2eaf8", purple: "#efe6f7", pink: "#f9e3ea" };
+import { TONE_BG } from "./schema-tones";
+export { TONE_BG };
 const ICONS = ["🪷", "💡", "📌", "⚠️", "🙏", "📿", "🌸", "✨", "📖", "🔔", "🕉️", "❤️"];
 const inp = "h-8 rounded-lg border border-line-strong bg-white px-2.5 text-[13px] outline-none focus:border-saffron";
 const Bar = ({ children }: { children: React.ReactNode }) => <div contentEditable={false} className="mt-2 flex flex-wrap items-center gap-2 rounded-xl border border-dashed border-line-strong bg-white/70 p-2 text-[12.5px] text-ink-3">{children}</div>;
@@ -121,7 +124,7 @@ const DatabaseBlock = createReactBlockSpec(
   { type: "database", propSchema: { db: { default: "" }, view: { default: "table" }, title: { default: "" }, limit: { default: 50 } }, content: "none" },
   { render: ({ block, editor }) => {
     const [dbs, setDbs] = useState<{ id: string; slug: string; name: string; rows: number }[]>([]);
-    useEffect(() => { api("/api/admin/dbs").then(setDbs).catch(() => {}); }, []);
+    useEffect(() => { Promise.all([api<any[]>("/api/admin/dbs"), api<any[]>("/api/admin/library").catch(() => [])]).then(([d, l]) => setDbs(d.filter((x) => !l.some((y: any) => y.slug === x.slug)))).catch(() => {}); }, []);
     const cur = dbs.find((d) => d.slug === block.props.db);
     return (
       <div contentEditable={false} className="w-full rounded-2xl border border-line bg-white p-4">
@@ -145,6 +148,6 @@ const Toc = createReactBlockSpec(
 );
 
 export const schema = BlockNoteSchema.create({
-  blockSpecs: { ...defaultBlockSpecs, callout: Callout(), sloka: Sloka(), pullQuote: PullQuote(), ornament: Ornament(), button: Button(), youtube: YouTube(), gallery: Gallery(), subpage: SubPage(), database: DatabaseBlock(), toc: Toc() },
+  blockSpecs: { ...defaultBlockSpecs, callout: Callout(), sloka: Sloka(), pullQuote: PullQuote(), ornament: Ornament(), button: Button(), youtube: YouTube(), gallery: Gallery(), subpage: SubPage(), database: DatabaseBlock(), toc: Toc(), timeline: Timeline(), verse: Verse(), imageText: ImageText(), linkCards: LinkCards(), faq: Faq(), stats: Stats(), banner: Banner(), chapters: Chapters(), lecture: Lecture(), widget: Widget() },
 });
 export type Editor = typeof schema.BlockNoteEditor;
