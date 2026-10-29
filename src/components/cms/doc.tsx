@@ -4,6 +4,7 @@ import { Fragment, type ReactNode } from "react";
 import { sql } from "@/lib/db";
 import { ytId } from "./blocks-view";
 import { DbView } from "./db-view";
+import { PageIcon } from "../page-icon";
 
 export type Doc = DBlock[];
 export type DBlock = { id: string; type: string; props: Record<string, any>; content?: any; children?: DBlock[] };
@@ -92,7 +93,7 @@ async function Block({ b, n, toc }: { b: DBlock; n: number; toc?: ReactNode }): 
     case "button": return <div className="my-6" style={{ textAlign: p.align || "left" }}><Link href={safeHref(p.href)} className="inline-flex h-11 items-center rounded-full bg-saffron px-6 text-[14.5px] font-medium text-white">{p.label || "Open"}</Link></div>;
     case "youtube": { const y = ytId(p.url); return y ? <figure className="my-7"><div className="aspect-video overflow-hidden rounded-2xl bg-black"><iframe src={`https://www.youtube-nocookie.com/embed/${y}`} title={p.caption || "Video"} loading="lazy" allowFullScreen className="h-full w-full" /></div>{p.caption && <figcaption className="mt-2 text-center text-[13px] text-ink-3">{p.caption}</figcaption>}</figure> : null; }
     case "gallery": { let imgs: { url: string; caption?: string }[] = []; try { imgs = JSON.parse(p.images || "[]"); } catch {} return imgs.length ? <div className="my-7 grid gap-3" style={{ gridTemplateColumns: `repeat(${Math.min(Number(p.cols) || 3, 4)}, minmax(0,1fr))` }}>{imgs.map((im, i) => <figure key={i}>{/* eslint-disable-next-line @next/next/no-img-element */}<img src={im.url} alt={im.caption || ""} loading="lazy" className="aspect-square w-full rounded-xl object-cover" />{im.caption && <figcaption className="mt-1 text-[12px] text-ink-3">{im.caption}</figcaption>}</figure>)}</div> : null; }
-    case "subpage": { if (!p.pageId) return null; const r = (await sql`select title, path, settings from pages where id = ${p.pageId} and status='published'`.catch(() => []))[0]; return r ? <Link href={r.path as string} className="my-1.5 flex items-center gap-2.5 rounded-xl px-2 py-2 text-[16px] font-medium text-ink underline decoration-line-strong underline-offset-4 hover:bg-band"><span className="text-[18px]">{(r.settings as any)?.icon || "📄"}</span>{r.title as string}</Link> : null; }
+    case "subpage": { if (!p.pageId) return null; const r = (await sql`select title, path, settings from pages where id = ${p.pageId} and status='published'`.catch(() => []))[0]; return r ? <Link href={r.path as string} className="my-1.5 flex items-center gap-2.5 rounded-xl px-2 py-2 text-[16px] font-medium text-ink underline decoration-line-strong underline-offset-4 hover:bg-band"><PageIcon icon={(r.settings as any)?.icon || "📄"} size={19} />{r.title as string}</Link> : null; }
     case "database": return <div className="my-7"><DbView db={p.db} view={p.view} title={p.title} limit={Number(p.limit) || 50} /></div>;
     case "toc": return toc || null;
     case "bulletListItem": case "numberedListItem": return null; // grouped below

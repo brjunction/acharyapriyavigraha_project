@@ -1,3 +1,4 @@
+import { CollectionPage } from "@/components/cms/collection";
 import { cmsOverride } from "@/lib/cms/render";
 import { Quote, Shuffle } from "lucide-react";
 import { QUOTE_CATEGORIES, QUOTE_OF_DAY } from "@/lib/data";
@@ -5,8 +6,11 @@ import { Container, PageHero, QuoteCard, SectionHead } from "@/components/ui";
 
 export const metadata = { title: "Quotes" };
 
+export const revalidate = 300;
+
 export default async function Page() {
   const cms = await cmsOverride('/teachings/quotes'); if (cms) return cms;
+  const col = await CollectionPage({ route: '/teachings/quotes', crumbs: [{ href: "/teachings", label: "His Teachings" }, { label: "Quotes" }] }); if (col) return col;
   return <Original />;
 }
 

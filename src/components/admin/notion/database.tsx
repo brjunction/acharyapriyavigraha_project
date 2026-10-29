@@ -3,7 +3,7 @@ import dynamic from "next/dynamic";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Plus, Table2, Kanban, LayoutGrid, List, CalendarDays, Filter, ArrowUpDown, Search, X, Trash2, ChevronLeft, ChevronRight, Maximize2,
-  Type, Hash, CircleDot, Tags, Calendar, CheckSquare, Link2, Paperclip, Headphones, Video, GitMerge, EyeOff, ArrowLeft, ArrowRight, Globe, MoreHorizontal, Copy,
+  Type, Hash, CircleDot, Upload, Youtube, Tags, Calendar, CheckSquare, Link2, Paperclip, Headphones, Video, GitMerge, EyeOff, ArrowLeft, ArrowRight, Globe, MoreHorizontal, Copy,
 } from "lucide-react";
 import { COLORS, OPTION_COLORS, opts, type Opt } from "@/lib/cms/colors";
 import { api, toast } from "../ui";
@@ -11,7 +11,7 @@ import { MediaPicker } from "../media-picker";
 
 const NotionEditor = dynamic(() => import("./editor"), { ssr: false });
 
-export type Field = { key: string; label: string; type: string; options?: any[]; relation?: string; hidden?: boolean };
+export type Field = { key: string; label: string; type: string; options?: any[]; relation?: string; hidden?: boolean; system?: boolean };
 type Row = { id: string; slug: string; title: string; data: Record<string, any>; status: string; position: number };
 type Cond = { key: string; op: string; value: string };
 type View = { id: string; name: string; type: "table" | "board" | "gallery" | "list" | "calendar"; filters: Cond[]; sorts: { key: string; dir: "asc" | "desc" }[]; groupBy?: string; dateKey?: string; hidden?: string[] };
@@ -115,7 +115,7 @@ function match(r: Row, c: Cond, fields: Field[]) {
 export function DatabaseEditor({ id }: { id: string }) {
   const [db, setDb] = useState<Db | null>(null); const [rows, setRows] = useState<Row[]>([]); const [rel, setRel] = useState<Record<string, Row[]>>({});
   const [vid, setVid] = useState(""); const [q, setQ] = useState(""); const [peek, setPeek] = useState<string | null>(null);
-  const [menu, setMenu] = useState<null | "filter" | "sort" | "view" | "props">(null); const [allDbs, setAllDbs] = useState<{ id: string; name: string }[]>([]);
+  const [menu, setMenu] = useState<null | "filter" | "sort" | "view" | "props">(null); const [importing, setImporting] = useState(false); const [allDbs, setAllDbs] = useState<{ id: string; name: string }[]>([]);
   const dirty = useRef(false); const timer = useRef<any>(null);
 
   const load = useCallback(async () => {
@@ -206,6 +206,8 @@ export function DatabaseEditor({ id }: { id: string }) {
               {db.views.length > 1 && <button onClick={() => { saveDb({ ...db, views: db.views.filter((v) => v.id !== view.id) }); setVid(db.views[0].id === view.id ? db.views[1].id : db.views[0].id); setMenu(null); }} className="mt-1 flex w-full items-center gap-2 rounded-lg border-t border-line px-2 py-1.5 text-[#a3281e] hover:bg-band"><Trash2 size={14} />Delete this view</button>}
             </Pop>}</div>
           <div className="relative"><Search size={14} className="absolute left-2 top-2.5 text-ink-3" /><input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search" className="h-8 w-[130px] rounded-md bg-band/60 pl-7 pr-2 text-[13px] outline-none focus:w-[200px] focus:bg-white focus:ring-1 focus:ring-saffron" /></div>
+          <button onClick={() => setImporting(true)} className="flex h-8 items-center gap-1.5 rounded-md px-2.5 text-[13px] text-ink-3 hover:bg-band"><Upload size={14} />Import</button>
+          {db.slug === "videos" && <button onClick={async () => { const ch = prompt("YouTube channel ID (starts with UC…)", db.settings.youtube || "UC4IEe3gMst3nTRVWKJfd8Ng"); if (!ch) return; try { const r = await api<{ added: number; channel: string }>("/api/admin/library/youtube", "POST", { channel: ch }); saveDb({ ...db, settings: { ...db.settings, youtube: ch } }); toast(`${r.added} new videos from ${r.channel}.`); load(); } catch (e: any) { toast(e.message, true); } }} className="flex h-8 items-center gap-1.5 rounded-md px-2.5 text-[13px] text-ink-3 hover:bg-band"><Youtube size={14} />From YouTube</button>}
           <button onClick={() => newRow()} className="ml-1 flex h-8 items-center gap-1 rounded-md bg-saffron px-3 text-[13px] font-medium text-white hover:brightness-110"><Plus size={14} />New</button>
         </div>
       </div>
@@ -218,6 +220,7 @@ export function DatabaseEditor({ id }: { id: string }) {
         {view.type === "calendar" && <CalendarView {...{ rows: shown, view, dates, setPeek, newRow, addField, setView }} />}
         <p className="mt-3 text-[12.5px] text-ink-3">{shown.length} of {rows.length} records</p>
       </div>
+      {importing && <ImportCsv db={db} onClose={() => setImporting(false)} onDone={() => { setImporting(false); load(); }} saveDb={saveDb} />}
       {peekRow && <Peek {...{ db, row: peekRow, rel, setVal, setTitle, onOptions, close: () => setPeek(null), delRow, dbId: id, setRows }} />}
     </div>
   );
@@ -232,9 +235,9 @@ function FieldHead({ f, db, setField, saveDb, allDbs }: { f: Field; db: Db; setF
       <button onClick={() => setOpen(true)} className="flex h-9 w-full items-center gap-1.5 px-2 text-[13px] text-ink-3 hover:bg-band"><I size={14} />{f.label}</button>
       {open && <Pop onClose={() => setOpen(false)} className="left-0 top-full w-[250px]">
         <input autoFocus value={f.label} onChange={(e) => setField(f.key, { label: e.target.value })} className="mb-1 h-8 w-full rounded-md border border-line px-2 outline-none focus:border-saffron" />
-        <p className="px-2 pt-1 text-[11.5px] font-semibold text-ink-3">Type</p>
-        <div className="max-h-[200px] overflow-y-auto">{TYPES.map(([t, l, TI]) => <button key={t} onClick={() => setField(f.key, { type: t })} className={`flex w-full items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-band ${f.type === t ? "font-semibold text-saffron" : ""}`}><TI size={14} />{l}</button>)}</div>
-        {f.type === "relation" && <select value={f.relation || ""} onChange={(e) => setField(f.key, { relation: e.target.value })} className="my-1 h-8 w-full rounded-md border border-line px-1.5"><option value="">Link to which database?</option>{allDbs.filter((d) => d.id !== db.id).map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}</select>}
+        {f.system ? <p className="px-2 py-1.5 text-[12px] text-ink-3">This column is part of the Library’s fixed structure: its kind cannot change and it cannot be deleted.</p> : <><p className="px-2 pt-1 text-[11.5px] font-semibold text-ink-3">Type</p>
+        <div className="max-h-[200px] overflow-y-auto">{TYPES.map(([t, l, TI]) => <button key={t} onClick={() => setField(f.key, { type: t })} className={`flex w-full items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-band ${f.type === t ? "font-semibold text-saffron" : ""}`}><TI size={14} />{l}</button>)}</div></>}
+        {f.type === "relation" && !f.system && <select value={f.relation || ""} onChange={(e) => setField(f.key, { relation: e.target.value })} className="my-1 h-8 w-full rounded-md border border-line px-1.5"><option value="">Link to which database?</option>{allDbs.filter((d) => d.id !== db.id).map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}</select>}
         {(f.type === "select" || f.type === "multi") && <div className="border-t border-line pt-1"><p className="px-2 py-1 text-[11.5px] font-semibold text-ink-3">Options</p>{opts(f.options).map((o, k) => (
           <div key={k} className="flex items-center gap-1 px-1 py-0.5"><input value={o.name} onChange={(e) => setField(f.key, { options: opts(f.options).map((x, j) => (j === k ? { ...x, name: e.target.value } : x)) })} className="h-7 min-w-0 flex-1 rounded border border-transparent px-1.5 hover:border-line" style={{ background: COLORS[o.color]?.bg, color: COLORS[o.color]?.text }} />
             <select value={o.color} onChange={(e) => setField(f.key, { options: opts(f.options).map((x, j) => (j === k ? { ...x, color: e.target.value } : x)) })} className="h-7 w-[70px] rounded border border-line text-[12px]">{OPTION_COLORS.map((c) => <option key={c}>{c}</option>)}</select>
@@ -243,7 +246,7 @@ function FieldHead({ f, db, setField, saveDb, allDbs }: { f: Field; db: Db; setF
         <div className="mt-1 flex border-t border-line pt-1">
           <button onClick={() => move(-1)} title="Move left" className="flex-1 rounded-lg py-1.5 hover:bg-band"><ArrowLeft size={14} className="mx-auto" /></button>
           <button onClick={() => move(1)} title="Move right" className="flex-1 rounded-lg py-1.5 hover:bg-band"><ArrowRight size={14} className="mx-auto" /></button>
-          <button onClick={() => { if (confirm(`Delete the column “${f.label}” and its values?`)) { saveDb({ ...db, fields: db.fields.filter((x) => x.key !== f.key) }); setOpen(false); } }} title="Delete column" className="flex-1 rounded-lg py-1.5 text-[#a3281e] hover:bg-band"><Trash2 size={14} className="mx-auto" /></button>
+          {!f.system && <button onClick={() => { if (confirm(`Delete the column “${f.label}” and its values?`)) { saveDb({ ...db, fields: db.fields.filter((x) => x.key !== f.key) }); setOpen(false); } }} title="Delete column" className="flex-1 rounded-lg py-1.5 text-[#a3281e] hover:bg-band"><Trash2 size={14} className="mx-auto" /></button>}
         </div>
       </Pop>}
     </th>
@@ -378,6 +381,57 @@ function Peek({ db, row, rel, setVal, setTitle, onOptions, close, delRow, dbId, 
           <div className="-mx-[54px]">{full ? <NotionEditor initial={full.blocks} pageId="" onChange={(b) => { blocks.current = b; saveBlocks(); }} /> : <p className="px-[54px] text-ink-3">Opening…</p>}</div>
         </div>
       </aside>
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------ spreadsheet import */
+function parseCsv(text: string): string[][] {
+  const rows: string[][] = []; let row: string[] = [], cell = "", q = false;
+  const sep = (text.split("\n")[0].match(/\t/g)?.length || 0) > (text.split("\n")[0].match(/,/g)?.length || 0) ? "\t" : ",";
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (q) { if (c === '"' && text[i + 1] === '"') { cell += '"'; i++; } else if (c === '"') q = false; else cell += c; }
+    else if (c === '"') q = true; else if (c === sep) { row.push(cell); cell = ""; } else if (c === "\n" || c === "\r") { if (c === "\r" && text[i + 1] === "\n") i++; row.push(cell); rows.push(row); row = []; cell = ""; } else cell += c;
+  }
+  if (cell || row.length) { row.push(cell); rows.push(row); }
+  return rows.filter((r) => r.some((c) => c.trim()));
+}
+const simple = (s: string) => s.toLowerCase().normalize("NFKD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/g, "");
+function ImportCsv({ db, onClose, onDone, saveDb }: { db: Db; onClose: () => void; onDone: () => void; saveDb: (d: Db) => void }) {
+  const [data, setData] = useState<string[][] | null>(null); const [map, setMap] = useState<string[]>([]); const [busy, setBusy] = useState(""); 
+  const read = async (f: File) => { const rows = parseCsv(await f.text()); setData(rows); const head = rows[0] || [];
+    setMap(head.map((h) => { const n = simple(h); if (["title", "name", "lecturetitle"].includes(n)) return "title"; return db.fields.find((f) => simple(f.label) === n || simple(f.key) === n || simple(f.label).startsWith(n))?.key || ""; })); };
+  const run = async () => {
+    if (!data) return; if (!map.includes("title")) return toast("Choose which column is the Title.", true);
+    const fields = db.fields.map((f) => ({ ...f, options: opts(f.options) }));
+    const rows = data.slice(1).map((r) => { const out: { title: string; data: Record<string, any> } = { title: "", data: {} };
+      map.forEach((k, i) => { const v = (r[i] ?? "").trim(); if (!k || !v) return; if (k === "title") { out.title = v; return; } const f = fields.find((x) => x.key === k)!; const t = norm(f.type);
+        if (t === "multi") { const vs = v.split(/[;,|]\s*/).filter(Boolean); vs.forEach((x) => { if (!f.options.some((o) => o.name === x)) f.options.push({ name: x, color: OPTION_COLORS[f.options.length % 9] }); }); out.data[k] = vs; }
+        else if (t === "select") { if (!f.options.some((o) => o.name === v)) f.options.push({ name: v, color: OPTION_COLORS[f.options.length % 9] }); out.data[k] = v; }
+        else if (t === "number") out.data[k] = Number(v.replace(/[^0-9.\-]/g, "")) || 0;
+        else if (t === "checkbox") out.data[k] = /^(1|yes|true|y|✓|x)$/i.test(v);
+        else if (t === "date") { const d = new Date(v); out.data[k] = isNaN(+d) ? v : `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; }
+        else out.data[k] = v; });
+      return out; }).filter((r) => r.title);
+    saveDb({ ...db, fields: fields as any });
+    for (let i = 0; i < rows.length; i += 400) { setBusy(`Adding ${Math.min(i + 400, rows.length)} of ${rows.length}…`); await api(`/api/admin/dbs/${db.id}/import`, "POST", { rows: rows.slice(i, i + 400) }).catch((e) => { toast(e.message, true); throw e; }); }
+    toast(`${rows.length} records added.`); onDone();
+  };
+  return (
+    <div className="fixed inset-0 z-[60] flex items-start justify-center overflow-y-auto bg-black/30 p-6" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
+      <div className="w-full max-w-2xl rounded-3xl bg-white p-6 shadow-2xl">
+        <div className="mb-3 flex items-center justify-between"><h2 className="text-[19px] font-bold">Import from a spreadsheet</h2><button onClick={onClose} className="rounded p-1 hover:bg-band"><X size={18} /></button></div>
+        <p className="mb-4 text-[13.5px] text-ink-2">Save your sheet as CSV (in Excel or Google Sheets: File → Download → CSV). The first row must hold the column names. Choices in Select columns can be separated by semicolons.</p>
+        <input type="file" accept=".csv,.tsv,.txt" onChange={(e) => e.target.files?.[0] && read(e.target.files[0])} className="text-[13.5px]" />
+        {data && <>
+          <p className="mt-4 text-[13.5px] font-medium">{data.length - 1} rows found. Match each column of your sheet:</p>
+          <div className="mt-2 max-h-[45vh] space-y-1.5 overflow-y-auto rounded-xl border border-line p-3">{(data[0] || []).map((h, i) => (
+            <div key={i} className="grid grid-cols-[1fr_20px_1fr] items-center gap-2 text-[13.5px]"><span className="truncate"><b>{h}</b> <span className="text-ink-3">e.g. {(data[1]?.[i] || "").slice(0, 30)}</span></span><ArrowRight size={14} className="text-ink-3" />
+              <select value={map[i] || ""} onChange={(e) => setMap(map.map((m, j) => (j === i ? e.target.value : m)))} className="h-8 rounded-md border border-line px-1.5"><option value="">Skip</option><option value="title">Title</option>{db.fields.map((f) => <option key={f.key} value={f.key}>{f.label}</option>)}</select></div>))}</div>
+          <div className="mt-4 flex items-center justify-end gap-3"><span className="text-[13px] text-ink-3">{busy}</span><button onClick={run} disabled={!!busy} className="h-10 rounded-xl bg-saffron px-5 text-[14px] font-medium text-white disabled:opacity-60">Import {data.length - 1} records</button></div>
+        </>}
+      </div>
     </div>
   );
 }

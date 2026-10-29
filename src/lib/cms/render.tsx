@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { sql, hasDb } from "@/lib/db";
 import { Blocks } from "@/components/cms/blocks-view";
 import { Render, docText, headings } from "@/components/cms/doc";
+import { PageIcon } from "@/components/page-icon";
 import { Container } from "@/components/ui";
 import { ChevronRight, ChevronLeft, BookOpen } from "lucide-react";
 import type { Block } from "./blocks";
@@ -59,7 +60,7 @@ export async function CmsPage({ segments }: { segments: string[] }) {
         {isBook && <aside className="lg:sticky lg:top-24 lg:h-[calc(100vh-8rem)] lg:overflow-y-auto"><p className="mb-3 flex items-center gap-2 text-[12px] font-semibold uppercase tracking-[0.12em] text-saffron"><BookOpen size={14} />Contents</p><Tree nodes={tree} cur={p.path} /></aside>}
         <article className={isBook ? "min-w-0 max-w-[760px]" : "mx-auto max-w-[820px]"}>
           {p.settings?.cover && /* eslint-disable-next-line @next/next/no-img-element */ <img src={p.settings.cover} alt="" className="mb-8 h-[200px] w-full rounded-3xl object-cover sm:h-[280px]" style={{ objectPosition: `center ${p.settings.coverY ?? 50}%` }} />}
-          {p.settings?.hideTitle !== true && !isOld(p.blocks) && <h1 className="mb-6 text-[32px] font-bold leading-[1.15] tracking-[-0.03em] text-ink sm:text-[42px]">{p.settings?.icon && <span className="mr-3">{p.settings.icon}</span>}{p.title}</h1>}
+          {p.settings?.hideTitle !== true && !isOld(p.blocks) && <h1 className="mb-6 text-[32px] font-bold leading-[1.15] tracking-[-0.03em] text-ink sm:text-[42px]">{p.settings?.icon && <PageIcon icon={p.settings.icon} size={40} className="mr-3" />}{p.title}</h1>}
           {isOld(p.blocks) ? <Blocks blocks={p.blocks} /> : <Render doc={p.blocks} toc={<Toc items={isBook && p.type === "book" ? kids.map((k: any) => ({ text: k.title, href: k.path, level: 2 })) : headings(p.blocks).map((h) => ({ text: h.text, href: `#${h.id}`, level: h.level }))} />} />}
           {unlinked.length > 0 && (p.type === "collection" || p.type === "page") && <ul className="mt-10 grid gap-3 sm:grid-cols-2">{unlinked.map((k) => <li key={k.path}><Link href={k.path} className="card block p-4 font-semibold transition hover:-translate-y-0.5 hover:text-saffron">{k.title}</Link></li>)}</ul>}
           {isBook && (prev || next) && <nav className="mt-12 flex justify-between gap-3 border-t border-line pt-6">{prev ? <Link href={prev.path} className="flex items-center gap-1.5 text-[14.5px] font-medium hover:text-saffron"><ChevronLeft size={16} />{prev.title}</Link> : <span />}{next && <Link href={next.path} className="flex items-center gap-1.5 text-right text-[14.5px] font-medium hover:text-saffron">{next.title}<ChevronRight size={16} /></Link>}</nav>}

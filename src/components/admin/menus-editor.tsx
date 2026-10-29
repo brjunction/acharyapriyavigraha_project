@@ -1,18 +1,22 @@
 "use client";
 import { useEffect, useState } from "react";
 import { ArrowUp, ArrowDown, Plus, Trash2, Eye, EyeOff, RotateCcw, ChevronDown } from "lucide-react";
-import { ICONS, type MenuJ, type MenuLinkJ } from "@/lib/menus";
+import { ICONS, isImgIcon, type MenuJ, type MenuLinkJ } from "@/lib/menus";
+import { MediaPicker } from "./media-picker";
 import { Btn, api, toast } from "./ui";
 
 const box = "h-8 w-full rounded-lg border border-transparent bg-transparent px-2 text-[13.5px] outline-none hover:border-line focus:border-saffron focus:bg-white";
 function mv<T>(a: T[], i: number, d: number) { const j = i + d; if (j < 0 || j >= a.length) return a; const c = [...a]; [c[i], c[j]] = [c[j], c[i]]; return c; }
 
 function IconPick({ value, onChange }: { value: string; onChange: (v: string) => void }) {
-  const [open, setOpen] = useState(false); const I = ICONS[value] || ICONS.FileText;
+  const [open, setOpen] = useState(false); const [media, setMedia] = useState(false); const I = ICONS[value] || ICONS.FileText;
   return (
     <div className="relative">
-      <button onClick={() => setOpen(!open)} title="Change icon" className="flex h-8 w-8 items-center justify-center rounded-lg border border-line bg-white text-saffron hover:border-saffron"><I size={16} /></button>
-      {open && <div className="absolute left-0 top-9 z-30 grid w-[300px] grid-cols-9 gap-1 rounded-xl border border-line bg-white p-2 shadow-xl" onMouseLeave={() => setOpen(false)}>{Object.entries(ICONS).map(([k, C]) => <button key={k} title={k} onClick={() => { onChange(k); setOpen(false); }} className={`flex h-7 w-7 items-center justify-center rounded ${k === value ? "bg-saffron text-white" : "hover:bg-band"}`}><C size={15} /></button>)}</div>}
+      <button onClick={() => setOpen(!open)} title="Change icon" className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-lg border border-line bg-white text-saffron hover:border-saffron">{isImgIcon(value) ? /* eslint-disable-next-line @next/next/no-img-element */ <img src={value} alt="" className="h-6 w-6 object-contain" /> : <I size={16} />}</button>
+      {open && <div className="absolute left-0 top-9 z-30 w-[300px] rounded-xl border border-line bg-white p-2 shadow-xl" onMouseLeave={() => !media && setOpen(false)}>
+        <button onClick={() => setMedia(true)} className="mb-2 w-full rounded-lg bg-band py-1.5 text-[12.5px] font-medium hover:brightness-95">Upload your own picture as the icon</button>
+        <div className="grid grid-cols-9 gap-1">{Object.entries(ICONS).map(([k, C]) => <button key={k} title={k} onClick={() => { onChange(k); setOpen(false); }} className={`flex h-7 w-7 items-center justify-center rounded ${k === value ? "bg-saffron text-white" : "hover:bg-band"}`}><C size={15} /></button>)}</div></div>}
+      {media && <MediaPicker onClose={() => setMedia(false)} onPick={(i) => { onChange(i[0].url); setMedia(false); setOpen(false); }} />}
     </div>
   );
 }

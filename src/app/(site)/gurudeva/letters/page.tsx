@@ -1,3 +1,4 @@
+import { CollectionPage } from "@/components/cms/collection";
 import { cmsOverride } from "@/lib/cms/render";
 import { Mail, ArrowRight } from "lucide-react";
 import { LETTERS, fmtDate } from "@/lib/data";
@@ -5,8 +6,11 @@ import { Container, PageHero } from "@/components/ui";
 
 export const metadata = { title: "Letters" };
 
+export const revalidate = 300;
+
 export default async function Page() {
   const cms = await cmsOverride('/gurudeva/letters'); if (cms) return cms;
+  const col = await CollectionPage({ route: '/gurudeva/letters', crumbs: [{ href: "/gurudeva", label: "Śrīla Gurudeva" }, { label: "Letters" }] }); if (col) return col;
   return <Original />;
 }
 

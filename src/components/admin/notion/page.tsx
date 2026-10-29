@@ -7,6 +7,7 @@ import { PAGE_TEMPLATES } from "@/lib/cms/templates";
 import { slugify } from "@/lib/cms/blocks";
 import { Btn, Field, Input, Select, Textarea, api, toast } from "../ui";
 import { MediaPicker } from "../media-picker";
+import { PageIcon } from "../../page-icon";
 
 const NotionEditor = dynamic(() => import("./editor"), { ssr: false, loading: () => <p className="py-6 text-ink-3">Opening the editor…</p> });
 const EMOJI = ["📄", "📖", "📑", "🪷", "🌸", "🙏", "📿", "🕉️", "✨", "🔔", "🎧", "🎬", "🖼️", "💬", "🗂️", "🗃️", "📜", "🏛️", "🛕", "🌺", "🌼", "🦚", "🐄", "🌿", "📅", "📰", "📣", "❤️", "⭐", "🔥", "📍", "🎵"];
@@ -21,7 +22,7 @@ export function NotionPage({ pageId }: { pageId: string }) {
   const [seo, setSeo] = useState<Record<string, any>>({}); const [slug, setSlug] = useState(""); const [parent, setParent] = useState(""); const [type, setType] = useState("page");
   const blocks = useRef<any[]>([]); const [ver, setVer] = useState(0);
   const [dirty, setDirty] = useState(false); const [saving, setSaving] = useState(false); const [drawer, setDrawer] = useState(false);
-  const [emoji, setEmoji] = useState(false); const [cover, setCover] = useState(false); const [fresh, setFresh] = useState(false);
+  const [emoji, setEmoji] = useState(false); const [iconPic, setIconPic] = useState(false); const [cover, setCover] = useState(false); const [fresh, setFresh] = useState(false);
   const titleRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
@@ -60,8 +61,8 @@ export function NotionPage({ pageId }: { pageId: string }) {
     <div className="min-h-screen bg-white">
       <header className="sticky top-0 z-30 flex h-12 items-center gap-2 bg-white/95 px-3 backdrop-blur sm:px-4">
         <nav className="flex min-w-0 flex-1 items-center gap-0.5 text-[13.5px] text-ink-2">
-          {crumbs.map((c) => <span key={c.id} className="flex min-w-0 items-center gap-0.5"><Link href={`/admin/pages/${c.id}`} className="truncate rounded px-1.5 py-1 hover:bg-band">{c.icon ? `${c.icon} ` : ""}{c.title}</Link><ChevronRight size={13} className="shrink-0 text-ink-3" /></span>)}
-          <span className="truncate px-1.5 font-medium text-ink">{settings.icon ? `${settings.icon} ` : ""}{title || "Untitled"}</span>
+          {crumbs.map((c) => <span key={c.id} className="flex min-w-0 items-center gap-0.5"><Link href={`/admin/pages/${c.id}`} className="truncate rounded px-1.5 py-1 hover:bg-band"><PageIcon icon={c.icon} size={15} className="mr-1" />{c.title}</Link><ChevronRight size={13} className="shrink-0 text-ink-3" /></span>)}
+          <span className="truncate px-1.5 font-medium text-ink"><PageIcon icon={settings.icon} size={15} className="mr-1" />{title || "Untitled"}</span>
         </nav>
         <span className="hidden text-[12.5px] text-ink-3 sm:inline">{saving ? "Saving…" : dirty ? "Editing…" : "Saved"}</span>
         <span className={`rounded-full px-2.5 py-0.5 text-[11.5px] font-semibold ${page.status === "published" ? "bg-[#e3f3e6] text-[#256a39]" : "bg-[#fbeccf] text-[#8a5a0a]"}`}>{page.status === "published" ? "Live" : "Draft"}</span>
@@ -75,12 +76,12 @@ export function NotionPage({ pageId }: { pageId: string }) {
 
       <div className={`mx-auto px-6 pb-40 sm:px-14 ${full ? "max-w-none" : "max-w-[900px]"}`}>
         <div className={`group relative ${settings.cover ? (settings.icon ? "-mt-10" : "pt-8") : "pt-16"}`}>
-          {settings.icon && <button onClick={() => setEmoji(true)} className="mb-2 block rounded-xl text-[64px] leading-none hover:bg-band/60">{settings.icon}</button>}
+          {settings.icon && <button onClick={() => setEmoji(true)} className="mb-2 block rounded-xl leading-none hover:bg-band/60"><PageIcon icon={settings.icon} size={72} /></button>}
           <div className="mb-1 flex gap-1 text-[13px] text-ink-3 opacity-0 transition group-hover:opacity-100">
             {!settings.icon && <button onClick={() => setEmoji(true)} className="flex items-center gap-1 rounded-md px-2 py-1 hover:bg-band"><Smile size={15} />Add icon</button>}
             {!settings.cover && <button onClick={() => setCover(true)} className="flex items-center gap-1 rounded-md px-2 py-1 hover:bg-band"><ImagePlus size={15} />Add cover</button>}
           </div>
-          {emoji && <div className="absolute left-0 top-full z-40 w-[300px] rounded-xl border border-line bg-white p-2 shadow-xl"><div className="grid grid-cols-8 gap-1">{EMOJI.map((e) => <button key={e} onClick={() => { setS("icon", e); setEmoji(false); }} className="rounded p-1 text-[20px] hover:bg-band">{e}</button>)}</div><div className="mt-2 flex justify-between border-t border-line pt-2 text-[12.5px]"><button onClick={() => { setS("icon", ""); setEmoji(false); }} className="text-ink-3 hover:text-ink">Remove</button><button onClick={() => setEmoji(false)} className="text-ink-3 hover:text-ink">Close</button></div></div>}
+          {emoji && <div className="absolute left-0 top-full z-40 w-[300px] rounded-xl border border-line bg-white p-2 shadow-xl"><div className="grid grid-cols-8 gap-1">{EMOJI.map((e) => <button key={e} onClick={() => { setS("icon", e); setEmoji(false); }} className="rounded p-1 text-[20px] hover:bg-band">{e}</button>)}</div><div className="mt-2 flex justify-between border-t border-line pt-2 text-[12.5px]"><button onClick={() => { setIconPic(true); setEmoji(false); }} className="font-medium text-saffron">Upload a picture</button><button onClick={() => { setS("icon", ""); setEmoji(false); }} className="text-ink-3 hover:text-ink">Remove</button><button onClick={() => setEmoji(false)} className="text-ink-3 hover:text-ink">Close</button></div></div>}
           <textarea ref={titleRef} rows={1} value={title} onChange={(e) => onTitle(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); (document.querySelector(".tj-editor [contenteditable=true]") as HTMLElement)?.focus(); } }} placeholder="Untitled" className="w-full resize-none overflow-hidden bg-transparent text-[34px] font-bold leading-[1.2] tracking-[-0.03em] text-ink outline-none placeholder:text-[#d9cfc3] sm:text-[40px]" />
         </div>
         <div className="-mx-[54px] mt-3">
@@ -89,9 +90,10 @@ export function NotionPage({ pageId }: { pageId: string }) {
         {fresh && <div className="mt-6"><p className="mb-2 text-[13px] text-ink-3">Press <kbd className="rounded border border-line bg-band px-1">/</kbd> for every element, or start with a template:</p>
           <div className="grid gap-1.5 sm:grid-cols-2">{PAGE_TEMPLATES.filter((t) => t.key !== "blank").map((t) => <button key={t.key} onClick={() => useTemplate(t.key)} className="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-left hover:bg-band"><span className="text-[18px]">{t.icon}</span><span><span className="block text-[14px] font-medium">{t.name}</span><span className="block text-[12px] text-ink-3">{t.desc}</span></span></button>)}</div></div>}
         {children.filter((c) => !linked.has(c.id)).length > 0 && <div className="mt-10 border-t border-line pt-4"><p className="mb-1 text-[12px] font-semibold uppercase tracking-[0.1em] text-ink-3">{type === "book" || type === "chapter" ? "Chapters" : "Pages inside"}</p>
-          {children.filter((c) => !linked.has(c.id)).map((c) => <Link key={c.id} href={`/admin/pages/${c.id}`} className="flex items-center gap-2 rounded-lg px-2 py-1.5 text-[15px] font-medium text-ink underline decoration-line-strong underline-offset-4 hover:bg-band"><span className="no-underline">{c.icon || <FileText size={16} className="text-ink-3" />}</span>{c.title}{c.status !== "published" && <span className="text-[11.5px] font-normal text-[#8a5a0a] no-underline">draft</span>}</Link>)}</div>}
+          {children.filter((c) => !linked.has(c.id)).map((c) => <Link key={c.id} href={`/admin/pages/${c.id}`} className="flex items-center gap-2 rounded-lg px-2 py-1.5 text-[15px] font-medium text-ink underline decoration-line-strong underline-offset-4 hover:bg-band"><span className="no-underline">{c.icon ? <PageIcon icon={c.icon} size={17} /> : <FileText size={16} className="text-ink-3" />}</span>{c.title}{c.status !== "published" && <span className="text-[11.5px] font-normal text-[#8a5a0a] no-underline">draft</span>}</Link>)}</div>}
       </div>
 
+      {iconPic && <MediaPicker onClose={() => setIconPic(false)} onPick={(i) => { setS("icon", i[0].url); setIconPic(false); }} />}
       {cover && <MediaPicker onClose={() => setCover(false)} onPick={(i) => { setS("cover", i[0].url); setCover(false); }} />}
       {drawer && <Drawer onClose={() => setDrawer(false)} {...{ page, all, title, slug, setSlug: (v: string) => { setSlug(v); setDirty(true); }, parent, setParent: (v: string) => { setParent(v); setDirty(true); }, type, setType: (v: string) => { setType(v); setDirty(true); }, seo, setSeo: (s: any) => { setSeo(s); setDirty(true); }, settings, setS, onRestore: (b: any[]) => { blocks.current = b; setVer((v) => v + 1); setDirty(true); } }} />}
     </div>

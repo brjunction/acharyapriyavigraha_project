@@ -5,6 +5,7 @@ import { createReactBlockSpec } from "@blocknote/react";
 import { Database, FileText, Image as ImageIcon, Plus, Youtube, X, ListTree } from "lucide-react";
 import { MediaPicker } from "../media-picker";
 import { api } from "../ui";
+import { PageIcon } from "../../page-icon";
 
 export const TONES = ["orange", "yellow", "green", "blue", "purple", "pink", "red", "gray", "brown"] as const;
 export const TONE_BG: Record<string, string> = { gray: "#f1ece6", brown: "#f4e7da", red: "#fbe4e1", orange: "#fdebd6", yellow: "#fbf1cc", green: "#e3f1e5", blue: "#e2eaf8", purple: "#efe6f7", pink: "#f9e3ea" };
@@ -112,7 +113,7 @@ const SubPage = createReactBlockSpec(
   { render: ({ block }) => {
     const [t, setT] = useState<{ title: string; icon?: string } | null>(null);
     useEffect(() => { if (block.props.pageId) api(`/api/admin/pages/${block.props.pageId}`).then((p) => setT({ title: p.title, icon: p.settings?.icon })).catch(() => setT({ title: "(page removed)" })); }, [block.props.pageId]);
-    return <a contentEditable={false} href={`/admin/pages/${block.props.pageId}`} className="flex w-full items-center gap-2 rounded-lg px-1 py-1 text-[16px] font-medium text-ink underline decoration-line-strong underline-offset-4 hover:bg-band"><span className="text-[18px] no-underline">{t?.icon || block.props.icon || <FileText size={17} />}</span>{t?.title || block.props.title}</a>;
+    return <a contentEditable={false} href={`/admin/pages/${block.props.pageId}`} className="flex w-full items-center gap-2 rounded-lg px-1 py-1 text-[16px] font-medium text-ink underline decoration-line-strong underline-offset-4 hover:bg-band"><span className="text-[18px] no-underline">{t?.icon ? <PageIcon icon={t.icon} size={19} /> : <FileText size={17} />}</span>{t?.title || block.props.title}</a>;
   } }
 );
 
