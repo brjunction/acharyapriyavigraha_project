@@ -52,6 +52,7 @@ create table if not exists dbs (
   fields jsonb not null default '[]',
   views jsonb not null default '[]',
   public boolean not null default true,
+  settings jsonb not null default '{}',
   created_at timestamptz not null default now()
 );
 create table if not exists db_rows (
@@ -63,6 +64,7 @@ create table if not exists db_rows (
   status text not null default 'published' check (status in ('draft','published')),
   position int not null default 0,
   seo jsonb not null default '{}',
+  blocks jsonb not null default '[]',
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
   fts tsvector generated always as (to_tsvector('simple', coalesce(title,'') || ' ' || coalesce(data::text,''))) stored,
