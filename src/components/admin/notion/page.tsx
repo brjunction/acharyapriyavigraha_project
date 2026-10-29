@@ -74,7 +74,7 @@ export function NotionPage({ pageId }: { pageId: string }) {
       {settings.cover && <div className="group relative h-[28vh] min-h-[160px] w-full overflow-hidden">{/* eslint-disable-next-line @next/next/no-img-element */}<img src={settings.cover} alt="" className="h-full w-full object-cover" style={{ objectPosition: `center ${settings.coverY ?? 50}%` }} />
         <div className="absolute bottom-3 right-4 hidden gap-1.5 group-hover:flex"><button onClick={() => setCover(true)} className="rounded-lg bg-white/90 px-2.5 py-1 text-[12.5px] font-medium">Change cover</button><button onClick={() => setS("coverY", ((settings.coverY ?? 50) + 25) % 125)} className="rounded-lg bg-white/90 px-2.5 py-1 text-[12.5px] font-medium">Reposition</button><button onClick={() => setS("cover", "")} className="rounded-lg bg-white/90 px-2.5 py-1 text-[12.5px] font-medium">Remove</button></div></div>}
 
-      <div className={`mx-auto px-6 pb-40 sm:px-14 ${full ? "max-w-none" : "max-w-[900px]"}`}>
+      <div className={`site-canvas mx-auto px-6 pb-40 sm:px-14 ${full ? "max-w-none" : "max-w-[900px]"}`}>
         <div className={`group relative ${settings.cover ? (settings.icon ? "-mt-10" : "pt-8") : "pt-16"}`}>
           {settings.icon && <button onClick={() => setEmoji(true)} className="mb-2 block rounded-xl leading-none hover:bg-band/60"><PageIcon icon={settings.icon} size={72} /></button>}
           <div className="mb-1 flex gap-1 text-[13px] text-ink-3 opacity-0 transition group-hover:opacity-100">

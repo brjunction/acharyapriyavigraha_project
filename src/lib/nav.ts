@@ -110,8 +110,8 @@ export const MENUS: NavMenu[] = [
         l("/resources/windows-app", "Windows app", "For your computer", Download, true),
         l("/resources/webfolio", "WebFolio", "Read the archive in a folio", BookOpen, true),
         l("/resources/vaishnava-calendar", "Vaiṣṇava calendar", "Festivals and fasting days", CalendarDays, true),
-        l("/resources/gaudiya-glossary", "Gauḍīya glossary", "Harināmāmṛta-vyākaraṇam", BookA, true),
-        l("/resources/sanskrit-dictionary", "Sanskrit dictionary", "Harināmāmṛta-vyākaraṇam", GraduationCap, true),
+        l("https://www.harinamamrta-vyakaranam.com", "Gauḍīya glossary", "Harināmāmṛta-vyākaraṇam", BookA),
+        l("https://www.harinamamrta-vyakaranam.com/tools/dictionary/search", "Sanskrit dictionary", "Harināmāmṛta-vyākaraṇam", GraduationCap),
       ]),
       g("Paramparā protection", [
         l("https://vedabase.io", "Śrīla Prabhupāda’s works", "On Vedabase", BookMarked),

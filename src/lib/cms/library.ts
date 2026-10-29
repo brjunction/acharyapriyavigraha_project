@@ -18,16 +18,23 @@ export async function dbRows(slug: string) {
   } catch { return null; }
 }
 
-export async function getLectures(): Promise<Lecture[] | null> {
-  const d = await dbRows("audio-lectures"); if (!d || !d.rows.length) return null;
-  return d.rows.map((r) => {
-    const g = (...n: string[]) => pick(d.fields, r.data || {}, ...n);
-    const arr = (v: any) => (Array.isArray(v) ? v : v ? String(v).split(/,\s*/) : []);
-    return {
-      slug: r.slug, title: r.title, date: String(g("date") || "").slice(0, 10), place: String(g("place") || ""), country: String(g("country") || ""),
-      type: String(g("type", "kind") || "Lecture"), scripture: g("verse", "scripture", "reference") ? String(g("verse", "scripture", "reference")) : undefined,
-      duration: dur(g("duration", "length")), transcribed: !!g("transcribed", "transcript"), languages: arr(g("languages", "language")), topics: arr(g("topics", "topic")),
-      series: g("series") ? String(g("series")) : undefined, url: g("audio", "mp3", "file") ? String(g("audio", "mp3", "file")) : undefined, href: `/d/${d.slug}/${r.slug}`,
-    };
-  });
+import { verseRef } from "@/lib/content/text";
+type ARow = { slug: string; title: string; kind: string; date: string | null; date_note: string | null; place: string | null; country: string | null; scripture: string | null; canto: number | null; chapter: number | null; verse: string | null; language: string | null; series: string | null; topics: string[]; duration_sec: number | null; audio_url: string | null; transcript_status: string; summary?: string | null };
+const KIND: Record<string, string> = { lecture: "Lecture", darshan: "Darśana", seminar: "Seminar", festival: "Festival", qa: "Questions & answers", initiation: "Initiation", kirtan: "Kīrtana", bhajan: "Bhajana", other: "Other" };
+export const toLecture = (r: ARow): Lecture => ({
+  slug: r.slug, title: r.title, date: r.date ? String(r.date).slice(0, 10) : "", place: r.place || "", country: r.country || "", type: KIND[r.kind] || "Lecture",
+  scripture: verseRef(r) || undefined, duration: r.duration_sec || 0, transcribed: r.transcript_status === "done", languages: r.language ? [r.language] : [], topics: r.topics || [],
+  series: r.series || undefined, url: r.audio_url || undefined, href: `/teachings/audio/${r.slug}`,
+});
+/** Published recordings from the Audio panel. songs = kīrtanas and bhajanas. Null when there are none yet. */
+export async function getLectures(songs = false): Promise<Lecture[] | null> {
+  if (!hasDb()) return null;
+  try {
+    const rows = await sql`select slug, title, kind, date, date_note, place, country, scripture, canto, chapter, verse, language, series, topics, duration_sec, audio_url, transcript_status from audios where status = 'published' and (kind in ('kirtan','bhajan')) = ${songs} order by date desc nulls last, title limit 20000`;
+    return rows.length ? (rows as ARow[]).map(toLecture) : null;
+  } catch { return null; }
+}
+export async function getAudio(slug: string) {
+  if (!hasDb()) return null;
+  try { return ((await sql`select * from audios where slug = ${slug} and status = 'published'`)[0] as any) || null; } catch { return null; }
 }
