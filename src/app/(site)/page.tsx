@@ -23,16 +23,6 @@ function SectionBg({ src, o = 0.4, flip = false, pos = "center" }: { src: string
   );
 }
 
-function Indic({ tone = "#d9a441" }: { tone?: string }) {
-  return (
-    <div aria-hidden className="mx-auto my-2 flex max-w-[1240px] items-center gap-3 px-5 sm:px-8" style={{ color: tone }}>
-      <VMask name="border-3" repeat="repeat-x" size="auto 100%" className="h-4 flex-1 opacity-60" />
-      <Padma className="h-7 w-7 shrink-0" layers={3} />
-      <VMask name="border-3" repeat="repeat-x" size="auto 100%" className="h-4 flex-1 opacity-60" />
-    </div>
-  );
-}
-
 function Head({ kicker, title, intro, action, acc = "saffron", light = false }: { light?: boolean; kicker: string; title: string; intro?: string; action?: { href: string; label: string }; acc?: string }) {
   return (
     <div className={`acc-${acc} mb-5 flex flex-wrap items-end justify-between gap-4`}>
@@ -104,8 +94,6 @@ export default async function Home() {
         <Container><Blessing /></Container>
       </section>
 
-      <Indic />
-
       {/* Founder */}
       <section className="reveal relative isolate mt-12 py-8">
         <SectionBg src="cream-watercolor" o={0.6} flip />
@@ -122,15 +110,19 @@ export default async function Home() {
                   <MapPin size={12} className="text-[#f3d9a4]" /> His service and mission
                 </p>
                 <dl className="space-y-3">
-                  <div><dt className="text-[10px] font-semibold uppercase tracking-[0.1em] text-white/65">Founded</dt><dd className="mt-0.5 text-[12px] font-medium text-white">Taptajīvanam, the digital home of the teachings</dd></div>
-                  <div><dt className="text-[10px] font-semibold uppercase tracking-[0.1em] text-white/65">Joined</dt><dd className="mt-0.5 text-[12px] font-medium text-white">ISKCON Bhubaneswar, 1992</dd></div>
-                  <div><dt className="text-[10px] font-semibold uppercase tracking-[0.1em] text-white/65">Preaches in</dt><dd className="mt-0.5 text-[12px] font-medium text-white">Odia · Hindi · English</dd></div>
-                  <div><dt className="text-[10px] font-semibold uppercase tracking-[0.1em] text-white/65">Daily offering</dt><dd className="mt-0.5 text-[12px] font-medium text-white">A short clip of the teachings, every day</dd></div>
+                  <div>
+                    <dt className="text-[10px] font-semibold uppercase tracking-[0.1em] text-white/65">Disciple of</dt>
+                    <dd className="mt-0.5 text-[12px] font-medium text-white">Śrīla Gurudeva</dd>
+                  </div>
+                  <div>
+                    <dt className="text-[10px] font-semibold uppercase tracking-[0.1em] text-white/65">Grand Disciple of</dt>
+                    <dd className="mt-0.5 text-[12px] font-medium text-white">Śrīla Prabhupāda</dd>
+                  </div>
+                  <div>
+                    <dt className="text-[10px] font-semibold uppercase tracking-[0.1em] text-white/65">Preaches in</dt>
+                    <dd className="mt-0.5 text-[12px] font-medium text-white">Odia · Hindi · English</dd>
+                  </div>
                 </dl>
-              <div className="mt-4 grid w-full gap-2">
-                <Link href="/gurudeva/diaries" className="rounded-xl bg-white/12 px-3 py-2 text-[12px] font-medium text-white ring-1 ring-white/25 transition hover:bg-white/20">Watch the daily diary</Link>
-                <Link href="https://www.youtube.com/@HaladharaSwami" className="rounded-xl bg-white/12 px-3 py-2 text-[12px] font-medium text-white ring-1 ring-white/25 transition hover:bg-white/20">His YouTube channel</Link>
-              </div>
               </div>
               <p className="mt-5 w-full rounded-xl border border-[#f3b363]/35 bg-white/10 px-3 py-2.5 text-[11px] font-medium leading-relaxed text-[#f3d9a4]">
                 Śrī Guru Sevā <span aria-hidden="true">·</span> Śrī Nāma Sevā
@@ -158,8 +150,6 @@ export default async function Home() {
           </div>
         </Container>
       </section>
-
-      <Indic />
 
       {/* Four ways in */}
       <section className="reveal relative z-[2] mt-10">
@@ -195,8 +185,6 @@ export default async function Home() {
         </Container>
       </section>
       
-
-      <Indic />
 
       {/* Languages */}
       <section className="reveal relative mt-24 overflow-hidden py-16 text-white">

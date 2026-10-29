@@ -324,14 +324,12 @@ export function Radio() {
 const hl = (t: string) => t.split(/(«[^»]+»)/).map((x, k) => x.startsWith("«") ? <mark key={k} className="mark-live rounded px-1 font-semibold text-ink">{x.slice(1, -1)}</mark> : <span key={k}>{x}</span>);
 
 export function Blessing() {
-  const [open, setOpen] = useState(false);
   return (
-    <div className="relative overflow-hidden rounded-[28px] border border-line bg-[#fdf8ee]">
-      <Backdrop src="cream-mandala" o={0.12} pos="center" />
-      <VMask name="border-3" repeat="repeat-x" size="auto 100%" className="pointer-events-none absolute inset-x-0 top-0 h-5 text-[#d9a441]/35" />
-      <div className="relative grid grid-cols-2 items-end gap-x-3 gap-y-2 px-4 pt-9 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)_minmax(0,1fr)] lg:px-10 lg:pt-8">
+    <div className="relative overflow-hidden rounded-[28px] border border-line bg-[#f8efdd]">
+      <Backdrop src="cream-mandala" o={0.35} pos="center" />
+      <div className="relative grid grid-cols-2 items-end gap-x-3 gap-y-2 px-4 pt-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1.2fr)_minmax(0,1fr)] lg:px-10 lg:pt-10">
         <div className="order-2 self-end lg:order-1">
-          <CutOut src="/legacy/prabhupada.webp" alt="Śrīla A.C. Bhaktivedanta Swami Prabhupāda" fade={0} className="mx-auto w-full max-w-[250px]" />
+          <CutOut src="/legacy/prabhupada.webp" alt="Śrīla A.C. Bhaktivedanta Swami Prabhupāda" fade={0} className="mx-auto w-full max-w-[340px]" />
         </div>
         <div className="order-1 col-span-2 pb-6 text-center lg:order-2 lg:col-span-1 lg:pb-10">
           <p className="kick-live text-[11px] font-semibold uppercase tracking-[0.18em] text-saffron">Śrīla Prabhupāda on Śrīla Gurudeva</p>
@@ -341,13 +339,10 @@ export function Blessing() {
           <p className="mt-2 text-[13px] text-ink-3">Letter, Māyāpur, 12 February 1976</p>
         </div>
         <div className="order-3 self-end">
-          <CutOut src="/legacy/gurudeva.webp" alt="Śrī Śrīmad Gour Govinda Swāmī Gurudeva" fade={0} className="mx-auto w-[88%] max-w-[225px]" />
+          <CutOut src="/legacy/gurudeva.webp" alt="Śrī Śrīmad Gour Govinda Swāmī Gurudeva" fade={0} className="mx-auto w-[88%] max-w-[300px]" />
         </div>
       </div>
-      <div className="relative border-t border-[#efe2c6] bg-[#fffaf0] py-3 text-center">
-        <button onClick={() => setOpen((o) => !o)} aria-expanded={open} className="inline-flex items-center gap-2 rounded-full border border-[#e3cf9f] bg-white px-4 py-1.5 text-[12.5px] font-medium text-saffron transition hover:bg-saffron-soft">{open ? "Hide the conversation and letter" : "Read the conversation and the letter"}<ChevronRight size={14} className={`transition-transform ${open ? "-rotate-90" : "rotate-90"}`} /></button>
-      </div>
-      {open && <div className="relative grid gap-5 border-t border-[#efe2c6] bg-[#fffaf0] p-4 sm:p-7 lg:grid-cols-2">
+      <div className="relative grid gap-5 border-t border-[#e9d9b8] bg-[#fbf5e8] p-4 sm:p-7 lg:grid-cols-2">
         <section>
           <h3 className="text-[16px] font-semibold">{CONVERSATION.title}</h3>
           <p className="mb-3 mt-0.5 text-[12px] text-ink-3">{CONVERSATION.speakers}</p>
@@ -366,7 +361,7 @@ export function Blessing() {
             <p className="text-ink-3">{LETTER.closing[0]}<br />{LETTER.closing[1]}<br /><span className="text-[12px]">{LETTER.closing[2]}</span></p>
           </article>
         </section>
-      </div>}
+      </div>
     </div>
   );
 }
