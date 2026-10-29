@@ -2,7 +2,7 @@
 export function plainText(content: any): string {
   if (!content) return "";
   if (typeof content === "string") return content;
-  if (Array.isArray(content)) return content.map((c) => (c.type === "link" ? plainText(c.content) : c.text || "")).join("");
+  if (Array.isArray(content)) return content.map((c) => (c.type === "link" ? plainText(c.content) : c.type === "pageLink" ? c.props?.title || "" : c.text || "")).join("");
   if (content.type === "tableContent") return content.rows.map((r: any) => r.cells.map((c: any) => plainText(Array.isArray(c) ? c : c.content)).join(" ")).join(" ");
   return "";
 }

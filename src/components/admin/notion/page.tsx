@@ -1,7 +1,7 @@
 "use client";
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Eye, MoreHorizontal, ImagePlus, Smile, History, Globe, X, FileText, ChevronRight, Trash2 } from "lucide-react";
 import { PAGE_TEMPLATES } from "@/lib/cms/templates";
 import { slugify } from "@/lib/cms/blocks";
@@ -12,6 +12,10 @@ import { PageIcon } from "../../page-icon";
 const NotionEditor = dynamic(() => import("./editor"), { ssr: false, loading: () => <p className="py-6 text-ink-3">Opening the editor…</p> });
 const EMOJI = ["📄", "📖", "📑", "🪷", "🌸", "🙏", "📿", "🕉️", "✨", "🔔", "🎧", "🎬", "🖼️", "💬", "🗂️", "🗃️", "📜", "🏛️", "🛕", "🌺", "🌼", "🦚", "🐄", "🌿", "📅", "📰", "📣", "❤️", "⭐", "🔥", "📍", "🎵"];
 const TYPES: [string, string][] = [["page", "Page"], ["book", "Book"], ["chapter", "Chapter of a book"], ["collection", "Collection (lists the pages inside)"]];
+/** The editor only re-renders when the page itself changes, not on every save. */
+const MemoEditor = memo(function MemoEditor({ initial, pageId, onDoc }: { initial: any[]; pageId: string; onDoc: React.MutableRefObject<(b: any[]) => void> }) {
+  return <NotionEditor initial={initial} pageId={pageId} onChange={(b) => onDoc.current(b)} />;
+}, (a, b) => a.pageId === b.pageId);
 type Page = { id: string; title: string; path: string; slug: string; parent_id: string | null; type: string; status: string; blocks: any[]; seo: Record<string, any>; settings: Record<string, any> };
 type Lite = { id: string; parent_id: string | null; title: string; path: string; icon?: string; type: string; position: number; status: string };
 
@@ -23,7 +27,7 @@ export function NotionPage({ pageId }: { pageId: string }) {
   const blocks = useRef<any[]>([]); const [ver, setVer] = useState(0);
   const [dirty, setDirty] = useState(false); const [saving, setSaving] = useState(false); const [drawer, setDrawer] = useState(false);
   const [emoji, setEmoji] = useState(false); const [iconPic, setIconPic] = useState(false); const [cover, setCover] = useState(false); const [fresh, setFresh] = useState(false);
-  const titleRef = useRef<HTMLTextAreaElement>(null);
+  const titleRef = useRef<HTMLTextAreaElement>(null); const lastMeta = useRef(""); const onDoc = useRef<(b: any[]) => void>(() => {});
 
   useEffect(() => {
     api<Page>(`/api/admin/pages/${pageId}`).then((p) => {
@@ -41,10 +45,12 @@ export function NotionPage({ pageId }: { pageId: string }) {
     try {
       const r = await api<{ path: string }>(`/api/admin/pages/${pageId}`, "PATCH", { title: title.trim() || "Untitled", blocks: blocks.current, seo, settings, slug, parent_id: parent || null, type, ...extra });
       setPage((p) => p && { ...p, ...extra, path: r.path, title: title.trim() || "Untitled" }); setDirty(false);
-      if (msg) toast(msg); window.dispatchEvent(new Event("tj:pages-changed"));
+      if (msg) toast(msg);
+      const meta = JSON.stringify([title.trim(), settings.icon, settings.redirect, slug, parent, type, extra.status]);
+      if (meta !== lastMeta.current) { lastMeta.current = meta; window.dispatchEvent(new Event("tj:pages-changed")); }
     } catch (e: any) { toast(e.message, true); } finally { setSaving(false); }
   }, [page, pageId, title, seo, settings, slug, parent, type]);
-  useEffect(() => { if (!dirty) return; const t = setTimeout(() => save(), 1200); return () => clearTimeout(t); }, [dirty, save]);
+  useEffect(() => { if (!dirty) return; const t = setTimeout(() => save(), 1500); return () => clearTimeout(t); }, [dirty, save]);
   useEffect(() => { const k = (e: KeyboardEvent) => { if ((e.ctrlKey || e.metaKey) && e.key === "s") { e.preventDefault(); save({}, "Saved."); } }; window.addEventListener("keydown", k); return () => window.removeEventListener("keydown", k); }, [save]);
   useEffect(() => { const el = titleRef.current; if (el) { el.style.height = "auto"; el.style.height = el.scrollHeight + "px"; } }, [title]);
 
@@ -56,6 +62,7 @@ export function NotionPage({ pageId }: { pageId: string }) {
   const onTitle = (v: string) => { const old = slugify(title || "untitled"); if (slug === old || slug.startsWith("untitled")) setSlug(slugify(v || "untitled")); setTitle(v); setDirty(true); };
   const useTemplate = async (k: string) => { const t = PAGE_TEMPLATES.find((x) => x.key === k)!; blocks.current = t.blocks(); setType(t.type); if (!settings.icon) setSettings((s) => ({ ...s, icon: t.icon })); setFresh(false); setVer((v) => v + 1); setDirty(true); };
   const full = !!settings.fullWidth;
+  onDoc.current = (b) => { blocks.current = b; if (!dirty) setDirty(true); if (fresh) setFresh(false); };
 
   return (
     <div className="min-h-screen bg-white">
@@ -85,7 +92,7 @@ export function NotionPage({ pageId }: { pageId: string }) {
           <textarea ref={titleRef} rows={1} value={title} onChange={(e) => onTitle(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); (document.querySelector(".tj-editor [contenteditable=true]") as HTMLElement)?.focus(); } }} placeholder="Untitled" className="w-full resize-none overflow-hidden bg-transparent text-[34px] font-bold leading-[1.2] tracking-[-0.03em] text-ink outline-none placeholder:text-[#d9cfc3] sm:text-[40px]" />
         </div>
         <div className="-mx-[54px] mt-3">
-          <NotionEditor key={ver} initial={blocks.current} pageId={pageId} onChange={(b) => { blocks.current = b; setDirty(true); if (fresh) setFresh(false); }} />
+          <MemoEditor key={ver} initial={blocks.current} pageId={pageId} onDoc={onDoc} />
         </div>
         {fresh && <div className="mt-6"><p className="mb-2 text-[13px] text-ink-3">Press <kbd className="rounded border border-line bg-band px-1">/</kbd> for every element, or start with a template:</p>
           <div className="grid gap-1.5 sm:grid-cols-2">{PAGE_TEMPLATES.filter((t) => t.key !== "blank").map((t) => <button key={t.key} onClick={() => useTemplate(t.key)} className="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-left hover:bg-band"><span className="text-[18px]">{t.icon}</span><span><span className="block text-[14px] font-medium">{t.name}</span><span className="block text-[12px] text-ink-3">{t.desc}</span></span></button>)}</div></div>}

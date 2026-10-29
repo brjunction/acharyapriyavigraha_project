@@ -13,10 +13,10 @@ type P = { id: string; parent_id: string | null; path: string; title: string; ty
 const isOld = (bs: any[]) => bs?.length > 0 && "data" in bs[0];
 export const SITE = process.env.NEXT_PUBLIC_SITE_URL || "https://taptajivanam.com";
 
-async function load(segments: string[]): Promise<P | null> {
+async function load(segments: string[], drafts = false): Promise<P | null> {
   if (!hasDb()) return null;
   const path = "/" + segments.map(decodeURIComponent).join("/");
-  try { return ((await sql`select id, parent_id, path, title, type, blocks, seo, settings, updated_at, position from pages where path = ${path} and status = 'published'`)[0] as P) || null; } catch { return null; }
+  try { return ((await sql`select id, parent_id, path, title, type, blocks, seo, settings, updated_at, position, status from pages where path = ${path} and (status = 'published' or ${drafts})`)[0] as P) || null; } catch { return null; }
 }
 const plain = (bs: any[]) => (isOld(bs) ? plainOld(bs) : docText(bs));
 const plainOld = (bs: Block[]) => bs.filter((b) => b.type === "text").map((b) => String(b.data.html).replace(/<[^>]+>/g, " ")).join(" ").replace(/\s+/g, " ").trim().slice(0, 155);
@@ -34,8 +34,17 @@ export async function cmsMetadata(segments: string[]): Promise<Metadata> {
     openGraph: { title, description, type: "article", url: p.path, images: img ? [img] : undefined }, twitter: { card: img ? "summary_large_image" : "summary" } };
 }
 
-export async function CmsPage({ segments }: { segments: string[] }) {
-  const p = await load(segments); if (!p) notFound();
+/** Any editor page at any depth. Unpublished pages open as a preview for signed-in editors only. */
+export async function NestedPage({ segments, fallback }: { segments: string[]; fallback?: () => Promise<React.ReactNode> }) {
+  if (await load(segments)) return <CmsPage segments={segments} />;
+  if (fallback) { const f = await fallback(); if (f) return f; }
+  const { getUser } = await import("@/lib/auth");
+  if ((await getUser()) && (await load(segments, true))) return <CmsPage segments={segments} preview />;
+  notFound();
+}
+
+export async function CmsPage({ segments, preview = false }: { segments: string[]; preview?: boolean }) {
+  const p = await load(segments, preview); if (!p) notFound();
   if (p.settings?.redirect && /^(https?:\/\/|\/)/.test(p.settings.redirect)) redirect(p.settings.redirect);
   const isBook = p.type === "book" || p.type === "chapter";
   // crumbs: ancestors by path prefix
@@ -57,6 +66,7 @@ export async function CmsPage({ segments }: { segments: string[] }) {
     <div className="relative isolate" style={{ background: bgOf(p.settings?.bg) }}>
     {p.settings?.bgImage && /* eslint-disable-next-line @next/next/no-img-element */ <img src={p.settings.bgImage} alt="" aria-hidden className="pointer-events-none absolute inset-0 -z-10 h-full w-full object-cover" style={{ opacity: (p.settings.bgOpacity ?? 12) / 100 }} />}
     {p.settings?.titleStyle === "banner" && p.settings?.cover && <div className="relative h-[260px] overflow-hidden sm:h-[340px]">{/* eslint-disable-next-line @next/next/no-img-element */}<img src={p.settings.cover} alt="" className="h-full w-full object-cover" style={{ objectPosition: `center ${p.settings.coverY ?? 50}%` }} /><div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/20 to-transparent" /><Container className="absolute inset-x-0 bottom-0 pb-8"><h1 className="text-[34px] font-bold leading-[1.1] tracking-[-0.03em] !text-white sm:text-[46px]">{p.title}</h1></Container></div>}
+    {preview && (p as any).status !== "published" && <div className="bg-amber-100 py-2 text-center text-[13px] text-amber-900">Preview: this page is not published yet. Only signed-in editors can see it.</div>}
     <Container className="py-10 sm:py-14">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify([ld, crumbs]) }} />
       {anc.length > 0 && <nav aria-label="Breadcrumb" className="mb-6 flex flex-wrap items-center gap-1 text-[13px] text-ink-3">{anc.map((a: any) => <span key={a.path} className="flex items-center gap-1"><Link href={a.path} className="hover:text-saffron">{a.title}</Link><ChevronRight size={13} /></span>)}<span className="text-ink-2">{p.title}</span></nav>}

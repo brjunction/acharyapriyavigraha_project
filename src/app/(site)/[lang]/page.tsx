@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CmsPage, cmsMetadata } from "@/lib/cms/render";
+import { NestedPage, cmsMetadata } from "@/lib/cms/render";
 import { notFound } from "next/navigation";
 import { Headphones, Quote, BookOpen, FileText, ArrowRight, Languages } from "lucide-react";
 import { ALL_LANGUAGES, STATUS_LABEL } from "@/lib/languages";
@@ -23,7 +23,7 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
 export default async function LanguageHome({ params }: { params: Promise<{ lang: string }> }) {
   const { lang } = await params;
   const l = ALL_LANGUAGES.find((x) => x.code === lang);
-  if (!l) return <CmsPage segments={[lang]} />;
+  if (!l) return <NestedPage segments={[lang]} />;
   const c = COPY[lang] ?? { welcome: `${l.native}`, intro: `The ${l.name} site of Taptajīvanam is being prepared. Translators and reviewers are welcome.` };
   return (
     <>

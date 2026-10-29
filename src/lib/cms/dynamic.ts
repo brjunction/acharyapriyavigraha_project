@@ -1,0 +1,3 @@
+/** Addresses run by their own systems (Dynamic contents). They are never editable as Pages. */
+export const DYNAMIC = ["/teachings/audio", "/teachings/kirtans", "/teachings/videos", "/teachings/books", "/teachings/quotes", "/teachings/verses", "/teachings/stories", "/teachings/instructions", "/teachings/desires", "/teachings/nectar-drops", "/teachings/analogies", "/teachings/questions-and-answers", "/teachings/transcriptions", "/gurudeva/diaries", "/gurudeva/memories", "/gurudeva/glorifications", "/resources/vaishnava-calendar", "/webfolio", "/books", "/translations", "/search"];
+export const isDynamic = (p: string) => DYNAMIC.some((d) => p === d || p.startsWith(d + "/"));

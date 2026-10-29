@@ -2,6 +2,7 @@ import { sql } from "@/lib/db";
 import { guard, json, fail } from "@/lib/api";
 import { slugify } from "@/lib/cms/blocks";
 import { pageTemplate } from "@/lib/cms/templates";
+import { isDynamic } from "@/lib/cms/dynamic";
 
 export async function GET(req: Request) {
   const g = await guard("viewer"); if ("res" in g) return g.res;
@@ -17,6 +18,7 @@ export async function POST(req: Request) {
   if (!b.parent_id && typeof b.path === "string" && /^\/[a-z0-9\/-]+$/.test(b.path)) {
     const segs = b.path.split("/").filter(Boolean); const parentPath = "/" + segs.slice(0, -1).join("/");
     const par = segs.length > 1 ? (await sql`select id from pages where path = ${parentPath}`)[0] : null;
+    if (isDynamic(b.path)) return fail("This address is run by Dynamic contents (audio, videos, books…), not by Pages.");
     if ((await sql`select 1 from pages where path = ${b.path}`).length) return fail("A page already exists at that address.");
     const t2 = pageTemplate(b.template || "blank");
     const r2 = await sql`insert into pages (parent_id, slug, path, title, type, template, blocks, position, created_by, updated_by)

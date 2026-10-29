@@ -31,6 +31,7 @@ function Inline({ c }: { c: any }): ReactNode {
   if (typeof c === "string") return c;
   if (Array.isArray(c)) return c.map((x, i) => <Inline key={i} c={x} />);
   if (c.type === "link") return <Link href={safeHref(c.href)} className="font-medium text-saffron underline decoration-saffron/30 underline-offset-2 hover:decoration-saffron">{c.content?.map((x: any, i: number) => <Inline key={i} c={x} />)}</Link>;
+  if (c.type === "pageLink") return <Link href={c.props?.path || "#"} className="font-medium text-saffron underline decoration-saffron/30 underline-offset-2 hover:decoration-saffron">{c.props?.title}</Link>;
   if (c.type !== "text") return null;
   const s = c.styles || {};
   let n: ReactNode = c.text;

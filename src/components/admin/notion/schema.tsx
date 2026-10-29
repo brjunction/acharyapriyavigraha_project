@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
-import { BlockNoteSchema, defaultBlockSpecs } from "@blocknote/core";
-import { createReactBlockSpec } from "@blocknote/react";
+import { BlockNoteSchema, defaultBlockSpecs, defaultInlineContentSpecs } from "@blocknote/core";
+import { createReactBlockSpec, createReactInlineContentSpec } from "@blocknote/react";
 import { Database, FileText, Image as ImageIcon, Plus, Youtube, X, ListTree } from "lucide-react";
 import { MediaPicker } from "../media-picker";
 import { api } from "../ui";
@@ -147,7 +147,14 @@ const Toc = createReactBlockSpec(
   { render: () => <div contentEditable={false} className="flex w-full items-center gap-2 rounded-xl border border-dashed border-line-strong px-4 py-3 text-[14px] text-ink-3"><ListTree size={16} />Table of contents: the headings of this page (and chapters of a book) appear here.</div> }
 );
 
+/** A link to another page, inside a line of text or a list. */
+export const PageLink = createReactInlineContentSpec(
+  { type: "pageLink", propSchema: { pageId: { default: "" }, title: { default: "Untitled" }, path: { default: "" }, icon: { default: "" } }, content: "none" },
+  { render: ({ inlineContent }) => <a href={`/admin/pages/${inlineContent.props.pageId}`} className="rounded px-0.5 font-medium text-saffron underline decoration-saffron/40 underline-offset-2 hover:bg-saffron-soft">{inlineContent.props.icon && !/^(\/|http)/.test(inlineContent.props.icon) ? `${inlineContent.props.icon} ` : "↗ "}{inlineContent.props.title}</a> }
+);
+
 export const schema = BlockNoteSchema.create({
+  inlineContentSpecs: { ...defaultInlineContentSpecs, pageLink: PageLink },
   blockSpecs: { ...defaultBlockSpecs, callout: Callout(), sloka: Sloka(), pullQuote: PullQuote(), ornament: Ornament(), button: Button(), youtube: YouTube(), gallery: Gallery(), subpage: SubPage(), database: DatabaseBlock(), toc: Toc(), timeline: Timeline(), verse: Verse(), imageText: ImageText(), linkCards: LinkCards(), faq: Faq(), stats: Stats(), banner: Banner(), chapters: Chapters(), lecture: Lecture(), widget: Widget() },
 });
 export type Editor = typeof schema.BlockNoteEditor;

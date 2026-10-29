@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { ChevronRight, Plus, MoreHorizontal, Search, LayoutDashboard, Database, Image as Img, Megaphone, Users, Settings, LogOut, ExternalLink, Menu as MenuIcon, X, FileText, PanelsTopLeft, Trash2, ArrowUp, ArrowDown, Copy, Palette, Headphones, Music, Clapperboard, Quote, BookOpen, Languages, BookMarked, ChevronsUpDown, Globe, CalendarDays, NotebookPen } from "lucide-react";
 import { api, toast } from "./ui";
 import type { MenuJ } from "@/lib/menus";
+import { isDynamic } from "@/lib/cms/dynamic";
 import { PageIcon } from "../page-icon";
 
 type P = { id: string; parent_id: string | null; title: string; path: string; status: string; position: number; icon?: string; type: string; redirect?: string };
@@ -83,7 +84,7 @@ export function Shell({ user, children }: { user: { name: string; email: string;
             {open["menu:" + m.key] && <div className="ml-3.5 border-l border-zinc-200 pl-1.5">{m.groups.map((g) => (
               <div key={g.title} className="mb-1">
                 <p className="truncate px-2 pb-0.5 pt-1.5 text-[11px] font-medium uppercase tracking-wide text-zinc-400">{g.title}</p>
-                {g.links.filter((l) => l.href.startsWith("/") && !l.hidden).map((l) => { const pg = byPath[l.href]; return pg ? <Row key={l.href} p={{ ...pg, title: pg.title || l.label }} depth={0} /> : (
+                {g.links.filter((l) => l.href.startsWith("/") && !l.hidden && !isDynamic(l.href)).map((l) => { const pg = byPath[l.href]; return pg ? <Row key={l.href} p={{ ...pg, title: pg.title || l.label }} depth={0} /> : (
                   <button key={l.href} onClick={() => openAt(l.href, l.label)} title="Make an editable page here" className={`${item} group text-zinc-400`}><span className="flex w-4 justify-center"><span className="size-1.5 rounded-full border border-zinc-300" /></span><span className="truncate">{l.label}</span><Plus className="ml-auto hidden !size-3.5 group-hover:block" /></button>); })}
               </div>))}</div>}
           </div>))}

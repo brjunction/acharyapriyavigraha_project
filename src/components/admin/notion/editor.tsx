@@ -21,7 +21,13 @@ function customItems(editor: Editor, pageId: string): DefaultReactSuggestionItem
   const ins = (b: any) => insertOrUpdateBlockForSlashMenu(editor, b);
   return [
     { title: "Page", subtext: "A new page inside this one", aliases: ["page", "subpage", "child"], group: "Pages", icon: <FileText size={18} />,
-      onItemClick: async () => { const r = await api<{ id: string }>("/api/admin/pages", "POST", { parent_id: pageId, template: "blank" }); ins({ type: "subpage", props: { pageId: r.id } }); window.dispatchEvent(new Event("tj:pages-changed")); } },
+      onItemClick: async () => {
+        const cur = editor.getTextCursorPosition().block as any; const inLine = /ListItem$/.test(cur.type) || (Array.isArray(cur.content) && cur.content.length > 0);
+        const title = inLine ? prompt("Name of the new page") || "Untitled" : "Untitled";
+        const r = await api<{ id: string; path: string }>("/api/admin/pages", "POST", { parent_id: pageId || null, template: "blank", title });
+        if (inLine) editor.insertInlineContent([{ type: "pageLink", props: { pageId: r.id, title, path: r.path } } as any, " "]); else ins({ type: "subpage", props: { pageId: r.id } });
+        window.dispatchEvent(new Event("tj:pages-changed"));
+      } },
     { title: "Database", subtext: "A table of records, shown as table, list, gallery or board", aliases: ["db", "table view", "board", "gallery"], group: "Pages", icon: <Database size={18} />, onItemClick: () => ins({ type: "database" }) },
     { title: "Table of contents", subtext: "Headings of this page, or chapters of a book", aliases: ["toc", "contents"], group: "Pages", icon: <ListTree size={18} />, onItemClick: () => ins({ type: "toc" }) },
     { title: "Timeline", subtext: "Events by year, with a line and markers", aliases: ["timeline", "history", "years"], group: G, icon: <Milestone size={18} />, onItemClick: () => ins({ type: "timeline" }) },
@@ -42,11 +48,22 @@ function customItems(editor: Editor, pageId: string): DefaultReactSuggestionItem
   ];
 }
 
+let pageCache: { at: number; list: { id: string; title: string; path: string; icon?: string }[] } | null = null;
+/** “@” — link to any page from inside a line, or make a new one. */
+async function mentionItems(editor: Editor, pageId: string, q: string): Promise<DefaultReactSuggestionItem[]> {
+  if (!pageCache || Date.now() - pageCache.at > 30000) pageCache = { at: Date.now(), list: await api<any[]>("/api/admin/pages").catch(() => []) };
+  const f = q.toLowerCase(); const hits = pageCache.list.filter((p) => p.title.toLowerCase().includes(f)).slice(0, 12);
+  const items: DefaultReactSuggestionItem[] = hits.map((p) => ({ title: p.title, subtext: p.path, group: "Link to a page", icon: <FileText size={16} />, onItemClick: () => editor.insertInlineContent([{ type: "pageLink", props: { pageId: p.id, title: p.title, path: p.path, icon: p.icon || "" } } as any, " "]) }));
+  if (q.trim()) items.push({ title: `New page “${q.trim()}”`, subtext: "Make a page inside this one and link to it here", group: "New", icon: <FileText size={16} />, onItemClick: async () => { const r = await api<{ id: string; path: string }>("/api/admin/pages", "POST", { parent_id: pageId || null, template: "blank", title: q.trim() }); pageCache = null; editor.insertInlineContent([{ type: "pageLink", props: { pageId: r.id, title: q.trim(), path: r.path } } as any, " "]); window.dispatchEvent(new Event("tj:pages-changed")); } });
+  return items;
+}
+
 export default function NotionEditor({ initial, pageId, onChange, editable = true }: { initial: any[]; pageId: string; onChange: (blocks: any[]) => void; editable?: boolean }) {
   const editor = useCreateBlockNote({ schema, initialContent: initial?.length ? initial : undefined, uploadFile: upload }) as Editor;
   return (
     <BlockNoteView editor={editor} editable={editable} theme="light" slashMenu={false} className="tj-editor" onChange={() => onChange(editor.document as any[])}>
       <SuggestionMenuController triggerCharacter="/" getItems={async (q) => filterSuggestionItems([...getDefaultReactSlashMenuItems(editor), ...customItems(editor, pageId)], q)} />
+      <SuggestionMenuController triggerCharacter="@" getItems={async (q) => mentionItems(editor, pageId, q)} />
     </BlockNoteView>
   );
 }
