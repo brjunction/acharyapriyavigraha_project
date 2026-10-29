@@ -1,4 +1,5 @@
 "use client";
+import { setTitle as setTitleLive } from "./page-titles";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -59,7 +60,7 @@ export function NotionPage({ pageId }: { pageId: string }) {
   const linked = new Set(blocks.current.filter((b) => b.type === "subpage").map((b) => b.props.pageId));
   if (!page) return <div className="p-10 text-ink-3">Opening…</div>;
   const setS = (k: string, v: any) => { setSettings((s) => ({ ...s, [k]: v })); setDirty(true); };
-  const onTitle = (v: string) => { const old = slugify(title || "untitled"); if (slug === old || slug.startsWith("untitled")) setSlug(slugify(v || "untitled")); setTitle(v); setDirty(true); };
+  const onTitle = (v: string) => { const old = slugify(title || "untitled"); if (slug === old || slug.startsWith("untitled")) setSlug(slugify(v || "untitled")); setTitle(v); setTitleLive(pageId, { title: v.trim() || "Untitled", icon: settings.icon, path: page?.path }); setDirty(true); };
   const useTemplate = async (k: string) => { const t = PAGE_TEMPLATES.find((x) => x.key === k)!; blocks.current = t.blocks(); setType(t.type); if (!settings.icon) setSettings((s) => ({ ...s, icon: t.icon })); setFresh(false); setVer((v) => v + 1); setDirty(true); };
   const full = !!settings.fullWidth;
   onDoc.current = (b) => { blocks.current = b; if (!dirty) setDirty(true); if (fresh) setFresh(false); };

@@ -6,6 +6,7 @@ import { Database, FileText, Image as ImageIcon, Plus, Youtube, X, ListTree } fr
 import { MediaPicker } from "../media-picker";
 import { api } from "../ui";
 import { PageIcon } from "../../page-icon";
+import { usePageTitle } from "./page-titles";
 import { Widget } from "./widget-block";
 import { Timeline, Verse, ImageText, LinkCards, Faq, Stats, Banner, Chapters, Lecture } from "./blocks-extra";
 
@@ -114,9 +115,8 @@ const Gallery = createReactBlockSpec(
 const SubPage = createReactBlockSpec(
   { type: "subpage", propSchema: { pageId: { default: "" }, title: { default: "Untitled" }, icon: { default: "📄" } }, content: "none" },
   { render: ({ block }) => {
-    const [t, setT] = useState<{ title: string; icon?: string } | null>(null);
-    useEffect(() => { if (block.props.pageId) api(`/api/admin/pages/${block.props.pageId}`).then((p) => setT({ title: p.title, icon: p.settings?.icon })).catch(() => setT({ title: "(page removed)" })); }, [block.props.pageId]);
-    return <a contentEditable={false} href={`/admin/pages/${block.props.pageId}`} className="flex w-full items-center gap-2 rounded-lg px-1 py-1 text-[16px] font-medium text-ink underline decoration-line-strong underline-offset-4 hover:bg-band"><span className="text-[18px] no-underline">{t?.icon ? <PageIcon icon={t.icon} size={19} /> : <FileText size={17} />}</span>{t?.title || block.props.title}</a>;
+    const t = usePageTitle(block.props.pageId);
+    return <a contentEditable={false} href={`/admin/pages/${block.props.pageId}`} className={`inline-flex w-fit max-w-full items-center gap-2 rounded-lg px-1.5 py-0.5 text-[15px] font-medium text-ink underline decoration-line-strong underline-offset-4 transition-opacity hover:bg-band ${t ? "opacity-100" : "opacity-0"}`}><span className="text-[17px] no-underline">{t?.icon ? <PageIcon icon={t.icon} size={18} /> : <FileText size={16} />}</span><span className="truncate">{t?.title || "\u00a0"}</span></a>;
   } }
 );
 
@@ -150,7 +150,10 @@ const Toc = createReactBlockSpec(
 /** A link to another page, inside a line of text or a list. */
 export const PageLink = createReactInlineContentSpec(
   { type: "pageLink", propSchema: { pageId: { default: "" }, title: { default: "Untitled" }, path: { default: "" }, icon: { default: "" } }, content: "none" },
-  { render: ({ inlineContent }) => <a href={`/admin/pages/${inlineContent.props.pageId}`} className="rounded px-0.5 font-medium text-saffron underline decoration-saffron/40 underline-offset-2 hover:bg-saffron-soft">{inlineContent.props.icon && !/^(\/|http)/.test(inlineContent.props.icon) ? `${inlineContent.props.icon} ` : "↗ "}{inlineContent.props.title}</a> }
+  { render: ({ inlineContent }) => {
+    const p = inlineContent.props; const t = usePageTitle(p.pageId); const title = p.pageId ? (t?.title ?? p.title) : p.title; const icon = t?.icon ?? p.icon;
+    return <a href={p.pageId ? `/admin/pages/${p.pageId}` : p.path} className="rounded px-0.5 font-medium text-saffron underline decoration-saffron/40 underline-offset-2 hover:bg-saffron-soft">{icon && !/^(\/|http)/.test(icon) ? `${icon} ` : "↗ "}{title}</a>;
+  } }
 );
 
 export const schema = BlockNoteSchema.create({
