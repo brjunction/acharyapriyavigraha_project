@@ -108,7 +108,7 @@ export const MENUS: NavMenu[] = [
       g("Tools", [
         l("/resources/mobile-app", "Android / iOS app", "Taptajīvanam on your phone", Smartphone, true),
         l("/resources/windows-app", "Windows app", "For your computer", Download, true),
-        l("/resources/webfolio", "WebFolio", "Read the archive in a folio", BookOpen, true),
+        l("/webfolio", "WebFolio", "The whole archive as one searchable document", BookOpen),
         l("/resources/vaishnava-calendar", "Vaiṣṇava calendar", "Festivals and fasting days", CalendarDays, true),
         l("https://www.harinamamrta-vyakaranam.com", "Gauḍīya glossary", "Harināmāmṛta-vyākaraṇam", BookA),
         l("https://www.harinamamrta-vyakaranam.com/tools/dictionary/search", "Sanskrit dictionary", "Harināmāmṛta-vyākaraṇam", GraduationCap),
