@@ -21,19 +21,8 @@ const J1 = (v: any) => { try { return typeof v === "string" ? JSON.parse(v || "{
 const J = (v: any) => { try { const x = typeof v === "string" ? JSON.parse(v || "[]") : v; return Array.isArray(x) ? x : []; } catch { return []; } };
 const safeHref = (h: string) => (/^(https?:|mailto:|tel:|\/|#)/i.test(h || "") ? h : "#");
 
-export function plainText(content: any): string {
-  if (!content) return "";
-  if (typeof content === "string") return content;
-  if (Array.isArray(content)) return content.map((c) => (c.type === "link" ? plainText(c.content) : c.text || "")).join("");
-  if (content.type === "tableContent") return content.rows.map((r: any) => r.cells.map((c: any) => plainText(Array.isArray(c) ? c : c.content)).join(" ")).join(" ");
-  return "";
-}
-export function docText(doc: Doc, max = 155) {
-  const out: string[] = [];
-  const walk = (bs: DBlock[]) => bs.forEach((b) => { if (!["heading"].includes(b.type)) out.push(plainText(b.content)); if (b.children) walk(b.children); });
-  walk(doc || []);
-  return out.join(" ").replace(/\s+/g, " ").trim().slice(0, max);
-}
+import { plainText, docText } from "./doc-text";
+export { plainText, docText };
 export const slugId = (t: string) => t.toLowerCase().normalize("NFKD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 60);
 export function headings(doc: Doc) { return (doc || []).filter((b) => b.type === "heading" && b.props.level <= 3).map((b) => ({ level: b.props.level, text: plainText(b.content), id: slugId(plainText(b.content)) })); }
 

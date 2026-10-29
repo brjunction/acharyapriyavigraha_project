@@ -99,7 +99,7 @@ export function Shell({ user, children }: { user: { name: string; email: string;
       </div>
     </div>
   );
-  const wide = /^\/admin\/(pages|databases)\/[^/]+/.test(path);
+  const wide = /^\/admin\/(pages|databases|books)\/[^/]+/.test(path);
   return (
     <div className="min-h-screen bg-white lg:pl-[256px]">
       <aside className="fixed inset-y-0 left-0 hidden w-[256px] border-r border-zinc-200 lg:block">{side}</aside>
