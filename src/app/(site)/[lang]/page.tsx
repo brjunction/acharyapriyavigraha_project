@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { CmsPage, cmsMetadata } from "@/lib/cms/render";
 import { notFound } from "next/navigation";
 import { Headphones, Quote, BookOpen, FileText, ArrowRight, Languages } from "lucide-react";
 import { ALL_LANGUAGES, STATUS_LABEL } from "@/lib/languages";
@@ -17,12 +18,12 @@ const COPY: Record<string, { welcome: string; intro: string }> = {
 };
 
 export function generateStaticParams() { return ALL_LANGUAGES.filter((l) => l.code !== "en").map((l) => ({ lang: l.code })); }
-export const dynamicParams = false;
+export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }) { const { lang } = await params; return ALL_LANGUAGES.some((x) => x.code === lang) ? {} : cmsMetadata([lang]); }
 
 export default async function LanguageHome({ params }: { params: Promise<{ lang: string }> }) {
   const { lang } = await params;
   const l = ALL_LANGUAGES.find((x) => x.code === lang);
-  if (!l) notFound();
+  if (!l) return <CmsPage segments={[lang]} />;
   const c = COPY[lang] ?? { welcome: `${l.native}`, intro: `The ${l.name} site of Taptajīvanam is being prepared. Translators and reviewers are welcome.` };
   return (
     <>

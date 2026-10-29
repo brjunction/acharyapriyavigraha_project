@@ -342,3 +342,10 @@ main p.hover-glow:hover { color: var(--saffron); }
 @keyframes arc-drift { from { transform: translate3d(0,0,0); } to { transform: translate3d(0,-26px,0); } }
 .-scale-x-100.arc-drift { animation-name: arc-drift; }
 @media (prefers-reduced-motion: reduce) { .arc-drift { animation: none; } }
+
+/* Page content written in the editor */
+.cms-text p { margin: 0 0 .9em; } .cms-text p:last-child { margin-bottom: 0; }
+.cms-text ul { list-style: disc; padding-left: 1.4em; margin: 0 0 .9em; } .cms-text ol { list-style: decimal; padding-left: 1.4em; margin: 0 0 .9em; }
+.cms-text a { color: var(--saffron); text-decoration: underline; text-underline-offset: 3px; }
+.cms-text blockquote { border-left: 3px solid var(--gold); padding-left: 1em; font-style: italic; margin: 0 0 .9em; }
+.cms-text h2, .cms-text h3, .cms-text h4 { color: var(--ink); font-weight: 700; margin: 1em 0 .4em; }

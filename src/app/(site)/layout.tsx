@@ -2,6 +2,7 @@ import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { SearchPalette } from "@/components/search";
 import { MiniPlayer } from "@/components/lecture";
+import { Announcement } from "@/components/announcement";
 
 export default function SiteLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -12,6 +13,7 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
       <Footer />
       <SearchPalette />
       <MiniPlayer />
+      <Announcement />
     </>
   );
 }

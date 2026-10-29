@@ -1,0 +1,76 @@
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import type { Metadata } from "next";
+import { sql, hasDb } from "@/lib/db";
+import { Blocks } from "@/components/cms/blocks-view";
+import { Container } from "@/components/ui";
+import { ChevronRight, ChevronLeft, BookOpen } from "lucide-react";
+import type { Block } from "./blocks";
+
+type P = { id: string; parent_id: string | null; path: string; title: string; type: string; blocks: Block[]; seo: Record<string, any>; updated_at: string; position: number };
+export const SITE = process.env.NEXT_PUBLIC_SITE_URL || "https://taptajivanam.com";
+
+async function load(segments: string[]): Promise<P | null> {
+  if (!hasDb()) return null;
+  const path = "/" + segments.map(decodeURIComponent).join("/");
+  try { return ((await sql`select id, parent_id, path, title, type, blocks, seo, updated_at, position from pages where path = ${path} and status = 'published'`)[0] as P) || null; } catch { return null; }
+}
+const plain = (bs: Block[]) => bs.filter((b) => b.type === "text").map((b) => String(b.data.html).replace(/<[^>]+>/g, " ")).join(" ").replace(/\s+/g, " ").trim().slice(0, 155);
+
+export async function cmsMetadata(segments: string[]): Promise<Metadata> {
+  const p = await load(segments); if (!p) return {};
+  const title = p.seo?.title || p.title, description = p.seo?.description || plain(p.blocks);
+  const img = p.seo?.image || (p.blocks.find((b) => b.type === "image" && b.data.src)?.data.src as string | undefined);
+  return { title, description, alternates: { canonical: p.path }, robots: p.seo?.noindex ? { index: false } : undefined,
+    openGraph: { title, description, type: "article", url: p.path, images: img ? [img] : undefined }, twitter: { card: img ? "summary_large_image" : "summary" } };
+}
+
+export async function CmsPage({ segments }: { segments: string[] }) {
+  const p = await load(segments); if (!p) notFound();
+  const isBook = p.type === "book" || p.type === "chapter";
+  // crumbs: ancestors by path prefix
+  const prefixes = segments.slice(0, -1).map((_, i) => "/" + segments.slice(0, i + 1).join("/"));
+  const anc = prefixes.length ? await sql`select path, title from pages where path = any(${prefixes}) and status='published' order by length(path)` : [];
+  let tree: { id: string; parent_id: string | null; path: string; title: string; position: number }[] = [], kids: any[] = [];
+  if (isBook) {
+    const rootPath = await bookRoot(p);
+    tree = (await sql`select id, parent_id, path, title, position from pages where (path = ${rootPath} or path like ${rootPath + "/%"}) and status='published' order by path`) as any;
+  }
+  if (p.type === "collection" || p.type === "book" || p.type === "chapter") kids = (await sql`select title, path, blocks from pages where parent_id = ${p.id} and status='published' order by position, title`) as any[];
+  const flat = isBook ? flatten(tree, tree.find((t) => !t.parent_id || !tree.some((x) => x.id === t.parent_id))?.id || p.id) : [];
+  const i = flat.findIndex((x) => x.id === p.id), prev = flat[i - 1], next = flat[i + 1];
+  const ld = { "@context": "https://schema.org", "@type": p.type === "book" ? "Book" : "Article", headline: p.title, name: p.title, description: p.seo?.description || plain(p.blocks), dateModified: p.updated_at, mainEntityOfPage: SITE + p.path, inLanguage: "en", publisher: { "@type": "Organization", name: "Taptajivanam", url: SITE } };
+  const crumbs = { "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: [...anc, { path: p.path, title: p.title }].map((a: any, n) => ({ "@type": "ListItem", position: n + 1, name: a.title, item: SITE + a.path })) };
+  return (
+    <Container className="py-10 sm:py-14">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify([ld, crumbs]) }} />
+      {anc.length > 0 && <nav aria-label="Breadcrumb" className="mb-6 flex flex-wrap items-center gap-1 text-[13px] text-ink-3">{anc.map((a: any) => <span key={a.path} className="flex items-center gap-1"><Link href={a.path} className="hover:text-saffron">{a.title}</Link><ChevronRight size={13} /></span>)}<span className="text-ink-2">{p.title}</span></nav>}
+      <div className={isBook ? "grid gap-10 lg:grid-cols-[270px_1fr]" : ""}>
+        {isBook && <aside className="lg:sticky lg:top-24 lg:h-[calc(100vh-8rem)] lg:overflow-y-auto"><p className="mb-3 flex items-center gap-2 text-[12px] font-semibold uppercase tracking-[0.12em] text-saffron"><BookOpen size={14} />Contents</p><Tree nodes={tree} cur={p.path} /></aside>}
+        <article className={isBook ? "min-w-0 max-w-[760px]" : "mx-auto max-w-[820px]"}>
+          <Blocks blocks={p.blocks} />
+          {kids.length > 0 && p.type !== "chapter" && p.type !== "book" && <ul className="mt-10 grid gap-3 sm:grid-cols-2">{kids.map((k) => <li key={k.path}><Link href={k.path} className="card block p-4 font-semibold transition hover:-translate-y-0.5 hover:text-saffron">{k.title}</Link></li>)}</ul>}
+          {isBook && (prev || next) && <nav className="mt-12 flex justify-between gap-3 border-t border-line pt-6">{prev ? <Link href={prev.path} className="flex items-center gap-1.5 text-[14.5px] font-medium hover:text-saffron"><ChevronLeft size={16} />{prev.title}</Link> : <span />}{next && <Link href={next.path} className="flex items-center gap-1.5 text-right text-[14.5px] font-medium hover:text-saffron">{next.title}<ChevronRight size={16} /></Link>}</nav>}
+        </article>
+      </div>
+    </Container>
+  );
+}
+
+async function bookRoot(p: P): Promise<string> {
+  let cur = p;
+  while (cur.parent_id) {
+    const r = (await sql`select id, parent_id, path, title, type, blocks, seo, updated_at, position from pages where id = ${cur.parent_id}`)[0] as P | undefined;
+    if (!r || (r.type !== "book" && r.type !== "chapter")) break; cur = r;
+  }
+  return cur.path;
+}
+function flatten(nodes: { id: string; parent_id: string | null; path: string; title: string; position: number }[], rootId: string) {
+  const out: typeof nodes = []; const by = (id: string) => nodes.filter((n) => n.parent_id === id).sort((a, b) => a.position - b.position);
+  const walk = (id: string) => { const n = nodes.find((x) => x.id === id); if (n) out.push(n); by(id).forEach((c) => walk(c.id)); }; walk(rootId); return out;
+}
+function Tree({ nodes, cur }: { nodes: { id: string; parent_id: string | null; path: string; title: string; position: number }[]; cur: string }) {
+  const root = nodes.find((t) => !t.parent_id || !nodes.some((x) => x.id === t.parent_id)); if (!root) return null;
+  const list = (id: string, d: number): React.ReactNode => { const kids = nodes.filter((n) => n.parent_id === id).sort((a, b) => a.position - b.position); return kids.length ? <ul className={d ? "ml-3 border-l border-line pl-3" : ""}>{kids.map((k) => <li key={k.id}><Link href={k.path} className={`block rounded-lg px-2 py-1.5 text-[14px] leading-snug ${k.path === cur ? "bg-saffron-soft font-semibold text-saffron" : "text-ink-2 hover:bg-band"}`}>{k.title}</Link>{list(k.id, d + 1)}</li>)}</ul> : null; };
+  return <div><Link href={root.path} className={`mb-1 block rounded-lg px-2 py-1.5 text-[15px] font-bold ${root.path === cur ? "text-saffron" : ""}`}>{root.title}</Link>{list(root.id, 0)}</div>;
+}
