@@ -7,7 +7,7 @@ export type Item = { title: string; slug: string; data: Record<string, any> };
 const yid = (u: string) => /(?:youtu\.be\/|v=|embed\/|shorts\/|live\/)([\w-]{11})/.exec(u || "")?.[1] || "";
 const vals = (v: any): string[] => (Array.isArray(v) ? v : v ? [String(v)] : []);
 
-export function CollectionBrowser({ kind, db, items, facets, dateKey, lectureTitles }: { kind: string; db: string; items: Item[]; facets: { key: string; label: string }[]; dateKey?: string; lectureTitles: Record<string, string> }) {
+export function CollectionBrowser({ kind, base, items, facets, dateKey, lectureTitles }: { kind: string; base: string; items: Item[]; facets: { key: string; label: string }[]; dateKey?: string; lectureTitles: Record<string, string> }) {
   const [q, setQ] = useState(""); const [f, setF] = useState<Record<string, string>>({}); const [year, setYear] = useState(""); const [play, setPlay] = useState("");
   const years = useMemo(() => dateKey ? Array.from(new Set(items.map((i) => String(i.data?.[dateKey] || "").slice(0, 4)).filter(Boolean))).sort().reverse() : [], [items, dateKey]);
   const list = items.filter((i) => (!q || (i.title + " " + JSON.stringify(i.data)).toLowerCase().includes(q.toLowerCase())) && facets.every((x) => !f[x.key] || vals(i.data?.[x.key]).includes(f[x.key])) && (!year || String(i.data?.[dateKey!] || "").startsWith(year)));
@@ -29,21 +29,21 @@ export function CollectionBrowser({ kind, db, items, facets, dateKey, lectureTit
           <article key={i.slug} className="card overflow-hidden">
             <div className="relative aspect-video bg-black">{play === i.slug && id ? <iframe src={`https://www.youtube-nocookie.com/embed/${id}?autoplay=1`} title={i.title} allow="autoplay; encrypted-media" allowFullScreen className="h-full w-full" />
               : <button onClick={() => setPlay(i.slug)} className="group h-full w-full">{id && /* eslint-disable-next-line @next/next/no-img-element */ <img src={`https://i.ytimg.com/vi/${id}/hqdefault.jpg`} alt="" loading="lazy" className="h-full w-full object-cover" />}<span className="absolute inset-0 flex items-center justify-center"><span className="flex h-14 w-14 items-center justify-center rounded-full bg-saffron/90 text-white transition group-hover:scale-110"><Play size={22} fill="currentColor" className="ml-1" /></span></span></button>}</div>
-            <Link href={`/d/${db}/${i.slug}`} className="block p-4"><p className="line-clamp-2 font-semibold leading-snug hover:text-saffron">{i.title}</p><p className="mt-1 text-[12.5px] text-ink-3">{[i.data?.category, i.data?.date && new Date(i.data.date).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })].filter(Boolean).join(" · ")}</p></Link>
+            <Link href={`${base}#${i.slug}`} id={i.slug} className="block p-4"><p className="line-clamp-2 font-semibold leading-snug hover:text-saffron">{i.title}</p><p className="mt-1 text-[12.5px] text-ink-3">{[i.data?.category, i.data?.date && new Date(i.data.date).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })].filter(Boolean).join(" · ")}</p></Link>
           </article>); })}</div>
       ) : kind === "verses" ? (
         <div className="grid gap-4 lg:grid-cols-2">{list.map((i) => (
-          <Link key={i.slug} href={`/d/${db}/${i.slug}`} className="card block p-6 transition hover:-translate-y-0.5">
+          <Link key={i.slug} href={`${base}/${i.slug}`} className="card block p-6 transition hover:-translate-y-0.5">
             <p className="text-[12px] font-semibold uppercase tracking-[0.12em] text-saffron">{i.data?.reference || i.title}</p>
             {i.data?.devanagari && <p className="mt-3 whitespace-pre-line text-center text-[18px] leading-[1.8] text-[#7a3a06]">{i.data.devanagari}</p>}
             {i.data?.transliteration && <p className="mt-2 whitespace-pre-line text-center text-[15px] italic leading-[1.8] text-ink-2">{i.data.transliteration}</p>}
             {i.data?.translation && <p className="mt-3 border-t border-line pt-3 text-[15px] leading-relaxed text-ink">{i.data.translation}</p>}
           </Link>))}</div>
       ) : kind === "letters" ? (
-        <div className="divide-y divide-line rounded-2xl border border-line bg-surface">{list.map((i) => <Link key={i.slug} href={`/d/${db}/${i.slug}`} className="flex flex-wrap items-baseline justify-between gap-2 px-5 py-4 hover:bg-band/50"><span className="font-semibold">{i.title}</span><span className="text-[13px] text-ink-3">{[i.data?.from && `From ${i.data.from}`, i.data?.to && `to ${i.data.to}`, i.data?.date && new Date(i.data.date).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })].filter(Boolean).join(" · ")}</span></Link>)}</div>
+        <div className="divide-y divide-line rounded-2xl border border-line bg-surface">{list.map((i) => <Link key={i.slug} href={`${base}/${i.slug}`} className="flex flex-wrap items-baseline justify-between gap-2 px-5 py-4 hover:bg-band/50"><span className="font-semibold">{i.title}</span><span className="text-[13px] text-ink-3">{[i.data?.from && `From ${i.data.from}`, i.data?.to && `to ${i.data.to}`, i.data?.date && new Date(i.data.date).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })].filter(Boolean).join(" · ")}</span></Link>)}</div>
       ) : (
         <div className="columns-1 gap-4 md:columns-2 [&>*]:mb-4">{list.map((i) => (
-          <Link key={i.slug} href={`/d/${db}/${i.slug}`} className="card block break-inside-avoid p-6 transition hover:-translate-y-0.5">
+          <Link key={i.slug} id={i.slug} href={`${base}/${i.slug}`} className="card block break-inside-avoid p-6 transition hover:-translate-y-0.5">
             {kind !== "quotes" && kind !== "nectar-drops" && <p className="mb-2 text-[16px] font-bold leading-snug">{i.title}</p>}
             <p className={`whitespace-pre-line leading-[1.7] text-ink ${kind === "quotes" || kind === "nectar-drops" ? "text-[17.5px] font-medium" : "line-clamp-6 text-[15px] text-ink-2"}`}>{kind === "quotes" ? `“${i.data?.text || i.title}”` : i.data?.text || ""}</p>
             {(src(i) || i.data?.lecture) && <p className="mt-3 text-[12.5px] font-medium text-saffron">{src(i) || vals(i.data?.lecture).map((x) => lectureTitles[x]).filter(Boolean).join(", ")}</p>}
