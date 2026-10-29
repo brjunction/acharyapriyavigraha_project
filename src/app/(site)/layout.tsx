@@ -18,9 +18,11 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
       {fonts && <link rel="stylesheet" href={fonts} />}
       {css && <style dangerouslySetInnerHTML={{ __html: css }} />}
       <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-[200] focus:rounded-lg focus:bg-surface focus:px-4 focus:py-2">Skip to content</a>
-      <Header />
-      <main id="main" className="min-h-[60vh]">{children}</main>
-      <FooterSwitch><Footer /></FooterSwitch>
+      <div className="flex min-h-dvh flex-col">
+        <Header />
+        <main id="main" className="flex-1">{children}</main>
+        <FooterSwitch><Footer /></FooterSwitch>
+      </div>
       <NavToggle />
       <SearchPalette />
       <MiniPlayer />

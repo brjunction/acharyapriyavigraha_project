@@ -4,7 +4,7 @@ create extension if not exists pg_trgm;
 
 create table if not exists audios (
   id uuid primary key default gen_random_uuid(),
-  kind text not null default 'lecture',
+  kind text not null default 'lecture', type text,
   slug text not null unique,
   title text not null,
   date date, date_note text,

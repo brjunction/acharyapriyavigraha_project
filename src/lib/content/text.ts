@@ -22,4 +22,5 @@ export function parseRef(s: string): { scripture?: string; canto?: number; chapt
 export const durText = (sec?: number | null) => { if (!sec) return ""; const h = Math.floor(sec / 3600), m = Math.floor((sec % 3600) / 60), s = sec % 60; return h ? `${h}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}` : `${m}:${String(s).padStart(2, "0")}`; };
 export const parseDur = (v: string) => { const p = String(v).trim().split(":").map(Number); if (p.some(isNaN)) return null; return p.length === 3 ? p[0] * 3600 + p[1] * 60 + p[2] : p.length === 2 ? p[0] * 60 + p[1] : Math.round(p[0] * 60); };
 export const AUDIO_KINDS: [string, string][] = [["lecture", "Lecture"], ["darshan", "Darśana"], ["seminar", "Seminar"], ["festival", "Festival talk"], ["qa", "Questions & answers"], ["initiation", "Initiation"], ["kirtan", "Kīrtana"], ["bhajan", "Bhajana"], ["other", "Other"]];
+export const AUDIO_LANGS = ["English", "Odia", "Hindi", "Bengali", "English with Odia", "English with Hindi"];
 export const isSong = (k?: string) => k === "kirtan" || k === "bhajan";

@@ -1,7 +1,7 @@
 import { sql } from "@/lib/db";
 import { guard, json, fail } from "@/lib/api";
 
-const COL: Record<string, string> = { place: "place", series: "series", occasion: "occasion", singer: "singer", country: "country" };
+const COL: Record<string, string> = { place: "place", series: "series", occasion: "occasion", singer: "singer", country: "country", language: "language", atype: "type", stype: "type" };
 /** Shared lists: places, series, topics, occasions, singers, countries. */
 export async function GET(req: Request) {
   const g = await guard("viewer"); if ("res" in g) return g.res;
@@ -10,6 +10,9 @@ export async function GET(req: Request) {
     (case when v.kind = 'topic' then (select count(*) from audios a where v.name = any(a.topics)) + (select count(*) from videos x where v.name = any(x.topics)) + (select count(*) from excerpts e where v.name = any(e.topics))
      when v.kind = 'place' then (select count(*) from audios a where a.place = v.name) + (select count(*) from videos x where x.place = v.name)
      when v.kind = 'series' then (select count(*) from audios a where a.series = v.name) + (select count(*) from videos x where x.series = v.name)
+     when v.kind = 'language' then (select count(*) from audios a where a.language = v.name)
+     when v.kind = 'atype' then (select count(*) from audios a where a.type = v.name and a.kind not in ('kirtan','bhajan'))
+     when v.kind = 'stype' then (select count(*) from audios a where a.type = v.name and a.kind in ('kirtan','bhajan'))
      else 0 end)::int as used
     from vocab v where (${kind}::text is null or v.kind = ${kind}) order by v.name`);
 }

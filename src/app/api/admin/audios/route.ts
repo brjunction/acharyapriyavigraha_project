@@ -9,10 +9,10 @@ export async function GET(req: Request) {
   const u = new URL(req.url).searchParams; const p = (k: string) => u.get(k) || null;
   const songs = p("kind") === "songs"; const q = p("q") ? `%${fold(p("q"))}%` : null; const page = Math.max(1, Number(p("page")) || 1); const per = Math.min(200, Number(p("per")) || 50);
   const need = p("need"); const sort = p("sort") || "new";
-  const rows = await sql`select id, slug, kind, title, date, date_note, place, country, scripture, canto, chapter, verse, series, topics, duration_sec, audio_url, transcript_status, status, updated_at, count(*) over() as total
+  const rows = await sql`select id, slug, kind, type, title, date, date_note, place, country, scripture, canto, chapter, verse, series, topics, duration_sec, audio_url, transcript_status, status, updated_at, count(*) over() as total
     from audios where (kind in ('kirtan','bhajan')) = ${songs}
       and (${q}::text is null or search like ${q}) and (${p("year")}::text is null or extract(year from date)::text = ${p("year")})
-      and (${p("place")}::text is null or place = ${p("place")}) and (${p("scripture")}::text is null or scripture = ${p("scripture")})
+      and (${p("place")}::text is null or place = ${p("place")}) and (${p("type")}::text is null or coalesce(type, '') = ${p("type")}) and (${p("scripture")}::text is null or scripture = ${p("scripture")})
       and (${p("series")}::text is null or series = ${p("series")}) and (${p("topic")}::text is null or ${p("topic")} = any(topics)) and (${p("status")}::text is null or status = ${p("status")})
       and (${need}::text is null or (${need} = 'audio' and audio_url is null) or (${need} = 'transcript' and transcript_status <> 'done') or (${need} = 'date' and date is null) or (${need} = 'place' and place is null))
     order by case when ${sort} = 'new' then date end desc nulls last, case when ${sort} = 'old' then date end asc nulls last, case when ${sort} = 'title' then title end asc, case when ${sort} = 'updated' then updated_at end desc, title
