@@ -39,6 +39,7 @@ export const STATS = { lectures: 1595, transcriptions: 130, quoteCategories: 44,
 export type Lecture = {
   slug: string; title: string; date: string; place: string; country: string; type: string;
   scripture?: string; duration: number; transcribed: boolean; languages: string[]; topics: string[];
+  url?: string; href?: string; series?: string;
 };
 
 const places: [string, string][] = [

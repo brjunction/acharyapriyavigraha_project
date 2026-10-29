@@ -5,7 +5,7 @@ import { Play, Pause, FileText, Languages, Download, Share2, Quote, Copy, Rotate
 import { usePlayer, usePrefs } from "./providers";
 import { type Lecture, fmtDate, fmtDur, fmtClock, TRANSCRIPT } from "@/lib/data";
 
-const toTrack = (l: Lecture) => ({ slug: l.slug, title: l.title, subtitle: `${fmtDate(l.date)}, ${l.place}`, duration: l.duration });
+const toTrack = (l: Lecture) => ({ slug: l.slug, title: l.title, subtitle: `${fmtDate(l.date)}, ${l.place}`, duration: l.duration, url: l.url, href: l.href });
 
 export function PlayButton({ l, size = 40 }: { l: Lecture; size?: number }) {
   const { track, playing, play, toggle } = usePlayer();
@@ -27,7 +27,7 @@ export function LectureRow({ l, index }: { l: Lecture; index?: number }) {
       {index !== undefined && <span className="hidden w-6 text-right text-[13px] tabular text-ink-3 sm:block">{index}</span>}
       <PlayButton l={l} />
       <div className="min-w-0 flex-1">
-        <Link href={`/teachings/audio/${l.slug}`} className="block truncate font-serif text-[18px] font-bold text-ink transition-colors group-hover:text-saffron">{l.title}</Link>
+        <Link href={l.href || `/teachings/audio/${l.slug}`} className="block truncate font-serif text-[18px] font-bold text-ink transition-colors group-hover:text-saffron">{l.title}</Link>
         <p className="mt-0.5 truncate text-[13px] text-ink-3">
           {fmtDate(l.date)} <span className="mx-1 text-line-strong">/</span> {l.place}, {l.country} <span className="mx-1 text-line-strong">/</span> {l.type}
           {l.scripture && <> <span className="mx-1 text-line-strong">/</span> <span className="text-saffron">{l.scripture}</span></>}
@@ -117,7 +117,7 @@ export function MiniPlayer() {
           {playing ? <Pause size={18} fill="currentColor" /> : <Play size={18} className="ml-0.5" fill="currentColor" />}
         </button>
         <div className="min-w-0 flex-1">
-          <Link href={`/teachings/audio/${track.slug}`} className="block truncate font-serif text-[16px] font-bold hover:text-saffron">{track.title}</Link>
+          <Link href={track.href || `/teachings/audio/${track.slug}`} className="block truncate font-serif text-[16px] font-bold hover:text-saffron">{track.title}</Link>
           <div className="mt-1 flex items-center gap-2 text-[11px] tabular text-ink-3">
             <span>{fmtClock(time)}</span>
             <div className="h-1 flex-1 cursor-pointer rounded-full bg-band" onClick={(e) => { const r = e.currentTarget.getBoundingClientRect(); seek(((e.clientX - r.left) / r.width) * track.duration); }}>
