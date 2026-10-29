@@ -4,12 +4,11 @@ import {
   MapPin, ScrollText, Search as SearchIcon, type LucideIcon,
 } from "lucide-react";
 import { LECTURES, STATS, fmtDate, fmtDur } from "@/lib/data";
-import { Hero, Featured, LifeTimeline, DiaryRail, QuotePanel, LangMarquee, Radio } from "@/components/home-client";
+import { Hero, Blessing, Featured, LifeTimeline, DiaryRail, QuotePanel, LangMarquee, Radio } from "@/components/home-client";
 import { TeachingsOrganiser } from "@/components/teachings-organiser";
 import { TopicExplorer } from "@/components/topic-explorer";
 import { Container } from "@/components/ui";
 import { FounderBook } from "@/components/founder-options";
-import { BlessingTulasi } from "@/components/blessing-options";
 import { Band } from "@/components/waves";
 import { Orn, OrnMask, Padma, PaisleyField, VectorToran, PortraitFrame, VMask } from "@/components/motifs";
 import { Backdrop } from "@/components/backdrop";
@@ -93,7 +92,7 @@ export default async function Home() {
 
       {/* Blessing */}
       <section className="reveal relative z-[2] mt-10">
-        <Container><BlessingTulasi /></Container>
+        <Container><Blessing /></Container>
       </section>
 
       {/* Founder */}

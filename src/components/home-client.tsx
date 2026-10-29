@@ -326,11 +326,11 @@ const hl = (t: string) => t.split(/(«[^»]+»)/).map((x, k) => x.startsWith("«
 export function Blessing() {
   const [open, setOpen] = useState(false);
   return (
-    <div className="relative overflow-hidden rounded-[28px] border border-line bg-[#fcf6ea]">
-      <Backdrop src="cream-mandala" o={0.14} pos="center" />
+    <div className="relative overflow-hidden rounded-[28px] border border-line bg-[#f8efdd]">
+      <Backdrop src="cream-mandala" o={0.35} pos="center" />
       <div className="relative grid grid-cols-2 items-end gap-x-3 gap-y-2 px-4 pt-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1.2fr)_minmax(0,1fr)] lg:px-10 lg:pt-10">
         <div className="order-2 self-end lg:order-1">
-          <CutOut src="/legacy/prabhupada.webp" alt="Śrīla A.C. Bhaktivedanta Swami Prabhupāda" fade={0} className="mx-auto w-full max-w-[260px]" />
+          <CutOut src="/legacy/prabhupada.webp" alt="Śrīla A.C. Bhaktivedanta Swami Prabhupāda" fade={0} className="mx-auto w-full max-w-[340px]" />
         </div>
         <div className="order-1 col-span-2 pb-6 text-center lg:order-2 lg:col-span-1 lg:pb-14">
           <p className="kick-live text-[11px] font-semibold uppercase tracking-[0.18em] text-saffron">Śrīla Prabhupāda on Śrīla Gurudeva</p>
@@ -340,7 +340,7 @@ export function Blessing() {
           <p className="mt-2 text-[13px] text-ink-3">Letter, Māyāpur, 12 February 1976</p>
         </div>
         <div className="order-3 self-end">
-          <CutOut src="/legacy/gurudeva.webp" alt="Śrī Śrīmad Gour Govinda Swāmī Gurudeva" fade={0} className="mx-auto w-[88%] max-w-[235px]" />
+          <CutOut src="/legacy/gurudeva.webp" alt="Śrī Śrīmad Gour Govinda Swāmī Gurudeva" fade={0} className="mx-auto w-[88%] max-w-[300px]" />
         </div>
       <button onClick={() => setOpen((o) => !o)} aria-expanded={open} aria-label={open ? "Hide" : "Open"} title={open ? "Hide" : "Open"} className="absolute bottom-3 left-1/2 z-10 max-lg:top-3 max-lg:right-3 max-lg:bottom-auto max-lg:left-auto max-lg:translate-x-0 flex h-8 w-8 -translate-x-1/2 items-center justify-center rounded-full border border-[#e3cf9f] bg-white/90 text-saffron transition hover:bg-saffron-soft"><ChevronRight size={16} className={`transition-transform ${open ? "-rotate-90" : "rotate-90"}`} /></button>
       </div>
