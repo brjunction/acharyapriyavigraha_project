@@ -5,8 +5,8 @@ import { hrefOf, numbering } from "@/lib/content/books-public";
 
 export function BookToc({ book, nodes, current, compact = false }: { book: any; nodes: Node[]; current?: string; compact?: boolean }) {
   const num = numbering(nodes); const kids = (p: string | null) => nodes.filter((n) => n.parent_id === p).sort((a, b) => a.position - b.position);
-  const list = (p: string | null, d: number): React.ReactNode => { const k = kids(p); return k.length ? <ol className={d ? "ml-3 border-l border-line pl-3" : "space-y-0.5"}>{k.map((n) => <li key={n.id}>
-    <Link href={hrefOf(book.slug, nodes, n)} className={`flex gap-2 rounded-lg px-2 py-1.5 leading-snug ${n.id === current ? "bg-saffron-soft font-semibold text-saffron" : n.kind === "part" ? "font-semibold text-ink hover:bg-band" : "text-ink-2 hover:bg-band"} ${compact ? "text-[13px]" : "text-[14px]"}`}>
+  const list = (p: string | null, d: number): React.ReactNode => { const k = kids(p); return k.length ? <ol className={d ? "ml-3 border-l border-line pl-2" : "space-y-0.5"}>{k.map((n) => <li key={n.id}>
+    <Link href={hrefOf(book.slug, nodes, n)} className={`flex gap-2 rounded-lg px-2 py-1.5 leading-snug ${n.id === current ? "bg-band font-medium text-ink" : n.kind === "part" ? "font-semibold text-ink hover:bg-band" : "text-ink-2 hover:bg-band"} ${compact ? "text-[13px]" : "text-[14px]"}`}>
       {n.kind !== "part" && <span className="w-7 shrink-0 text-right text-[11.5px] tabular-nums text-ink-3">{num[n.id]}</span>}<span>{n.title}</span></Link>{list(n.id, d + 1)}</li>)}</ol> : null; };
   return <nav aria-label="Contents">{list(null, 0)}</nav>;
 }
@@ -23,7 +23,7 @@ export function PrevNext({ book, nodes, flat, current }: { book: any; nodes: Nod
 
 export function Cover({ book, className = "" }: { book: any; className?: string }) {
   return (
-    <div className={`relative aspect-[3/4] overflow-hidden rounded-[4px_14px_14px_4px] border border-[#e6cfa6] bg-gradient-to-br from-[#8a3a06] to-[#4a1a04] shadow-[6px_8px_0_-2px_#e8d6b8,0_24px_40px_-20px_rgba(40,20,5,.6)] ${className}`}>
+    <div className={`relative aspect-[3/4] overflow-hidden rounded-[3px_8px_8px_3px] border border-black/5 bg-gradient-to-br from-[#8a3a06] to-[#4a1a04] shadow-[0_1px_2px_rgba(0,0,0,0.08),0_12px_28px_-12px_rgba(0,0,0,0.35)] ${className}`}>
       {book.cover_url ? /* eslint-disable-next-line @next/next/no-img-element */ <img src={book.cover_url} alt={book.title} className="h-full w-full object-cover" /> : <div className="flex h-full flex-col items-center justify-center gap-4 p-6 text-center text-[#f3d9a4]"><span className="h-px w-16 bg-[#f3d9a4]/60" />{book.icon && <span className="text-[35px]">{book.icon}</span>}<span className="text-[17.5px] font-bold leading-snug">{book.title}</span><span className="h-px w-16 bg-[#f3d9a4]/60" /></div>}
       <span className="absolute inset-y-0 left-0 w-3 bg-gradient-to-r from-black/30 to-transparent" />
     </div>

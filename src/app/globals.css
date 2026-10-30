@@ -380,3 +380,6 @@ main p.hover-glow:hover { color: var(--saffron); }
 
 /* Top bar can be hidden by the reader, or by a page setting */
 html.nav-hidden .site-header { display: none; }
+/* Book text follows the reader’s chosen size and font (set on #book-text). */
+.book-body .reading, .book-body { font-size: inherit; line-height: inherit; font-family: inherit; max-width: none; }
+.book-body p { font-size: inherit; line-height: inherit; }

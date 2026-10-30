@@ -126,12 +126,12 @@ export async function syncSource(s: Source, key?: string | null) {
   const vids = await listVideos({ kind: s.kind, ref: s.ref! }, key);
   const have = new Set(((await sql`select youtube_id from videos where youtube_id = any(${vids.map((v) => v.id)})`) as any[]).map((x) => x.youtube_id));
   const known = await knownPlaces(); let added = 0; const todo = vids.filter((v) => !have.has(v.id));
-  for (const v of todo.slice(0, 250)) {
+  for (const v of todo.slice(0, 150)) {
     const c = classify(v.title, v.description, known);
     await insertRow(VIDEO, { youtube_id: v.id, title: v.title, description: v.description || null, duration_sec: v.seconds || null, published_at: v.published || null, channel: s.name, series: s.name, source_id: s.id, kind: s.default_kind || (c.type === "Kīrtana" ? "kirtan" : c.type === "Festival" ? "festival" : c.type === "Memories" ? "memory" : (v.seconds && v.seconds <= 60 ? "short" : "lecture")), ...c });
     added++;
   }
   await sql`update video_sources set last_synced_at = now(), last_count = ${vids.length} where id = ${s.id}`;
-  return { seen: vids.length, added, left: Math.max(0, todo.length - 250) };
+  return { seen: vids.length, added, left: Math.max(0, todo.length - 150) };
 }
 export async function apiKey(): Promise<string | null> { if (process.env.YOUTUBE_API_KEY) return process.env.YOUTUBE_API_KEY; try { return ((await sql`select value from settings where key = 'youtube_api_key'`)[0]?.value as string) || null; } catch { return null; } }

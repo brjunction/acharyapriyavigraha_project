@@ -28,27 +28,27 @@ export default async function BookHome({ params }: { params: Promise<{ slug: str
       </Container>
     );
   }
+  const chapters = flat.filter((n) => n.kind !== "part").length;
   return (
-    <>
+    <div className="bg-white">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ld) }} />
-      <section className="border-b border-line bg-[#fbf6ec]">
-        <Container className="grid items-center gap-10 py-12 md:grid-cols-[260px_minmax(0,1fr)]">
-          <Cover book={book} className="mx-auto w-[220px] md:w-full" />
+      <div className="mx-auto max-w-[1000px] px-4 pb-20 pt-6 sm:px-6">
+        <Crumbs items={[{ href: "/teachings", label: "His Teachings" }, { href: "/teachings/books", label: "Books" }, { label: book.title }]} />
+        <div className="mt-8 grid items-start gap-8 sm:grid-cols-[180px_minmax(0,1fr)] md:grid-cols-[220px_minmax(0,1fr)]">
+          <Cover book={book} className="mx-auto w-[160px] sm:w-full" />
           <div>
-            <Crumbs items={[{ href: "/teachings", label: "His Teachings" }, { href: "/teachings/books", label: "Books" }, { label: book.title }]} />
-            <h1 className="mt-4 text-[29.5px] font-bold leading-[1.1] tracking-[-0.03em] sm:text-[40.5px]">{book.title}</h1>
-            {book.subtitle && <p className="mt-2 text-[16.5px] text-ink-2">{book.subtitle}</p>}
-            <p className="mt-3 text-[13px] text-ink-3">{[book.author, book.publisher, book.year].filter(Boolean).join(" · ")}</p>
-            {book.description && <p className="mt-5 max-w-2xl whitespace-pre-line text-[14.5px] leading-relaxed text-ink-2">{book.description}</p>}
-            {first && <Link href={hrefOf(slug, nodes, first)} className="mt-6 inline-flex h-11 items-center rounded-full bg-saffron px-6 text-[14px] font-medium text-white">Start reading</Link>}
+            <h1 className="text-[28px] leading-tight text-ink sm:text-[34px]" style={{ fontFamily: "var(--font-reading-serif)" }}>{book.title}</h1>
+            {book.subtitle && <p className="mt-1.5 text-[15px] text-ink-2">{book.subtitle}</p>}
+            <p className="mt-3 text-[13px] text-ink-3">{[book.author, book.publisher, book.year, chapters ? `${chapters} chapters` : null].filter(Boolean).join(" · ")}</p>
+            {book.description && <p className="mt-5 max-w-2xl whitespace-pre-line text-[15px] leading-relaxed text-ink-2">{book.description}</p>}
+            <div className="mt-6 flex flex-wrap gap-2">{first ? <Link href={hrefOf(slug, nodes, first)} className="inline-flex h-10 items-center rounded-md bg-ink px-5 text-[13.5px] font-medium text-white hover:bg-ink/90">Start reading</Link> : <span className="text-[13px] text-ink-3">The chapters of this book are being added.</span>}</div>
           </div>
-        </Container>
-      </section>
-      <Container className="max-w-[900px] py-12">
-        <h2 className="mb-5 text-center text-[12.5px] font-semibold uppercase tracking-[0.18em] text-saffron">Contents</h2>
-        {book.layout === "cards" ? <div className="grid gap-4 sm:grid-cols-2">{flat.filter((n) => !n.parent_id).map((n) => <Link key={n.id} href={hrefOf(slug, nodes, n)} className="card group flex items-center gap-4 p-5 transition hover:-translate-y-0.5"><span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-[#fdf6e8] font-bold text-saffron ring-1 ring-[#e3cf9f]">{num[n.id]}</span><span className="text-[14.5px] font-semibold group-hover:text-saffron">{n.title}</span></Link>)}</div>
-          : <div className={`rounded-3xl border border-[#e3cf9f] bg-[#fdfaf3] p-6 sm:p-10 ${book.layout === "scripture" ? "text-center" : ""}`}><BookToc book={book} nodes={nodes} /></div>}
-      </Container>
-    </>
+        </div>
+        {flat.length > 0 && <section className="mt-14">
+          <h2 className="border-b border-line pb-2 text-[15px] font-semibold text-ink">Contents</h2>
+          <div className="mt-3">{book.layout === "cards" ? <div className="grid gap-3 sm:grid-cols-2">{flat.filter((n) => !n.parent_id).map((n) => <Link key={n.id} href={hrefOf(slug, nodes, n)} className="group flex items-center gap-4 rounded-xl border border-line p-4 transition hover:border-line-strong"><span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-band text-[13px] font-medium text-ink-2">{num[n.id]}</span><span className="text-[14.5px] font-medium text-ink group-hover:underline">{n.title}</span></Link>)}</div> : <BookToc book={book} nodes={nodes} />}</div>
+        </section>}
+      </div>
+    </div>
   );
 }
