@@ -1,3 +1,4 @@
-import { ItemPage } from "@/components/cms/collection";
+import { ItemPage, itemMetadata } from "@/components/cms/collection";
 export const revalidate = 300;
+export async function generateMetadata({ params }: { params: Promise<{ item: string }> }) { const { item } = await params; return itemMetadata("/teachings/quotes", item); }
 export default async function Page({ params }: { params: Promise<{ item: string }> }) { const { item } = await params; return <ItemPage route="/teachings/quotes" slug={item} />; }

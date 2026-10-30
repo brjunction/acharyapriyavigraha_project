@@ -25,7 +25,7 @@ export async function POST(req: Request) {
 export async function PATCH(req: Request) {
   const g = await guard("editor"); if ("res" in g) return g.res;
   const b = await req.json(); const from = String(b.from || ""), to = String(b.to || "").trim(); if (!b.kind || !from || !to) return fail("Missing names.");
-  if (b.kind === "topic") { for (const t of ["audios", "videos", "excerpts"]) await sql.query(`update ${t} set topics = array_replace(topics, $1, $2) where $1 = any(topics)`, [from, to]); }
+  if (b.kind === "topic") { for (const t of ["audios", "videos", "excerpts", "articles"]) await sql.query(`update ${t} set topics = array_replace(topics, $1, $2) where $1 = any(topics)`, [from, to]); }
   else if (COL[b.kind]) { await sql.query(`update audios set ${COL[b.kind]} = $2 where ${COL[b.kind]} = $1`, [from, to]); if (b.kind === "place" || b.kind === "series") await sql.query(`update videos set ${COL[b.kind]} = $2 where ${COL[b.kind]} = $1`, [from, to]); }
   await sql`delete from vocab where kind = ${b.kind} and name = ${from}`;
   await sql`insert into vocab (kind, name) values (${b.kind}, ${to}) on conflict do nothing`; return json({ ok: true });

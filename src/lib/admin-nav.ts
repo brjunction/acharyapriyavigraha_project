@@ -1,4 +1,4 @@
-import { Headphones, Music, Clapperboard, Quote, BookOpen, FileText, Newspaper, Languages, BookMarked, CalendarDays, NotebookPen, History, HandHeart, Gift, Image, MapPin, Package, Mail, IdCard, Landmark, GitBranch, Crown, ToggleRight, PanelsTopLeft, Megaphone, Images, Users, Settings, Lotus, type LucideIcon } from "./admin-icons";
+import { Headphones, Music, Clapperboard, Quote, BookOpen, FileText, Newspaper, Languages, BookMarked, CalendarDays, NotebookPen, History, HandHeart, Gift, Image, MapPin, Package, Mail, IdCard, Landmark, GitBranch, Crown, ToggleRight, PanelsTopLeft, Megaphone, Images, Users, Settings, Lotus, Network, type LucideIcon } from "./admin-icons";
 
 export type AdminLink = { href: string; label: string; icon: LucideIcon; desc: string };
 export type AdminGroup = { key: string; label: string; desc: string; links: AdminLink[] };
@@ -27,6 +27,7 @@ export const ADMIN_GROUPS: AdminGroup[] = [
     { href: "/admin/articles", label: "Articles", icon: FileText, desc: "Essays and compilations" },
     { href: "/admin/magazines", label: "Magazines", icon: Newspaper, desc: "Gopāl Jiu magazine and others" },
     { href: "/admin/compilations", label: "Compilations", icon: Quote, desc: "Quotes, stories, analogies…" },
+    { href: "/admin/topics", label: "Tattva topics", icon: Network, desc: "Subjects that link everything together" },
   ] },
   { key: "resources", label: "Resources", desc: "Calendar, WebFolio and translations", links: [
     { href: "/admin/calendar", label: "Taptajīvanam Calendar", icon: CalendarDays, desc: "Festivals and fasting days" },
