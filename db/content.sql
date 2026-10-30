@@ -131,3 +131,13 @@ create table if not exists life_events (
   image text, image_caption text, links jsonb not null default '[]', source text, importance int not null default 2, status text not null default 'published', position int not null default 0,
   search text not null default '', created_at timestamptz not null default now(), updated_at timestamptz not null default now());
 create index if not exists life_events_year_idx on life_events(year, month, day);
+
+-- Śrīla Gurudeva archive: memories, glorifications, letters, gallery, places, belongings, disciples, projects, paramparā, Prabhupāda resources.
+create table if not exists archive_sections (id uuid primary key default gen_random_uuid(), collection text not null, key text not null, title text not null, description text, position int not null default 0, unique (collection, key));
+create table if not exists archive_items (
+  id uuid primary key default gen_random_uuid(), collection text not null, section text, slug text not null, title text not null, subtitle text,
+  person text, person_role text, recipient text, date date, year int, date_label text, place text, region text, country text,
+  cover text, images jsonb not null default '[]', summary text, body jsonb not null default '[]', chapters jsonb not null default '[]', links jsonb not null default '[]',
+  media text, tags text[] not null default '{}', related uuid[] not null default '{}', status_label text, featured boolean not null default false, position int not null default 0,
+  status text not null default 'published', search text not null default '', created_at timestamptz not null default now(), updated_at timestamptz not null default now(), unique (collection, slug));
+create index if not exists archive_items_coll_idx on archive_items(collection, section, position);
