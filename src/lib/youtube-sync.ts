@@ -62,7 +62,10 @@ export async function listVideos(src: { kind: string; ref: string }, key?: strin
   const apiKey = /"INNERTUBE_API_KEY":"([^"]+)"/.exec(html)?.[1]; const ver = /"INNERTUBE_CLIENT_VERSION":"([^"]+)"/.exec(html)?.[1] || "2.20241001.00.00";
   const take = (node: any): string | null => {
     let next: string | null = null;
-    const walk = (o: any) => { if (!o || typeof o !== "object") return; if (o.playlistVideoRenderer) { const v = o.playlistVideoRenderer; if (v.videoId && v.isPlayable !== false) out.push({ id: v.videoId, title: v.title?.runs?.map((x: any) => x.text).join("") || v.title?.simpleText || "", seconds: Number(v.lengthSeconds) || 0 }); return; } if (o.continuationItemRenderer) { next = o.continuationItemRenderer.continuationEndpoint?.continuationCommand?.token || null; return; } for (const k in o) walk(o[k]); };
+    const clockOf = (o: any): number => { let out = 0; const w = (x: any) => { if (out || !x || typeof x !== "object") return; for (const k in x) { const v = x[k]; if (typeof v === "string" && /^\d{1,2}(:\d{2}){1,2}$/.test(v)) { out = v.split(":").map(Number).reduce((a, b) => a * 60 + b, 0); return; } w(v); } }; w(o); return out; };
+    const walk = (o: any) => { if (!o || typeof o !== "object") return;
+      if (o.lockupViewModel && /VIDEO/.test(o.lockupViewModel.contentType || "VIDEO")) { const v = o.lockupViewModel; const id = v.contentId; const title = v.metadata?.lockupMetadataViewModel?.title?.content || ""; if (id && /^[\w-]{11}$/.test(id) && !out.some((x) => x.id === id)) out.push({ id, title, seconds: clockOf(v.contentImage) }); return; }
+      if (o.playlistVideoRenderer) { const v = o.playlistVideoRenderer; if (v.videoId && v.isPlayable !== false) out.push({ id: v.videoId, title: v.title?.runs?.map((x: any) => x.text).join("") || v.title?.simpleText || "", seconds: Number(v.lengthSeconds) || 0 }); return; } if (o.continuationItemRenderer) { next = o.continuationItemRenderer.continuationEndpoint?.continuationCommand?.token || null; return; } for (const k in o) walk(o[k]); };
     walk(node); return next;
   };
   let token = take(data);
