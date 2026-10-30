@@ -1,10 +1,12 @@
 "use client";
 /* His Diary — prayers to Śrī Gopāl Jiu. A leather diary that opens, with pages that turn. */
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { ChevronLeft, ChevronRight, List, Search, X, BookOpen, Share2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, List, Search, X, BookOpen, Share2, Bookmark, BookmarkCheck, Shuffle, History, CalendarDays } from "lucide-react";
 
-export type Entry = { slug: string; date: string | null; date_note: string | null; place: string | null; title: string | null; original: string | null; original_lang: string | null; translation: string | null; scan_url: string | null; volume: string | null; page: string | null };
-const fold = (s: string) => s.normalize("NFKD").replace(/[̀-ͯ]/g, "").toLowerCase();
+/** The index of the diary: the texts are fetched page by page as the reader turns them. */
+export type Entry = { slug: string; date: string | null; date_note: string | null; volume: string | null; page: string | null };
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const store = { get: (k: string) => { try { return JSON.parse(localStorage.getItem(k) || "null"); } catch { return null; } }, set: (k: string, v: unknown) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} } };
 const longDate = (e: Entry) => (e.date ? new Date(e.date).toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric" }) : e.date_note || "");
 const PAPER = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .45 0 0 0 0 .32 0 0 0 0 .16 0 0 0 .07 0'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23n)'/%3E%3C/svg%3E")`;
 const LEATHER = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='l'%3E%3CfeTurbulence type='turbulence' baseFrequency='.9' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .22 0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23l)'/%3E%3C/svg%3E")`;
@@ -18,14 +20,15 @@ function Lotus({ className = "" }: { className?: string }) {
   );
 }
 
-function PageFace({ e, side, n }: { e?: Entry; side: "left" | "right"; n: number }) {
+function PageFace({ e, side, n, text }: { e?: Entry; side: "left" | "right"; n: number; text?: string | null }) {
   if (!e) return <div className={`diary-paper flex h-full items-center justify-center ${side === "left" ? "diary-left" : "diary-right"}`}><Lotus className="h-6 w-12 text-[#d9c39a]" /></div>;
   return (
     <div className={`diary-paper relative flex h-full flex-col ${side === "left" ? "diary-left" : "diary-right"}`}>
       <div className="diary-lines pointer-events-none absolute inset-x-[9%] bottom-[9%] top-[15%]" />
       <header className="relative px-[9%] pt-[7%]"><p className="diary-date">{longDate(e)}</p></header>
       <div className="diary-ink relative min-h-0 flex-1 overflow-y-auto px-[9%] pb-[12%] pt-3" key={e.slug}>
-        <p className="diary-text whitespace-pre-line">{e.translation || <span className="opacity-60">The translation of this page is being prepared.</span>}</p>
+        {text === undefined ? <div className="space-y-3 pt-2" aria-label="Loading">{[92, 80, 88, 60].map((w, k) => <span key={k} className="block h-3 rounded bg-[#ecdcbb]" style={{ width: `${w}%` }} />)}</div>
+          : <p className="diary-text whitespace-pre-line">{text || <span className="opacity-60">The translation of this page is being prepared.</span>}</p>}
       </div>
       <footer className="pointer-events-none absolute inset-x-0 bottom-[4%] flex items-center justify-center gap-2 text-[#a07a45]"><Lotus className="h-3 w-6" /><span className="diary-folio">{n}</span><Lotus className="h-3 w-6" /></footer>
     </div>
@@ -38,7 +41,10 @@ export function DiaryBook({ entries, start = 0 }: { entries: Entry[]; start?: nu
   const [two, setTwo] = useState(true);
   const step = two ? 2 : 1;
   const [i, setI] = useState(Math.max(0, Math.min(entries.length - 1, start))); const [turn, setTurn] = useState<null | { dir: 1 | -1; to: number }>(null);
-  const [toc, setToc] = useState(false); const [q, setQ] = useState("");
+  const [toc, setToc] = useState(false); const [q, setQ] = useState(""); const [found, setFound] = useState<{ slug: string; date: string | null; date_note: string | null; snippet: string }[] | null>(null);
+  const [texts, setTexts] = useState<Record<string, string | null>>({}); const asked = useRef(new Set<string>());
+  const [saved, setSaved] = useState<string[]>([]); const [lastSlug, setLastSlug] = useState<string | null>(null);
+  useEffect(() => { setSaved(store.get("tj_diary_saved") || []); setLastSlug(store.get("tj_diary_last")); }, []);
   const reduce = useRef(false); const touch = useRef<number | null>(null);
   useEffect(() => { reduce.current = window.matchMedia("(prefers-reduced-motion: reduce)").matches; const m = window.matchMedia("(min-width: 768px)"); const f = () => setTwo(m.matches); f(); m.addEventListener("change", f); return () => m.removeEventListener("change", f); }, []);
   // On a two-page spread the left page is always an even entry.
@@ -50,15 +56,29 @@ export function DiaryBook({ entries, start = 0 }: { entries: Entry[]; start?: nu
     if (reduce.current || !two || Math.abs(to - i) > step) { setI(to); return; }
     setTurn({ dir: to > i ? 1 : -1, to }); setTimeout(() => { setI(to); setTurn(null); }, 950);
   }, [turn, i, entries.length, snap, two, step]);
+  // Fetch the texts around the open page (a few ahead, a few behind).
+  useEffect(() => {
+    if (!open || empty) return;
+    const want = entries.slice(Math.max(0, i - 4), i + 8).map((e) => e.slug).filter((sl) => !asked.current.has(sl));
+    if (!want.length) return; want.forEach((sl) => asked.current.add(sl));
+    fetch(`/api/diary?slugs=${want.map(encodeURIComponent).join(",")}`).then((r) => r.json()).then((rows: { slug: string; translation: string | null }[]) => setTexts((t) => { const n = { ...t }; want.forEach((sl) => (n[sl] = rows.find((r) => r.slug === sl)?.translation ?? null)); return n; })).catch(() => want.forEach((sl) => asked.current.delete(sl)));
+    store.set("tj_diary_last", entries[i]?.slug);
+  }, [i, open, entries, empty]);
+  // Search the whole diary on the server.
+  useEffect(() => { const w = q.trim(); if (w.length < 2) { setFound(null); return; } const t = setTimeout(() => fetch(`/api/diary?q=${encodeURIComponent(w)}`).then((r) => r.json()).then(setFound).catch(() => setFound([])), 250); return () => clearTimeout(t); }, [q]);
+  const isSaved = (sl?: string) => !!sl && saved.includes(sl);
+  const toggleSave = (sl?: string) => { if (!sl) return; const n = saved.includes(sl) ? saved.filter((x) => x !== sl) : [...saved, sl]; setSaved(n); store.set("tj_diary_saved", n); };
+  const at = (slug: string) => entries.findIndex((e) => e.slug === slug);
+  const jump = (k: number) => { if (k < 0) return; setToc(false); if (!open) { setI(snap(k)); setOpen(true); window.scrollTo({ top: 0 }); } else go(k); };
   useEffect(() => { if (!open || empty) return; const u = new URL(location.href); u.searchParams.set("e", entries[i]?.slug || ""); history.replaceState(null, "", u.toString()); }, [i, open, entries, empty]);
   useEffect(() => { const k = (ev: KeyboardEvent) => { if (!open || (ev.target as HTMLElement).tagName === "INPUT") return; if (ev.key === "ArrowRight") go(i + step); if (ev.key === "ArrowLeft") go(i - step); if (ev.key === "Escape") setToc(false); }; window.addEventListener("keydown", k); return () => window.removeEventListener("keydown", k); }, [open, go, i, step]);
   const years = useMemo(() => { const m = new Map<string, number>(); entries.forEach((e, k) => { const y = e.date ? e.date.slice(0, 4) : "—"; if (!m.has(y)) m.set(y, k); }); return [...m.entries()]; }, [entries]);
-  const found = q.trim().length > 1 ? entries.map((e, k) => ({ e, k })).filter(({ e }) => fold(`${e.translation || ""} ${e.date || ""} ${e.date_note || ""}`).includes(fold(q))) : null;
   const doOpen = () => { if (empty) return; if (reduce.current) { setOpen(true); return; } setOpening(true); setTimeout(() => { setOpen(true); setOpening(false); }, 1300); };
   const L = (k: number) => entries[k]; const R = (k: number) => (two ? entries[k + 1] : undefined);
   // What sits underneath while a sheet turns.
   const leftIdx = turn?.dir === -1 ? turn.to : i; const rightIdx = turn?.dir === 1 ? turn.to : i;
   const last = entries.length - 1;
+  const tx = (e?: Entry) => (e ? texts[e.slug] : null);
 
   return (
     <section className="diary-stage relative">
@@ -79,12 +99,17 @@ export function DiaryBook({ entries, start = 0 }: { entries: Entry[]; start?: nu
             </div>
             {empty ? <p className="mt-12 max-w-md text-center text-[13px] text-[#6b4a26]">Throughout his life Śrīla Gurudeva wrote to his beloved Deity. The English translations of his diary will appear here, page by page.</p>
               : <><button onClick={doOpen} className="diary-open-btn"><BookOpen size={16} />Open the diary</button>
-                <p className="mt-3 max-w-md text-center text-[13px] text-[#6b4a26]">Throughout his life Śrīla Gurudeva wrote to his beloved Deity. Turn the pages slowly.</p></>}
+                <p className="mt-3 max-w-md text-center text-[13px] text-[#6b4a26]">Throughout his life Śrīla Gurudeva wrote to his beloved Deity. Turn the pages slowly.</p>
+                <DiaryIndex entries={entries} saved={saved} last={lastSlug} onOpen={(sl) => jump(at(sl))} onSearch={() => { setOpen(true); setToc(true); }} /></>}
           </div>
         ) : (
           <>
             <div className="mb-4 flex w-full max-w-[1100px] flex-wrap items-center gap-2 text-[12.5px]">
-              <button onClick={() => setToc(true)} className="diary-chip"><List size={14} />Contents</button>
+              <button onClick={() => setOpen(false)} className="diary-chip" title="Back to the cover and index"><BookOpen size={14} />Index</button>
+              <button onClick={() => setToc(true)} className="diary-chip"><List size={14} />Contents &amp; search</button>
+              <button onClick={() => toggleSave(entries[i]?.slug)} className={`diary-chip ${isSaved(entries[i]?.slug) ? "is-on" : ""}`} title="Keep this page in your saved pages">{isSaved(entries[i]?.slug) ? <BookmarkCheck size={14} /> : <Bookmark size={14} />}<span className="max-sm:hidden">{isSaved(entries[i]?.slug) ? "Saved" : "Save page"}</span></button>
+              <button onClick={() => jump(Math.floor(Math.random() * entries.length))} className="diary-chip" title="Open any page"><Shuffle size={14} /></button>
+              <span className="text-[#8a6237] max-md:hidden">{entries[i]?.volume ? `Notebook ${entries[i].volume}` : ""}</span>
               <span className="ml-auto text-[#6b4a26]">{two && R(i) ? `Pages ${i + 1}–${i + 2}` : `Page ${i + 1}`} of {entries.length}</span>
               <button onClick={() => { navigator.clipboard?.writeText(`${location.origin}/gurudeva/diaries/${entries[i].slug}`); }} className="diary-chip" title="Copy a link to this page"><Share2 size={14} /></button>
             </div>
@@ -92,11 +117,11 @@ export function DiaryBook({ entries, start = 0 }: { entries: Entry[]; start?: nu
             <div className="diary-book-wrap" onTouchStart={(t) => (touch.current = t.touches[0].clientX)} onTouchEnd={(t) => { if (touch.current === null) return; const d = t.changedTouches[0].clientX - touch.current; if (Math.abs(d) > 50) go(i + (d < 0 ? step : -step)); touch.current = null; }}>
               <div className="diary-book">
                 <div className="diary-spine" aria-hidden />
-                <div className="diary-half diary-half-l"><PageFace e={L(leftIdx)} side="left" n={leftIdx + 1} /></div>
-                {two && <div className="diary-half diary-half-r"><PageFace e={R(rightIdx)} side="right" n={rightIdx + 2} /></div>}
+                <div className="diary-half diary-half-l"><PageFace e={L(leftIdx)} text={tx(L(leftIdx))} side="left" n={leftIdx + 1} /></div>
+                {two && <div className="diary-half diary-half-r"><PageFace e={R(rightIdx)} text={tx(R(rightIdx))} side="right" n={rightIdx + 2} /></div>}
                 {turn && <div className={`diary-sheet ${turn.dir === 1 ? "turn-next" : "turn-prev"}`}>
-                  <div className="diary-face front">{turn.dir === 1 ? <PageFace e={R(i)} side="right" n={i + 2} /> : <PageFace e={L(i)} side="left" n={i + 1} />}</div>
-                  <div className="diary-face back">{turn.dir === 1 ? <PageFace e={L(turn.to)} side="left" n={turn.to + 1} /> : <PageFace e={R(turn.to)} side="right" n={turn.to + 2} />}</div>
+                  <div className="diary-face front">{turn.dir === 1 ? <PageFace e={R(i)} text={tx(R(i))} side="right" n={i + 2} /> : <PageFace e={L(i)} text={tx(L(i))} side="left" n={i + 1} />}</div>
+                  <div className="diary-face back">{turn.dir === 1 ? <PageFace e={L(turn.to)} text={tx(L(turn.to))} side="left" n={turn.to + 1} /> : <PageFace e={R(turn.to)} text={tx(R(turn.to))} side="right" n={turn.to + 2} />}</div>
                 </div>}
               </div>
               <button onClick={() => go(i - step)} disabled={i === 0} className="diary-arrow left-0 -translate-x-1/2" aria-label="Previous page"><ChevronLeft size={20} /></button>
@@ -116,15 +141,60 @@ export function DiaryBook({ entries, start = 0 }: { entries: Entry[]; start?: nu
           <div className="flex items-center justify-between"><p className="text-[15px] font-bold text-[#5a1d14]">Contents</p><button onClick={() => setToc(false)} className="rounded-full p-1.5 hover:bg-[#efe1c4]"><X size={17} /></button></div>
           <div className="relative mt-3"><Search size={14} className="absolute left-3 top-2.5 text-[#a07a45]" /><input autoFocus value={q} onChange={(ev) => setQ(ev.target.value)} placeholder="Search the diary" className="h-9 w-full rounded-full border border-[#e2cfa6] bg-[#fffaf0] pl-9 pr-3 text-[13px] outline-none focus:border-[#a0522d]" /></div>
           <div className="mt-3 min-h-0 flex-1 overflow-y-auto pr-1">
-            {(found || entries.map((e2, k) => ({ e: e2, k }))).map(({ e: x, k }, n, arr) => { const y = x.date ? x.date.slice(0, 4) : "Undated"; const showY = !found && (n === 0 || (arr[n - 1].e.date || "").slice(0, 4) !== (x.date || "").slice(0, 4)); const here = k === i || (two && k === i + 1); return (
+            {found ? found.map((f) => (
+              <button key={f.slug} onClick={() => jump(at(f.slug))} className="block w-full rounded-lg px-3 py-2 text-left hover:bg-[#f4e6c8]"><span className="block text-[12px] italic text-[#8a6237]">{longDate({ ...f, volume: null, page: null })}</span><span className="line-clamp-2 text-[12.5px] text-[#3a2410]">{f.snippet}</span></button>))
+            : entries.map((x, k, arr) => { const y = x.date ? x.date.slice(0, 4) : "Undated"; const showY = k === 0 || (arr[k - 1].date || "").slice(0, 4) !== (x.date || "").slice(0, 4); const here = k === i || (two && k === i + 1); return (
               <div key={x.slug}>{showY && <p className="mb-1 mt-4 text-[11px] font-bold uppercase tracking-[0.18em] text-[#a0522d]">{y}</p>}
-                <button onClick={() => { setToc(false); go(k); }} className={`block w-full rounded-lg px-3 py-2 text-left hover:bg-[#f4e6c8] ${here ? "bg-[#f1dfb8]" : ""}`}><span className="block text-[12px] italic text-[#8a6237]">{longDate(x)}</span><span className="line-clamp-1 text-[12.5px] text-[#3a2410]">{x.translation?.slice(0, 90)}</span></button></div>); })}
-            {found && !found.length && <p className="p-4 text-center text-[13px] text-[#8a6237]">No page mentions “{q}”.</p>}
+                <button onClick={() => jump(k)} className={`flex w-full items-center gap-2 rounded-lg px-3 py-1.5 text-left hover:bg-[#f4e6c8] ${here ? "bg-[#f1dfb8]" : ""}`}><span className="flex-1 text-[12.5px] text-[#3a2410]">{longDate(x)}</span>{isSaved(x.slug) && <BookmarkCheck size={13} className="text-[#a0522d]" />}<span className="text-[11px] text-[#a07a45]">{k + 1}</span></button></div>); })}
+            {found && !found.length && <p className="p-4 text-center text-[13px] text-[#8a6237]">No page mentions “{q}”.</p>}{found && found.length > 0 && <p className="px-3 pt-2 text-[11.5px] text-[#a07a45]">{found.length >= 60 ? "First 60 pages" : `${found.length} pages`} mention “{q}”.</p>}
           </div>
         </aside>
       </div>}
     </section>
   );
+}
+
+/** Ways into the diary from the cover: continue, on this day, saved pages, and every year by month. */
+function DiaryIndex({ entries, saved, last, onOpen, onSearch }: { entries: Entry[]; saved: string[]; last: string | null; onOpen: (slug: string) => void; onSearch: () => void }) {
+  const [today, setToday] = useState<string | null>(null);
+  useEffect(() => { const d = new Date(); setToday(`${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`); }, []);
+  const byYear = useMemo(() => { const m = new Map<string, Entry[]>(); entries.forEach((e) => { const y = e.date ? e.date.slice(0, 4) : "Undated"; m.set(y, [...(m.get(y) || []), e]); }); return [...m.entries()]; }, [entries]);
+  const onDay = today ? entries.filter((e) => e.date?.slice(5) === today) : [];
+  const lastE = last ? entries.find((e) => e.slug === last) : null; const savedE = entries.filter((e) => saved.includes(e.slug));
+  const short = (e: Entry) => (e.date ? new Date(e.date).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : e.date_note || "Undated");
+  const [yr, setYr] = useState<string | null>(null);
+  return (
+    <div className="mt-14 w-full max-w-[980px] text-left">
+      <div className="grid gap-3 sm:grid-cols-3">
+        <Way icon={History} title="Continue reading" empty="You have not opened a page yet.">{lastE && <button onClick={() => onOpen(lastE.slug)} className="diary-link">{short(lastE)}</button>}</Way>
+        <Way icon={CalendarDays} title="On this day" empty="No page was written on today’s date.">{onDay.map((e) => <button key={e.slug} onClick={() => onOpen(e.slug)} className="diary-link">{short(e)}</button>)}</Way>
+        <Way icon={Bookmark} title="Your saved pages" empty="Save a page while reading to find it here.">{savedE.slice(0, 6).map((e) => <button key={e.slug} onClick={() => onOpen(e.slug)} className="diary-link">{short(e)}</button>)}</Way>
+      </div>
+      <div className="mt-8 flex items-end justify-between gap-3 border-b border-[#ead7ae] pb-2">
+        <h2 className="text-[17px] font-semibold text-[#5a1d14]" style={{ fontFamily: "var(--font-reading-serif)" }}>Every year, by month</h2>
+        <button onClick={onSearch} className="diary-chip"><Search size={14} />Search the diary</button>
+      </div>
+      <div className="mt-3 divide-y divide-[#f1e4c8]">
+        {byYear.map(([y, es]) => { const months = Array.from({ length: 12 }, (_, m) => es.filter((e) => e.date && Number(e.date.slice(5, 7)) === m + 1)); const max = Math.max(1, ...months.map((x) => x.length)); return (
+          <div key={y} className="py-2">
+            <div className="grid grid-cols-[64px_minmax(0,1fr)_56px] items-center gap-3">
+              <button onClick={() => setYr(yr === y ? null : y)} className="text-left text-[15px] font-semibold tabular-nums text-[#7a2a1c]" style={{ fontFamily: "var(--font-reading-serif)" }}>{y}</button>
+              {y === "Undated" ? <button onClick={() => onOpen(es[0].slug)} className="text-left text-[12.5px] text-[#8a6237] hover:underline">Pages without a date</button> :
+              <div className="grid grid-cols-12 gap-1">{months.map((ms, m) => <button key={m} disabled={!ms.length} onClick={() => onOpen(ms[0].slug)} title={ms.length ? `${MONTHS[m]} ${y}: ${ms.length} page${ms.length > 1 ? "s" : ""}` : `${MONTHS[m]} ${y}`} className="group flex flex-col items-center gap-1 disabled:cursor-default">
+                <span className="h-6 w-full rounded-[4px] border border-[#ead7ae] transition group-enabled:hover:border-[#7a2a1c]" style={{ background: ms.length ? `rgba(122,42,28,${0.15 + 0.75 * (ms.length / max)})` : "transparent" }} />
+                <span className="text-[9.5px] uppercase tracking-wide text-[#a07a45] max-sm:hidden">{MONTHS[m][0]}</span></button>)}</div>}
+              <span className="text-right text-[12px] tabular-nums text-[#8a6237]">{es.length}</span>
+            </div>
+            {yr === y && <div className="ml-[76px] mt-2 flex flex-wrap gap-1.5">{es.map((e) => <button key={e.slug} onClick={() => onOpen(e.slug)} className={`rounded-full border px-2.5 py-0.5 text-[12px] ${saved.includes(e.slug) ? "border-[#7a2a1c] text-[#7a2a1c]" : "border-[#ead7ae] text-[#5a3414]"} hover:bg-[#f4e6c8]`}>{e.date ? new Date(e.date).toLocaleDateString("en-GB", { day: "numeric", month: "short" }) : e.date_note || "—"}</button>)}</div>}
+          </div>); })}
+      </div>
+      <p className="mt-3 text-[11.5px] text-[#a07a45]">Darker months hold more pages. Click a year to see every date in it.</p>
+    </div>
+  );
+}
+function Way({ icon: I, title, empty, children }: { icon: typeof History; title: string; empty: string; children: React.ReactNode }) {
+  const has = Array.isArray(children) ? children.length > 0 : !!children;
+  return <div className="rounded-2xl border border-[#ead7ae] bg-[#fffaf0] p-4"><p className="flex items-center gap-2 text-[12px] font-semibold uppercase tracking-[0.12em] text-[#a0522d]"><I size={14} />{title}</p><div className="mt-2 flex flex-wrap gap-1.5">{has ? children : <p className="text-[12.5px] text-[#8a6237]">{empty}</p>}</div></div>;
 }
 
 const CSS = `
@@ -182,6 +252,7 @@ const CSS = `
 .diary-arrow:hover:not(:disabled){transform:scale(1.08)}.diary-arrow:disabled{opacity:.35}
 .diary-years{display:flex;gap:3px;height:30px}.diary-years button{min-width:34px;border-radius:6px;background:rgba(255,250,238,.55);border:1px solid #dcc394;font-size:11.5px;color:#7a4a1c;overflow:hidden;transition:background .2s}
 .diary-years button.is-on{background:#5a1d14;color:#f6dca6;border-color:#5a1d14}
+.diary-link{border-radius:999px;background:#f4e6c8;padding:3px 10px;font-size:12.5px;color:#5a1d14}.diary-link:hover{background:#5a1d14;color:#f6dca6}
 .diary-range{width:100%;margin-top:10px;accent-color:#7a2a1c}
 .diary-toc{display:flex;flex-direction:column;width:min(380px,90vw);height:100%;padding:20px;background:#fbf2dc;background-image:${PAPER};box-shadow:20px 0 40px -20px rgba(40,15,5,.6);animation:diaryToc .35s ease}
 @keyframes diaryToc{from{transform:translateX(-100%)}to{transform:none}}

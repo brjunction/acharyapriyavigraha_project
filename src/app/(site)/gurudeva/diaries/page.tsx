@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 
 async function entries(): Promise<Entry[]> {
   if (!hasDb()) return [];
-  try { return (await sql`select slug, to_char(date, 'YYYY-MM-DD') as date, date_note, place, title, original, original_lang, translation, scan_url, volume, page from diary_entries where status = 'published' and coalesce(translation, '') <> '' order by date nulls last, position, created_at`) as Entry[]; } catch { return []; }
+  try { return (await sql`select slug, to_char(date, 'YYYY-MM-DD') as date, date_note, volume, page from diary_entries where status = 'published' and coalesce(translation, '') <> '' order by date nulls last, position, created_at`) as Entry[]; } catch { return []; }
 }
 
 export default async function Page({ searchParams }: { searchParams: Promise<{ e?: string }> }) {
