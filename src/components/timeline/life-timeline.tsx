@@ -125,7 +125,7 @@ export function LifeTimeline({ eras, events, recordings }: { eras: Era[]; events
 
 function ChapterHead({ n, era, count, rec }: { n: number; era: Era; count: number; rec: number }) {
   return (
-    <header className="mb-4 grid items-center gap-5 rounded-3xl bg-[#fbf6ef] p-4 sm:grid-cols-[150px_minmax(0,1fr)] sm:p-5">
+    <header className="mb-4 grid items-center gap-5 rounded-3xl bg-[#f7f7f7] p-4 sm:grid-cols-[150px_minmax(0,1fr)] sm:p-5">
       {era.image ? /* eslint-disable-next-line @next/next/no-img-element */ <img src={era.image} alt="" className="hidden aspect-[4/5] w-full rounded-2xl object-cover object-top sm:block" loading="lazy" /> : <span className="hidden sm:block" />}
       <div>
         <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-saffron">Chapter {n} · {era.year_from === era.year_to ? era.year_from : `${era.year_from} – ${era.year_to}`}</p>

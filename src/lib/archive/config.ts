@@ -20,15 +20,15 @@ export const COLLECTIONS: Record<string, Collection> = {
   },
   glorifications: {
     key: "glorifications", label: "Glorifications", singular: "offering", base: "/gurudeva/glorifications", layout: "quotes", icon: "Gift", sort: "date",
-    intro: "Vyāsa-pūjā offerings, poems and glorifications, and his own offerings to Śrīla Prabhupāda.",
-    sections: [["to-prabhupada", "His offerings to Śrīla Prabhupāda", "Written by Śrīla Gurudeva for his spiritual master"], ["disciples", "By his disciples", "Vyāsa-pūjā offerings"], ["grand-disciples", "By grand-disciples", ""], ["vaishnavas", "By godbrothers & Vaiṣṇavas", ""], ["poems", "Poems & songs", ""]],
+    intro: "Vyāsa-pūjā offerings, poems and glorifications of Śrīla Gurudeva by his disciples, grand-disciples and other Vaiṣṇavas.",
+    sections: [["disciples", "By his disciples", "Vyāsa-pūjā offerings"], ["grand-disciples", "By grand-disciples", ""], ["vaishnavas", "By godbrothers & Vaiṣṇavas", ""], ["poems", "Poems & songs", ""]],
     fields: ["person", "person_role", "year", "date_label", "place", "cover", "summary", "body", "media", "tags"],
     labels: { person: ["Written by"], year: ["Vyāsa-pūjā year"], summary: ["A line to show on the card"] },
   },
   letters: {
     key: "letters", label: "Letters", singular: "letter", base: "/gurudeva/letters", layout: "letters", icon: "Mail", sort: "date",
     intro: "Letters between Śrīla Gurudeva and Śrīla Prabhupāda, his letters to disciples, and letters from other Vaiṣṇavas.",
-    sections: [["from-prabhupada", "From Śrīla Prabhupāda", "Letters Śrīla Prabhupāda wrote to him"], ["to-prabhupada", "To Śrīla Prabhupāda", "His letters to his spiritual master"], ["to-disciples", "To his disciples", ""], ["from-vaishnavas", "From other Vaiṣṇavas", ""], ["others", "Other letters", ""]],
+    sections: [["from-prabhupada", "From Śrīla Prabhupāda", "Letters Śrīla Prabhupāda wrote to him"], ["to-prabhupada", "To Śrīla Prabhupāda", "His letters to his spiritual master"], ["offerings-to-prabhupada", "His offerings to Śrīla Prabhupāda", "Vyāsa-pūjā offerings he wrote for his spiritual master"], ["to-disciples", "To his disciples", ""], ["from-vaishnavas", "From other Vaiṣṇavas", ""], ["others", "Other letters", ""]],
     fields: ["person", "recipient", "date", "date_label", "place", "images", "summary", "body", "tags"],
     labels: { person: ["From"], recipient: ["To"], images: ["Scans of the letter", "Each page as a picture"], summary: ["Opening line or summary"] },
   },

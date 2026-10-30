@@ -12,8 +12,8 @@
   --saffron-deep: #6b2a00;
   --saffron-ink: #592300;
   --saffron-night: #4c1b00;
-  --saffron-soft: #f6ebe3;
-  --saffron-tint: #fbf5f0;
+  --saffron-soft: #f7ece4;
+  --saffron-tint: #fcf7f3;
   --ornament: #95542a;
   --ornament-light: #bb947b;
   --rose: #c47f6e;
@@ -30,13 +30,13 @@
   --acc: var(--saffron); --acc-soft: var(--saffron-soft); --acc-tint: var(--saffron-tint);
 
   --page: #ffffff;
-  --band: #eeeceb;
+  --band: #f4f4f4;
   --surface: #ffffff;
-  --ink: #1f1a17;
-  --ink-2: #57504a;
-  --ink-3: #8a827b;
-  --line: #e4ded8;
-  --line-strong: #d3c9bf;
+  --ink: #1a1a1a;
+  --ink-2: #525252;
+  --ink-3: #858585;
+  --line: #e8e8e8;
+  --line-strong: #d6d6d6;
 
   --reading-size: 16px;
   --reading-leading: 1.75;
