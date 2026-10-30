@@ -36,8 +36,8 @@ export const MENUS: NavMenu[] = [
       ]),
       g("Remembrance", [
         l("/gurudeva/gallery", "Gallery", "Portraits, deities, festivals, travels", Image),
-        l("/gurudeva/places-of-remembrance", "Places of remembrance", "Where he lived, taught and left", MapPin, true),
-        l("/gurudeva/personal-belongings", "Personal belongings", "Items he used, and their stories", Package, true),
+        l("/gurudeva/places-of-remembrance", "Places of remembrance", "Where he lived, taught and left", MapPin),
+        l("/gurudeva/personal-belongings", "Personal belongings", "Items he used, and their stories", Package),
       ]),
       g("Lineage & disciples", [
         l("/gurudeva/srila-prabhupada", "Śrīla Prabhupāda", "His beloved spiritual master", Crown),
@@ -48,8 +48,8 @@ export const MENUS: NavMenu[] = [
       g("Projects", [
         l("/gurudeva/iskcon-bhubaneswar", "ISKCON Bhubaneswar", "From a mud hut to Śrī Śrī Kṛṣṇa-Balarāma", Landmark),
         l("/gurudeva/temples", "Subsidiary temples & initiatives", "Temples and āśramas he established", Building2),
-        l("/gurudeva/projects-in-his-relation", "Projects in his relation", "Work connected with him", Handshake, true),
-        l("/gurudeva/taptajivanam-projects", "Taptajīvanam projects", "The archive and its services", Library, true),
+        l("/gurudeva/projects-in-his-relation", "Projects in his relation", "Work connected with him", Handshake),
+        l("/gurudeva/taptajivanam-projects", "Taptajīvanam projects", "The archive and its services", Library),
       ]),
     ],
   },
