@@ -5,6 +5,7 @@ import { verseRef, durText } from "@/lib/content/text";
 import { order, type Node } from "@/lib/content/books";
 import { COLLECTIONS } from "@/lib/archive/config";
 import { getTimeline } from "@/lib/content/timeline";
+import { getMenus } from "@/lib/menus-server";
 
 export type FGroup = { key: string; title: string; count?: number };
 export type FSec = { key: string; title: string; desc: string; icon: string; color: string; groups: FGroup[] };
@@ -17,20 +18,23 @@ const SECS: Omit<FSec, "groups">[] = [
   { key: "kirtans", title: "Kīrtanas", desc: "Songs he sang and led", icon: "Music", color: "#be185d" },
   { key: "books", title: "Books", desc: "Each book on one page", icon: "BookOpen", color: "#0f766e" },
   { key: "compilations", title: "Compilations", desc: "Quotes, verses, stories, analogies", icon: "Quote", color: "#a16207" },
+  { key: "articles", title: "Articles", desc: "Essays and writings, by section", icon: "Newspaper", color: "#0e7490" },
+  { key: "magazines", title: "Magazines", desc: "Magazines and their issues", icon: "Library", color: "#6d28d9" },
   { key: "videos", title: "Videos", desc: "Video lectures and kīrtanas, by year", icon: "Clapperboard", color: "#b91c1c" },
+  { key: "website", title: "The website", desc: "Every page of every menu", icon: "Globe", color: "#334155" },
   { key: "pages", title: "Pages", desc: "Pages written in the Studio", icon: "Files", color: "#475569" },
 ];
 /** Old Studio setting names → sections. */
 const OLD: Record<string, string> = { "menu:gurudeva": "gurudeva", audios: "lectures", transcripts: "transcriptions", kirtans: "kirtans", books: "books", excerpts: "compilations", videos: "videos", pages: "pages" };
 const EXK: [string, string][] = [["quote", "Quotes"], ["verse", "Verses"], ["story", "Stories & anecdotes"], ["instruction", "Instructions"], ["desire", "Desires"], ["nectar", "Nectar drops"], ["analogy", "Analogies"], ["qa", "Questions & answers"], ["memory", "Memories"], ["glorification", "Glorifications"], ["prayer", "Prayers"]];
-const ARCH = ["memories", "glorifications", "letters", "places", "belongings", "disciples", "projects"];
+const ARCH = ["memories", "glorifications", "letters", "gallery", "places", "belongings", "disciples", "projects", "parampara", "prabhupada"];
 const q = async <T,>(p: Promise<T[]>): Promise<T[]> => { try { return await p; } catch { return []; } };
 const yearsOf = (rows: { y: number; n: number }[]) => rows.map((r) => ({ key: r.y ? String(r.y) : "undated", title: r.y ? String(r.y) : "Undated", count: r.n }));
 
 async function buildNav(): Promise<FSec[]> {
   if (!hasDb()) return SECS.map((s) => ({ ...s, groups: [] }));
   const cfg = (await q(sql`select source, title, enabled, position from folio_sections`)) as any[];
-  const [lec, tr, kir, books, exk, vid, pages, diary, arch, tl] = await Promise.all([
+  const [lec, tr, kir, books, exk, vid, pages, diary, arch, tl, art, mags, menus] = await Promise.all([
     q(sql`select coalesce(extract(year from date)::int, 0) y, count(*)::int n from audios where status = 'published' and kind not in ('kirtan','bhajan') group by 1 order by (coalesce(extract(year from date)::int, 0) = 0), 1`),
     q(sql`select coalesce(extract(year from date)::int, 0) y, count(*)::int n from audios where status = 'published' and kind not in ('kirtan','bhajan') and jsonb_array_length(transcript) > 0 group by 1 order by (coalesce(extract(year from date)::int, 0) = 0), 1`),
     q(sql`select coalesce(extract(year from date)::int, 0) y, count(*)::int n from audios where status = 'published' and kind in ('kirtan','bhajan') group by 1 order by (coalesce(extract(year from date)::int, 0) = 0), 1`),
@@ -41,25 +45,31 @@ async function buildNav(): Promise<FSec[]> {
     q(sql`select coalesce(extract(year from date)::int, 0) y, count(*)::int n from diary_entries where status = 'published' and coalesce(translation, '') <> '' group by 1 order by (coalesce(extract(year from date)::int, 0) = 0), 1`),
     q(sql`select collection, count(*)::int n from archive_items where status = 'published' group by 1`),
     q(sql`select count(*)::int n from life_events where status = 'published'`),
+    q(sql`select coalesce(section, 'Other articles') s, count(*)::int n from articles where status = 'published' group by 1 order by 1`),
+    q(sql`select id, title, jsonb_array_length(issues) n from magazines where status = 'published' order by position, title`),
+    getMenus().catch(() => []),
   ]) as any[][];
   const groups: Record<string, FGroup[]> = {
     gurudeva: [
       { key: "timeline", title: "Life timeline", count: tl[0]?.n || undefined },
-      ...diary.map((r) => ({ key: `diary-${r.y || "undated"}`, title: `His Diary, ${r.y || "undated"}`, count: r.n })),
-      ...ARCH.filter((k) => arch.some((a) => a.collection === k)).map((k) => ({ key: k, title: COLLECTIONS[k].label, count: arch.find((a) => a.collection === k)?.n })),
+      ...(diary.length ? diary.map((r) => ({ key: `diary-${r.y || "undated"}`, title: `His Diary, ${r.y || "undated"}`, count: r.n })) : [{ key: "diary-undated", title: "His Diary", count: 0 }]),
+      ...ARCH.map((k) => ({ key: k, title: COLLECTIONS[k].label, count: arch.find((a) => a.collection === k)?.n || 0 })),
     ],
     lectures: yearsOf(lec), transcriptions: yearsOf(tr), kirtans: yearsOf(kir), videos: yearsOf(vid),
     books: books.map((b) => ({ key: b.slug, title: b.title, count: b.n })),
     compilations: EXK.filter(([k]) => exk.some((e) => e.kind === k)).map(([k, l]) => ({ key: k, title: l, count: exk.find((e) => e.kind === k)?.n })),
     pages: pages.map((p) => ({ key: p.path.replace(/^\//, "").replace(/\//g, "~"), title: p.title })),
+    articles: art.length ? art.map((a) => ({ key: encodeURIComponent(a.s), title: a.s, count: a.n })) : [{ key: "all", title: "All articles", count: 0 }],
+    magazines: mags.length ? mags.map((m) => ({ key: m.id, title: m.title, count: m.n })) : [{ key: "all", title: "All magazines", count: 0 }],
+    website: (menus as any[]).map((m) => ({ key: m.key, title: m.label, count: m.groups.reduce((a: number, g: any) => a + g.links.length, 0) })),
   };
   const conf = (k: string) => cfg.find((c) => OLD[c.source] === k);
   return SECS.map((s) => ({ ...s, title: conf(s.key)?.title || s.title, groups: groups[s.key] || [] }))
-    .filter((s) => s.groups.length && conf(s.key)?.enabled !== false)
+    .filter((s) => (s.groups.length || ["lectures", "transcriptions", "kirtans", "books", "compilations", "videos"].includes(s.key)) && conf(s.key)?.enabled !== false)
     .sort((a, b) => (conf(a.key)?.position ?? 99) - (conf(b.key)?.position ?? 99) || SECS.findIndex((x) => x.key === a.key) - SECS.findIndex((x) => x.key === b.key));
 }
 /** The whole contents, cached for ten minutes (and refreshed when the Studio publishes). */
-export const nav = unstable_cache(buildNav, ["webfolio-nav-v1"], { revalidate: 600, tags: ["webfolio"] });
+export const nav = unstable_cache(buildNav, ["webfolio-nav-v2"], { revalidate: 600, tags: ["webfolio"] });
 
 /* ------------------------------------------------------------------ Group pages: everything of one group on one page */
 export type Block = { id: string; title: string; sub?: string; href?: string; text?: string; doc?: any[]; badge?: string; audio?: string };
@@ -87,6 +97,20 @@ export async function groupPage(sec: string, g: string): Promise<Page | null> {
   if (sec === "compilations") {
     const rows = (await q(sql`select e.slug, e.title, e.text, e.verse_ref, e.original, e.transliteration, e.translation, e.source, a.title as lecture from excerpts e left join audios a on a.id = e.audio_id where e.status = 'published' and e.kind = ${g} order by e.position, e.created_at`)) as any[];
     return { title: EXK.find(([k]) => k === g)?.[1] || g, intro: `${rows.length} entries, each with its source.`, blocks: rows.map((r) => ({ id: r.slug, title: r.title || r.verse_ref || "", sub: [r.source, r.lecture].filter(Boolean).join(" · "), text: [r.original, r.transliteration, r.translation, r.text].filter(Boolean).join("\n\n") })) };
+  }
+  if (sec === "articles") {
+    const sect = decodeURIComponent(g); const rows = (await q(sql`select slug, title, subtitle, author, series, date, summary, body from articles where status = 'published' and (${sect} = 'all' or coalesce(section, 'Other articles') = ${sect}) order by series nulls last, series_part nulls last, date desc nulls last, title`)) as any[];
+    return { title: sect === "all" ? "Articles" : sect, intro: `${rows.length} articles.`, blocks: rows.map((r) => ({ id: r.slug, title: r.title, sub: [r.author && `By ${r.author}`, r.series, date(r.date)].filter(Boolean).join(" · "), text: [r.subtitle, r.summary].filter(Boolean).join("\n\n"), doc: r.body })) };
+  }
+  if (sec === "magazines") {
+    const rows = (await q(sql`select id, title, publisher, description, url, issues from magazines where status = 'published' and (${g} = 'all' or id::text = ${g}) order by position, title`)) as any[];
+    return { title: rows.length === 1 ? rows[0].title : "Magazines", blocks: rows.flatMap((m) => [{ id: `m-${m.id}`, title: m.title, sub: m.publisher || "", text: m.description || "", href: m.url || undefined }, ...((m.issues || []) as any[]).map((x, i) => ({ id: `i-${m.id}-${i}`, title: x.title || x.name || `Issue ${i + 1}`, sub: [x.date, x.number].filter(Boolean).join(" · "), text: x.summary || x.description || "", href: x.url || undefined }))]) };
+  }
+  if (sec === "website") {
+    const m = ((await getMenus().catch(() => [])) as any[]).find((x) => x.key === g); if (!m) return null;
+    const paths = m.groups.flatMap((gr: any) => gr.links.map((l: any) => l.href));
+    const cms = (await q(sql`select path, blocks from pages where path = any(${paths}) and status = 'published' and coalesce(settings->>'studio', 'on') <> 'off'`)) as any[];
+    return { title: m.label, intro: m.intro, blocks: m.groups.flatMap((gr: any) => [{ id: `g-${gr.title}`.replace(/\W+/g, "-"), title: gr.title, sub: "" }, ...gr.links.map((l: any) => ({ id: l.href.replace(/\W+/g, "-"), title: l.label, sub: l.desc || "", href: l.href, doc: cms.find((c) => c.path === l.href)?.blocks }))]) };
   }
   if (sec === "pages") {
     const path = "/" + g.replace(/~/g, "/"); const p = (await q(sql`select title, blocks from pages where path = ${path} and status = 'published'`))[0] as any; if (!p) return null;

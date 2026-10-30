@@ -2,10 +2,10 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Search, X, Menu, Globe, Download, ChevronRight, Flower2, Headphones, FileText, Music, BookOpen, Quote, Clapperboard, Files, type LucideIcon } from "lucide-react";
+import { Search, X, Menu, Globe, Download, ChevronRight, Flower2, Headphones, FileText, Music, BookOpen, Quote, Clapperboard, Files, Newspaper, Library, type LucideIcon } from "lucide-react";
 import type { FSec } from "@/lib/webfolio/data";
 
-const ICONS: Record<string, LucideIcon> = { Flower2, Headphones, FileText, Music, BookOpen, Quote, Clapperboard, Files };
+const ICONS: Record<string, LucideIcon> = { Flower2, Headphones, FileText, Music, BookOpen, Quote, Clapperboard, Files, Newspaper, Library, Globe };
 export const SecIcon = ({ s, size = 14 }: { s: Pick<FSec, "icon" | "color">; size?: number }) => { const I = ICONS[s.icon] || FileText; return <span className="flex shrink-0 items-center justify-center rounded-md" style={{ background: `${s.color}14`, color: s.color, width: size + 10, height: size + 10 }}><I size={size} strokeWidth={2} /></span>; };
 const fold = (s: string) => s.normalize("NFKD").replace(/[̀-ͯ]/g, "").toLowerCase();
 
