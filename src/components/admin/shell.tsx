@@ -5,7 +5,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { ChevronRight, Plus, MoreHorizontal, Search, LayoutDashboard, Database, Image as Img, Megaphone, Users, Settings, LogOut, ExternalLink, Menu as MenuIcon, X, FileText, PanelsTopLeft, Trash2, ArrowUp, ArrowDown, Copy, Palette, Headphones, Music, Clapperboard, Quote, BookOpen, Languages, BookMarked, ChevronsUpDown, Globe, CalendarDays, NotebookPen, Newspaper, ToggleRight, Power, History } from "lucide-react";
 import { api, toast } from "./ui";
 import type { MenuJ } from "@/lib/menus";
-import { isDynamic } from "@/lib/cms/dynamic";
+import { ADMIN_GROUPS, groupOf } from "@/lib/admin-nav";
 import { PageIcon } from "../page-icon";
 
 type P = { id: string; parent_id: string | null; title: string; path: string; status: string; position: number; icon?: string; type: string; redirect?: string; studio?: string };
@@ -19,6 +19,9 @@ export function Shell({ user, children }: { user: { name: string; email: string;
   useEffect(() => { try { setOpen(JSON.parse(localStorage.getItem("tj_tree") || "{}")); } catch {} }, []);
   const toggle = (id: string) => setOpen((o) => { const n = { ...o, [id]: !o[id] }; try { localStorage.setItem("tj_tree", JSON.stringify(n)); } catch {} return n; });
   const cur = /^\/admin\/pages\/([^/]+)/.exec(path)?.[1];
+  // Only the group you are working in opens by itself; others open when clicked.
+  const here = groupOf(path) || (/^\/admin\/(pages|databases)/.test(path) ? "website" : null);
+  const isOpen = (k: string) => open["grp:" + k] ?? k === here;
   // keep the open page's ancestors expanded
   useEffect(() => { if (!cur || !pages.length) return; const byId = Object.fromEntries(pages.map((p) => [p.id, p])); let p = byId[cur]; const add: Record<string, boolean> = {}; while (p?.parent_id) { add[p.parent_id] = true; p = byId[p.parent_id]; } if (Object.keys(add).length) setOpen((o) => ({ ...o, ...add })); }, [cur, pages]);
   const kids = useMemo(() => { const m: Record<string, P[]> = {}; pages.filter((p) => p.studio !== "off").forEach((p) => { (m[p.parent_id || "root"] ||= []).push(p); }); Object.values(m).forEach((l) => l.sort((a, b) => a.position - b.position || a.title.localeCompare(b.title))); return m; }, [pages]);
@@ -62,30 +65,18 @@ export function Shell({ user, children }: { user: { name: string; email: string;
       <div className="min-h-0 flex-1 overflow-y-auto px-2 pb-3">
         {found ? <div className="mt-1">{found.map((p) => <Link key={p.id} href={`/admin/pages/${p.id}`} onClick={() => setMobile(false)} className={item}><span className="flex w-4 justify-center">{p.icon ? <PageIcon icon={p.icon} size={15} /> : <FileText className="size-4 text-zinc-500" />}</span><span className="truncate">{p.title}</span></Link>)}{!found.length && <p className="px-2 py-2 text-[12.5px] text-zinc-500">No pages found.</p>}</div> : <>
         <div className="mt-1"><Nav href="/admin" icon={LayoutDashboard} label="Dashboard" /></div>
-        <Label>Dynamic contents</Label>
-        <Nav href="/admin/audio" icon={Headphones} label="Audio lectures" />
-        <Nav href="/admin/kirtans" icon={Music} label="Kīrtanas & bhajanas" />
-        <Nav href="/admin/videos" icon={Clapperboard} label="Videos" />
-        <Nav href="/admin/compilations" icon={Quote} label="Compilations" />
-        <Nav href="/admin/books" icon={BookOpen} label="Books" />
-        <Nav href="/admin/articles" icon={FileText} label="Articles" />
-        <Nav href="/admin/magazines" icon={Newspaper} label="Magazines" />
-        <Nav href="/admin/translations" icon={Languages} label="Translations" />
-        <Nav href="/admin/webfolio" icon={BookMarked} label="WebFolio" />
-        <Nav href="/admin/calendar" icon={CalendarDays} label="Taptajīvanam Calendar" />
-        <Nav href="/admin/diary" icon={NotebookPen} label="His Diary" />
-        <Nav href="/admin/timeline" icon={History} label="Life timeline" />
-        <Label>Website</Label>
-        <Nav href="/admin/site-pages" icon={ToggleRight} label="Website pages" />
-        <Nav href="/admin/menus" icon={PanelsTopLeft} label="Menus" />
-        <Nav href="/admin/announcements" icon={Megaphone} label="Announcements" />
-        <Nav href="/admin/media" icon={Img} label="Pictures & files" />
-        <Label action={<button title="New page" onClick={() => newPage()} className="rounded-md p-1 hover:bg-zinc-200/70"><Plus className="size-3.5" /></button>}>Pages</Label>
-        {(kids.root || []).map((p) => <Row key={p.id} p={p} depth={0} />)}
-        <button onClick={() => newPage()} className={`${item} text-zinc-500`}><Plus />New page</button>
-        {dbs.filter((d) => !lib.some((l) => l.slug === d.slug)).length > 0 && <><Label>Databases</Label>{dbs.filter((d) => !lib.some((l) => l.slug === d.slug)).map((d) => <Link key={d.id} href={`/admin/databases/${d.id}`} className={`${item} ${path === `/admin/databases/${d.id}` ? active : ""}`}><Database />{d.name}</Link>)}</>}
-        <Label>Settings</Label>
-        {(user.role === "owner" || user.role === "admin") && <><Nav href="/admin/users" icon={Users} label="People & roles" /><Nav href="/admin/settings" icon={Settings} label="Site settings" /></>}
+        {ADMIN_GROUPS.filter((g) => g.key !== "settings" || user.role === "owner" || user.role === "admin").map((g) => { const on = isOpen(g.key); return (
+          <div key={g.key} className="mt-1">
+            <button onClick={() => setOpen((o) => { const n = { ...o, ["grp:" + g.key]: !on }; try { localStorage.setItem("tj_tree", JSON.stringify(n)); } catch {} return n; })} className="flex h-8 w-full items-center gap-1.5 rounded-md px-2 text-[12px] font-semibold text-zinc-500 hover:bg-zinc-200/50 hover:text-zinc-900"><ChevronRight className={`size-3.5 transition ${on ? "rotate-90" : ""}`} /><span className="flex-1 text-left">{g.label}</span>{!on && groupOf(path) === g.key && <span className="size-1.5 rounded-full bg-zinc-900" />}</button>
+            {on && <div className="ml-2 border-l border-zinc-200 pl-1.5">
+              {g.links.map((l) => <Nav key={l.href} href={l.href} icon={l.icon} label={l.label} />)}
+              {g.key === "website" && <>
+                <div className="flex h-8 items-center justify-between pl-2 pr-1 text-[12px] font-medium text-zinc-500"><span className="flex items-center gap-2"><FileText className="size-4 text-zinc-500" />Pages you write</span><button title="New page" onClick={() => newPage()} className="rounded-md p-1 hover:bg-zinc-200/70"><Plus className="size-3.5" /></button></div>
+                <div className="ml-2">{(kids.root || []).map((p) => <Row key={p.id} p={p} depth={0} />)}{!(kids.root || []).length && <p className="px-2 py-1 text-[12px] text-zinc-400">None yet. Turn one on in Website pages.</p>}</div>
+                {dbs.filter((d) => !lib.some((x) => x.slug === d.slug)).map((d) => <Link key={d.id} href={`/admin/databases/${d.id}`} className={`${item} ${path === `/admin/databases/${d.id}` ? active : ""}`}><Database />{d.name}</Link>)}
+              </>}
+            </div>}
+          </div>); })}
         </>}
       </div>
       <div className="border-t border-zinc-200 p-2">
