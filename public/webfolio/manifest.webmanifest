@@ -1,0 +1,14 @@
+{
+  "name": "WebFolio — Taptajīvanam",
+  "short_name": "WebFolio",
+  "description": "The teachings of Śrī Śrīmad Gour Govinda Swāmī Gurudeva: lectures, transcriptions, books, compilations and his diary — readable offline.",
+  "start_url": "/webfolio",
+  "scope": "/webfolio",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
+  "icons": [
+    { "src": "/webfolio/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/webfolio/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}
