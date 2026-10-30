@@ -1,7 +1,7 @@
 "use client";
 /* One library for audio lectures, kīrtanas and videos: filters on the left (each can open into its parts), dense rows on the right. */
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Search, X, ChevronDown, ChevronRight, SlidersHorizontal, FileText, PlayCircle, ArrowDownUp, Rows3 } from "lucide-react";
 import type { Lecture } from "@/lib/data";
 import { PlayButton } from "@/components/lecture";
@@ -68,41 +68,46 @@ export function MediaLibrary({ items, mode }: { items: MediaItem[]; mode: Mode }
     return [...m.entries()];
   }, [list, group]);
 
-  const side = (
-    <div className="space-y-1">
-      <label className="relative block"><Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-3" /><input value={q} onChange={(e) => setQ(e.target.value)} placeholder={`Search ${noun}`} className="h-9 w-full rounded-lg border border-line-strong bg-white pl-9 pr-8 text-[13px] outline-none focus:border-saffron" />{q && <button onClick={() => setQ("")} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-ink-3"><X size={14} /></button>}</label>
-      {mode !== "kirtan" && transcribed > 0 && <label className="flex cursor-pointer items-center gap-2 rounded-lg px-1 py-2 text-[13px] text-ink-2"><input type="checkbox" checked={text} onChange={(e) => setText(e.target.checked)} className="size-3.5 accent-[var(--saffron)]" />With transcription <span className="ml-auto text-[11.5px] text-ink-3">{transcribed}</span></label>}
-      {facets.map((f) => <FacetBox key={f.k} f={f} items={items.filter((l) => pass(l, f.k))} value={sel[f.k] || []} onChange={(v) => setSel((s) => ({ ...s, [f.k]: v }))} />)}
-    </div>
-  );
+  const clearAll = () => { setSel({}); setText(false); setQ(""); };
+  const chip = (f: Facet) => sel[f.k].map((_, i) => (f.label || ((p: string[]) => p[p.length - 1]))(sel[f.k].slice(0, i + 1))).join(" › ");
 
   return (
-    <div className="mx-auto grid max-w-[1240px] gap-8 px-4 py-6 sm:px-6 lg:grid-cols-[250px_minmax(0,1fr)]">
-      <aside className="hidden lg:block"><div className="sticky top-[74px] max-h-[calc(100dvh-90px)] overflow-y-auto pb-6 pr-1 [scrollbar-width:thin]">{side}</div></aside>
-      <section className="min-w-0">
-        <div className="flex flex-wrap items-center gap-2 border-b border-line pb-3">
-          <button onClick={() => setDrawer(true)} className="flex h-8 items-center gap-1.5 rounded-lg border border-line px-3 text-[12.5px] font-medium lg:hidden"><SlidersHorizontal size={14} />Filters{active.length ? ` (${active.length})` : ""}</button>
-          <p className="text-[13px] text-ink-2"><b className="font-semibold text-ink">{list.length.toLocaleString()}</b> {noun}</p>
-          {active.map((f) => <button key={f.k} onClick={() => setSel((s) => ({ ...s, [f.k]: [] }))} className="flex items-center gap-1 rounded-full bg-saffron-tint px-2.5 py-0.5 text-[12px] text-saffron"><span className="text-saffron/70">{f.title}:</span>{sel[f.k].map((_, i) => (f.label || ((p: string[]) => p[p.length - 1]))(sel[f.k].slice(0, i + 1))).join(" › ")}<X size={11} /></button>)}
-          {text && <button onClick={() => setText(false)} className="flex items-center gap-1 rounded-full bg-saffron-tint px-2.5 py-0.5 text-[12px] text-saffron">With transcription<X size={11} /></button>}
-          {(active.length > 0 || text || q) && <button onClick={() => { setSel({}); setText(false); setQ(""); }} className="text-[12px] text-ink-3 hover:text-ink">Clear all</button>}
-          <span className="ml-auto flex items-center gap-1.5">
-            <Pick icon={Rows3} value={group} onChange={(v) => setGroup(v as any)} options={GROUPS.filter(([g]) => g !== "scripture" || mode !== "kirtan")} />
-            <Pick icon={ArrowDownUp} value={sort} onChange={(v) => setSort(v as any)} options={SORTS} />
-          </span>
-        </div>
-        {!list.length ? <p className="py-20 text-center text-[13.5px] text-ink-3">Nothing matches. Remove a filter to see more.</p> : (() => { let left = limit; return groups.map(([g, xs]) => { if (left <= 0) return null; const show = xs.slice(0, left); left -= show.length; return (
-          <div key={g || "all"}>
-            {g && <div className="sticky top-[58px] z-10 flex items-baseline gap-2 border-b border-line bg-white/95 py-2 backdrop-blur"><h2 className="text-[14px] font-semibold text-ink">{g}</h2><span className="text-[12px] text-ink-3">{xs.length}</span></div>}
-            <div className={mode === "video" ? "grid gap-x-4 gap-y-5 py-4 sm:grid-cols-2 xl:grid-cols-3" : "divide-y divide-line"}>{show.map((l) => (mode === "video" ? <VideoCard key={l.slug} l={l} /> : <Row key={l.slug} l={l} mode={mode} />))}</div>
-          </div>); }); })()}
-        {list.length > limit && <div className="py-6 text-center"><button onClick={() => setLimit((n) => n + 200)} className="h-9 rounded-lg border border-line px-4 text-[13px] font-medium text-ink-2 hover:border-saffron hover:text-saffron">Show more ({(list.length - limit).toLocaleString()} left)</button></div>}
-      </section>
-      {drawer && <div className="fixed inset-0 z-[60] bg-black/30 lg:hidden" onClick={() => setDrawer(false)}>
-        <div className="absolute inset-y-0 left-0 w-[86%] max-w-[340px] overflow-y-auto bg-white p-4 shadow-2xl" onClick={(e) => e.stopPropagation()}>
-          <div className="mb-3 flex items-center justify-between"><p className="text-[15px] font-semibold">Filters</p><button onClick={() => setDrawer(false)}><X size={18} /></button></div>{side}
-          <button onClick={() => setDrawer(false)} className="mt-4 h-10 w-full rounded-lg bg-saffron text-[13.5px] font-medium text-white">Show {list.length.toLocaleString()} {noun}</button>
-        </div>
+    <div className="mx-auto max-w-[1240px] px-4 pb-16 pt-5 sm:px-6">
+      {/* Toolbar: search, then one drop-down per filter — no sidebar */}
+      <div className="flex flex-wrap items-center gap-2">
+        <label className="relative w-full sm:w-72"><Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-3" /><input value={q} onChange={(e) => setQ(e.target.value)} placeholder={`Search ${noun}…`} className="h-9 w-full rounded-md border border-line-strong bg-white pl-9 pr-8 text-[13px] shadow-[0_1px_2px_rgba(0,0,0,0.04)] outline-none focus:border-ink/40 focus:ring-[3px] focus:ring-ink/10" />{q && <button onClick={() => setQ("")} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-ink-3"><X size={14} /></button>}</label>
+        {facets.map((f) => <FilterButton key={f.k} f={f} label={sel[f.k]?.length ? chip(f) : ""} items={items.filter((l) => pass(l, f.k))} value={sel[f.k] || []} onChange={(v) => setSel((s) => ({ ...s, [f.k]: v }))} />)}
+        {mode !== "kirtan" && transcribed > 0 && <button onClick={() => setText(!text)} className={`flex h-9 items-center gap-1.5 rounded-md border px-3 text-[13px] ${text ? "border-ink bg-ink text-white" : "border-dashed border-line-strong text-ink-2 hover:bg-band"}`}><FileText size={14} />Has transcription</button>}
+        {(active.length > 0 || text || q) && <button onClick={clearAll} className="flex h-9 items-center gap-1 px-2 text-[13px] text-ink-3 hover:text-ink">Reset<X size={13} /></button>}
+      </div>
+      <div className="mt-4 flex items-center justify-between gap-3 pb-1">
+        <p className="text-[13px] text-ink-3"><b className="font-medium text-ink">{list.length.toLocaleString()}</b> {noun}</p>
+        <span className="flex items-center gap-1.5"><Pick icon={Rows3} value={group} onChange={(v) => setGroup(v as any)} options={GROUPS.filter(([g]) => g !== "scripture" || mode !== "kirtan")} /><Pick icon={ArrowDownUp} value={sort} onChange={(v) => setSort(v as any)} options={SORTS} /></span>
+      </div>
+      {mode !== "video" && list.length > 0 && <div className="hidden grid-cols-[32px_minmax(0,1fr)_110px_150px_110px_64px] gap-x-3 border-b border-line py-2 text-[12px] font-medium text-ink-3 md:grid"><span /><span>Title</span><span>Date</span><span>Place</span><span>Verse</span><span className="text-right">Length</span></div>}
+      {!list.length ? <p className="py-20 text-center text-[13.5px] text-ink-3">Nothing matches. Remove a filter to see more.</p> : (() => { let left = limit; return groups.map(([g, xs]) => { if (left <= 0) return null; const show = xs.slice(0, left); left -= show.length; return (
+        <div key={g || "all"}>
+          {g && <div className="sticky top-[52px] z-10 flex items-baseline gap-2 border-b border-line bg-white/95 pb-2 pt-5 backdrop-blur sm:top-[58px]"><h2 className="text-[14px] font-semibold text-ink">{g}</h2><span className="text-[12px] text-ink-3">{xs.length}</span></div>}
+          {mode === "video" ? <div className="grid gap-x-4 gap-y-6 py-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">{show.map((l) => <VideoCard key={l.slug} l={l} />)}</div>
+            : <div className="divide-y divide-line">{show.map((l) => <Row key={l.slug} l={l} mode={mode} />)}</div>}
+        </div>); }); })()}
+      {list.length > limit && <div className="py-6 text-center"><button onClick={() => setLimit((n) => n + 200)} className="h-9 rounded-md border border-line px-4 text-[13px] font-medium text-ink-2 hover:bg-band">Show more ({(list.length - limit).toLocaleString()} left)</button></div>}
+    </div>
+  );
+}
+
+/** A filter as a drop-down button (shadcn style): the options open as a list with counts; each can open into its parts. */
+function FilterButton({ f, label, items, value, onChange }: { f: Facet; label: string; items: MediaItem[]; value: string[]; onChange: (v: string[]) => void }) {
+  const [open, setOpen] = useState(false); const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => { if (!open) return; const h = (e: MouseEvent) => { if (!ref.current?.contains(e.target as Node)) setOpen(false); }; const k = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false); document.addEventListener("mousedown", h); document.addEventListener("keydown", k); return () => { document.removeEventListener("mousedown", h); document.removeEventListener("keydown", k); }; }, [open]);
+  return (
+    <div ref={ref} className="relative">
+      <button onClick={() => setOpen(!open)} className={`flex h-9 items-center gap-1.5 rounded-md border px-3 text-[13px] transition ${label ? "border-line-strong bg-white text-ink" : "border-dashed border-line-strong text-ink-2 hover:bg-band"}`}>
+        {f.title}{label && <><span className="mx-0.5 h-4 w-px bg-line-strong" /><span className="max-w-[160px] truncate rounded bg-band px-1.5 text-[12px] font-medium">{label}</span></>}<ChevronDown size={13} className="text-ink-3" />
+      </button>
+      {open && <div className="absolute left-0 top-[calc(100%+6px)] z-30 w-[280px] rounded-lg border border-line bg-white p-1.5 shadow-[0_10px_38px_-10px_rgba(0,0,0,0.25)]">
+        <FacetBox f={f} items={items} value={value} onChange={(v) => onChange(v)} />
+        {value.length > 0 && <button onClick={() => { onChange([]); setOpen(false); }} className="mt-1 w-full rounded-md border-t border-line px-2 py-1.5 text-center text-[12.5px] text-ink-2 hover:bg-band">Clear {f.title.toLowerCase()}</button>}
       </div>}
     </div>
   );
@@ -114,38 +119,41 @@ function Pick({ icon: I, value, onChange, options }: { icon: typeof Rows3; value
 
 /** One filter: a header that opens and closes, then its options as a tree with counts. */
 function FacetBox({ f, items, value, onChange }: { f: Facet; items: MediaItem[]; value: string[]; onChange: (v: string[]) => void }) {
-  const [open, setOpen] = useState(!!f.open || value.length > 0); const [all, setAll] = useState(false);
+  const [open, setOpen] = useState(true); const [find, setFind] = useState("");
   const counts = useMemo(() => { const m = new Map<string, number>(); items.forEach((l) => { const seen = new Set<string>(); paths(f, l).forEach((p) => p.forEach((_, i) => { const k = p.slice(0, i + 1).join("\u0001"); if (!seen.has(k)) { seen.add(k); m.set(k, (m.get(k) || 0) + 1); } })); }); return m; }, [items, f]);
   const kids = (prefix: string[]) => { const d = prefix.length; const out = new Set<string>(); counts.forEach((_, k) => { const p = k.split("\u0001"); if (p.length === d + 1 && under(p, prefix)) out.add(p[d]); }); return [...out].sort((a, b) => (f.order ? f.order(a, b, d) : a.localeCompare(b))); };
   const label = (p: string[]) => (f.label ? f.label(p) : p[p.length - 1]);
-  const top = kids([]); const shown = all || top.length <= 8 ? top : top.slice(0, 8);
+  const top = kids([]);
   const node = (p: string[], depth: number): React.ReactNode => { const on = value.length >= p.length && under(value, p); const exact = value.join("/") === p.join("/"); const n = counts.get(p.join("\u0001")) || 0; const sub = on ? kids(p) : [];
     return (
       <div key={p.join("/")}>
-        <button onClick={() => onChange(exact ? p.slice(0, -1) : p)} className={`flex w-full items-center gap-1.5 rounded-md py-1 pr-2 text-left text-[13px] transition ${exact ? "bg-saffron-tint font-medium text-saffron" : on ? "font-medium text-ink" : "text-ink-2 hover:bg-band"}`} style={{ paddingLeft: 8 + depth * 14 }}>
+        <button onClick={() => onChange(exact ? p.slice(0, -1) : p)} className={`flex w-full items-center gap-1.5 rounded-md py-1 pr-2 text-left text-[13px] transition ${exact ? "bg-band font-medium text-ink" : on ? "font-medium text-ink" : "text-ink-2 hover:bg-band"}`} style={{ paddingLeft: 8 + depth * 14 }}>
           {f.k !== "topic" && depth < 2 && (counts.size > top.length || depth > 0) ? <ChevronRight size={12} className={`shrink-0 text-ink-3 transition ${on ? "rotate-90" : ""}`} /> : <span className="w-3 shrink-0" />}
           <span className="min-w-0 flex-1 truncate">{label(p)}</span><span className="text-[11px] tabular-nums text-ink-3">{n}</span></button>
         {sub.length > 0 && sub.map((c) => node([...p, c], depth + 1))}
       </div>); };
+  void open; void setOpen;
   return (
-    <div className="border-t border-line pt-1">
-      <button onClick={() => setOpen(!open)} className="flex w-full items-center justify-between px-1 py-2 text-[12px] font-semibold uppercase tracking-[0.06em] text-ink-3 hover:text-ink">{f.title}<ChevronDown size={14} className={`transition ${open ? "" : "-rotate-90"}`} /></button>
-      {open && <div className="pb-2">{shown.map((t) => node([t], 0))}{top.length > 8 && <button onClick={() => setAll(!all)} className="px-2 py-1 text-[12px] font-medium text-saffron">{all ? "Show fewer" : `Show all ${top.length}`}</button>}</div>}
+    <div>
+      {top.length > 8 && <input value={find} onChange={(e) => setFind(e.target.value)} placeholder={`Find ${f.title.toLowerCase()}…`} className="mb-1 h-8 w-full rounded-md border-b border-line px-2 text-[12.5px] outline-none" />}
+      <div className="max-h-[320px] overflow-y-auto [scrollbar-width:thin]">{(find ? top.filter((t) => fold(label([t])).includes(fold(find))) : top).map((t) => node([t], 0))}</div>
     </div>
   );
 }
 
 function Row({ l, mode }: { l: MediaItem; mode: Mode }) {
-  const meta = [date(l.date), [l.place, l.country && l.country !== "India" ? l.country : ""].filter(Boolean).join(", "), mode === "kirtan" ? [l.singer, l.author && `by ${l.author}`].filter(Boolean).join(" · ") : l.type].filter(Boolean);
+  const where = [l.place, l.country && l.country !== "India" ? l.country : ""].filter(Boolean).join(", ");
   return (
-    <div className="group flex items-center gap-3 py-2.5 sm:gap-4">
-      <PlayButton l={l} size={32} />
-      <div className="min-w-0 flex-1">
-        <Link href={l.href || `/teachings/audio/${l.slug}`} className="line-clamp-2 text-[14px] font-medium leading-snug text-ink hover:text-saffron sm:line-clamp-1">{l.title}</Link>
-        <p className="mt-0.5 truncate text-[12px] text-ink-3">{meta.join(" · ")}{l.scripture && <> · <span className="text-saffron/90">{l.scripture}</span></>}</p>
+    <div className="group grid grid-cols-[32px_minmax(0,1fr)_auto] items-center gap-x-3 py-2.5 md:grid-cols-[32px_minmax(0,1fr)_110px_150px_110px_64px]">
+      <PlayButton l={l} size={30} />
+      <div className="min-w-0">
+        <Link href={l.href || `/teachings/audio/${l.slug}`} className="line-clamp-2 text-[14px] leading-snug text-ink hover:underline md:line-clamp-1">{l.title}</Link>
+        <p className="mt-0.5 flex items-center gap-1.5 truncate text-[12px] text-ink-3"><span>{mode === "kirtan" ? [l.singer, l.author && `by ${l.author}`].filter(Boolean).join(" · ") || l.type : l.type}</span>{l.transcribed && <span className="inline-flex items-center gap-0.5 rounded border border-line px-1 text-[10.5px] text-ink-2"><FileText size={10} />Text</span>}<span className="md:hidden">· {date(l.date)}{where ? ` · ${where}` : ""}</span></p>
       </div>
-      {l.transcribed && <span title="Transcription available" className="hidden items-center gap-1 rounded-md border border-line px-1.5 py-0.5 text-[11px] text-ink-2 sm:flex"><FileText size={11} />Text</span>}
-      <span className="w-14 shrink-0 text-right text-[12px] tabular-nums text-ink-3">{dur(l.duration)}</span>
+      <span className="hidden text-[12.5px] tabular-nums text-ink-2 md:block">{date(l.date)}</span>
+      <span className="hidden truncate text-[12.5px] text-ink-2 md:block">{where || "—"}</span>
+      <span className="hidden truncate text-[12.5px] text-ink-2 md:block">{l.scripture || "—"}</span>
+      <span className="text-right text-[12.5px] tabular-nums text-ink-3">{dur(l.duration)}</span>
     </div>
   );
 }

@@ -13,10 +13,10 @@ export function PlayButton({ l, size = 40 }: { l: Lecture; size?: number }) {
   const on = mine && playing;
   return (
     <button onClick={() => (mine ? toggle() : play(toTrack(l)))} style={{ width: size, height: size }} aria-label={on ? "Pause" : `Play ${l.title}`}
-      className={`relative flex shrink-0 items-center justify-center rounded-full transition ${on ? "bg-saffron text-white shadow-[var(--shadow-md)]" : "border border-saffron/25 bg-saffron-soft text-saffron hover:bg-saffron hover:text-white"}`}>
+      className={`relative flex shrink-0 items-center justify-center rounded-full transition ${on ? "bg-ink text-white" : mine ? "border border-ink bg-white text-ink" : "border border-line-strong bg-white text-ink hover:border-ink"}`}>
       {on ? (
         <span className="eq flex h-[38%] items-end gap-[2px]"><span style={{ animationDelay: "0s" }} /><span style={{ animationDelay: ".2s" }} /><span style={{ animationDelay: ".4s" }} /></span>
-      ) : <Play size={size * 0.38} className="ml-0.5" fill="currentColor" />}
+      ) : <Play size={size * 0.36} className="ml-[1px]" fill="currentColor" strokeWidth={0} />}
     </button>
   );
 }
