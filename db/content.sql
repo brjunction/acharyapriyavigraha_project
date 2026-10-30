@@ -151,3 +151,5 @@ create table if not exists video_sources (id uuid primary key default gen_random
 alter table videos add column if not exists year int;
 alter table videos add column if not exists published_at timestamptz;
 alter table videos add column if not exists source_id uuid;
+alter table video_sources add column if not exists default_kind text;
+alter table video_sources add column if not exists position int not null default 0;

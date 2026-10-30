@@ -3,24 +3,37 @@ import { sql } from "@/lib/db";
 import { fold } from "@/lib/content/text";
 import { VIDEO, insertRow } from "@/lib/content/generic";
 
-export type Source = { id: string; url: string; name: string | null; kind: string; ref: string | null };
+export type Source = { id: string; url: string; name: string | null; kind: string; ref: string | null; default_kind?: string | null };
 export type YtVideo = { id: string; title: string; seconds: number; published?: string; description?: string };
 const UA = { "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130 Safari/537.36", "accept-language": "en" };
 
-/** Channel link, @handle, channel ID or playlist link → what to read. */
+/** A single video link → its id, or null. */
+export const videoId = (s: string) => /(?:youtu\.be\/|[?&]v=|embed\/|shorts\/|live\/)([\w-]{11})/.exec(s)?.[1] || null;
+const page = async (url: string) => { const r = await fetch(url, { headers: UA }); if (!r.ok) throw new Error("YouTube could not find that page."); return r.text(); };
+const titleOf = (html: string) => (/<meta property="og:title" content="([^"]+)"/.exec(html)?.[1] || "").replace(/&amp;/g, "&").replace(/&#39;/g, "'").replace(/&quot;/g, '"') || null;
+/** Channel link (/@handle, /channel/UC…, /c/…, /user/…), playlist link or ID → what to read. */
 export async function resolve(input: string): Promise<{ kind: "channel" | "playlist"; ref: string; name: string | null }> {
   const s = input.trim();
-  const list = /[?&]list=([\w-]+)/.exec(s)?.[1] || (/^(PL|UU|OL|FL)[\w-]{10,}$/.test(s) ? s : null);
-  if (list) return { kind: "playlist", ref: list, name: null };
-  const uc = /(UC[\w-]{22})/.exec(s)?.[1]; if (uc) return { kind: "channel", ref: uc, name: null };
-  const handle = /@([\w.\-]+)/.exec(s)?.[1] || (/^[\w.\-]+$/.test(s) ? s : null);
-  if (!handle) throw new Error("Paste a YouTube channel link, @handle or playlist link.");
-  const r = await fetch(`https://www.youtube.com/@${handle}`, { headers: UA }); if (!r.ok) throw new Error(`YouTube could not find @${handle}.`);
-  const html = await r.text();
+  const list = /[?&]list=([\w-]+)/.exec(s)?.[1] || (/^(PL|UU|OL|FL|RD)[\w-]{10,}$/.test(s) ? s : null);
+  if (list) { let name: string | null = null; try { name = titleOf(await page(`https://www.youtube.com/playlist?list=${list}&hl=en`)); } catch {} return { kind: "playlist", ref: list, name }; }
+  const uc = /(UC[\w-]{22})/.exec(s)?.[1];
+  if (uc) { let name: string | null = null; try { name = titleOf(await page(`https://www.youtube.com/channel/${uc}`)); } catch {} return { kind: "channel", ref: uc, name }; }
+  const path = /youtube\.com\/((?:c|user)\/[^/?#]+|@[^/?#]+)/.exec(s)?.[1] || (/^@[\w.\-]+$/.test(s) ? s : /^[\w.\-]+$/.test(s) ? `@${s}` : null);
+  if (!path) throw new Error("Paste a channel link, @handle, playlist link or video link.");
+  const html = await page(`https://www.youtube.com/${path}`);
   const id = /"externalId":"(UC[\w-]{22})"/.exec(html)?.[1] || /itemprop="identifier" content="(UC[\w-]{22})"/.exec(html)?.[1] || /"channelId":"(UC[\w-]{22})"/.exec(html)?.[1];
-  if (!id) throw new Error(`Could not read the channel of @${handle}.`);
-  const name = /<meta property="og:title" content="([^"]+)"/.exec(html)?.[1] || null;
-  return { kind: "channel", ref: id, name };
+  if (!id) throw new Error(`Could not read the channel ${path}.`);
+  return { kind: "channel", ref: id, name: titleOf(html) };
+}
+/** Add one video from its link, with its title from YouTube. Returns false when it is already here. */
+export async function addVideo(link: string, kind?: string | null) {
+  const id = videoId(link); if (!id) throw new Error("Not a video link.");
+  if ((await sql`select 1 from videos where youtube_id = ${id}`).length) return false;
+  let title = "", author = "";
+  try { const j = await (await fetch(`https://www.youtube.com/oembed?url=${encodeURIComponent(`https://www.youtube.com/watch?v=${id}`)}&format=json`)).json(); title = j.title || ""; author = j.author_name || ""; } catch {}
+  const c = classify(title, "", await knownPlaces());
+  await insertRow(VIDEO, { youtube_id: id, title: title || `YouTube video ${id}`, channel: author || null, series: author || null, kind: kind || (c.type === "Kīrtana" ? "kirtan" : c.type === "Festival" ? "festival" : c.type === "Memories" ? "memory" : "lecture"), ...c });
+  return true;
 }
 const playlistOf = (src: { kind: string; ref: string }) => (src.kind === "channel" ? `UU${src.ref.slice(2)}` : src.ref);
 const iso = (d: string) => { const m = /P(?:(\d+)D)?T?(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/.exec(d || ""); return m ? (+(m[1] || 0)) * 86400 + (+(m[2] || 0)) * 3600 + (+(m[3] || 0)) * 60 + (+(m[4] || 0)) : 0; };
@@ -93,14 +106,13 @@ export async function knownPlaces(): Promise<[string, string, string][]> {
 export async function syncSource(s: Source, key?: string | null) {
   const vids = await listVideos({ kind: s.kind, ref: s.ref! }, key);
   const have = new Set(((await sql`select youtube_id from videos where youtube_id = any(${vids.map((v) => v.id)})`) as any[]).map((x) => x.youtube_id));
-  const known = await knownPlaces(); let added = 0;
-  for (const v of vids) {
-    if (have.has(v.id)) continue;
+  const known = await knownPlaces(); let added = 0; const todo = vids.filter((v) => !have.has(v.id));
+  for (const v of todo.slice(0, 250)) {
     const c = classify(v.title, v.description, known);
-    await insertRow(VIDEO, { youtube_id: v.id, title: v.title, description: v.description || null, duration_sec: v.seconds || null, published_at: v.published || null, channel: s.name, series: s.name, source_id: s.id, kind: c.type === "Kīrtana" ? "kirtan" : c.type === "Festival" ? "festival" : c.type === "Memories" ? "memory" : (v.seconds && v.seconds <= 60 ? "short" : "lecture"), ...c });
+    await insertRow(VIDEO, { youtube_id: v.id, title: v.title, description: v.description || null, duration_sec: v.seconds || null, published_at: v.published || null, channel: s.name, series: s.name, source_id: s.id, kind: s.default_kind || (c.type === "Kīrtana" ? "kirtan" : c.type === "Festival" ? "festival" : c.type === "Memories" ? "memory" : (v.seconds && v.seconds <= 60 ? "short" : "lecture")), ...c });
     added++;
   }
   await sql`update video_sources set last_synced_at = now(), last_count = ${vids.length} where id = ${s.id}`;
-  return { seen: vids.length, added };
+  return { seen: vids.length, added, left: Math.max(0, todo.length - 250) };
 }
 export async function apiKey(): Promise<string | null> { if (process.env.YOUTUBE_API_KEY) return process.env.YOUTUBE_API_KEY; try { return ((await sql`select value from settings where key = 'youtube_api_key'`)[0]?.value as string) || null; } catch { return null; } }
