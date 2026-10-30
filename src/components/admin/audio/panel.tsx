@@ -13,11 +13,17 @@ const fmt = (d: string | null) => (d ? new Date(d).toLocaleDateString("en-GB", {
 
 export function AudioPanel({ songs = false }: { songs?: boolean }) {
   const [tab, setTab] = useState("list");
+  const lists: [string, string][] = [[songs ? "stype" : "atype", "Types"], ["place", "Places"], ["language", "Languages"], ["series", "Series"], ["topic", "Topics"]];
   return (
     <div>
-      <PageHeader icon={songs ? Music : Headphones} title={songs ? "Kīrtanas & bhajanas" : "Audio lectures"} description={songs ? "Songs he sang and led. Each has its words, writer and the singer." : "Every recorded lecture, kept in one systematic list. Add an MP3 link, the date, place and verse; the website does the rest."}>
-        <Tabs value={tab} onChange={setTab} items={[["list", songs ? "Kīrtanas" : "Lectures"], [songs ? "stype" : "atype", "Types"], ["place", "Places"], ["language", "Languages"], ["series", "Series"], ["topic", "Topics"]]} />
-      </PageHeader>
+      <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
+        <div><h1 className="flex items-center gap-2 text-[20px] font-semibold tracking-tight text-zinc-950">{songs ? <Music className="size-5" /> : <Headphones className="size-5" />}{songs ? "Kīrtanas & bhajanas" : "Audio lectures"}</h1>
+          <p className="mt-0.5 text-[13px] text-zinc-500">{songs ? "Songs he sang and led, with their words, writer and singer." : "Every recorded lecture with its details and transcription."}</p></div>
+        <div className="flex items-center gap-1 rounded-lg bg-zinc-100 p-0.5 text-[12.5px]">
+          <button onClick={() => setTab("list")} className={cn("rounded-md px-3 py-1.5", tab === "list" ? "bg-white font-medium shadow-xs" : "text-zinc-600")}>{songs ? "Kīrtanas" : "Lectures"}</button>
+          <select value={tab === "list" ? "" : tab} onChange={(e) => e.target.value && setTab(e.target.value)} className={cn("h-7 rounded-md bg-transparent px-2 outline-none", tab !== "list" ? "bg-white font-medium shadow-xs" : "text-zinc-600")}><option value="">Lists…</option>{lists.map(([k, l]) => <option key={k} value={k}>{l}</option>)}</select>
+        </div>
+      </div>
       {tab === "list" ? <Recordings songs={songs} /> : <Vocab kind={tab} />}
     </div>
   );
@@ -35,55 +41,50 @@ function Recordings({ songs }: { songs: boolean }) {
   const all = data?.rows.length && data.rows.every((r) => sel.has(r.id));
   return (
     <>
-      {data && <div className="mb-5 grid grid-cols-2 gap-3 lg:grid-cols-4">
-        {[["All", data.totals.all, ""], ["Without MP3 link", data.totals.no_audio, "audio"], ["Without transcription", data.totals.no_text, "transcript"], ["Without date", data.totals.no_date, "date"]].map(([l, n, need]) => (
-          <button key={l as string} onClick={() => setFilter("need", f.need === need ? "" : (need as string))} className={cn("rounded-xl border bg-white p-4 text-left shadow-xs transition hover:border-zinc-300", f.need === need && need ? "border-zinc-900 ring-1 ring-zinc-900" : "border-zinc-200")}>
-            <p className="text-[12.5px] text-zinc-500">{l}</p><p className="mt-1 text-[22px] font-semibold tabular-nums tracking-tight">{Number(n).toLocaleString()}</p></button>))}
-      </div>}
-
+      {/* Views: what still needs work */}
+      <div className="mb-3 flex flex-wrap items-center gap-1 border-b border-zinc-200">
+        {([["", "All", data?.totals.all], ["transcript", "Needs transcription", data?.totals.no_text], ["audio", "No MP3 link", data?.totals.no_audio], ["date", "No date", data?.totals.no_date]] as [string, string, number | undefined][]).filter(([k]) => !(songs && k === "transcript")).map(([k, l, n]) => (
+          <button key={k} onClick={() => setFilter("need", k)} className={cn("-mb-px border-b-2 px-3 py-2 text-[13px]", (f.need || "") === k ? "border-zinc-900 font-medium text-zinc-950" : "border-transparent text-zinc-500 hover:text-zinc-900")}>{l} <span className="text-[11.5px] text-zinc-400">{n !== undefined ? Number(n).toLocaleString() : ""}</span></button>))}
+        <span className="ml-auto flex gap-2 pb-1.5"><Btn size="sm" onClick={() => setImporting(true)}><FileSpreadsheet />Import</Btn><Btn size="sm" kind="primary" onClick={() => setEdit("new")}><Plus />{songs ? "Add a kīrtana" : "Add a lecture"}</Btn></span>
+      </div>
       <div className="mb-3 flex flex-wrap items-center gap-2">
-        <div className="relative min-w-[220px] flex-1"><Search className="absolute left-2.5 top-2.5 size-4 text-zinc-400" /><Input value={q} onChange={(e) => { setQ(e.target.value); clearTimeout(qt.current); qt.current = setTimeout(() => setFilter("q", e.target.value), 300); }} placeholder="Search title, place, verse, topic… (no diacritics needed)" className="pl-8" /></div>
-        <Select value={f.year || ""} onChange={(e) => setFilter("year", e.target.value)} className="!w-auto"><option value="">All years</option>{data?.years.map((y) => <option key={y.year} value={y.year}>{y.year} ({y.n})</option>)}</Select>
-        <Select value={f.place || ""} onChange={(e) => setFilter("place", e.target.value)} className="!w-auto max-w-[180px]"><option value="">All places</option>{data?.places.map((p) => <option key={p.name} value={p.name}>{p.name} ({p.n})</option>)}</Select>
-        {!songs && <Select value={f.scripture || ""} onChange={(e) => setFilter("scripture", e.target.value)} className="!w-auto"><option value="">All scriptures</option>{Object.entries(SCRIPTURES).map(([k, v]) => <option key={k} value={k}>{v}</option>)}</Select>}
-        <Select value={f.series || ""} onChange={(e) => setFilter("series", e.target.value)} className="!w-auto max-w-[170px]"><option value="">All series</option>{data?.series.map((p) => <option key={p.name} value={p.name}>{p.name} ({p.n})</option>)}</Select>
-        <Select value={f.status || ""} onChange={(e) => setFilter("status", e.target.value)} className="!w-auto"><option value="">Live and hidden</option><option value="published">Live</option><option value="draft">Hidden</option></Select>
-        <Select value={f.sort} onChange={(e) => setFilter("sort", e.target.value)} className="!w-auto"><option value="new">Newest first</option><option value="old">Oldest first</option><option value="title">Title A–Z</option><option value="updated">Recently edited</option></Select>
-        <Btn onClick={() => setImporting(true)}><FileSpreadsheet />Excel import</Btn>
-        <Btn kind="primary" onClick={() => setEdit("new")}><Plus />{songs ? "Add a kīrtana" : "Add a lecture"}</Btn>
+        <div className="relative min-w-[220px] flex-1"><Search className="absolute left-2.5 top-2.5 size-4 text-zinc-400" /><Input value={q} onChange={(e) => { setQ(e.target.value); clearTimeout(qt.current); qt.current = setTimeout(() => setFilter("q", e.target.value), 300); }} placeholder="Search title, place, verse, topic…" className="pl-8" /></div>
+        <Mini value={f.year || ""} onChange={(v) => setFilter("year", v)} all="Year" opts={(data?.years || []).map((y) => [String(y.year), `${y.year} (${y.n})`])} />
+        <Mini value={f.place || ""} onChange={(v) => setFilter("place", v)} all="Place" opts={(data?.places || []).map((p) => [p.name, `${p.name} (${p.n})`])} />
+        {!songs && <Mini value={f.scripture || ""} onChange={(v) => setFilter("scripture", v)} all="Scripture" opts={Object.entries(SCRIPTURES)} />}
+        <Mini value={f.series || ""} onChange={(v) => setFilter("series", v)} all="Series" opts={(data?.series || []).map((p) => [p.name, `${p.name} (${p.n})`])} />
+        <Mini value={f.status || ""} onChange={(v) => setFilter("status", v)} all="Live & hidden" opts={[["published", "Live"], ["draft", "Hidden"]]} />
+        <Mini value={f.sort} onChange={(v) => setFilter("sort", v)} opts={[["new", "Newest first"], ["old", "Oldest first"], ["title", "Title A–Z"], ["updated", "Recently edited"]]} />
       </div>
 
       {sel.size > 0 && <BulkBar n={sel.size} onClear={() => setSel(new Set())} bulk={bulk} songs={songs} />}
 
       <Card className="overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[900px] text-[13px]">
-            <thead><tr className="border-b border-zinc-200 bg-zinc-50/80 text-left text-[12px] text-zinc-500">
-              <th className="w-10 px-3 py-2.5"><input type="checkbox" checked={!!all} onChange={() => setSel(all ? new Set() : new Set(data?.rows.map((r) => r.id)))} className="size-4 accent-zinc-900" /></th>
-              <th className="px-3 py-2.5 font-medium">Date</th><th className="px-3 py-2.5 font-medium">Title</th><th className="px-3 py-2.5 font-medium">Type</th><th className="px-3 py-2.5 font-medium">Place</th><th className="px-3 py-2.5 font-medium">{songs ? "Series" : "Verse"}</th><th className="px-3 py-2.5 font-medium">Length</th><th className="px-3 py-2.5 font-medium">MP3</th>{!songs && <th className="px-3 py-2.5 font-medium">Text</th>}<th className="px-3 py-2.5 font-medium">Status</th>
-            </tr></thead>
-            <tbody>{data?.rows.map((r) => (
-              <tr key={r.id} onClick={() => setEdit(r.id)} className={cn("cursor-pointer border-b border-zinc-100 last:border-0 hover:bg-zinc-50", sel.has(r.id) && "bg-zinc-50")}>
-                <td className="px-3 py-2.5" onClick={(e) => e.stopPropagation()}><input type="checkbox" checked={sel.has(r.id)} onChange={() => setSel((s) => { const n = new Set(s); if (n.has(r.id)) n.delete(r.id); else n.add(r.id); return n; })} className="size-4 accent-zinc-900" /></td>
-                <td className="whitespace-nowrap px-3 py-2.5 tabular-nums text-zinc-600">{r.date ? fmt(r.date) : <span className="text-zinc-400">{r.date_note || "—"}</span>}</td>
-                <td className="max-w-[360px] px-3 py-2.5"><p className="truncate font-medium text-zinc-900">{r.title}</p>{r.topics?.length > 0 && <p className="truncate text-[11.5px] text-zinc-500">{r.topics.join(", ")}</p>}</td>
-                <td className="whitespace-nowrap px-3 py-2.5 text-zinc-600">{r.type || AUDIO_KINDS.find(([k]) => k === r.kind)?.[1]}</td>
-                <td className="whitespace-nowrap px-3 py-2.5 text-zinc-600">{r.place || <span className="text-zinc-400">Unknown</span>}</td>
-                <td className="whitespace-nowrap px-3 py-2.5 text-zinc-600">{songs ? r.series || "" : verseRef(r) || <span className="text-zinc-400">—</span>}</td>
-                <td className="whitespace-nowrap px-3 py-2.5 tabular-nums text-zinc-600">{durText(r.duration_sec)}</td>
-                <td className="px-3 py-2.5">{r.audio_url ? <Check className="size-4 text-emerald-600" /> : <X className="size-4 text-zinc-300" />}</td>
-                {!songs && <td className="px-3 py-2.5">{r.transcript_status === "done" ? <Badge tone="green">Done</Badge> : r.transcript_status === "draft" ? <Badge tone="amber">Draft</Badge> : <span className="text-zinc-300">—</span>}</td>}
-                <td className="px-3 py-2.5">{r.status === "published" ? <Badge tone="green">Live</Badge> : <Badge>Hidden</Badge>}</td>
-              </tr>))}</tbody>
-          </table>
-        </div>
-        {data && !data.rows.length && <div className="p-6"><Empty icon={songs ? Music : Headphones} title={Object.values(f).some((v) => v && v !== "new") ? "Nothing matches these filters" : songs ? "No songs yet" : "No lectures yet"} text="Add one by one, or import a spreadsheet of many at once."><div className="flex gap-2"><Btn onClick={() => setImporting(true)}><Upload />Import</Btn><Btn kind="primary" onClick={() => setEdit("new")}><Plus />Add</Btn></div></Empty></div>}
-        {data && data.total > 50 && <div className="flex items-center justify-between border-t border-zinc-200 px-4 py-2.5 text-[12.5px] text-zinc-500"><span>{((page - 1) * 50 + 1).toLocaleString()}–{Math.min(page * 50, data.total).toLocaleString()} of {data.total.toLocaleString()}</span><div className="flex gap-1"><Btn size="sm" disabled={page <= 1} onClick={() => setPage(page - 1)}><ChevronLeft />Previous</Btn><Btn size="sm" disabled={page >= pages} onClick={() => setPage(page + 1)}>Next<ChevronRight /></Btn></div></div>}
+        <label className="flex items-center gap-3 border-b border-zinc-100 px-3 py-2 text-[12px] text-zinc-500"><input type="checkbox" checked={!!all} onChange={() => setSel(all ? new Set() : new Set(data?.rows.map((r) => r.id)))} className="size-3.5 accent-zinc-900" />{data ? `${data.total.toLocaleString()} ${songs ? "recordings" : "lectures"}` : "Loading…"}</label>
+        <div className="divide-y divide-zinc-100">{data?.rows.map((r) => (
+          <div key={r.id} onClick={() => setEdit(r.id)} className={cn("group flex cursor-pointer items-center gap-3 px-3 py-2.5 hover:bg-zinc-50", sel.has(r.id) && "bg-zinc-50")}>
+            <input type="checkbox" onClick={(e) => e.stopPropagation()} checked={sel.has(r.id)} onChange={() => setSel((s) => { const n = new Set(s); if (n.has(r.id)) n.delete(r.id); else n.add(r.id); return n; })} className="size-3.5 accent-zinc-900" />
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-[13.5px] font-medium text-zinc-900">{r.title}</p>
+              <p className="truncate text-[12px] text-zinc-500">{[r.date ? fmt(r.date) : r.date_note || "No date", r.place || "Place unknown", r.type || AUDIO_KINDS.find(([k]) => k === r.kind)?.[1], songs ? r.series : verseRef(r), durText(r.duration_sec)].filter(Boolean).join(" · ")}</p>
+            </div>
+            <span className="flex shrink-0 items-center gap-1.5">
+              {!r.audio_url && <Badge tone="outline">No MP3</Badge>}
+              {!songs && (r.transcript_status === "done" ? <Badge tone="green">Transcribed</Badge> : r.transcript_status === "draft" ? <Badge tone="amber">Transcribing</Badge> : null)}
+              {r.status !== "published" && <Badge>Hidden</Badge>}
+            </span>
+          </div>))}</div>
+        {data && !data.rows.length && <div className="p-6"><Empty icon={songs ? Music : Headphones} title={Object.values(f).some((v) => v && v !== "new") ? "Nothing matches" : songs ? "No songs yet" : "No lectures yet"} text="Add one by one, or import many from Excel." /></div>}
+        {data && data.total > 50 && <div className="flex items-center justify-between border-t border-zinc-200 px-4 py-2.5 text-[12.5px] text-zinc-500"><span>{((page - 1) * 50 + 1).toLocaleString()}–{Math.min(page * 50, data.total).toLocaleString()} of {data.total.toLocaleString()}</span><span className="flex gap-1"><Btn size="sm" disabled={page <= 1} onClick={() => setPage(page - 1)}><ChevronLeft /></Btn><Btn size="sm" disabled={page >= pages} onClick={() => setPage(page + 1)}><ChevronRight /></Btn></span></div>}
       </Card>
       {edit && <Editor id={edit} songs={songs} onClose={() => setEdit(null)} onSaved={load} />}
       {importing && <Importer songs={songs} onClose={() => setImporting(false)} onDone={() => { setImporting(false); load(); }} />}
     </>
   );
+}
+
+function Mini({ value, onChange, opts, all }: { value: string; onChange: (v: string) => void; opts: [string, string][]; all?: string }) {
+  return <select value={value} onChange={(e) => onChange(e.target.value)} className={cn("h-8 max-w-[170px] rounded-md border bg-white px-2 text-[12.5px] outline-none", value && all ? "border-zinc-900 font-medium" : "border-zinc-200 text-zinc-600")}>{all && <option value="">{all}</option>}{opts.map(([k, l]) => <option key={k} value={k}>{l}</option>)}</select>;
 }
 
 function BulkBar({ n, onClear, bulk, songs }: { n: number; onClear: () => void; bulk: (b: any, m: string) => void; songs: boolean }) {
@@ -219,13 +220,60 @@ function Editor({ id, songs, onClose, onSaved }: { id: string; songs: boolean; o
           {id !== "new" && <div className="mt-5 flex justify-between border-t border-zinc-200 pt-4"><span className="text-[12px] text-zinc-500">Address: /teachings/audio/{a.slug}</span><Btn size="sm" kind="danger" onClick={async () => { if (!confirm("Delete this recording?")) return; await api(`/api/admin/audios/${id}`, "DELETE"); onSaved(); onClose(); }}><Trash2 />Delete</Btn></div>}
         </Group>
       </div>
-      {text && <div className="fixed inset-0 z-[95] flex flex-col bg-white">
-        <div className="flex h-14 items-center gap-2 border-b border-zinc-200 px-5"><p className="flex-1 truncate font-semibold">{song ? "Words" : "Transcription"}: {a.title}</p>
-          <label className="inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-md border border-zinc-200 bg-white px-3 text-[13px] font-medium shadow-xs hover:bg-zinc-50"><FileUp className="size-4" />Import from Word<input type="file" accept=".docx" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f && (!hasText || confirm("Replace the current text with this Word file?"))) word(f); e.target.value = ""; }} /></label>
-          <Btn onClick={() => setText(false)}>Back to details</Btn><Btn kind="primary" busy={busy} onClick={async () => { await save(false); setText(false); }}>Save</Btn></div>
-        <div className="site-canvas flex-1 overflow-y-auto"><div className="mx-auto max-w-[860px] py-10"><NotionEditor key={rev} initial={transcript.current || a.transcript || []} pageId="" onChange={(b) => { transcript.current = b; }} /></div></div>
-      </div>}
+      {text && <TranscriptionStudio a={a} song={song} initial={transcript.current || a.transcript || []} rev={rev} busy={busy}
+        onChange={(bl) => { transcript.current = bl; }} onStatus={(v) => set("transcript_status", v)} onWord={word}
+        onSave={async () => { await save(false); }} onClose={() => setText(false)} />}
     </Sheet>
+  );
+}
+
+/** A quiet, full-screen place to transcribe: the recording and its details on the left, the text on the right. */
+function TranscriptionStudio({ a, song, initial, rev, busy, onChange, onStatus, onWord, onSave, onClose }: { a: any; song: boolean; initial: any[]; rev: number; busy: boolean; onChange: (b: any[]) => void; onStatus: (v: string) => void; onWord: (f: File) => void; onSave: () => Promise<void>; onClose: () => void }) {
+  const el = useRef<HTMLAudioElement>(null); const [t, setT] = useState(0); const [dur, setDur] = useState(a.duration_sec || 0); const [on, setOn] = useState(false); const [rate, setRate] = useState(1);
+  const [dirty, setDirty] = useState(false); const [saved, setSaved] = useState<Date | null>(null); const [words, setWords] = useState(0);
+  const count = (bl: any[]) => { let n = 0; const walk = (x: any) => { if (Array.isArray(x)) x.forEach(walk); else if (x && typeof x === "object") { if (typeof x.text === "string") n += x.text.split(/\s+/).filter(Boolean).length; walk(x.content); walk(x.children); } }; walk(bl); return n; };
+  useEffect(() => { setWords(count(initial)); }, []); // eslint-disable-line
+  const play = () => { const x = el.current; if (!x) return; if (x.paused) x.play().catch(() => toast("This MP3 link does not play.", true)); else x.pause(); };
+  const jump = (d: number) => { if (el.current) el.current.currentTime = Math.max(0, el.current.currentTime + d); };
+  // Typing never leaves the keyboard: Ctrl+Space plays or pauses, Ctrl+← / Ctrl+→ moves 5 seconds, Ctrl+S saves.
+  useEffect(() => { const k = (e: KeyboardEvent) => { if (!(e.ctrlKey || e.metaKey)) return; if (e.code === "Space") { e.preventDefault(); play(); } if (e.key === "ArrowLeft" && e.altKey) { e.preventDefault(); jump(-5); } if (e.key === "ArrowRight" && e.altKey) { e.preventDefault(); jump(5); } if (e.key.toLowerCase() === "s") { e.preventDefault(); save(); } }; window.addEventListener("keydown", k); return () => window.removeEventListener("keydown", k); });
+  const save = async () => { await onSave(); setDirty(false); setSaved(new Date()); };
+  useEffect(() => { if (!dirty || !a.id) return; const x = setTimeout(save, 20000); return () => clearTimeout(x); }, [dirty]); // eslint-disable-line
+  const clock = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, "0")}`;
+  return (
+    <div className="fixed inset-0 z-[95] flex flex-col bg-white">
+      <div className="flex h-12 items-center gap-3 border-b border-zinc-200 px-4">
+        <button onClick={onClose} className="flex items-center gap-1 rounded-md px-2 py-1 text-[13px] text-zinc-600 hover:bg-zinc-100"><ChevronLeft className="size-4" />Details</button>
+        <p className="min-w-0 flex-1 truncate text-[13px] font-medium">{song ? "Words" : "Transcription"} · {a.title}</p>
+        <span className="hidden text-[12px] text-zinc-500 sm:block">{words.toLocaleString()} words · {dirty ? "Unsaved changes" : saved ? `Saved ${saved.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}` : "Saved"}</span>
+        <Btn size="sm" kind="primary" busy={busy} onClick={save}>Save</Btn>
+      </div>
+      <div className="flex min-h-0 flex-1">
+        <aside className="hidden w-[300px] shrink-0 flex-col gap-5 overflow-y-auto border-r border-zinc-200 bg-zinc-50/60 p-4 lg:flex">
+          <div>
+            <p className="text-[12px] font-medium text-zinc-500">Recording</p>
+            {a.audio_url ? <>
+              <audio ref={el} src={a.audio_url} preload="metadata" onTimeUpdate={(e) => setT(e.currentTarget.currentTime)} onLoadedMetadata={(e) => setDur(e.currentTarget.duration)} onPlay={() => setOn(true)} onPause={() => setOn(false)} />
+              <div className="mt-2 rounded-lg border border-zinc-200 bg-white p-3">
+                <div className="flex items-center gap-2"><button onClick={play} className="flex size-9 items-center justify-center rounded-full bg-zinc-900 text-white">{on ? <Pause className="size-4" /> : <Play className="size-4" />}</button>
+                  <button onClick={() => jump(-5)} className="rounded px-1.5 py-1 text-[12px] text-zinc-600 hover:bg-zinc-100">−5s</button><button onClick={() => jump(5)} className="rounded px-1.5 py-1 text-[12px] text-zinc-600 hover:bg-zinc-100">+5s</button>
+                  <select value={rate} onChange={(e) => { const r = Number(e.target.value); setRate(r); if (el.current) el.current.playbackRate = r; }} className="ml-auto h-7 rounded border border-zinc-200 bg-white px-1 text-[12px]">{[0.5, 0.75, 0.9, 1, 1.25, 1.5].map((r) => <option key={r} value={r}>{r}×</option>)}</select></div>
+                <input type="range" min={0} max={dur || 1} step={1} value={t} onChange={(e) => { if (el.current) el.current.currentTime = Number(e.target.value); }} className="mt-3 w-full accent-zinc-900" />
+                <p className="flex justify-between text-[11.5px] tabular-nums text-zinc-500"><span>{clock(t)}</span><span>{clock(dur)}</span></p>
+              </div>
+              <p className="mt-2 text-[11.5px] leading-relaxed text-zinc-500">Ctrl + Space play / pause · Ctrl + Alt + ← → move 5 s · Ctrl + S save</p>
+            </> : <p className="mt-1 text-[12.5px] text-zinc-500">No MP3 link yet — add it in Details to listen while typing.</p>}
+          </div>
+          {!song && <Field label="Progress"><Select value={a.transcript_status} onChange={(e) => { onStatus(e.target.value); setDirty(true); }}><option value="none">Not started</option><option value="draft">In progress</option><option value="done">Finished (shown on site)</option></Select></Field>}
+          <div><p className="text-[12px] font-medium text-zinc-500">Bring in text</p>
+            <label className="mt-2 flex h-9 cursor-pointer items-center justify-center gap-1.5 rounded-md border border-zinc-200 bg-white text-[13px] font-medium hover:bg-zinc-50"><FileUp className="size-4" />Import from Word<input type="file" accept=".docx" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) onWord(f); e.target.value = ""; }} /></label>
+            <p className="mt-1.5 text-[11.5px] leading-relaxed text-zinc-500">Headings, bold, italics and lists are kept. Pasting from Google Docs keeps them too.</p></div>
+          <div className="text-[12px] leading-relaxed text-zinc-600"><p className="font-medium text-zinc-500">In the text</p><p className="mt-1">Type “/” for a heading, a verse quote, a picture or a divider. Use headings for the parts of the lecture — they become the contents list on the website.</p></div>
+          <dl className="space-y-1 text-[12px] text-zinc-600">{[["Date", a.date || a.date_note], ["Place", a.place], ["Verse", verseRef(a)]].filter(([, v]) => v).map(([k, v]) => <div key={k} className="flex justify-between gap-3"><dt className="text-zinc-400">{k}</dt><dd className="text-right">{v}</dd></div>)}</dl>
+        </aside>
+        <div className="site-canvas min-w-0 flex-1 overflow-y-auto"><div className="mx-auto max-w-[820px] py-10"><NotionEditor key={rev} initial={initial} pageId="" onChange={(bl) => { onChange(bl); setDirty(true); setWords(count(bl)); }} /></div></div>
+      </div>
+    </div>
   );
 }
 
