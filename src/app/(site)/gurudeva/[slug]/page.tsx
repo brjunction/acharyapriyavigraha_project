@@ -6,6 +6,7 @@ import { ArchiveIndex, ArchiveItem } from "@/components/archive/views";
 import { ARCHIVE_SLUGS, PROJECT_PAGES } from "@/lib/archive/routes";
 import { listItems } from "@/lib/archive/server";
 import { COLLECTIONS } from "@/lib/archive/config";
+import { WhoIsGurudeva } from "@/components/gurudeva/who-is";
 export const revalidate = 300;
 
 export function generateStaticParams() {
@@ -13,11 +14,12 @@ export function generateStaticParams() {
 }
 export const dynamicParams = true;
 
-export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) { const { slug } = await params; const m = await cmsMetadata(["gurudeva", slug]); if (m.title) return m; const c = COLLECTIONS[ARCHIVE_SLUGS[slug]]; if (c) return { title: c.label, description: c.intro }; if (PROJECT_PAGES[slug]) return { title: PROJECT_PAGES[slug][1], description: PROJECT_PAGES[slug][2] }; return m; }
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) { const { slug } = await params; const m = await cmsMetadata(["gurudeva", slug]); if (m.title) return m; if (slug === "who-is-srila-gurudeva") return { title: "Who is Śrīla Gurudeva?", description: "The life of Śrī Śrīmad Gour Govinda Swāmī Gurudeva, a dear disciple of Śrīla Prabhupāda, and the books about him." }; const c = COLLECTIONS[ARCHIVE_SLUGS[slug]]; if (c) return { title: c.label, description: c.intro }; if (PROJECT_PAGES[slug]) return { title: PROJECT_PAGES[slug][1], description: PROJECT_PAGES[slug][2] }; return m; }
 
 export default async function Page({ params, searchParams }: { params: Promise<{ slug: string }>; searchParams: Promise<{ section?: string; q?: string }> }) {
   const { slug } = await params; const sp = await searchParams;
   if (await hasCms(["gurudeva", slug])) return <CmsPage segments={["gurudeva", slug]} />;
+  if (slug === "who-is-srila-gurudeva") return <WhoIsGurudeva />;
   if (ARCHIVE_SLUGS[slug]) return <ArchiveIndex coll={ARCHIVE_SLUGS[slug]} section={sp.section} q={sp.q} />;
   if (PROJECT_PAGES[slug]) {
     const [sec, title, intro] = PROJECT_PAGES[slug]; const xs = await listItems("projects", { section: sec });
