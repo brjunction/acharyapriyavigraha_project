@@ -148,3 +148,6 @@ alter table videos add column if not exists country text;
 alter table videos add column if not exists scripture text;
 alter table videos add column if not exists thumb text;
 create table if not exists video_sources (id uuid primary key default gen_random_uuid(), url text not null unique, name text, kind text not null default 'channel', ref text, last_synced_at timestamptz, last_count int, auto_publish boolean not null default true, created_at timestamptz not null default now());
+alter table videos add column if not exists year int;
+alter table videos add column if not exists published_at timestamptz;
+alter table videos add column if not exists source_id uuid;

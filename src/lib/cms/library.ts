@@ -45,9 +45,14 @@ const VKIND: Record<string, string> = { lecture: "Lecture", kirtan: "Kīrtana", 
 export async function getVideos() {
   if (!hasDb()) return [];
   try {
-    const rows = (await sql`select slug, title, kind, type, date, place, country, scripture, language, series, channel, topics, duration_sec, youtube_id from videos where status = 'published' order by date desc nulls last, title limit 20000`) as any[];
-    return rows.map((v) => ({ slug: v.slug, title: v.title, date: v.date ? String(v.date instanceof Date ? v.date.toISOString() : v.date).slice(0, 10) : "", place: v.place || "", country: v.country || "", type: v.type || VKIND[v.kind] || "Video",
+    const rows = (await sql`select slug, title, kind, type, date, year, place, country, scripture, language, series, channel, topics, duration_sec, youtube_id from videos where status = 'published' order by date desc nulls last, title limit 20000`) as any[];
+    return rows.map((v) => ({ slug: v.slug, title: v.title, date: v.date ? String(v.date instanceof Date ? v.date.toISOString() : v.date).slice(0, 10) : v.year ? String(v.year) : "", place: v.place || "", country: v.country || "", type: v.type || VKIND[v.kind] || "Video",
       scripture: v.scripture || undefined, duration: v.duration_sec || 0, transcribed: false, languages: v.language ? [v.language] : [], topics: v.topics || [], series: v.series || v.channel || undefined,
       href: `/teachings/videos/${v.slug}`, thumb: v.youtube_id ? `https://i.ytimg.com/vi/${v.youtube_id}/mqdefault.jpg` : undefined, video: true }));
   } catch { return []; }
+}
+
+export async function getVideo(slug: string) {
+  if (!hasDb()) return null;
+  try { return ((await sql`select v.*, to_char(v.date, 'YYYY-MM-DD') as day, a.slug as audio_slug, a.title as audio_title from videos v left join audios a on a.id = v.audio_id where v.slug = ${slug} and v.status = 'published'`)[0] as any) || null; } catch { return null; }
 }

@@ -1,0 +1,106 @@
+/* Bringing whole YouTube channels and playlists into Videos, and sorting each video by date, place, scripture and type from its title. */
+import { sql } from "@/lib/db";
+import { fold } from "@/lib/content/text";
+import { VIDEO, insertRow } from "@/lib/content/generic";
+
+export type Source = { id: string; url: string; name: string | null; kind: string; ref: string | null };
+export type YtVideo = { id: string; title: string; seconds: number; published?: string; description?: string };
+const UA = { "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130 Safari/537.36", "accept-language": "en" };
+
+/** Channel link, @handle, channel ID or playlist link → what to read. */
+export async function resolve(input: string): Promise<{ kind: "channel" | "playlist"; ref: string; name: string | null }> {
+  const s = input.trim();
+  const list = /[?&]list=([\w-]+)/.exec(s)?.[1] || (/^(PL|UU|OL|FL)[\w-]{10,}$/.test(s) ? s : null);
+  if (list) return { kind: "playlist", ref: list, name: null };
+  const uc = /(UC[\w-]{22})/.exec(s)?.[1]; if (uc) return { kind: "channel", ref: uc, name: null };
+  const handle = /@([\w.\-]+)/.exec(s)?.[1] || (/^[\w.\-]+$/.test(s) ? s : null);
+  if (!handle) throw new Error("Paste a YouTube channel link, @handle or playlist link.");
+  const r = await fetch(`https://www.youtube.com/@${handle}`, { headers: UA }); if (!r.ok) throw new Error(`YouTube could not find @${handle}.`);
+  const html = await r.text();
+  const id = /"externalId":"(UC[\w-]{22})"/.exec(html)?.[1] || /itemprop="identifier" content="(UC[\w-]{22})"/.exec(html)?.[1] || /"channelId":"(UC[\w-]{22})"/.exec(html)?.[1];
+  if (!id) throw new Error(`Could not read the channel of @${handle}.`);
+  const name = /<meta property="og:title" content="([^"]+)"/.exec(html)?.[1] || null;
+  return { kind: "channel", ref: id, name };
+}
+const playlistOf = (src: { kind: string; ref: string }) => (src.kind === "channel" ? `UU${src.ref.slice(2)}` : src.ref);
+const iso = (d: string) => { const m = /P(?:(\d+)D)?T?(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/.exec(d || ""); return m ? (+(m[1] || 0)) * 86400 + (+(m[2] || 0)) * 3600 + (+(m[3] || 0)) * 60 + (+(m[4] || 0)) : 0; };
+
+/** Every video in the list. With an API key: full details. Without: titles and lengths from the public playlist page. */
+export async function listVideos(src: { kind: string; ref: string }, key?: string | null, max = 5000): Promise<YtVideo[]> {
+  const pl = playlistOf(src); const out: YtVideo[] = [];
+  if (key) {
+    let token = "";
+    do {
+      const r = await fetch(`https://www.googleapis.com/youtube/v3/playlistItems?part=snippet,contentDetails&maxResults=50&playlistId=${pl}&key=${key}${token ? `&pageToken=${token}` : ""}`);
+      const j = await r.json(); if (j.error) throw new Error(`YouTube: ${j.error.message}`);
+      for (const it of j.items || []) out.push({ id: it.contentDetails.videoId, title: it.snippet.title, seconds: 0, published: it.contentDetails.videoPublishedAt || it.snippet.publishedAt, description: it.snippet.description });
+      token = j.nextPageToken || "";
+    } while (token && out.length < max);
+    for (let i = 0; i < out.length; i += 50) {
+      const ids = out.slice(i, i + 50).map((v) => v.id).join(",");
+      const j = await (await fetch(`https://www.googleapis.com/youtube/v3/videos?part=contentDetails&id=${ids}&key=${key}`)).json();
+      for (const it of j.items || []) { const v = out.find((x) => x.id === it.id); if (v) v.seconds = iso(it.contentDetails?.duration); }
+    }
+    return out.filter((v) => v.title !== "Private video" && v.title !== "Deleted video");
+  }
+  const r = await fetch(`https://www.youtube.com/playlist?list=${pl}&hl=en`, { headers: UA }); if (!r.ok) throw new Error("YouTube did not answer. Check the link.");
+  const html = await r.text();
+  const data = JSON.parse(/var ytInitialData = (\{[\s\S]*?\});<\/script>/.exec(html)?.[1] || "{}");
+  const apiKey = /"INNERTUBE_API_KEY":"([^"]+)"/.exec(html)?.[1]; const ver = /"INNERTUBE_CLIENT_VERSION":"([^"]+)"/.exec(html)?.[1] || "2.20241001.00.00";
+  const take = (node: any): string | null => {
+    let next: string | null = null;
+    const walk = (o: any) => { if (!o || typeof o !== "object") return; if (o.playlistVideoRenderer) { const v = o.playlistVideoRenderer; if (v.videoId && v.isPlayable !== false) out.push({ id: v.videoId, title: v.title?.runs?.map((x: any) => x.text).join("") || v.title?.simpleText || "", seconds: Number(v.lengthSeconds) || 0 }); return; } if (o.continuationItemRenderer) { next = o.continuationItemRenderer.continuationEndpoint?.continuationCommand?.token || null; return; } for (const k in o) walk(o[k]); };
+    walk(node); return next;
+  };
+  let token = take(data);
+  while (token && apiKey && out.length < max) {
+    const j = await (await fetch(`https://www.youtube.com/youtubei/v1/browse?key=${apiKey}`, { method: "POST", headers: { ...UA, "content-type": "application/json" }, body: JSON.stringify({ context: { client: { clientName: "WEB", clientVersion: ver, hl: "en" } }, continuation: token }) })).json();
+    token = take(j.onResponseReceivedActions || j);
+  }
+  if (!out.length) throw new Error("No videos found. The playlist may be private, or YouTube changed its page — add an API key in this window to use YouTube’s official access.");
+  return out;
+}
+
+/* ---------- Sorting by the title */
+const MON = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
+const PLACES: [string, string, string][] = [["bhubaneswar", "Bhubaneswar", "India"], ["mayapur", "Māyāpur", "India"], ["vrindavan", "Vṛndāvana", "India"], ["vrndavana", "Vṛndāvana", "India"], ["puri", "Purī", "India"], ["jagannath puri", "Purī", "India"], ["gadeigiri", "Gaḍeigiri", "India"], ["jagannathpur", "Jagannāthapura", "India"], ["pattamundai", "Pattamundai", "India"], ["cuttack", "Cuttack", "India"], ["kolkata", "Kolkata", "India"], ["calcutta", "Kolkata", "India"], ["delhi", "Delhi", "India"], ["mumbai", "Mumbai", "India"], ["bombay", "Mumbai", "India"], ["radhadesh", "Radhadesh", "Belgium"], ["durbuy", "Radhadesh", "Belgium"], ["murwillumbah", "Murwillumbah", "Australia"], ["new govardhana", "Murwillumbah", "Australia"], ["sydney", "Sydney", "Australia"], ["melbourne", "Melbourne", "Australia"], ["bali", "Bali", "Indonesia"], ["jakarta", "Jakarta", "Indonesia"], ["amsterdam", "Amsterdam", "Netherlands"], ["paris", "Paris", "France"], ["london", "London", "United Kingdom"], ["san francisco", "San Francisco", "USA"], ["los angeles", "Los Angeles", "USA"], ["new york", "New York", "USA"], ["moscow", "Moscow", "Russia"], ["germany", "Germany", "Germany"], ["italy", "Italy", "Italy"]];
+export function classify(title: string, desc = "", known: [string, string, string][] = []) {
+  const t = ` ${fold(title)} `; const all = ` ${fold(`${title} ${desc.slice(0, 600)}`)} `; const o: Record<string, any> = {};
+  const pad = (n: number | string) => String(n).padStart(2, "0"); const ok = (y: number, m: number, d: number) => y >= 1960 && y <= 2035 && m >= 1 && m <= 12 && d >= 1 && d <= 31;
+  let m: RegExpExecArray | null;
+  if ((m = /\b(19[5-9]\d|20[0-3]\d)[-./](\d{1,2})[-./](\d{1,2})\b/.exec(t)) && ok(+m[1], +m[2], +m[3])) o.date = `${m[1]}-${pad(m[2])}-${pad(m[3])}`;
+  else if ((m = /\b(\d{1,2})[-./](\d{1,2})[-./](19[5-9]\d|20[0-3]\d)\b/.exec(t)) && ok(+m[3], +m[2], +m[1])) o.date = `${m[3]}-${pad(m[2])}-${pad(m[1])}`;
+  else if ((m = /\b(\d{1,2})(?:st|nd|rd|th)?\s+(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.?,?\s+(19[5-9]\d|20[0-3]\d)\b/.exec(t))) o.date = `${m[3]}-${pad(MON.indexOf(m[2]) + 1)}-${pad(m[1])}`;
+  else if ((m = /\b(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.?\s+(\d{1,2})(?:st|nd|rd|th)?,?\s+(19[5-9]\d|20[0-3]\d)\b/.exec(t))) o.date = `${m[3]}-${pad(MON.indexOf(m[1]) + 1)}-${pad(m[2])}`;
+  else if ((m = /\b([789]\d)(\d\d)(\d\d)\b/.exec(t)) && ok(1900 + +m[1], +m[2], +m[3])) o.date = `19${m[1]}-${m[2]}-${m[3]}`;
+  if (o.date) o.year = +o.date.slice(0, 4); else if ((m = /\b(19[6-9]\d)\b/.exec(t))) o.year = +m[1];
+  const n = "(\\d+)[.:](\\d+)(?:[.:](\\d+))?";
+  if ((m = new RegExp(`\\b(?:sb|s\\.b\\.|bhag(?:avatam)?|srimad[- ]?bhagavatam)\\.?\\s*${n}`).exec(t))) o.scripture = `SB ${[m[1], m[2], m[3]].filter(Boolean).join(".")}`;
+  else if ((m = new RegExp(`\\b(?:bg|b\\.g\\.|gita|bhagavad[- ]?gita)\\.?\\s*(\\d+)[.:](\\d+)`).exec(t))) o.scripture = `BG ${m[1]}.${m[2]}`;
+  else if ((m = /\b(?:cc|c\.c\.|caitanya[- ]?caritamrta|chaitanya[- ]?charitamrita)\.?\s*(adi|madhya|antya)\s*(\d+)[.:](\d+)/.exec(t))) o.scripture = `CC ${m[1][0].toUpperCase()}${m[1].slice(1)} ${m[2]}.${m[3]}`;
+  else if (/\b(bhagavatam|bhagavat)\b/.test(t)) o.scripture = "SB"; else if (/\b(gita)\b/.test(t)) o.scripture = "BG"; else if (/\b(caritamrta|charitamrita)\b/.test(t)) o.scripture = "CC";
+  const T: [RegExp, string][] = [[/\b(kirtan|kirtana|bhajan|bhajana|harinam|sankirtan)\b/, "Kīrtana"], [/\b(darshan|darsana|darshana)\b/, "Darśana"], [/\b(q ?& ?a|q ?and ?a|questions?)\b/, "Questions & answers"], [/\bseminar\b/, "Seminar"], [/\b(initiation|diksa|diksha|sannyas)\w*/, "Initiation"], [/\b(vyasa ?puja|ratha ?yatra|janmastami|janmashtami|gaura ?purnima|kartik|festival|appearance day|disappearance day)\b/, "Festival"], [/\b(memor|remember|glorif|tribute)\w*/, "Memories"], [/\b(documentary)\b/, "Documentary"], [/\b(interview)\b/, "Interview"]];
+  o.type = T.find(([r]) => r.test(t))?.[1] || (o.scripture ? "Lecture" : null);
+  const pl = [...known, ...PLACES].find(([k]) => k.length > 2 && new RegExp(`\\b${k.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`).test(all));
+  if (pl) { o.place = pl[1]; o.country = pl[2]; }
+  return o;
+}
+export async function knownPlaces(): Promise<[string, string, string][]> {
+  try { return ((await sql`select distinct place, country from audios where place is not null`) as any[]).map((r) => [fold(r.place), r.place, r.country || ""]); } catch { return []; }
+}
+
+/** Fetch one source and add the videos not yet in the archive. Existing ones are left as edited. */
+export async function syncSource(s: Source, key?: string | null) {
+  const vids = await listVideos({ kind: s.kind, ref: s.ref! }, key);
+  const have = new Set(((await sql`select youtube_id from videos where youtube_id = any(${vids.map((v) => v.id)})`) as any[]).map((x) => x.youtube_id));
+  const known = await knownPlaces(); let added = 0;
+  for (const v of vids) {
+    if (have.has(v.id)) continue;
+    const c = classify(v.title, v.description, known);
+    await insertRow(VIDEO, { youtube_id: v.id, title: v.title, description: v.description || null, duration_sec: v.seconds || null, published_at: v.published || null, channel: s.name, series: s.name, source_id: s.id, kind: c.type === "Kīrtana" ? "kirtan" : c.type === "Festival" ? "festival" : c.type === "Memories" ? "memory" : (v.seconds && v.seconds <= 60 ? "short" : "lecture"), ...c });
+    added++;
+  }
+  await sql`update video_sources set last_synced_at = now(), last_count = ${vids.length} where id = ${s.id}`;
+  return { seen: vids.length, added };
+}
+export async function apiKey(): Promise<string | null> { if (process.env.YOUTUBE_API_KEY) return process.env.YOUTUBE_API_KEY; try { return ((await sql`select value from settings where key = 'youtube_api_key'`)[0]?.value as string) || null; } catch { return null; } }

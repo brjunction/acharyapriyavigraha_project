@@ -6,8 +6,8 @@ type Spec = { table: "videos" | "excerpts"; cols: string[]; ints: string[]; arra
 export const yt = (u: string) => /(?:youtu\.be\/|v=|embed\/|shorts\/|live\/)([\w-]{11})/.exec(u || "")?.[1] || (/^[\w-]{11}$/.test(u || "") ? u : "");
 
 export const VIDEO: Spec = {
-  table: "videos", cols: ["kind", "title", "date", "youtube_id", "url", "place", "language", "series", "topics", "duration_sec", "description", "channel", "audio_id", "status", "position"], ints: ["duration_sec", "position"], arrays: ["topics"], dates: ["date"],
-  search: (r) => fold([r.title, r.date, r.place, r.series, (r.topics || []).join(" "), r.description, r.channel].filter(Boolean).join(" ")), slug: (r) => [r.title, r.date?.slice?.(0, 4)].filter(Boolean).join(" "),
+  table: "videos", cols: ["kind", "type", "title", "date", "year", "youtube_id", "url", "place", "country", "scripture", "language", "series", "topics", "duration_sec", "description", "channel", "audio_id", "published_at", "source_id", "status", "position"], ints: ["duration_sec", "position", "year"], arrays: ["topics"], dates: ["date"],
+  search: (r) => fold([r.title, r.date, r.year, r.place, r.country, r.scripture, r.type, r.series, (r.topics || []).join(" "), String(r.description || "").slice(0, 3000), r.channel].filter(Boolean).join(" ")), slug: (r) => [r.title, r.date?.slice?.(0, 4) || r.year].filter(Boolean).join(" "),
 };
 export const EXCERPT: Spec = {
   table: "excerpts", cols: ["kind", "title", "text", "audio_id", "at_sec", "source", "verse_ref", "original", "transliteration", "translation", "author", "date", "day_of_year", "topics", "status", "position"], ints: ["at_sec", "day_of_year", "position"], arrays: ["topics"], dates: ["date"],
