@@ -23,12 +23,12 @@ export function PlayButton({ l, size = 40 }: { l: Lecture; size?: number }) {
 
 export function LectureRow({ l, index }: { l: Lecture; index?: number }) {
   return (
-    <div className="group flex items-center gap-3 border-b border-line px-1 py-3 last:border-0 sm:gap-4 sm:px-4 sm:py-3.5">
+    <div className="group flex items-center gap-3 px-1 py-2.5 sm:gap-4">
       {index !== undefined && <span className="hidden w-6 text-right text-[12.5px] tabular text-ink-3 sm:block">{index}</span>}
-      <PlayButton l={l} />
+      <PlayButton l={l} size={32} />
       <div className="min-w-0 flex-1">
-        <Link href={l.href || `/teachings/audio/${l.slug}`} className="line-clamp-2 block font-serif text-[14.5px] font-bold leading-snug sm:truncate sm:text-[16.5px] text-ink transition-colors group-hover:text-saffron">{l.title}</Link>
-        <p className="mt-0.5 line-clamp-2 text-[11.5px] text-ink-3 sm:truncate sm:text-[12.5px]">
+        <Link href={l.href || `/teachings/audio/${l.slug}`} className="line-clamp-2 block text-[14px] font-medium leading-snug text-ink transition-colors group-hover:text-saffron sm:truncate">{l.title}</Link>
+        <p className="mt-0.5 line-clamp-2 text-[12px] text-ink-3 sm:truncate">
           {fmtDate(l.date)} <span className="mx-1 text-line-strong">/</span> {l.place}, {l.country} <span className="mx-1 text-line-strong">/</span> {l.type}
           {l.scripture && <> <span className="mx-1 text-line-strong">/</span> <span className="text-saffron">{l.scripture}</span></>}
         </p>

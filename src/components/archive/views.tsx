@@ -61,8 +61,8 @@ export function Card({ c, i }: { c: Collection; i: Item }) {
     case "projects": return (
       <Link href={href} className="group overflow-hidden rounded-xl border border-line bg-white transition hover:border-line-strong hover:shadow-sm">
         <Img src={coverOf(i)} alt={i.title} className="aspect-[16/9] w-full object-cover" />
-        <div className="p-4"><div className="flex items-center gap-2 text-[11.5px] text-ink-3">{i.status_label && <span className="rounded-full bg-saffron-tint px-2 py-0.5 font-medium text-saffron">{i.status_label}</span>}{[i.place, i.date_label].filter(Boolean).join(" · ")}</div>
-          <h3 className="mt-1.5 text-[16px] font-medium text-ink group-hover:text-saffron">{i.title}</h3>{i.summary && <p className="mt-1 line-clamp-2 text-[13px] text-ink-2">{i.summary}</p>}</div>
+        <div className="p-4">
+          <h3 className=" text-[16px] font-medium text-ink group-hover:text-saffron">{i.title}</h3>{i.summary && <p className="mt-1 line-clamp-2 text-[13px] text-ink-2">{i.summary}</p>}</div>
       </Link>);
     default: return <Link href={href} className="block rounded-xl border border-line p-4 text-[14px] font-medium hover:border-saffron">{i.title}</Link>;
   }
@@ -161,7 +161,7 @@ export async function ArchiveItem({ coll, slug, crumbs }: { coll: string; slug: 
             </nav>}
           </article>
           {!isAlbum && <aside className="space-y-6 lg:sticky lg:top-24 lg:self-start">
-            {facts.some(([, , v]) => v) && <dl className="divide-y divide-line rounded-xl border border-line text-[13px]">{facts.filter(([, , v]) => v).map(([I, l, v]) => <div key={l} className="flex gap-3 px-4 py-2.5"><I size={14} className="mt-0.5 shrink-0 text-ink-3" /><div><dt className="text-[11.5px] text-ink-3">{l}</dt><dd className="text-ink">{v}</dd></div></div>)}</dl>}
+            {c.layout !== "projects" && facts.some(([, , v]) => v) && <dl className="divide-y divide-line rounded-xl border border-line text-[13px]">{facts.filter(([, , v]) => v).map(([I, l, v]) => <div key={l} className="flex gap-3 px-4 py-2.5"><I size={14} className="mt-0.5 shrink-0 text-ink-3" /><div><dt className="text-[11.5px] text-ink-3">{l}</dt><dd className="text-ink">{v}</dd></div></div>)}</dl>}
             {i.links?.length > 0 && <div className="space-y-1.5">{i.links.map((l) => <a key={l.url} href={l.url} target={l.url.startsWith("http") ? "_blank" : undefined} rel="noreferrer" className="flex items-center justify-between gap-2 rounded-lg border border-line px-3 py-2 text-[13px] font-medium text-ink hover:border-saffron hover:text-saffron">{l.label || l.url}<ExternalLink size={13} className="text-ink-3" /></a>)}</div>}
             {related.length > 0 && <div><p className="mb-2 text-[11.5px] font-semibold uppercase tracking-[0.08em] text-ink-3">{c.labels?.related?.[0] || "Related"}</p><div className="space-y-1">{related.map((r) => { const rc = COLLECTIONS[r.collection]; return <Link key={r.id} href={`${rc.base}/${r.slug}`} className="block rounded-lg px-2 py-1.5 text-[13px] text-ink-2 hover:bg-band hover:text-saffron">{r.title}</Link>; })}</div></div>}
             {siblings.length > 1 && <div><p className="mb-2 text-[11.5px] font-semibold uppercase tracking-[0.08em] text-ink-3">More in {sec?.title || c.label}</p><div className="space-y-0.5">{siblings.filter((x) => x.id !== i.id).slice(0, 8).map((x) => <Link key={x.id} href={`${c.base}/${x.slug}`} className="block truncate rounded-lg px-2 py-1.5 text-[13px] text-ink-2 hover:bg-band hover:text-saffron">{x.title}</Link>)}</div></div>}

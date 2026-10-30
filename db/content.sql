@@ -141,3 +141,10 @@ create table if not exists archive_items (
   media text, tags text[] not null default '{}', related uuid[] not null default '{}', status_label text, featured boolean not null default false, position int not null default 0,
   status text not null default 'published', search text not null default '', created_at timestamptz not null default now(), updated_at timestamptz not null default now(), unique (collection, slug));
 create index if not exists archive_items_coll_idx on archive_items(collection, section, position);
+
+-- Videos: organisation fields, and the YouTube channels / playlists they are fetched from.
+alter table videos add column if not exists type text;
+alter table videos add column if not exists country text;
+alter table videos add column if not exists scripture text;
+alter table videos add column if not exists thumb text;
+create table if not exists video_sources (id uuid primary key default gen_random_uuid(), url text not null unique, name text, kind text not null default 'channel', ref text, last_synced_at timestamptz, last_count int, auto_publish boolean not null default true, created_at timestamptz not null default now());

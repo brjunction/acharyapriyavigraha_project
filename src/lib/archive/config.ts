@@ -65,8 +65,8 @@ export const COLLECTIONS: Record<string, Collection> = {
     key: "projects", label: "Projects", singular: "project", base: "/gurudeva/projects", layout: "projects", icon: "Landmark", sort: "position",
     intro: "ISKCON Bhubaneswar, the temples and initiatives he began, and the work that continues in his relation.",
     sections: [["bhubaneswar", "ISKCON Bhubaneswar", "From a mud hut to Śrī Śrī Kṛṣṇa-Balarāma"], ["temples", "Temples & initiatives", "Temples and āśramas he established"], ["relation", "Projects in his relation", "Anniversaries, libraries and other work connected with him"], ["taptajivanam", "Taptajīvanam projects", "Translations, publications, websites, apps and the WebFolio"]],
-    fields: ["subtitle", "status_label", "place", "date_label", "cover", "images", "summary", "body", "chapters", "links", "media"],
-    labels: { status_label: ["Status", "Ongoing, Completed, Upcoming…"], date_label: ["Started / years"], chapters: ["Drop-down chapters", "e.g. How it started, The temple today"], links: ["Website, YouTube and other links", "Label | link"], media: ["Video", "YouTube link"] },
+    fields: ["cover", "summary", "chapters", "links"],
+    labels: { cover: ["Picture"], summary: ["About it", "A few lines"], chapters: ["Drop-down sections (optional)", "e.g. How it started — only if needed"], links: ["Website and YouTube", "Label | link, e.g. Website | https://…"] },
   },
   parampara: {
     key: "parampara", label: "Guru-paramparā", singular: "ācārya", base: "/gurudeva/guru-parampara", layout: "chain", icon: "GitBranch", sort: "position",
