@@ -56,25 +56,41 @@ export async function listVideos(src: { kind: string; ref: string }, key?: strin
     }
     return out.filter((v) => v.title !== "Private video" && v.title !== "Deleted video");
   }
-  const r = await fetch(`https://www.youtube.com/playlist?list=${pl}&hl=en`, { headers: UA }); if (!r.ok) throw new Error("YouTube did not answer. Check the link.");
-  const html = await r.text();
-  const data = JSON.parse(/var ytInitialData = (\{[\s\S]*?\});<\/script>/.exec(html)?.[1] || "{}");
-  const apiKey = /"INNERTUBE_API_KEY":"([^"]+)"/.exec(html)?.[1]; const ver = /"INNERTUBE_CLIENT_VERSION":"([^"]+)"/.exec(html)?.[1] || "2.20241001.00.00";
-  const take = (node: any): string | null => {
-    let next: string | null = null;
-    const clockOf = (o: any): number => { let out = 0; const w = (x: any) => { if (out || !x || typeof x !== "object") return; for (const k in x) { const v = x[k]; if (typeof v === "string" && /^\d{1,2}(:\d{2}){1,2}$/.test(v)) { out = v.split(":").map(Number).reduce((a, b) => a * 60 + b, 0); return; } w(v); } }; w(o); return out; };
-    const walk = (o: any) => { if (!o || typeof o !== "object") return;
-      if (o.lockupViewModel && /VIDEO/.test(o.lockupViewModel.contentType || "VIDEO")) { const v = o.lockupViewModel; const id = v.contentId; const title = v.metadata?.lockupMetadataViewModel?.title?.content || ""; if (id && /^[\w-]{11}$/.test(id) && !out.some((x) => x.id === id)) out.push({ id, title, seconds: clockOf(v.contentImage) }); return; }
-      if (o.playlistVideoRenderer) { const v = o.playlistVideoRenderer; if (v.videoId && v.isPlayable !== false) out.push({ id: v.videoId, title: v.title?.runs?.map((x: any) => x.text).join("") || v.title?.simpleText || "", seconds: Number(v.lengthSeconds) || 0 }); return; } if (o.continuationItemRenderer) { const m = /"continuationCommand":\{"token":"([^"]+)"/.exec(JSON.stringify(o.continuationItemRenderer)) || /"token":"([^"]{20,})"/.exec(JSON.stringify(o.continuationItemRenderer)); next = m?.[1] || next; return; } for (const k in o) walk(o[k]); };
-    walk(node); return next;
-  };
-  let token = take(data);
-  while (token && apiKey && out.length < max) {
-    const j = await (await fetch(`https://www.youtube.com/youtubei/v1/browse?key=${apiKey}`, { method: "POST", headers: { ...UA, "content-type": "application/json" }, body: JSON.stringify({ context: { client: { clientName: "WEB", clientVersion: ver, hl: "en" } }, continuation: token }) })).json();
-    token = take(j.onResponseReceivedActions || j);
-  }
-  if (!out.length) throw new Error("No videos found. The playlist may be private, or YouTube changed its page — add an API key in this window to use YouTube’s official access.");
+  // Without a key: read YouTube's own pages. Channels: the Videos and Live tabs; playlists: the playlist page. Each follows its “more” pages.
+  const pages = src.kind === "channel" ? [`https://www.youtube.com/channel/${src.ref}/videos?hl=en`, `https://www.youtube.com/channel/${src.ref}/streams?hl=en`] : [`https://www.youtube.com/playlist?list=${pl}&hl=en`];
+  for (const url of pages) { try { await scrape(url, out, max); } catch (e) { if (url === pages[0]) throw e; } }
+  if (!out.length) throw new Error("No videos found. The playlist may be private, or YouTube changed its page — add an API key to use YouTube’s official access.");
   return out;
+}
+const clockOf = (o: any): number => { let n = 0; const w = (x: any) => { if (n || !x || typeof x !== "object") return; for (const k in x) { const v = x[k]; if (typeof v === "string" && /^\d{1,2}(:\d{2}){1,2}$/.test(v)) { n = v.split(":").map(Number).reduce((a, b) => a * 60 + b, 0); return; } w(v); } }; w(o); return n; };
+/** Collect the videos in a page (or a “more” answer) and return the token for the next page. */
+function take(node: any, out: YtVideo[]): string | null {
+  let next: string | null = null;
+  const walk = (o: any) => { if (!o || typeof o !== "object") return;
+    if (o.lockupViewModel) { const v = o.lockupViewModel; const id = v.contentId; if (/VIDEO|^$/.test(v.contentType || "") || /^[\w-]{11}$/.test(id || "")) { const title = v.metadata?.lockupMetadataViewModel?.title?.content || ""; if (id && /^[\w-]{11}$/.test(id) && !out.some((x) => x.id === id)) out.push({ id, title, seconds: clockOf(v.contentImage) }); } return; }
+    if (o.richItemRenderer?.content?.videoRenderer || o.videoRenderer || o.gridVideoRenderer) { const v = o.richItemRenderer?.content?.videoRenderer || o.videoRenderer || o.gridVideoRenderer; if (v.videoId && !out.some((x) => x.id === v.videoId)) out.push({ id: v.videoId, title: v.title?.runs?.map((x: any) => x.text).join("") || v.title?.simpleText || "", seconds: clockOf(v.lengthText || v.thumbnailOverlays) }); return; }
+    if (o.playlistVideoRenderer) { const v = o.playlistVideoRenderer; if (v.videoId && v.isPlayable !== false && !out.some((x) => x.id === v.videoId)) out.push({ id: v.videoId, title: v.title?.runs?.map((x: any) => x.text).join("") || v.title?.simpleText || "", seconds: Number(v.lengthSeconds) || 0 }); return; }
+    if (o.continuationItemRenderer) { const m = /"continuationCommand":\{"token":"([^"]+)"/.exec(JSON.stringify(o.continuationItemRenderer)); if (m) next = m[1]; return; }
+    for (const k in o) walk(o[k]); };
+  walk(node);
+  if (!next) { const t = JSON.stringify(node); const last = t.lastIndexOf("lockupViewModel"); const re = /"continuationCommand":\{"token":"([^"]+)"/g; let m: RegExpExecArray | null; while ((m = re.exec(t))) if (m.index > last) next = m[1]; }
+  return next;
+}
+async function scrape(url: string, out: YtVideo[], max: number) {
+  const r = await fetch(url, { headers: UA }); if (!r.ok) throw new Error("YouTube did not answer. Check the link.");
+  const html = await r.text();
+  const raw = /var ytInitialData = (\{[\s\S]*?\});<\/script>/.exec(html)?.[1] || /ytInitialData'\] = (\{[\s\S]*?\});/.exec(html)?.[1];
+  const data = raw ? JSON.parse(raw) : JSON.parse(/<script[^>]*id="ytInitialData"[^>]*>([\s\S]*?)<\/script>/.exec(html)?.[1] || "{}");
+  const apiKey = /"INNERTUBE_API_KEY":"([^"]+)"/.exec(html)?.[1]; const ver = /"INNERTUBE_CLIENT_VERSION":"([^"]+)"/.exec(html)?.[1] || "2.20241001.00.00";
+  // Only what is in the page's list counts (not suggestions elsewhere on the page).
+  const tabs = data?.contents?.twoColumnBrowseResultsRenderer?.tabs; const sel = Array.isArray(tabs) ? tabs.find((t: any) => t.tabRenderer?.selected)?.tabRenderer?.content : null;
+  let token = take(sel || data, out); let seen = new Set<string>(); let rounds = 0;
+  while (token && apiKey && out.length < max && !seen.has(token) && rounds++ < 200) {
+    seen.add(token); const before = out.length;
+    const j = await (await fetch(`https://www.youtube.com/youtubei/v1/browse?key=${apiKey}`, { method: "POST", headers: { ...UA, "content-type": "application/json" }, body: JSON.stringify({ context: { client: { clientName: "WEB", clientVersion: ver, hl: "en" } }, continuation: token }) })).json();
+    token = take(j.onResponseReceivedActions || j.onResponseReceivedEndpoints || j, out);
+    if (out.length === before) break;
+  }
 }
 
 /* ---------- Sorting by the title */
