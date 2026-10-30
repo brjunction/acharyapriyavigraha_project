@@ -2,13 +2,13 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { ChevronRight, Plus, MoreHorizontal, Search, LayoutDashboard, Database, Image as Img, Megaphone, Users, Settings, LogOut, ExternalLink, Menu as MenuIcon, X, FileText, PanelsTopLeft, Trash2, ArrowUp, ArrowDown, Copy, Palette, Headphones, Music, Clapperboard, Quote, BookOpen, Languages, BookMarked, ChevronsUpDown, Globe, CalendarDays, NotebookPen, Newspaper } from "lucide-react";
+import { ChevronRight, Plus, MoreHorizontal, Search, LayoutDashboard, Database, Image as Img, Megaphone, Users, Settings, LogOut, ExternalLink, Menu as MenuIcon, X, FileText, PanelsTopLeft, Trash2, ArrowUp, ArrowDown, Copy, Palette, Headphones, Music, Clapperboard, Quote, BookOpen, Languages, BookMarked, ChevronsUpDown, Globe, CalendarDays, NotebookPen, Newspaper, ToggleRight, Power, History } from "lucide-react";
 import { api, toast } from "./ui";
 import type { MenuJ } from "@/lib/menus";
 import { isDynamic } from "@/lib/cms/dynamic";
 import { PageIcon } from "../page-icon";
 
-type P = { id: string; parent_id: string | null; title: string; path: string; status: string; position: number; icon?: string; type: string; redirect?: string };
+type P = { id: string; parent_id: string | null; title: string; path: string; status: string; position: number; icon?: string; type: string; redirect?: string; studio?: string };
 
 export function Shell({ user, children }: { user: { name: string; email: string; role: string }; children: React.ReactNode }) {
   const path = usePathname(); const router = useRouter();
@@ -21,13 +21,13 @@ export function Shell({ user, children }: { user: { name: string; email: string;
   const cur = /^\/admin\/pages\/([^/]+)/.exec(path)?.[1];
   // keep the open page's ancestors expanded
   useEffect(() => { if (!cur || !pages.length) return; const byId = Object.fromEntries(pages.map((p) => [p.id, p])); let p = byId[cur]; const add: Record<string, boolean> = {}; while (p?.parent_id) { add[p.parent_id] = true; p = byId[p.parent_id]; } if (Object.keys(add).length) setOpen((o) => ({ ...o, ...add })); }, [cur, pages]);
-  const kids = useMemo(() => { const m: Record<string, P[]> = {}; pages.forEach((p) => { (m[p.parent_id || "root"] ||= []).push(p); }); Object.values(m).forEach((l) => l.sort((a, b) => a.position - b.position || a.title.localeCompare(b.title))); return m; }, [pages]);
+  const kids = useMemo(() => { const m: Record<string, P[]> = {}; pages.filter((p) => p.studio !== "off").forEach((p) => { (m[p.parent_id || "root"] ||= []).push(p); }); Object.values(m).forEach((l) => l.sort((a, b) => a.position - b.position || a.title.localeCompare(b.title))); return m; }, [pages]);
   const byPath = useMemo(() => Object.fromEntries(pages.map((p) => [p.path, p])), [pages]);
-  const menuPaths = useMemo(() => new Set(menus.flatMap((m) => m.groups.flatMap((g) => g.links.map((l) => l.href)))), [menus]);
   const openAt = async (path: string, title: string) => { try { const r = await api<{ id: string }>("/api/admin/pages", "POST", { path, title }); load(); router.push(`/admin/pages/${r.id}`); setMobile(false); } catch (e: any) { toast(e.message, true); } };
   const newPage = async (parent?: string) => { const r = await api<{ id: string }>("/api/admin/pages", "POST", { parent_id: parent || null, template: "blank" }); if (parent) setOpen((o) => ({ ...o, [parent]: true })); load(); router.push(`/admin/pages/${r.id}`); setMobile(false); };
   const move = async (p: P, d: number) => { const sib = kids[p.parent_id || "root"] || []; const i = sib.findIndex((x) => x.id === p.id); const o = sib[i + d]; if (!o) return; await Promise.all(sib.map((x, k) => api(`/api/admin/pages/${x.id}`, "PATCH", { position: x.id === p.id ? i + d : x.id === o.id ? i : k }))); load(); };
   const del = async (p: P) => { if (!confirm(`Delete “${p.title}” and every page inside it? This cannot be undone.`)) return; await api(`/api/admin/pages/${p.id}`, "DELETE").catch((e) => toast(e.message, true)); load(); if (cur === p.id) router.push("/admin"); };
+  const off = async (p: P) => { if (!confirm(`Turn off editing for “${p.title}”? It leaves the Pages list and the website shows the built-in page again (if there is one). Its content is kept; turn it back on from Website pages.`)) return; const src = await api(`/api/admin/pages/${p.id}`); await api(`/api/admin/pages/${p.id}`, "PATCH", { settings: { ...(src.settings || {}), studio: "off" } }); load(); if (cur === p.id) router.push("/admin/site-pages"); };
   const dup = async (p: P) => { const src = await api(`/api/admin/pages/${p.id}`); const r = await api<{ id: string }>("/api/admin/pages", "POST", { parent_id: p.parent_id, title: `${p.title} (copy)` }); await api(`/api/admin/pages/${r.id}`, "PATCH", { blocks: src.blocks, settings: src.settings, type: src.type }); load(); router.push(`/admin/pages/${r.id}`); };
 
   const Row = ({ p, depth }: { p: P; depth: number }) => {
@@ -42,7 +42,7 @@ export function Shell({ user, children }: { user: { name: string; email: string;
             <button title="Add a page inside" onClick={() => newPage(p.id)} className="flex h-5 w-5 items-center justify-center rounded text-ink-3 hover:bg-zinc-300/60"><Plus size={14} /></button>
           </span>
           {menu && <div className="absolute right-0 top-7 z-50 w-44 rounded-xl border border-line bg-white p-1 text-[12.5px] shadow-xl" onMouseLeave={() => setMenu(false)}>
-            {[[ArrowUp, "Move up", () => move(p, -1)], [ArrowDown, "Move down", () => move(p, 1)], [Copy, "Duplicate", () => dup(p)], [ExternalLink, "View on site", () => window.open(p.path, "_blank")], [Trash2, "Delete", () => del(p)]].map(([I, l, f]: any) => <button key={l} onClick={() => { setMenu(false); f(); }} className={`flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left hover:bg-band ${l === "Delete" ? "text-[#a3281e]" : ""}`}><I size={14} />{l}</button>)}
+            {[[ArrowUp, "Move up", () => move(p, -1)], [ArrowDown, "Move down", () => move(p, 1)], [Copy, "Duplicate", () => dup(p)], [ExternalLink, "View on site", () => window.open(p.path, "_blank")], [Power, "Turn off editing", () => off(p)], [Trash2, "Delete", () => del(p)]].map(([I, l, f]: any) => <button key={l} onClick={() => { setMenu(false); f(); }} className={`flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left hover:bg-band ${l === "Delete" ? "text-[#a3281e]" : ""}`}><I size={14} />{l}</button>)}
           </div>}
         </div>
         {open[p.id] && (ch.length ? ch.map((c) => <Row key={c.id} p={c} depth={depth + 1} />) : <p className="py-1 text-[12px] text-ink-3" style={{ paddingLeft: 30 + depth * 14 }}>No pages inside</p>)}
@@ -74,22 +74,14 @@ export function Shell({ user, children }: { user: { name: string; email: string;
         <Nav href="/admin/webfolio" icon={BookMarked} label="WebFolio" />
         <Nav href="/admin/calendar" icon={CalendarDays} label="Taptajīvanam Calendar" />
         <Nav href="/admin/diary" icon={NotebookPen} label="His Diary" />
+        <Nav href="/admin/timeline" icon={History} label="Life timeline" />
         <Label>Website</Label>
+        <Nav href="/admin/site-pages" icon={ToggleRight} label="Website pages" />
         <Nav href="/admin/menus" icon={PanelsTopLeft} label="Menus" />
         <Nav href="/admin/announcements" icon={Megaphone} label="Announcements" />
         <Nav href="/admin/media" icon={Img} label="Pictures & files" />
         <Label action={<button title="New page" onClick={() => newPage()} className="rounded-md p-1 hover:bg-zinc-200/70"><Plus className="size-3.5" /></button>}>Pages</Label>
-        {menus.map((m) => (
-          <div key={m.key}>
-            <button onClick={() => toggle("menu:" + m.key)} className={item}><ChevronRight className={`!size-3.5 transition ${open["menu:" + m.key] ? "rotate-90" : ""}`} /><span className="truncate">{m.label}</span></button>
-            {open["menu:" + m.key] && <div className="ml-3.5 border-l border-zinc-200 pl-1.5">{m.groups.map((g) => (
-              <div key={g.title} className="mb-1">
-                <p className="truncate px-2 pb-0.5 pt-1.5 text-[11px] font-medium uppercase tracking-wide text-zinc-400">{g.title}</p>
-                {g.links.filter((l) => l.href.startsWith("/") && !l.hidden && !isDynamic(l.href)).map((l) => { const pg = byPath[l.href]; return pg ? <Row key={l.href} p={{ ...pg, title: pg.title || l.label }} depth={0} /> : (
-                  <button key={l.href} onClick={() => openAt(l.href, l.label)} title="Make an editable page here" className={`${item} group text-zinc-400`}><span className="flex w-4 justify-center"><span className="size-1.5 rounded-full border border-zinc-300" /></span><span className="truncate">{l.label}</span><Plus className="ml-auto hidden !size-3.5 group-hover:block" /></button>); })}
-              </div>))}</div>}
-          </div>))}
-        {(kids.root || []).filter((p) => !menuPaths.has(p.path)).map((p) => <Row key={p.id} p={p} depth={0} />)}
+        {(kids.root || []).map((p) => <Row key={p.id} p={p} depth={0} />)}
         <button onClick={() => newPage()} className={`${item} text-zinc-500`}><Plus />New page</button>
         {dbs.filter((d) => !lib.some((l) => l.slug === d.slug)).length > 0 && <><Label>Databases</Label>{dbs.filter((d) => !lib.some((l) => l.slug === d.slug)).map((d) => <Link key={d.id} href={`/admin/databases/${d.id}`} className={`${item} ${path === `/admin/databases/${d.id}` ? active : ""}`}><Database />{d.name}</Link>)}</>}
         <Label>Settings</Label>

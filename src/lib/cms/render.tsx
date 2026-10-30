@@ -17,7 +17,7 @@ export const SITE = process.env.NEXT_PUBLIC_SITE_URL || "https://taptajivanam.co
 async function load(segments: string[], drafts = false): Promise<P | null> {
   if (!hasDb()) return null;
   const path = "/" + segments.map(decodeURIComponent).join("/");
-  try { return ((await sql`select id, parent_id, path, title, type, blocks, seo, settings, updated_at, position, status from pages where path = ${path} and (status = 'published' or ${drafts})`)[0] as P) || null; } catch { return null; }
+  try { return ((await sql`select id, parent_id, path, title, type, blocks, seo, settings, updated_at, position, status from pages where path = ${path} and coalesce(settings->>'studio', 'on') <> 'off' and (status = 'published' or ${drafts})`)[0] as P) || null; } catch { return null; }
 }
 const plain = (bs: any[]) => (isOld(bs) ? plainOld(bs) : docText(bs));
 const plainOld = (bs: Block[]) => bs.filter((b) => b.type === "text").map((b) => String(b.data.html).replace(/<[^>]+>/g, " ")).join(" ").replace(/\s+/g, " ").trim().slice(0, 155);

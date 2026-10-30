@@ -122,3 +122,12 @@ create table if not exists magazines (
   issues jsonb not null default '[]', position int not null default 0, status text not null default 'published',
   created_at timestamptz not null default now(), updated_at timestamptz not null default now()
 );
+
+-- Life timeline: eras are chapters by year range; events fall into the era that contains their year.
+create table if not exists life_eras (id uuid primary key default gen_random_uuid(), title text not null, subtitle text, year_from int not null, year_to int not null, summary text, image text, position int not null default 0, updated_at timestamptz not null default now());
+create table if not exists life_events (
+  id uuid primary key default gen_random_uuid(), slug text not null unique, year int not null, month int, day int, year_to int, circa boolean not null default false, date_label text,
+  title text not null, summary text, body text, kind text not null default 'life', place text, country text, people text[] not null default '{}',
+  image text, image_caption text, links jsonb not null default '[]', source text, importance int not null default 2, status text not null default 'published', position int not null default 0,
+  search text not null default '', created_at timestamptz not null default now(), updated_at timestamptz not null default now());
+create index if not exists life_events_year_idx on life_events(year, month, day);

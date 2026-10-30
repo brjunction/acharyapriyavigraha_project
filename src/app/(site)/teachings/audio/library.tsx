@@ -1,5 +1,5 @@
 "use client";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Search, X, List, CalendarRange, ChevronDown, ArrowDownUp } from "lucide-react";
 import { LECTURES, type Lecture } from "@/lib/data";
 import { LectureRow } from "@/components/lecture";
@@ -39,7 +39,7 @@ function Drop({ title, all, value, options, onChange }: { title: string; all: st
 }
 
 export function AudioLibrary({ lectures = LECTURES }: { lectures?: Lecture[] }) {
-  const [q, setQ] = useState(""); const [f, setF] = useState<Partial<Record<K, string>>>({}); const [text, setText] = useState(false);
+  const [q, setQ] = useState(""); const [f, setF] = useState<Partial<Record<K, string>>>({}); useEffect(() => { const u = new URLSearchParams(location.search); const o: Partial<Record<K, string>> = {}; (["year", "place", "topic", "series", "language"] as K[]).forEach((k) => { const v = u.get(k); if (v) o[k] = v; }); if (Object.keys(o).length) setF(o); }, []); const [text, setText] = useState(false);
   const [view, setView] = useState<"list" | "year">("list"); const [sort, setSort] = useState<(typeof SORTS)[number][0]>("new"); const [more, setMore] = useState(false);
   const defs = DEFS.filter((d) => lectures.some((l) => d.get(l).length));
   const pass = (l: Lecture, skip?: K) => (!q || norm(`${l.title} ${l.place} ${l.scripture ?? ""} ${l.topics.join(" ")} ${l.date} ${l.series ?? ""}`).includes(norm(q)))
