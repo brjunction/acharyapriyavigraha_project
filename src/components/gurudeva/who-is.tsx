@@ -28,7 +28,7 @@ export async function WhoIsGurudeva() {
   return (
     <div className="bg-white">
       <div className="mx-auto max-w-[1100px] px-4 pb-20 pt-6 sm:px-6">
-        <nav className="flex items-center gap-1 text-[12px] text-ink-3"><Link href="/gurudeva" className="hover:text-saffron">Śrīla Gurudeva</Link><ChevronRight size={12} /><span className="text-ink-2">Who is Śrīla Gurudeva?</span></nav>
+        <nav className="flex items-center gap-1 text-[12px] text-ink-3"><Link href="/gurudeva" className="hover:text-ink hover:underline">Śrīla Gurudeva</Link><ChevronRight size={12} /><span className="text-ink-2">Who is Śrīla Gurudeva?</span></nav>
         <div className="mt-6 grid items-start gap-10 md:grid-cols-[minmax(0,1fr)_300px]">
           <div>
             <h1 className="text-[30px] leading-tight text-ink sm:text-[38px]" style={serif}>Who is Śrīla Gurudeva?</h1>

@@ -41,12 +41,12 @@ type Tr = { slug: string; title: string; language: string; native: string; href:
 type Mark = { href: string; title: string; book: string; at: number };
 
 /* ------------------------------------------------------------------ reader */
-export function Reader({ book, chapter, toc, prev, next, translations, parallel, children }: {
+export function Reader({ book, chapter, toc, prev, next, translations, parallel, children, searchApi, extra }: {
   book: { slug: string; title: string; href: string; language: string; cover?: string | null };
   chapter: { id: string; title: string; num: string; label: string; href: string; index: number; total: number };
   toc: TocItem[]; prev: Nav; next: Nav; translations: Tr[];
   parallel?: { title: string; language: string; native: string; slug: string; node: React.ReactNode } | null;
-  children: React.ReactNode;
+  children: React.ReactNode; searchApi?: string; extra?: React.ReactNode;
 }) {
   const router = useRouter();
   const [s, setS] = useState<ReaderSettings>(DEF); const [ready, setReady] = useState(false);
@@ -193,7 +193,7 @@ export function Reader({ book, chapter, toc, prev, next, translations, parallel,
                 <div className="md:col-span-2">{end}</div>
               </div>
             ) : (
-              <article className="rd-text mx-auto px-5 pb-24 pt-20 sm:px-8" style={{ ...textStyle, maxWidth: s.width + 64 }}>{heading(chapter.title)}{children}{end}</article>
+              <article className="rd-text mx-auto px-5 pb-24 pt-20 sm:px-8" style={{ ...textStyle, maxWidth: s.width + 64 }}>{heading(chapter.title)}{children}{extra}{end}</article>
             )}
           </div>
         )}
@@ -209,7 +209,7 @@ export function Reader({ book, chapter, toc, prev, next, translations, parallel,
           <div className="min-h-0 flex-1 overflow-y-auto [scrollbar-width:thin]">
             {panel === "contents" && <><Link href={book.href} className="flex items-center gap-3 border-b px-4 py-3" style={{ borderColor: T.line }}>{book.cover && /* eslint-disable-next-line @next/next/no-img-element */ <img src={book.cover} alt="" className="h-14 w-10 rounded-sm object-cover shadow" />}<span className="min-w-0"><span className="block truncate text-[14px] font-semibold">{book.title}</span><span className="text-[12px]" style={{ color: T.muted }}>{chapter.total} chapters · {Math.round(((chapter.index + 1) / chapter.total) * 100)}% through</span></span></Link><Contents toc={toc} current={chapter.id} T={T} onGo={() => setPanel(null)} suffix={parallel ? `?with=${parallel.slug}` : ""} /></>}
             {panel === "marks" && <div className="p-3">{marks.length ? marks.map((m) => <div key={m.href} className="group flex items-start gap-2 rounded-md px-2 py-2 hover:bg-black/5 [.rd-dark_&]:hover:bg-white/10"><Link href={m.href} onClick={() => setPanel(null)} className="min-w-0 flex-1"><span className="block truncate text-[13.5px] font-medium">{m.title}</span><span className="block truncate text-[12px]" style={{ color: T.muted }}>{m.book} · {new Date(m.at).toLocaleDateString()}</span></Link><button onClick={() => { const x = marks.filter((y) => y.href !== m.href); setMarks(x); try { localStorage.setItem("tj_marks", JSON.stringify(x)); } catch {} }} className="opacity-0 group-hover:opacity-60"><X size={14} /></button></div>) : <p className="px-2 py-8 text-center text-[13px]" style={{ color: T.muted }}>No bookmarks yet. Press <kbd>B</kbd> on any chapter.</p>}</div>}
-            {panel === "search" && <BookSearch slug={book.slug} T={T} onGo={() => setPanel(null)} />}
+            {panel === "search" && <BookSearch api={searchApi || `/api/books/search?book=${book.slug}&q=`} T={T} onGo={() => setPanel(null)} />}
           </div>
           <div className="border-t px-4 py-2.5 text-[11.5px]" style={{ borderColor: T.line, color: T.muted }}>Press <kbd className="rounded border px-1" style={{ borderColor: T.line }}>?</kbd> for keyboard shortcuts</div>
         </aside>
@@ -272,13 +272,13 @@ function Contents({ toc, current, T, onGo, suffix = "" }: { toc: TocItem[]; curr
   return <div ref={ref} className="px-2 py-2"><ol>{(kids[""] || []).map(row)}</ol></div>;
 }
 
-function BookSearch({ slug, T, onGo }: { slug: string; T: (typeof THEMES)[Theme]; onGo: () => void }) {
+function BookSearch({ api, T, onGo }: { api: string; T: (typeof THEMES)[Theme]; onGo: () => void }) {
   const [q, setQ] = useState(""); const [res, setRes] = useState<{ title: string; href: string; snippet: string; hits: number }[] | null>(null); const [busy, setBusy] = useState(false);
-  useEffect(() => { if (q.trim().length < 2) { setRes(null); return; } setBusy(true); const h = setTimeout(() => fetch(`/api/books/search?book=${slug}&q=${encodeURIComponent(q.trim())}`).then((r) => r.json()).then(setRes).catch(() => setRes([])).finally(() => setBusy(false)), 250); return () => clearTimeout(h); }, [q, slug]);
+  useEffect(() => { if (q.trim().length < 2) { setRes(null); return; } setBusy(true); const h = setTimeout(() => fetch(`${api}${encodeURIComponent(q.trim())}`).then((r) => r.json()).then(setRes).catch(() => setRes([])).finally(() => setBusy(false)), 250); return () => clearTimeout(h); }, [q, api]);
   const mark = (t: string) => { const w = q.trim(); if (!w) return t; const i = t.toLowerCase().indexOf(w.toLowerCase()); return i < 0 ? t : <>{t.slice(0, i)}<mark className="rounded-sm bg-yellow-300/70 px-0.5 text-inherit">{t.slice(i, i + w.length)}</mark>{t.slice(i + w.length)}</>; };
   return (
     <div className="p-3">
-      <label className="relative block"><Search size={15} className="absolute left-2.5 top-1/2 -translate-y-1/2" style={{ color: T.muted }} /><input autoFocus value={q} onChange={(e) => setQ(e.target.value)} placeholder="Find words in this book" className="h-9 w-full rounded-md border bg-transparent pl-8 pr-8 text-[13.5px] outline-none" style={{ borderColor: T.line }} />{busy && <Loader2 size={14} className="absolute right-2.5 top-1/2 -translate-y-1/2 animate-spin" />}</label>
+      <label className="relative block"><Search size={15} className="absolute left-2.5 top-1/2 -translate-y-1/2" style={{ color: T.muted }} /><input autoFocus value={q} onChange={(e) => setQ(e.target.value)} placeholder="Find words" className="h-9 w-full rounded-md border bg-transparent pl-8 pr-8 text-[13.5px] outline-none" style={{ borderColor: T.line }} />{busy && <Loader2 size={14} className="absolute right-2.5 top-1/2 -translate-y-1/2 animate-spin" />}</label>
       {res && <p className="mt-3 px-1 text-[12px]" style={{ color: T.muted }}>{res.length ? `Found in ${res.length} ${res.length === 1 ? "chapter" : "chapters"}` : "Not found in this book."}</p>}
       <div className="mt-1">{res?.map((r) => <Link key={r.href} href={r.href} onClick={onGo} className="block rounded-md px-2 py-2 hover:bg-black/5 [.rd-dark_&]:hover:bg-white/10"><span className="flex justify-between gap-2 text-[13px] font-medium"><span className="truncate">{r.title}</span><span className="shrink-0 text-[11.5px] font-normal" style={{ color: T.muted }}>{r.hits}×</span></span><span className="mt-0.5 line-clamp-3 block text-[12.5px] leading-relaxed" style={{ color: T.muted }}>{mark(r.snippet)}</span></Link>)}</div>
     </div>
