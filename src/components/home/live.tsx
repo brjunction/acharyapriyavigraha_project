@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, MessagesSquare, Mail, ArrowRight } from "lucide-react";
 import { CONVERSATION, LETTER } from "@/lib/prabhupada";
 
 /** Numbers that count up once when they come into view. */
@@ -28,21 +28,21 @@ function Num({ n, label, sub, on }: { n: number; label: string; sub: string; on:
 
 const hl = (t: string) => t.split(/«|»/).map((p, i) => (i % 2 ? <mark key={i} className="rounded bg-[#fbf0d2] px-0.5 font-medium text-ink">{p}</mark> : p));
 /** Two quiet links that open the full conversation or the full letter in a large reading window. */
-export function BlessingLetters() {
+export function BlessingLetters({ align = "center" }: { align?: "center" | "left" }) {
   const [open, setOpen] = useState<"c" | "l" | null>(null);
   useEffect(() => { if (!open) return; const k = (e: KeyboardEvent) => e.key === "Escape" && setOpen(null); window.addEventListener("keydown", k); document.body.style.overflow = "hidden"; return () => { window.removeEventListener("keydown", k); document.body.style.overflow = ""; }; }, [open]);
-  const link = "inline-flex items-center gap-1.5 border-b border-[#d9c7a3] px-1 pb-0.5 text-[13.5px] italic text-ink-2 transition hover:border-saffron hover:text-saffron";
+  const base = "group inline-flex h-11 items-center gap-2 rounded-full pl-2 pr-5 text-[14px] font-semibold transition duration-200 hover:-translate-y-0.5";
   return (
     <>
-      <div className="mt-7 flex flex-wrap justify-center gap-6" style={{ fontFamily: "var(--font-reading-serif)" }}><button onClick={() => setOpen("c")} className={link}>Read the conversation</button><button onClick={() => setOpen("l")} className={link}>Read the letter</button></div>
+      <div className={`mt-7 flex flex-wrap gap-2 ${align === "left" ? "justify-start" : "justify-center"}`}><button onClick={() => setOpen("c")} className={`${base} bg-gradient-to-r from-[#8a1c0f] to-[#b8401a] text-white shadow-[0_8px_20px_-8px_rgba(138,28,15,.6)] hover:shadow-[0_12px_26px_-8px_rgba(138,28,15,.7)]`}><span className="flex size-7 items-center justify-center rounded-full bg-white/15"><MessagesSquare size={15} /></span>Read the conversation<ArrowRight size={15} className="transition group-hover:translate-x-0.5" /></button><button onClick={() => setOpen("l")} className={`${base} border border-[#ecd9a8] bg-[#fdf6e3] text-[#7a3b0c] hover:border-[#e0bf6a] hover:bg-[#fbefcc]`}><span className="flex size-7 items-center justify-center rounded-full bg-[#f3dfa6] text-[#8a4a0c]"><Mail size={15} /></span>Read the letter<ArrowRight size={15} className="transition group-hover:translate-x-0.5" /></button></div>
       {open && <div className="fixed inset-0 z-[90] flex items-center justify-center bg-black/40 p-3 backdrop-blur-sm sm:p-8" onClick={() => setOpen(null)}>
         <div className="flex max-h-full w-full max-w-3xl flex-col overflow-hidden rounded-2xl bg-[#fffdf8] shadow-2xl" onClick={(e) => e.stopPropagation()}>
           <div className="flex items-start justify-between gap-4 border-b border-[#efe4cf] px-6 py-4 sm:px-8">
             <div><p className="text-[11px] font-medium uppercase tracking-[0.25em] text-saffron">Śrīla Prabhupāda on Śrīla Gurudeva</p><p className="mt-1 text-[17px] font-semibold text-ink sm:text-[19px]">{open === "c" ? CONVERSATION.title : LETTER.title}</p><p className="text-[12.5px] text-ink-3">{open === "c" ? CONVERSATION.speakers : `Letter ${LETTER.ref}`}</p></div>
             <button onClick={() => setOpen(null)} className="rounded-md px-2 py-1 text-[22px] leading-none text-ink-3 hover:bg-black/5" aria-label="Close">×</button>
           </div>
-          <div className="overflow-y-auto px-6 py-6 text-[15.5px] leading-[1.8] text-ink-2 sm:px-10 sm:text-[17px]" style={{ fontFamily: "var(--font-reading-serif)" }}>
-            {open === "c" ? CONVERSATION.lines.map(([w, l], i) => <p key={i} className="mb-3"><span className={`mr-2 font-sans text-[13px] font-semibold ${w === "Prabhupāda" ? "text-saffron" : "text-ink"}`}>{w}</span>{hl(l)}</p>)
+          <div className="overflow-y-auto px-6 py-6 text-[15px] leading-[1.75] text-ink-2 sm:px-10 sm:text-[16px]">
+            {open === "c" ? CONVERSATION.lines.map(([w, l], i) => <p key={i} className="mb-3"><span className={`mr-2 text-[13px] font-semibold ${w === "Prabhupāda" ? "text-saffron" : "text-ink"}`}>{w}</span>{hl(l)}</p>)
               : <><p className="mb-4">{LETTER.salutation}</p>{LETTER.paras.map((p, i) => <p key={i} className="mb-4">{hl(p)}</p>)}<p className="mt-6 text-ink-3">{LETTER.closing[0]}<br />{LETTER.closing[1]}</p></>}
           </div>
         </div>

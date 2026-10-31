@@ -1,4 +1,5 @@
 "use client";
+import { BLESSINGS } from "@/components/home/blessing";
 import { useEffect, useRef, useState } from "react";
 import { Upload, Trash2, Plus, Copy } from "lucide-react";
 import { Btn, Field, Input, Modal, Select, Textarea, api, toast } from "./ui";
@@ -93,6 +94,18 @@ export function SettingsAdmin() {
         <Field label="Short description" hint="Shown in search results when a page has no description of its own."><Textarea value={s.site_description || ""} onChange={(e) => set("site_description", e.target.value)} /></Field>
         <Field label="Website address" hint="Used in the sitemap. For example https://taptajivanam.com"><Input value={s.site_url || ""} onChange={(e) => set("site_url", e.target.value)} placeholder="https://taptajivanam.com" /></Field>
         <Field label="Contact email"><Input value={s.contact_email || ""} onChange={(e) => set("contact_email", e.target.value)} /></Field>
+      </div>
+      <div className="card mt-6 max-w-2xl p-6">
+        <p className="text-[15px] font-semibold text-ink">Home page · “Kṛṣṇa sent him”</p>
+        <p className="mt-1 text-[13px] text-ink-3">Choose the design of the Śrīla Prabhupāda and Śrīla Gurudeva section. Preview each, then press Save settings.</p>
+        <div className="mt-4 grid gap-3 sm:grid-cols-2">
+          {BLESSINGS.map(([k, t, d]) => { const on = (s.home_blessing || "a") === k; return (
+            <div key={k} role="button" tabIndex={0} onClick={() => set("home_blessing", k)} className={`cursor-pointer rounded-xl border p-4 transition ${on ? "border-ink ring-2 ring-ink/10" : "border-line hover:border-line-strong"}`}>
+              <div className="flex items-center justify-between"><span className="text-[14px] font-semibold text-ink">{k.toUpperCase()} · {t}</span>{on && <span className="rounded-full bg-ink px-2 py-0.5 text-[11px] font-medium text-white">Chosen</span>}</div>
+              <p className="mt-1 text-[12.5px] leading-snug text-ink-3">{d}</p>
+              <a href={`/home-new?blessing=${k}`} target="_blank" rel="noreferrer" onClick={(e) => e.stopPropagation()} className="mt-2 inline-block text-[12.5px] font-medium text-[#1a73e8] hover:underline">Preview ↗</a>
+            </div>); })}
+        </div>
       </div>
     </div>
   );

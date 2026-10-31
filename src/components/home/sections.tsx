@@ -1,7 +1,7 @@
 /* New home page sections, in the owner's design language: tracked saffron kickers, semibold headings,
    two-column sections with a living preview beside the words, soft cream bands, pill buttons. */
 import Link from "next/link";
-import { ArrowRight, Headphones, Music2, Video, BookOpen, Quote, Network, NotebookPen, Image as ImageIcon, Mail, HandHeart, MapPin, Gift, History, Search, Languages, Keyboard, Columns2, FileText, Newspaper, HeartHandshake, Download, WifiOff, MonitorDown, ChevronRight, type LucideIcon } from "lucide-react";
+import { ArrowRight, Headphones, Music2, Video, BookOpen, Quote, Network, NotebookPen, Image as ImageIcon, Mail, HandHeart, MapPin, Gift, History, Search, Languages, Keyboard, Columns2, FileText, Newspaper, HeartHandshake, Mic, PenLine, Images, Code2, Download, WifiOff, MonitorDown, ChevronRight, type LucideIcon } from "lucide-react";
 import { durText } from "@/lib/content/text";
 import { LiveNumbers, BlessingLetters, TopicCloud } from "./live";
 import { Backdrop } from "@/components/backdrop";
@@ -268,17 +268,36 @@ export function WebFolioSection() {
 }
 
 /* ------------------------------------------------------------------ thanks */
+const THANKS: [React.ComponentType<{ size?: number; className?: string }>, string, string, string][] = [
+  [Mic, "Recording", "Lectures and kīrtanas, recorded and kept for decades", "bg-[#fdecea] text-[#b3261e]"],
+  [FileText, "Transcription", "Every word written down, checked and checked again", "bg-[#e8f0fe] text-[#1a56db]"],
+  [Languages, "Translation", "Into Russian, Spanish, Odia, Hindi, Bengali and more", "bg-[#e6f4ea] text-[#137333]"],
+  [PenLine, "Editing", "Books, articles and the diaries prepared for reading", "bg-[#fef7e0] text-[#b06000]"],
+  [Images, "Photos & films", "Gathered from archives and devotees’ albums", "bg-[#f3e8fd] text-[#7627bb]"],
+  [Code2, "Design & code", "This website, the WebFolio and the apps", "bg-[#e4f7fb] text-[#007b83]"],
+];
 export function ThanksSection() {
   return (
-    <section className="reveal bg-white">
-      <div className="mx-auto max-w-3xl px-5 py-16 text-center sm:py-20">
-        <div aria-hidden className="mx-auto mb-8 h-px max-w-md bg-gradient-to-r from-transparent via-[#e6d6b8] to-transparent" />
-        <span className="mx-auto mb-4 flex size-12 items-center justify-center rounded-full border border-[#eadcc0] text-saffron"><HeartHandshake size={22} strokeWidth={1.6} /></span>
-        <p className="mb-2 text-[10.5px] font-medium uppercase tracking-[0.25em] text-saffron sm:text-[11.5px] sm:tracking-[0.3em]">With gratitude</p>
-        <h2 className="text-[24px] text-ink sm:text-[32px]" style={{ fontFamily: "var(--font-reading-serif)" }}>Our Thank List</h2>
-        <p className="mx-auto mt-3 max-w-xl text-[14px] leading-relaxed text-ink-2 sm:text-[15px]">This archive is built by the efforts of the disciples, grand-disciples, followers and admirers of Śrī Śrīmad Gour Govinda Swāmī Gurudeva, in many countries.</p>
-        <div className="mt-7 flex justify-center"><PillLine href="/thank-list">Read the Thank List <ArrowRight size={16} /></PillLine></div>
-        <div aria-hidden className="mx-auto mt-10 flex w-40 items-center gap-2 text-[9px] text-[#c2621d]"><span className="h-px flex-1 bg-gradient-to-r from-transparent to-[#c2621d]/50" />◆<span className="h-px flex-1 bg-gradient-to-l from-transparent to-[#c2621d]/50" /></div>
+    <section className="reveal bg-[#f8f9fa]">
+      <div className="mx-auto grid max-w-6xl gap-10 px-4 py-16 sm:px-6 sm:py-24 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
+        <div>
+          <span className="inline-flex items-center gap-2 rounded-full border border-line bg-white px-3 py-1 text-[12px] font-medium text-ink-2 shadow-sm"><HeartHandshake size={14} className="text-[#b3261e]" /> With gratitude</span>
+          <h2 className="mt-5 text-[30px] font-semibold leading-[1.1] tracking-[-0.03em] text-ink sm:text-[44px]">Our Thank List</h2>
+          <p className="mt-4 max-w-md text-[15px] leading-relaxed text-ink-2 sm:text-[16px]">This archive is built by the efforts of the disciples, grand-disciples, followers and admirers of Śrī Śrīmad Gour Govinda Swāmī Gurudeva, in many countries.</p>
+          <div className="mt-8 flex flex-wrap gap-3">
+            <Link href="/thank-list" className="group inline-flex h-11 items-center gap-2 rounded-full bg-[#1a73e8] px-6 text-[14px] font-semibold text-white shadow-[0_6px_16px_-6px_rgba(26,115,232,.6)] transition hover:-translate-y-0.5 hover:bg-[#1765cc]">Read the Thank List <ArrowRight size={16} className="transition group-hover:translate-x-0.5" /></Link>
+            <Link href="/about/contact" className="inline-flex h-11 items-center gap-2 rounded-full border border-line-strong bg-white px-6 text-[14px] font-semibold text-ink transition hover:-translate-y-0.5 hover:border-ink">Offer your service</Link>
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-3 sm:gap-4">
+          {THANKS.map(([I, t, d, c], i) => (
+            <div key={t} className="reveal rounded-2xl border border-line bg-white p-4 shadow-[0_1px_2px_rgba(60,64,67,.08)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_10px_30px_-12px_rgba(60,64,67,.35)] sm:p-5" style={{ transitionDelay: `${i * 40}ms` }}>
+              <span className={`flex size-10 items-center justify-center rounded-xl ${c}`}><I size={19} /></span>
+              <p className="mt-4 text-[14.5px] font-semibold text-ink sm:text-[15.5px]">{t}</p>
+              <p className="mt-1 text-[12.5px] leading-snug text-ink-3 sm:text-[13.5px]">{d}</p>
+            </div>
+          ))}
+        </div>
       </div>
     </section>
   );
