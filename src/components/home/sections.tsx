@@ -21,17 +21,16 @@ const BAND = "border-y border-[#efe4cf] bg-[#fbf7ef]";
 
 /* ------------------------------------------------------------------ blessing */
 export function BlessingSection() {
-  const person = (src: string, alt: string, name: string, line: string, side: "l" | "r") => (
+  const person = (src: string, alt: string, _name: string, _line: string, side: "l" | "r") => (
     <figure className={`${side === "l" ? "bless-left" : "bless-right"} relative`}>
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={src} alt={alt} className="mx-auto block w-full max-w-[330px] object-contain object-bottom" loading="lazy" />
-      <figcaption className="mt-2 text-center"><span className="block text-[13px] font-semibold text-ink sm:text-[14px]">{name}</span><span className="block text-[11px] text-ink-3 sm:text-[12px]">{line}</span></figcaption>
+      <img src={src} alt={alt} className={`block w-full max-w-[150px] object-contain object-bottom sm:max-w-[210px] ${side === "l" ? "mr-auto" : "ml-auto"}`} loading="lazy" />
     </figure>
   );
   return (
-    <section className="reveal relative overflow-hidden bg-white">
-      <div className="mx-auto max-w-6xl px-4 pt-10 sm:px-5 sm:pt-14">
-        <div className="grid grid-cols-2 items-end gap-x-3 lg:grid-cols-[1fr_1.35fr_1fr] lg:gap-x-6">
+    <section className="reveal relative overflow-hidden bg-white pb-14 sm:pb-24">
+      <div className="mx-auto max-w-6xl px-4 pt-12 sm:px-5 sm:pt-20">
+        <div className="grid grid-cols-2 items-center gap-x-3 lg:grid-cols-[210px_1fr_210px] lg:gap-x-10">
           <div className="order-2 lg:order-1">{person("/legacy/prabhupada.webp", "Śrīla A.C. Bhaktivedanta Swami Prabhupāda", "Śrīla Prabhupāda", "Founder-ācārya of ISKCON", "l")}</div>
           <div className="order-1 col-span-2 pb-8 text-center lg:order-2 lg:col-span-1 lg:self-center lg:pb-10">
             <p className="mb-3 text-[10.5px] font-medium uppercase tracking-[0.25em] text-saffron sm:text-[11.5px] sm:tracking-[0.3em]">Śrīla Prabhupāda on Śrīla Gurudeva</p>
@@ -45,7 +44,6 @@ export function BlessingSection() {
           <div className="order-3">{person("/legacy/gurudeva.webp", "Śrī Śrīmad Gour Govinda Swāmī Gurudeva", "Śrīla Gurudeva", "His dear disciple", "r")}</div>
         </div>
       </div>
-      <div aria-hidden className="mx-auto mt-6 h-px max-w-5xl bg-gradient-to-r from-transparent via-[#e6d6b8] to-transparent" />
     </section>
   );
 }
