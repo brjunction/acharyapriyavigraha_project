@@ -20,7 +20,7 @@ export function Shell({ user, children }: { user: { name: string; email: string;
   const toggle = (id: string) => setOpen((o) => { const n = { ...o, [id]: !o[id] }; try { localStorage.setItem("tj_tree", JSON.stringify(n)); } catch {} return n; });
   const cur = /^\/admin\/pages\/([^/]+)/.exec(path)?.[1];
   // Only the group you are working in opens by itself; others open when clicked.
-  const here = groupOf(path) || (/^\/admin\/(pages|databases)/.test(path) ? "website" : null);
+  const here = groupOf(path) || (/^\/admin\/pages/.test(path) ? "webfolio" : /^\/admin\/databases/.test(path) ? "website" : null);
   const isOpen = (k: string) => open["grp:" + k] ?? k === here;
   // keep the open page's ancestors expanded
   useEffect(() => { if (!cur || !pages.length) return; const byId = Object.fromEntries(pages.map((p) => [p.id, p])); let p = byId[cur]; const add: Record<string, boolean> = {}; while (p?.parent_id) { add[p.parent_id] = true; p = byId[p.parent_id]; } if (Object.keys(add).length) setOpen((o) => ({ ...o, ...add })); }, [cur, pages]);
@@ -67,12 +67,14 @@ export function Shell({ user, children }: { user: { name: string; email: string;
         <div className="mt-1"><Nav href="/admin" icon={LayoutDashboard} label="Dashboard" /></div>
         {ADMIN_GROUPS.filter((g) => g.key !== "settings" || user.role === "owner" || user.role === "admin").map((g) => { const on = isOpen(g.key); return (
           <div key={g.key} className="mt-1">
-            <button onClick={() => setOpen((o) => { const n = { ...o, ["grp:" + g.key]: !on }; try { localStorage.setItem("tj_tree", JSON.stringify(n)); } catch {} return n; })} className="flex h-8 w-full items-center gap-1.5 rounded-md px-2 text-[12px] font-semibold text-zinc-500 hover:bg-zinc-200/50 hover:text-zinc-900"><ChevronRight className={`size-3.5 transition ${on ? "rotate-90" : ""}`} /><span className="flex-1 text-left">{g.label}</span>{!on && groupOf(path) === g.key && <span className="size-1.5 rounded-full bg-zinc-900" />}</button>
-            {on && <div className="ml-2 border-l border-zinc-200 pl-1.5">
+            <button onClick={() => setOpen((o) => { const n = { ...o, ["grp:" + g.key]: !on }; try { localStorage.setItem("tj_tree", JSON.stringify(n)); } catch {} return n; })} className={`flex h-9 w-full items-center gap-2.5 rounded-lg px-2 text-[13px] font-semibold transition hover:bg-zinc-200/50 ${on ? "text-zinc-950" : "text-zinc-700"}`}><span className="flex size-6 items-center justify-center rounded-md text-white shadow-sm" style={{ background: g.color }}><g.icon className="size-3.5" /></span><span className="flex-1 text-left">{g.label}</span>{!on && groupOf(path) === g.key && <span className="size-1.5 rounded-full" style={{ background: g.color }} />}<ChevronRight className={`size-3.5 text-zinc-400 transition ${on ? "rotate-90" : ""}`} /></button>
+            {on && <div className="mb-1 ml-[19px] border-l border-zinc-200 pl-2">
               {g.links.map((l) => <Nav key={l.href} href={l.href} icon={l.icon} label={l.label} />)}
+              {g.key === "webfolio" && <>
+                <div className="mt-1 flex h-7 items-center justify-between pl-2 pr-1 text-[11px] font-semibold uppercase tracking-[0.06em] text-zinc-400"><span>Your pages</span><button title="New page" onClick={() => newPage()} className="flex size-6 items-center justify-center rounded-md text-zinc-500 hover:bg-zinc-200/70 hover:text-zinc-900"><Plus className="size-3.5" /></button></div>
+                <div>{(kids.root || []).map((p) => <Row key={p.id} p={p} depth={0} />)}{!(kids.root || []).length && <button onClick={() => newPage()} className="flex h-8 w-full items-center gap-2 rounded-md px-2 text-[12.5px] text-zinc-500 hover:bg-zinc-200/50"><Plus className="size-3.5" />Write the first page</button>}</div>
+              </>}
               {g.key === "website" && <>
-                <div className="flex h-8 items-center justify-between pl-2 pr-1 text-[12px] font-medium text-zinc-500"><span className="flex items-center gap-2"><FileText className="size-4 text-zinc-500" />Pages you write</span><button title="New page" onClick={() => newPage()} className="rounded-md p-1 hover:bg-zinc-200/70"><Plus className="size-3.5" /></button></div>
-                <div className="ml-2">{(kids.root || []).map((p) => <Row key={p.id} p={p} depth={0} />)}{!(kids.root || []).length && <p className="px-2 py-1 text-[12px] text-zinc-400">None yet. Turn one on in Website pages.</p>}</div>
                 {dbs.filter((d) => !lib.some((x) => x.slug === d.slug)).map((d) => <Link key={d.id} href={`/admin/databases/${d.id}`} className={`${item} ${path === `/admin/databases/${d.id}` ? active : ""}`}><Database />{d.name}</Link>)}
               </>}
             </div>}

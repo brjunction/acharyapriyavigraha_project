@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { sql } from "@/lib/db";
 import { ADMIN_GROUPS } from "@/lib/admin-nav";
+import { Globe, BookMarked, PenLine, LayoutTemplate, ArrowRight } from "lucide-react";
 
 async function counts(): Promise<Record<string, number>> {
   const q = async (s: Promise<any[]>) => { try { return await s; } catch { return []; } };
@@ -13,22 +14,27 @@ async function counts(): Promise<Record<string, number>> {
   return o;
 }
 
-/** The Studio home: the same groups as the sidebar, as tiles with counts. */
+/** The Studio home: quick actions, the main numbers, then the same groups as the sidebar, as tiles with counts. */
 export default async function Overview() {
   const n = await counts();
+  const big: [string, string, number, string][] = [["Audio lectures", "/admin/audio", n["/admin/audio"] || 0, "#1a73e8"], ["Books", "/admin/books", n["/admin/books"] || 0, "#137333"], ["Videos", "/admin/videos", n["/admin/videos"] || 0, "#b3261e"], ["Diary pages", "/admin/diary", n["/admin/diary"] || 0, "#b06000"]];
+  const quick: [string, string, any][] = [["Open the website", "/", Globe], ["Open the WebFolio", "/webfolio", BookMarked], ["Write a WebFolio page", "/admin/pages", PenLine], ["Home page design", "/admin/settings", LayoutTemplate]];
   return (
     <div>
-      <h1 className="text-[22px] font-semibold tracking-tight text-zinc-950">Studio</h1>
-      <p className="mt-1 text-[13px] text-zinc-500">Everything on the website is managed here, organised the same way as the website’s menus.</p>
-      <div className="mt-8 space-y-9">
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <div><h1 className="text-[26px] font-semibold tracking-[-0.025em] text-zinc-950">Studio</h1><p className="mt-1 text-[13.5px] text-zinc-500">Everything on the website and the WebFolio, organised the same way as the website’s menus.</p></div>
+        <div className="flex flex-wrap gap-2">{quick.map(([l, h, I]) => <Link key={h} href={h} target={h.startsWith("/admin") ? undefined : "_blank"} className="inline-flex h-9 items-center gap-2 rounded-full border border-zinc-200 bg-white px-3.5 text-[13px] font-medium text-zinc-800 shadow-xs transition hover:border-zinc-300 hover:bg-zinc-50"><I className="size-4 text-zinc-500" />{l}</Link>)}</div>
+      </div>
+      <div className="mt-7 grid grid-cols-2 gap-3 lg:grid-cols-4">{big.map(([l, h, v, c]) => <Link key={h} href={h} className="group rounded-2xl border border-zinc-200 bg-white p-4 transition hover:border-zinc-300 hover:shadow-[0_10px_28px_-16px_rgba(0,0,0,.3)]"><span className="block h-1 w-8 rounded-full" style={{ background: c }} /><p className="mt-3 text-[28px] font-semibold tabular-nums tracking-tight text-zinc-950">{v.toLocaleString()}</p><p className="flex items-center justify-between text-[13px] text-zinc-500">{l}<ArrowRight className="size-3.5 opacity-0 transition group-hover:opacity-100" /></p></Link>)}</div>
+      <div className="mt-10 space-y-10">
         {ADMIN_GROUPS.map((g) => (
           <section key={g.key}>
-            <div className="mb-3 flex items-baseline gap-3"><h2 className="text-[14px] font-semibold text-zinc-900">{g.label}</h2><p className="text-[12.5px] text-zinc-500">{g.desc}</p></div>
-            <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            <div className="mb-3 flex items-center gap-3"><span className="flex size-8 items-center justify-center rounded-lg text-white shadow-sm" style={{ background: g.color }}><g.icon className="size-4" /></span><div><h2 className="text-[15px] font-semibold text-zinc-950">{g.label}</h2><p className="text-[12.5px] text-zinc-500">{g.desc}</p></div></div>
+            <div className="grid gap-2.5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {g.links.map(({ href, label, icon: I, desc }) => (
-                <Link key={href} href={href} className="group flex items-start gap-3 rounded-xl border border-zinc-200 bg-white p-3 transition hover:border-zinc-300 hover:shadow-sm">
-                  <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-zinc-100 text-zinc-700 group-hover:bg-zinc-900 group-hover:text-white"><I className="size-4" /></span>
-                  <span className="min-w-0 flex-1"><span className="flex items-center justify-between gap-2"><span className="truncate text-[13px] font-medium text-zinc-900">{label}</span>{n[href] !== undefined && <span className="text-[11.5px] tabular-nums text-zinc-400">{n[href].toLocaleString()}</span>}</span><span className="mt-0.5 block truncate text-[12px] text-zinc-500">{desc}</span></span>
+                <Link key={href} href={href} className="group flex items-start gap-3 rounded-xl border border-zinc-200 bg-white p-3.5 transition hover:-translate-y-px hover:border-zinc-300 hover:shadow-[0_8px_22px_-14px_rgba(0,0,0,.3)]">
+                  <span className="flex size-9 shrink-0 items-center justify-center rounded-lg transition" style={{ background: `${g.color}14`, color: g.color }}><I className="size-[18px]" /></span>
+                  <span className="min-w-0 flex-1"><span className="flex items-center justify-between gap-2"><span className="truncate text-[13.5px] font-semibold text-zinc-900">{label}</span>{n[href] !== undefined && <span className="rounded-full bg-zinc-100 px-1.5 text-[11px] font-medium tabular-nums text-zinc-600">{n[href].toLocaleString()}</span>}</span><span className="mt-0.5 block text-[12px] leading-snug text-zinc-500">{desc}</span></span>
                 </Link>))}
             </div>
           </section>))}
