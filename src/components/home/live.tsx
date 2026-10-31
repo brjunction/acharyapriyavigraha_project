@@ -31,10 +31,10 @@ const hl = (t: string) => t.split(/«|»/).map((p, i) => (i % 2 ? <mark key={i} 
 export function BlessingLetters() {
   const [open, setOpen] = useState<"c" | "l" | null>(null);
   useEffect(() => { if (!open) return; const k = (e: KeyboardEvent) => e.key === "Escape" && setOpen(null); window.addEventListener("keydown", k); document.body.style.overflow = "hidden"; return () => { window.removeEventListener("keydown", k); document.body.style.overflow = ""; }; }, [open]);
-  const link = "inline-flex items-center gap-1.5 rounded-full border border-[#e6d6b8] bg-white/70 px-4 py-2 text-[13px] text-ink transition hover:border-saffron hover:text-saffron";
+  const link = "inline-flex items-center gap-1.5 border-b border-[#d9c7a3] px-1 pb-0.5 text-[13.5px] italic text-ink-2 transition hover:border-saffron hover:text-saffron";
   return (
     <>
-      <div className="mt-6 flex flex-wrap justify-center gap-2"><button onClick={() => setOpen("c")} className={link}>Read the conversation</button><button onClick={() => setOpen("l")} className={link}>Read the letter</button></div>
+      <div className="mt-7 flex flex-wrap justify-center gap-6" style={{ fontFamily: "var(--font-reading-serif)" }}><button onClick={() => setOpen("c")} className={link}>Read the conversation</button><button onClick={() => setOpen("l")} className={link}>Read the letter</button></div>
       {open && <div className="fixed inset-0 z-[90] flex items-center justify-center bg-black/40 p-3 backdrop-blur-sm sm:p-8" onClick={() => setOpen(null)}>
         <div className="flex max-h-full w-full max-w-3xl flex-col overflow-hidden rounded-2xl bg-[#fffdf8] shadow-2xl" onClick={(e) => e.stopPropagation()}>
           <div className="flex items-start justify-between gap-4 border-b border-[#efe4cf] px-6 py-4 sm:px-8">

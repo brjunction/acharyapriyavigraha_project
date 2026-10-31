@@ -24,21 +24,21 @@ export function BlessingSection() {
   const person = (src: string, alt: string, _name: string, _line: string, side: "l" | "r") => (
     <figure className={`${side === "l" ? "bless-left" : "bless-right"} relative`}>
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={src} alt={alt} className={`block w-full max-w-[150px] object-contain object-bottom sm:max-w-[210px] ${side === "l" ? "mr-auto" : "ml-auto"}`} loading="lazy" />
+      <img src={src} alt={alt} className={`block w-full max-w-[175px] object-contain object-bottom sm:max-w-[270px] ${side === "l" ? "mr-auto" : "ml-auto"}`} loading="lazy" />
     </figure>
   );
   return (
     <section className="reveal relative overflow-hidden bg-white pb-14 sm:pb-24">
       <div className="mx-auto max-w-6xl px-4 pt-12 sm:px-5 sm:pt-20">
-        <div className="grid grid-cols-2 items-center gap-x-3 lg:grid-cols-[210px_1fr_210px] lg:gap-x-10">
+        <div className="grid grid-cols-2 items-center gap-x-3 lg:grid-cols-[270px_1fr_270px] lg:gap-x-8">
           <div className="order-2 lg:order-1">{person("/legacy/prabhupada.webp", "Śrīla A.C. Bhaktivedanta Swami Prabhupāda", "Śrīla Prabhupāda", "Founder-ācārya of ISKCON", "l")}</div>
           <div className="order-1 col-span-2 pb-8 text-center lg:order-2 lg:col-span-1 lg:self-center lg:pb-10">
-            <p className="mb-3 text-[10.5px] font-medium uppercase tracking-[0.25em] text-saffron sm:text-[11.5px] sm:tracking-[0.3em]">Śrīla Prabhupāda on Śrīla Gurudeva</p>
-            <h2 className="text-[30px] font-semibold leading-tight tracking-[-0.02em] text-ink sm:text-[44px]">{["“Kṛṣṇa", "sent", "him.”"].map((w, i) => <span key={i} className="bless-word inline-block" style={{ animationDelay: `${0.2 + i * 0.18}s` }}>{w}&nbsp;</span>)}</h2>
-            <p className="mt-2 text-[12px] text-ink-3 sm:text-[13px]">Room conversation, Bombay, 5 January 1977</p>
-            <div aria-hidden className="bless-line mx-auto my-6 flex w-40 items-center gap-2 text-[9px] text-[#c2621d]"><span className="h-px flex-1 bg-gradient-to-r from-transparent to-[#c2621d]/60" />◆<span className="h-px flex-1 bg-gradient-to-l from-transparent to-[#c2621d]/60" /></div>
-            <p className="mx-auto max-w-sm text-[16px] leading-relaxed text-ink-2 sm:text-[19px]" style={{ fontFamily: "var(--font-reading-serif)" }}>“Krishna is with you and there is no need of disappointment.”</p>
-            <p className="mt-1.5 text-[12px] text-ink-3 sm:text-[12.5px]">His letter to Śrīla Gurudeva, Māyāpur, 12 February 1976</p>
+            <p className="mb-4 text-[11px] uppercase tracking-[0.32em] text-ink-3 sm:text-[12px]">Śrīla Prabhupāda on Śrīla Gurudeva</p>
+            <h2 className="text-[36px] leading-[1.1] text-ink sm:text-[54px]" style={{ fontFamily: "var(--font-reading-serif)" }}><span className="bless-word mr-1 inline-block align-top text-[0.9em] leading-none text-saffron" style={{ animationDelay: "0.1s" }}>“</span>{["Kṛṣṇa", "sent", "him."].map((w, i) => <span key={i} className="bless-word inline-block italic" style={{ animationDelay: `${0.2 + i * 0.18}s` }}>{w}&nbsp;</span>)}<span className="bless-word inline-block align-top text-[0.9em] leading-none text-saffron" style={{ animationDelay: "0.8s" }}>”</span></h2>
+            <p className="mt-3 text-[11px] uppercase tracking-[0.2em] text-ink-3 sm:text-[11.5px]">Bombay · 5 January 1977</p>
+            <div aria-hidden className="bless-line mx-auto my-7 flex w-24 items-center gap-2 text-[8px] text-[#c2621d]"><span className="h-px flex-1 bg-[#c2621d]/40" />◆<span className="h-px flex-1 bg-[#c2621d]/40" /></div>
+            <p className="mx-auto max-w-md text-[18px] italic leading-[1.6] text-ink-2 sm:text-[21px]" style={{ fontFamily: "var(--font-reading-serif)" }}>“Krishna is with you and there is no need of disappointment.”</p>
+            <p className="mt-3 text-[11px] uppercase tracking-[0.2em] text-ink-3 sm:text-[11.5px]">Letter to Śrīla Gurudeva · Māyāpur · 12 February 1976</p>
             <BlessingLetters />
           </div>
           <div className="order-3">{person("/legacy/gurudeva.webp", "Śrī Śrīmad Gour Govinda Swāmī Gurudeva", "Śrīla Gurudeva", "His dear disciple", "r")}</div>
