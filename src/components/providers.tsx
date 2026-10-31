@@ -24,7 +24,7 @@ export const usePrefs = () => useContext(PrefsContext)!;
 
 function apply(p: Prefs) {
   const r = document.documentElement;
-  r.dataset.theme = "light"; // dark and sepia themes are not offered for now
+  r.dataset.theme = p.theme === "system" ? (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light") : p.theme;
   r.dataset.font = p.font;
   r.dataset.motion = p.reduceMotion ? "reduce" : "full";
   r.style.setProperty("--reading-size", `${p.size}px`);
@@ -51,7 +51,8 @@ export function Providers({ children }: { children: React.ReactNode }) {
     try { const s = localStorage.getItem("tj-prefs-v3"); if (s) setPrefs({ ...DEFAULT, ...JSON.parse(s) }); } catch {}
     loaded.current = true;
   }, []);
-  useEffect(() => { apply(prefs); if (loaded.current) { try { localStorage.setItem("tj-prefs-v3", JSON.stringify(prefs)); } catch {} } }, [prefs]);
+  useEffect(() => { apply(prefs); }, [prefs]);
+  const save = (p: Prefs) => { try { localStorage.setItem("tj-prefs-v3", JSON.stringify(p)); } catch {} return p; };
   useEffect(() => {
     const k = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k" && !location.pathname.startsWith("/admin")) { e.preventDefault(); setSearch(true); }
@@ -89,7 +90,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
     return () => { window.removeEventListener("scroll", on); cancelAnimationFrame(raf); };
   }, []);
 
-  const set = useCallback(<K extends keyof Prefs>(k: K, v: Prefs[K]) => setPrefs((p) => ({ ...p, [k]: v })), []);
+  const set = useCallback(<K extends keyof Prefs>(k: K, v: Prefs[K]) => setPrefs((p) => save({ ...p, [k]: v })), []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Plays the lecture's real audio file when it has one; otherwise a silent preview timer.
   const [track, setTrack] = useState<Track | null>(null);
@@ -147,7 +148,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
   }, [track, seek]);
 
   return (
-    <PrefsContext.Provider value={{ prefs, set, reset: () => setPrefs(DEFAULT), search, setSearch }}>
+    <PrefsContext.Provider value={{ prefs, set, reset: () => setPrefs(save(DEFAULT)), search, setSearch }}>
       <PlayerContext.Provider value={player}>{children}</PlayerContext.Provider>
     </PrefsContext.Provider>
   );

@@ -451,3 +451,48 @@ html[data-motion="reduce"] .bless-word, html[data-motion="reduce"] .bless-rise, 
 .folio[data-theme="dark"] .reading, .folio[data-theme="sepia"] .reading { color: var(--color-zinc-800); }
 .folio[data-theme="dark"] .reading :is(h1,h2,h3,h4,strong) { color: var(--color-zinc-950); }
 .folio[data-theme="dark"] img { opacity: .92; }
+
+/* ---------------------------------------------------------------- Site colour themes.
+   Components use white and the neutral scale directly, so the themes re-map them. */
+[data-theme="sepia"] {
+  --color-white: #faf5ea; --color-zinc-50: #f4ecdc; --color-zinc-100: #ece1cb; --color-zinc-200: #e0d1b4; --color-zinc-300: #cdb994; --color-zinc-400: #a8926c;
+  --color-zinc-500: #84704f; --color-zinc-600: #6a573b; --color-zinc-700: #54432c; --color-zinc-800: #43351f; --color-zinc-900: #33281a; --color-zinc-950: #241b10;
+  --color-neutral-100: #ece1cb; --color-neutral-200: #e0d1b4; --color-stone-50: #f4ecdc; --color-stone-100: #ece1cb;
+}
+[data-theme="dark"] {
+  --color-white: #16181c; --color-zinc-50: #1b1d22; --color-zinc-100: #22252b; --color-zinc-200: #2d3037; --color-zinc-300: #3c4049; --color-zinc-400: #6b707a;
+  --color-zinc-500: #8e939c; --color-zinc-600: #aab0b9; --color-zinc-700: #c4c8cf; --color-zinc-800: #d9dce1; --color-zinc-900: #e9ebee; --color-zinc-950: #f6f7f8;
+  --color-neutral-100: #22252b; --color-neutral-200: #2d3037; --color-stone-50: #1b1d22; --color-stone-100: #22252b;
+  --page: #121417; --band: #1b1d22; --surface: #16181c; --ink: #eceef1; --ink-2: #b8bdc5; --ink-3: #8a9099; --line: #2b2e35; --line-strong: #3a3e46;
+}
+[data-theme="dark"] body, [data-theme="sepia"] body { background: var(--page); }
+[data-theme="dark"] img[src$=".webp"][src*="legacy"] { filter: brightness(.95); }
+
+/* WebFolio readers */
+.folio[data-leading="tight"] { --folio-leading: 1.6; } .folio { --folio-leading: 1.8; } .folio[data-leading="loose"] { --folio-leading: 2.05; }
+.folio .folio-text, .folio .folio-reading, .folio .folio-reading p { line-height: var(--folio-leading); }
+.folio[data-justify="on"] .folio-text p, .folio[data-justify="on"] .folio-reading p { text-align: justify; hyphens: auto; }
+.folio[data-side="off"] .folio-side, .folio[data-mode="focus"] .folio-side, .folio[data-mode="book"] .folio-side { display: none !important; }
+.folio[data-toc="off"] .folio-toc, .folio[data-mode="focus"] .folio-toc, .folio[data-mode="book"] .folio-toc { display: none !important; }
+.folio-head { transition: opacity .25s, border-color .25s; }
+.folio[data-mode="focus"] .folio-head { opacity: 0; border-color: transparent; }
+.folio[data-mode="focus"] .folio-head:hover, .folio[data-mode="focus"] .folio-head:focus-within { opacity: 1; }
+.folio[data-mode="focus"] #folio-article { --folio-width: 700px; }
+.folio[data-mode="book"] #folio-article { max-width: 1180px !important; }
+.folio[data-mode="book"] .folio-body {
+  height: calc(100dvh - 250px); min-height: 360px; column-width: 380px; column-gap: 64px; column-fill: auto;
+  overflow-x: auto; overflow-y: hidden; scrollbar-width: none; scroll-behavior: smooth; column-rule: 1px solid var(--color-zinc-200);
+}
+.folio[data-mode="book"] .folio-body::-webkit-scrollbar { display: none; }
+.folio[data-mode="book"] .folio-body img, .folio[data-mode="book"] .folio-body iframe { max-height: calc(100dvh - 300px); width: auto; max-width: 100%; }
+.folio[data-mode="book"] .folio-body > * { break-inside: auto; }
+.folio[data-mode="book"] .folio-body h2 { break-after: avoid; }
+[data-theme="dark"] { --header-bg: #16181c; }
+[data-theme="sepia"] { --header-bg: #faf5ea; }
+/* light tinted panels and hero gradients follow the theme */
+[data-theme="dark"] :where([class*="bg-[#f"], [class*="bg-[#e"]) { background-color: var(--band); }
+[data-theme="dark"] :where([class*="from-[#f"]) { --tw-gradient-from: var(--band); }
+[data-theme="sepia"] :where([class*="bg-[#f"]) { background-color: var(--band); }
+[data-theme="dark"] :where([class*="border-[#e"], [class*="border-[#d"]) { border-color: var(--line-strong); }
+[data-theme="dark"] .text-ink { color: var(--ink); }
+[data-theme="dark"] :where([class*="text-[#7a3b0c]"], [class*="text-[#8a4a0c]"]) { color: #e8b64a; }

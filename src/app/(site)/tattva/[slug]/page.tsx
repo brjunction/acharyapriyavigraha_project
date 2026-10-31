@@ -30,7 +30,7 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
   return (
     <div>
       
-      <h1 className="mt-1 text-[24px] leading-tight text-ink sm:text-[26px]" style={{ fontFamily: "var(--font-reading-serif)" }}>{t.name}</h1>
+      <h1 className="mt-1 text-[24px] leading-tight text-ink sm:text-[26px]">{t.name}</h1>
       {t.description && <p className="mt-1.5 max-w-3xl text-[13.5px] leading-relaxed text-ink-2">{t.description}</p>}
       <p className="mt-2 text-[12px] text-ink-3">{[["quote", c.quotes.length], ["lecture", lectures.length], ["video", c.videos.length], ["article", c.articles.length]].filter(([, n]) => n).map(([w, n]) => `${n} ${w}${n === 1 ? "" : "s"}`).join(" · ") || "Nothing linked yet"}</p>
       {sub.length > 0 && <div className="mt-4 flex flex-wrap gap-1.5">{sub.map((s) => <Link key={s.name} href={`/tattva/${s.slug}`} className="rounded-md border border-line px-2.5 py-1 text-[12.5px] text-ink-2 hover:bg-band">{s.name}{s.total > 0 && <span className="ml-1 text-ink-3">{s.total}</span>}</Link>)}</div>}

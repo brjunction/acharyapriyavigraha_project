@@ -8,7 +8,7 @@ export function PlainHeader({ kicker, title, intro }: { kicker: string; title: s
     <div className="border-b border-line bg-white">
       <div className="mx-auto max-w-[1100px] px-4 pb-6 pt-8 sm:px-6">
         <p className="mb-2 text-[10.5px] font-medium uppercase tracking-[0.25em] text-saffron sm:text-[11.5px]">{kicker}</p>
-        <h1 className="text-[24px] leading-tight text-ink sm:text-[28px]" style={{ fontFamily: "var(--font-reading-serif)" }}>{title}</h1>
+        <h1 className="text-[24px] leading-tight text-ink sm:text-[28px]">{title}</h1>
         {intro && <p className="mt-1.5 max-w-2xl text-[13.5px] leading-relaxed text-ink-2 sm:text-[14.5px]">{intro}</p>}
       </div>
     </div>

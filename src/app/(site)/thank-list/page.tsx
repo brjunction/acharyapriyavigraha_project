@@ -23,7 +23,7 @@ export default function Page() {
         <p className="mt-3 max-w-2xl text-[14.5px] leading-relaxed text-white/85">This archive is being built by the efforts of the disciples, grand-disciples, followers and admirers of Śrī Śrīmad Gour Govinda Swāmī Gurudeva.</p>
       </Container>
       <Container className="relative max-w-3xl pb-20">
-        <blockquote className="text-center text-[17.5px] italic leading-snug text-white">“Your love for me will be shown by how you cooperate with one another.”</blockquote>
+        <blockquote className="text-center text-[17.5px]  leading-snug text-white">“Your love for me will be shown by how you cooperate with one another.”</blockquote>
         <p className="mt-3 text-center text-[13px] text-[#f3d9a4]">His Divine Grace A.C. Bhaktivedanta Swami Prabhupāda</p>
         <PeacockDivider className="my-10" size={80} />
         <p className="mx-auto max-w-2xl text-center text-[14px] leading-relaxed text-white/85">The full Thank List, written by Yati Śekhara Dāsa (Bhubaneswar, Padminī Ekādaśī, 29 July 2023), is moved over word for word, with every name, region and service, and is editable in the dashboard.</p>

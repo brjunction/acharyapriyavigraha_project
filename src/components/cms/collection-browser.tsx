@@ -36,7 +36,7 @@ export function CollectionBrowser({ kind, base, items, facets, dateKey, lectureT
           <Link key={i.slug} href={`${base}/${i.slug}`} className="card block p-6 transition hover:-translate-y-0.5">
             <p className="text-[11.5px] font-semibold uppercase tracking-[0.12em] text-saffron">{i.data?.reference || i.title}</p>
             {i.data?.devanagari && <p className="mt-3 whitespace-pre-line text-center text-[16.5px] leading-[1.8] text-[#7a3a06]">{i.data.devanagari}</p>}
-            {i.data?.transliteration && <p className="mt-2 whitespace-pre-line text-center text-[14px] italic leading-[1.8] text-ink-2">{i.data.transliteration}</p>}
+            {i.data?.transliteration && <p className="mt-2 whitespace-pre-line text-center text-[14px]  leading-[1.8] text-ink-2">{i.data.transliteration}</p>}
             {i.data?.translation && <p className="mt-3 border-t border-line pt-3 text-[14px] leading-relaxed text-ink">{i.data.translation}</p>}
           </Link>))}</div>
       ) : kind === "letters" ? (

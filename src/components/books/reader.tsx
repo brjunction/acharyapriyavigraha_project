@@ -10,7 +10,7 @@ type Mode = "classic" | "focus" | "pages" | "parallel";
 export type Theme = "light" | "paper" | "sepia" | "sage" | "rose" | "dusk" | "slate" | "dark";
 export type FontK = "literata" | "gentium" | "noto" | "sans";
 export type ReaderSettings = { mode: Mode; theme: Theme; font: FontK; size: number; leading: number; width: number; justify: boolean; sidebar: boolean };
-const DEF: ReaderSettings = { mode: "classic", theme: "light", font: "literata", size: 19, leading: 1.75, width: 680, justify: false, sidebar: true };
+const DEF: ReaderSettings = { mode: "classic", theme: "light", font: "sans", size: 19, leading: 1.75, width: 680, justify: false, sidebar: true };
 const KEY = "tj_reader_v2";
 export const loadSettings = (): ReaderSettings => { try { return { ...DEF, ...JSON.parse(localStorage.getItem(KEY) || "{}") }; } catch { return DEF; } };
 export const saveSettings = (s: Partial<ReaderSettings>) => { try { localStorage.setItem(KEY, JSON.stringify({ ...loadSettings(), ...s })); } catch {} };

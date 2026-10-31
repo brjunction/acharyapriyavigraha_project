@@ -34,10 +34,10 @@ export function BlessingSection() {
           <div className="order-2 lg:order-1">{person("/legacy/prabhupada.webp", "Śrīla A.C. Bhaktivedanta Swami Prabhupāda", "Śrīla Prabhupāda", "Founder-ācārya of ISKCON", "l")}</div>
           <div className="order-1 col-span-2 pb-8 text-center lg:order-2 lg:col-span-1 lg:self-center lg:pb-10">
             <p className="mb-4 text-[11px] uppercase tracking-[0.32em] text-ink-3 sm:text-[12px]">Śrīla Prabhupāda on Śrīla Gurudeva</p>
-            <h2 className="text-[36px] leading-[1.1] text-ink sm:text-[54px]" style={{ fontFamily: "var(--font-reading-serif)" }}><span className="bless-word mr-1 inline-block align-top text-[0.9em] leading-none text-saffron" style={{ animationDelay: "0.1s" }}>“</span>{["Kṛṣṇa", "sent", "him."].map((w, i) => <span key={i} className="bless-word inline-block italic" style={{ animationDelay: `${0.2 + i * 0.18}s` }}>{w}&nbsp;</span>)}<span className="bless-word inline-block align-top text-[0.9em] leading-none text-saffron" style={{ animationDelay: "0.8s" }}>”</span></h2>
+            <h2 className="text-[36px] leading-[1.1] text-ink sm:text-[54px]"><span className="bless-word mr-1 inline-block align-top text-[0.9em] leading-none text-saffron" style={{ animationDelay: "0.1s" }}>“</span>{["Kṛṣṇa", "sent", "him."].map((w, i) => <span key={i} className="bless-word inline-block " style={{ animationDelay: `${0.2 + i * 0.18}s` }}>{w}&nbsp;</span>)}<span className="bless-word inline-block align-top text-[0.9em] leading-none text-saffron" style={{ animationDelay: "0.8s" }}>”</span></h2>
             <p className="mt-3 text-[11px] uppercase tracking-[0.2em] text-ink-3 sm:text-[11.5px]">Bombay · 5 January 1977</p>
             <div aria-hidden className="bless-line mx-auto my-7 flex w-24 items-center gap-2 text-[8px] text-[#c2621d]"><span className="h-px flex-1 bg-[#c2621d]/40" />◆<span className="h-px flex-1 bg-[#c2621d]/40" /></div>
-            <p className="mx-auto max-w-md text-[18px] italic leading-[1.6] text-ink-2 sm:text-[21px]" style={{ fontFamily: "var(--font-reading-serif)" }}>“Krishna is with you and there is no need of disappointment.”</p>
+            <p className="mx-auto max-w-md text-[18px]  leading-[1.6] text-ink-2 sm:text-[21px]">“Krishna is with you and there is no need of disappointment.”</p>
             <p className="mt-3 text-[11px] uppercase tracking-[0.2em] text-ink-3 sm:text-[11.5px]">Letter to Śrīla Gurudeva · Māyāpur · 12 February 1976</p>
             <BlessingLetters />
           </div>
@@ -145,7 +145,7 @@ export function ReadSection({ books, total }: { books: HomeBook[]; total: number
           <div className="grid grid-cols-3 gap-4 sm:grid-cols-4">{books.slice(0, 8).map((b) => (
             <Link key={b.slug} href={`/books/${b.slug}`} className="group">
               <span className="relative block aspect-[3/4] overflow-hidden rounded-[2px_6px_6px_2px] bg-gradient-to-br from-[#7a3a10] to-[#3f1a05] shadow-[0_10px_20px_-12px_rgba(0,0,0,0.5)] transition group-hover:-translate-y-1">
-                {b.cover_url ? /* eslint-disable-next-line @next/next/no-img-element */ <img src={b.cover_url} alt={b.title} loading="lazy" className="h-full w-full object-cover" /> : <span className="flex h-full items-center justify-center p-2 text-center text-[11px] leading-snug text-[#f3d9a4]" style={{ fontFamily: "var(--font-reading-serif)" }}>{b.title}</span>}
+                {b.cover_url ? /* eslint-disable-next-line @next/next/no-img-element */ <img src={b.cover_url} alt={b.title} loading="lazy" className="h-full w-full object-cover" /> : <span className="flex h-full items-center justify-center p-2 text-center text-[11px] leading-snug text-[#f3d9a4]">{b.title}</span>}
                 <span className="absolute inset-y-0 left-0 w-1.5 bg-gradient-to-r from-black/30 to-transparent" />
               </span>
               <span className="mt-1.5 block truncate text-[11.5px] text-ink-2">{b.title}</span>

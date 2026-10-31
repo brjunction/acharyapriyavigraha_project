@@ -57,7 +57,7 @@ async function RealLecture({ a }: { a: any }) {
         <LectureLayout label={song ? "Words" : "Transcription"}
           head={<>
             <p className="text-[12px] font-medium uppercase tracking-[0.08em] text-saffron">{[l.type, l.scripture].filter(Boolean).join(" · ")}</p>
-            <h1 className="mt-1.5 text-[26px] leading-tight text-ink sm:text-[30px]" style={{ fontFamily: "var(--font-reading-serif)" }}>{l.title}</h1>
+            <h1 className="mt-1.5 text-[26px] leading-tight text-ink sm:text-[30px]">{l.title}</h1>
             <p className="mt-2 text-[13px] text-ink-3">{[l.date ? fmtDate(l.date) : a.date_note, [l.place, l.country].filter(Boolean).join(", "), l.duration ? fmtDur(l.duration) : null].filter(Boolean).join(" · ")}</p>
             {a.summary && <p className="mt-4 max-w-2xl text-[15px] leading-relaxed text-ink-2">{a.summary}</p>}
           </>}
@@ -70,7 +70,7 @@ async function RealLecture({ a }: { a: any }) {
 
             <dl className="divide-y divide-line rounded-xl border border-line text-[13px]">{facts.filter(([, v]) => v).map(([k, v, h]) => <div key={k} className="flex justify-between gap-4 px-4 py-2"><dt className="text-ink-3">{k}</dt><dd className="text-right text-ink">{h ? <Link href={h} className="hover:text-saffron">{v}</Link> : v}</dd></div>)}</dl>
             {l.topics.length > 0 && <div><p className="mb-2 text-[11.5px] font-semibold uppercase tracking-[0.08em] text-ink-3">Topics</p><div className="flex flex-wrap gap-1.5">{l.topics.map((t) => <Link key={t} href={`${base}?topic=${encodeURIComponent(t)}`} className="rounded-full border border-line px-2.5 py-0.5 text-[12px] text-ink-2 hover:border-saffron hover:text-saffron">{t}</Link>)}</div></div>}
-            {quotes.length > 0 && <div><p className="mb-2 text-[11.5px] font-semibold uppercase tracking-[0.08em] text-ink-3">Quotes from this lecture</p><ul className="space-y-2.5">{quotes.slice(0, 5).map((q: any) => <li key={q.slug}><Link href={`/teachings/quotes#${q.slug}`} className="block text-[13px] italic leading-snug text-ink-2 hover:text-saffron" style={{ fontFamily: "var(--font-reading-serif)" }}>“{String(q.text).slice(0, 150)}{String(q.text).length > 150 ? "…" : ""}”</Link></li>)}</ul></div>}
+            {quotes.length > 0 && <div><p className="mb-2 text-[11.5px] font-semibold uppercase tracking-[0.08em] text-ink-3">Quotes from this lecture</p><ul className="space-y-2.5">{quotes.slice(0, 5).map((q: any) => <li key={q.slug}><Link href={`/teachings/quotes#${q.slug}`} className="block text-[13px]  leading-snug text-ink-2 hover:text-saffron">“{String(q.text).slice(0, 150)}{String(q.text).length > 150 ? "…" : ""}”</Link></li>)}</ul></div>}
             <div><p className="mb-2 text-[11.5px] font-semibold uppercase tracking-[0.08em] text-ink-3">Cite</p><p className="text-[12.5px] leading-relaxed text-ink-2">Śrī Śrīmad Gour Govinda Swāmī Gurudeva, “{l.title}”, {l.type.toLowerCase()}, {[l.place, l.date ? fmtDate(l.date) : a.date_note].filter(Boolean).join(", ")}. Taptajīvanam archive.</p></div>
           </>}
         />

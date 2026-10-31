@@ -49,7 +49,7 @@ export function SearchResults() {
         {!busy && groups?.map((g) => { const I = ICON[g.type] || FileText; return (
           <section key={g.type} className="mb-10">
             <div className="mb-2 flex items-center justify-between border-b border-line pb-2"><h2 className="flex items-center gap-2 text-[14px] font-semibold text-ink"><I size={15} className="text-ink-3" />{g.label}</h2>{!type && g.hits.length >= 8 && <button onClick={() => go({ type: g.type })} className="flex items-center gap-1 text-[12.5px] text-ink-2 hover:text-ink">See all<ArrowRight size={13} /></button>}</div>
-            <ul className="divide-y divide-line">{g.hits.map((h, i) => <li key={h.href + i}><Link href={h.href} className="group block py-3"><span className="block text-[15px] font-medium text-ink group-hover:underline">{mark(h.title, q)}</span>{h.sub && <span className="block text-[12px] text-ink-3">{h.sub}</span>}{h.snippet && <span className="mt-1 line-clamp-2 block text-[13.5px] leading-relaxed text-ink-2" style={{ fontFamily: "var(--font-reading-serif)" }}>{mark(h.snippet, q)}</span>}</Link></li>)}</ul>
+            <ul className="divide-y divide-line">{g.hits.map((h, i) => <li key={h.href + i}><Link href={h.href} className="group block py-3"><span className="block text-[15px] font-medium text-ink group-hover:underline">{mark(h.title, q)}</span>{h.sub && <span className="block text-[12px] text-ink-3">{h.sub}</span>}{h.snippet && <span className="mt-1 line-clamp-2 block text-[13.5px] leading-relaxed text-ink-2">{mark(h.snippet, q)}</span>}</Link></li>)}</ul>
           </section>); })}
       </div>
     </div>

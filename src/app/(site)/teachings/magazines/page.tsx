@@ -18,7 +18,7 @@ export default async function Page() {
           <section key={m.id} className="grid gap-8 border-b border-line py-10 last:border-0 md:grid-cols-[200px_minmax(0,1fr)]">
             <Link href={`/teachings/magazines/${m.slug}`} className="mx-auto w-[150px] md:w-full"><MagCover src={m.cover || m.latest[0]?.cover} label={m.title} /></Link>
             <div className="min-w-0">
-              <Link href={`/teachings/magazines/${m.slug}`} className="text-[22px] text-ink hover:underline" style={{ fontFamily: "var(--font-reading-serif)" }}>{m.title}</Link>
+              <Link href={`/teachings/magazines/${m.slug}`} className="text-[22px] text-ink hover:underline">{m.title}</Link>
               <p className="mt-1 text-[12.5px] text-ink-3">{[m.publisher, m.n_issues ? `${m.n_issues} issues` : null, m.first && m.last ? (m.first === m.last ? String(m.first) : `${m.first}–${m.last}`) : null].filter(Boolean).join(" · ")}</p>
               {m.description && <p className="mt-3 max-w-2xl text-[14px] leading-relaxed text-ink-2">{m.description}</p>}
               {m.latest.length > 0 && <>

@@ -39,7 +39,7 @@ export function BookLibrary({ books, shelves: meta }: { books: LibBook[]; shelve
         <div className="mx-auto max-w-[1240px] px-4 pb-0 pt-5 sm:px-6">
           
           <div className="mt-2 flex flex-wrap items-end justify-between gap-4">
-            <div><h1 className="text-[24px] leading-tight text-ink sm:text-[26px]" style={{ fontFamily: "var(--font-reading-serif)" }}>Books</h1><p className="mt-1 text-[13.5px] text-ink-2">Read online, chapter by chapter — in any language they are published in.</p></div>
+            <div><h1 className="text-[24px] leading-tight text-ink sm:text-[26px]">Books</h1><p className="mt-1 text-[13.5px] text-ink-2">Read online, chapter by chapter — in any language they are published in.</p></div>
             <p className="text-[12.5px] text-ink-3">{works.length} books · {langs.length} {langs.length === 1 ? "language" : "languages"}</p>
           </div>
           <div className="mt-4 flex gap-1 overflow-x-auto [scrollbar-width:none]">
@@ -70,7 +70,7 @@ export function BookLibrary({ books, shelves: meta }: { books: LibBook[]; shelve
               <div key={b.slug} className="group">
                 <Link href={`/books/${b.slug}`} className={`block ${b.size ? SCALE[b.size] || "" : ""}`}>
                   <div className="relative aspect-[3/4] overflow-hidden rounded-[2px_6px_6px_2px] bg-band shadow-[0_1px_2px_rgba(0,0,0,0.08),0_10px_24px_-14px_rgba(0,0,0,0.35)] transition group-hover:-translate-y-0.5 group-hover:shadow-[0_1px_2px_rgba(0,0,0,0.08),0_16px_30px_-14px_rgba(0,0,0,0.4)]">
-                    {b.cover_url ? /* eslint-disable-next-line @next/next/no-img-element */ <img src={b.cover_url} alt={b.title} loading="lazy" className="h-full w-full object-cover" /> : <div className="flex h-full flex-col items-center justify-center gap-2 bg-gradient-to-br from-[#5b3a1e] to-[#2b1a0c] p-3 text-center text-[#efe2c8]"><BookOpen size={20} /><span className="text-[12px] leading-snug" style={{ fontFamily: "var(--font-reading-serif)" }}>{b.title}</span></div>}
+                    {b.cover_url ? /* eslint-disable-next-line @next/next/no-img-element */ <img src={b.cover_url} alt={b.title} loading="lazy" className="h-full w-full object-cover" /> : <div className="flex h-full flex-col items-center justify-center gap-2 bg-gradient-to-br from-[#5b3a1e] to-[#2b1a0c] p-3 text-center text-[#efe2c8]"><BookOpen size={20} /><span className="text-[12px] leading-snug">{b.title}</span></div>}
                     <span className="absolute inset-y-0 left-0 w-2 bg-gradient-to-r from-black/25 to-transparent" />
                   </div>
                   <p className="mt-2 line-clamp-2 text-[12.5px] font-medium leading-snug text-ink group-hover:underline">{b.title}</p>

@@ -103,7 +103,7 @@ export function QuoteCard({ text, source, date, place, sample, large }: { text: 
   return (
     <figure className="card relative flex h-full flex-col overflow-hidden p-7">
       <span className="absolute right-5 top-2 font-serif text-[83px] leading-none text-saffron/10" aria-hidden>”</span>
-      <blockquote className={`relative font-serif ${large ? "text-[19.5px]" : "text-[19.5px]"} leading-snug ${sample ? "italic text-ink-3" : "text-ink"}`}>{text}</blockquote>
+      <blockquote className={`relative font-serif ${large ? "text-[19.5px]" : "text-[19.5px]"} leading-snug ${sample ? " text-ink-3" : "text-ink"}`}>{text}</blockquote>
       <figcaption className="relative mt-auto pt-6 text-[12.5px] leading-relaxed text-ink-3">
         <span className="font-semibold text-saffron">Śrīla Gurudeva</span>
         <span className="block">{[source, date, place].filter(Boolean).join(", ")}</span>

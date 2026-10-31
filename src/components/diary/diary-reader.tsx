@@ -12,7 +12,7 @@ const parts = (d: string) => { const [y, m, dd] = d.split("-").map(Number); retu
 const long = (e: Entry) => (e.date ? (({ y, m, d }) => `${d} ${MONTHS[m - 1]} ${y}`)(parts(e.date)) : e.date_note || "Undated");
 const short = (e: Entry) => (e.date ? (({ y, m, d }) => `${d} ${MONTHS[m - 1].slice(0, 3)} ${y}`)(parts(e.date)) : e.date_note || "Undated");
 const weekday = (e: Entry) => (e.date ? ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"][parts(e.date).wd] : "");
-const serif = { fontFamily: "var(--font-reading-serif)" } as const;
+const serif = {} as const;
 
 export function DiaryReader({ entries, start, initialText }: { entries: Entry[]; start?: string; initialText?: string | null }) {
   const [cur, setCur] = useState(() => Math.max(0, entries.findIndex((e) => e.slug === start)));

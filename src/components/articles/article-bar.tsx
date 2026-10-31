@@ -4,12 +4,12 @@ import { useEffect, useRef, useState } from "react";
 import { ArrowLeft, Type, Link2, Check, Minus, Plus } from "lucide-react";
 
 type S = { size: number; serif: boolean };
-const load = (): S => { try { return { size: 18, serif: true, ...JSON.parse(localStorage.getItem("tj_article") || "{}") }; } catch { return { size: 18, serif: true }; } };
+const load = (): S => { try { return { size: 18, serif: false, ...JSON.parse(localStorage.getItem("tj_article") || "{}") }; } catch { return { size: 18, serif: false }; } };
 const apply = (s: S) => { const el = document.getElementById("article-text"); if (!el) return; el.style.fontSize = `${s.size}px`; el.style.fontFamily = s.serif ? "var(--font-reading-serif)" : "var(--font-sans)"; };
 
 /** A thin bar while reading an article: back, text size and font, copy link, and how far you have read. */
 export function ArticleBar({ title }: { title: string }) {
-  const [s, setS] = useState<S>({ size: 18, serif: true }); const [open, setOpen] = useState(false); const [pct, setPct] = useState(0); const [done, setDone] = useState(false); const ref = useRef<HTMLDivElement>(null);
+  const [s, setS] = useState<S>({ size: 18, serif: false }); const [open, setOpen] = useState(false); const [pct, setPct] = useState(0); const [done, setDone] = useState(false); const ref = useRef<HTMLDivElement>(null);
   useEffect(() => { const x = load(); setS(x); apply(x); }, []);
   const set = (p: Partial<S>) => { const x = { ...s, ...p }; setS(x); apply(x); try { localStorage.setItem("tj_article", JSON.stringify(x)); } catch {} };
   useEffect(() => { const f = () => { const el = document.getElementById("article-text"); if (!el) return; const r = el.getBoundingClientRect(); setPct(Math.max(0, Math.min(100, ((window.innerHeight - r.top) / r.height) * 100))); }; f(); window.addEventListener("scroll", f, { passive: true }); return () => window.removeEventListener("scroll", f); }, []);

@@ -30,7 +30,7 @@ export default async function Page() {
         <div className="mx-auto grid max-w-[1240px] items-center gap-10 px-4 py-12 sm:px-6 lg:grid-cols-[1.25fr_1fr]">
           <div>
             <p className="mb-3 text-[11.5px] font-medium uppercase tracking-[0.3em] text-saffron">Śrīla Gurudeva</p>
-            <h1 className="text-[30px] leading-[1.15] text-ink sm:text-[40px]" style={{ fontFamily: "var(--font-reading-serif)" }}>Śrī Śrīmad Gour Govinda Swāmī Gurudeva</h1>
+            <h1 className="text-[30px] leading-[1.15] text-ink sm:text-[40px]">Śrī Śrīmad Gour Govinda Swāmī Gurudeva</h1>
             <p className="mt-4 max-w-xl text-[15px] leading-relaxed text-ink-2">A dear disciple of Śrīla Prabhupāda, born into a family that served Śrī Gopāl Jiu for generations. Here his life is remembered — in his own diary, by those who knew him, in letters and in photographs.</p>
             <div className="mt-7 flex flex-wrap gap-2"><Link href="/gurudeva/who-is-srila-gurudeva" className="inline-flex h-10 items-center gap-2 rounded-md bg-ink px-4 text-[13.5px] font-medium text-white hover:bg-ink/90">Who is Śrīla Gurudeva<ArrowRight size={15} /></Link><Link href="/gurudeva/timeline" className="inline-flex h-10 items-center rounded-md border border-line-strong bg-white px-4 text-[13.5px] text-ink hover:bg-band">Life timeline</Link></div>
           </div>

@@ -28,7 +28,7 @@ export default async function Page({ params }: { params: Promise<{ mag: string; 
           <ol className="divide-y divide-line">{articles.map((a: any, k: number) => (
             <li key={a.slug}><Link href={`/teachings/articles/${a.slug}`} className="group flex gap-4 py-4">
               <span className="w-6 shrink-0 pt-0.5 text-right text-[13px] tabular-nums text-ink-3">{k + 1}</span>
-              <span className="min-w-0"><span className="block text-[16.5px] font-medium leading-snug text-ink group-hover:underline" style={{ fontFamily: "var(--font-reading-serif)" }}>{a.title}</span>{a.summary && <span className="mt-1 line-clamp-2 block text-[13.5px] text-ink-2">{a.summary}</span>}<span className="mt-1.5 flex flex-wrap items-center gap-3 text-[12px] text-ink-3">{a.author && <span>{a.author}</span>}{a.section && <span>{a.section}</span>}<span className="flex items-center gap-1"><Clock size={12} />{a.minutes} min</span></span></span>
+              <span className="min-w-0"><span className="block text-[16.5px] font-medium leading-snug text-ink group-hover:underline">{a.title}</span>{a.summary && <span className="mt-1 line-clamp-2 block text-[13.5px] text-ink-2">{a.summary}</span>}<span className="mt-1.5 flex flex-wrap items-center gap-3 text-[12px] text-ink-3">{a.author && <span>{a.author}</span>}{a.section && <span>{a.section}</span>}<span className="flex items-center gap-1"><Clock size={12} />{a.minutes} min</span></span></span>
             </Link></li>))}</ol>
         </div>
       </div>

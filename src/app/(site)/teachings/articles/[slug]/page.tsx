@@ -31,7 +31,7 @@ export default async function Article({ params }: { params: Promise<{ slug: stri
         <article className="min-w-0">
           <div className="mx-auto max-w-[700px]">
             {(a.section || a.series) && <p className="text-[12px] font-medium text-ink-3">{a.section && <Link href={`/teachings/articles?section=${encodeURIComponent(a.section)}`} className="hover:text-ink">{a.section}</Link>}{a.section && a.series && " · "}{a.series && <Link href={`/teachings/articles?series=${encodeURIComponent(a.series)}`} className="hover:text-ink">{a.series}{a.series_part ? `, part ${a.series_part}` : ""}</Link>}</p>}
-            <h1 className="mt-2 text-[30px] leading-[1.15] tracking-[-0.01em] text-ink sm:text-[38px]" style={{ fontFamily: "var(--font-reading-serif)" }}>{a.title}</h1>
+            <h1 className="mt-2 text-[30px] leading-[1.15] tracking-[-0.01em] text-ink sm:text-[38px]">{a.title}</h1>
             {a.subtitle && <p className="mt-3 text-[17px] leading-relaxed text-ink-2">{a.subtitle}</p>}
             <div className="mt-6 flex flex-wrap items-center gap-3 border-y border-line py-3">
               {a.author && <Link href={`/teachings/articles/authors/${slugify(a.author)}`} className="flex items-center gap-2.5"><Avatar name={a.author} photo={au?.photo} size={36} /><span><span className="block text-[13.5px] font-medium text-ink hover:underline">{a.author}</span>{au?.role && <span className="block text-[12px] text-ink-3">{au.role}</span>}</span></Link>}
@@ -39,7 +39,7 @@ export default async function Article({ params }: { params: Promise<{ slug: stri
             </div>
             {a.mag && <Link href={`/teachings/magazines/${a.mag_slug}/${a.issue_slug}`} className="mt-4 flex items-center gap-3 rounded-lg border border-line p-3 hover:bg-band/50">{(a.issue_cover || a.mag_cover) ? /* eslint-disable-next-line @next/next/no-img-element */ <img src={a.issue_cover || a.mag_cover} alt="" className="h-12 w-9 rounded-sm object-cover" /> : <Newspaper size={18} className="text-ink-3" />}<span className="text-[13px] text-ink-2">Published in <span className="font-medium text-ink">{a.mag}</span>{a.issue ? `, ${a.issue}` : ""}</span><ChevronRight size={14} className="ml-auto text-ink-3" /></Link>}
             {a.cover && /* eslint-disable-next-line @next/next/no-img-element */ <img src={a.cover} alt="" className="mt-8 w-full rounded-lg object-cover" />}
-            <div id="article-text" className="book-body rd-article mt-8" style={{ fontSize: 18, lineHeight: 1.8, fontFamily: "var(--font-reading-serif)" }}><Render doc={a.body || []} /></div>
+            <div id="article-text" className="book-body rd-article mt-8" style={{ fontSize: 18, lineHeight: 1.8 }}><Render doc={a.body || []} /></div>
             {a.source && <p className="mt-10 border-t border-line pt-4 text-[12.5px] text-ink-3">First published in {a.source_url ? <a href={a.source_url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-ink-2 underline underline-offset-2">{a.source}<ExternalLink size={12} /></a> : a.source}</p>}
             {a.topics?.length > 0 && <div className="mt-6 flex flex-wrap gap-1.5">{a.topics.map((t: string) => <Link key={t} href={`/tattva/${slugify(t)}`} className="rounded-md bg-band px-2.5 py-1 text-[12px] text-ink-2 hover:bg-line">{t}</Link>)}</div>}
             {(prev || next) && <nav className="mt-10 grid gap-3 sm:grid-cols-2">

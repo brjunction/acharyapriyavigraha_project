@@ -6,7 +6,7 @@ import { LineView, CardsView, FilmView } from "./views";
 import { KINDS, kindOf, when, eraOf, type Era, type LifeEvent } from "@/lib/content/timeline-shared";
 
 const fold = (s: string) => s.normalize("NFKD").replace(/[̀-ͯ]/g, "").toLowerCase();
-const serif = { fontFamily: "var(--font-reading-serif)" } as const;
+const serif = {} as const;
 type View = "story" | "highlights" | "years" | "line" | "cards" | "film";
 
 export function LifeTimeline({ eras, events, recordings }: { eras: Era[]; events: LifeEvent[]; recordings: Record<number, number> }) {
@@ -174,7 +174,7 @@ function EventCard({ e, rec, lit }: { e: LifeEvent; rec?: number; lit: boolean }
               {e.links.map((l) => <a key={l.url} href={l.url} className="rounded-full border border-line px-2.5 py-1 text-ink-2 hover:border-saffron hover:text-saffron">{l.label}</a>)}
               <button onClick={share} title="Copy a link to this moment" className="ml-auto flex items-center gap-1 rounded-full px-2 py-1 text-ink-3 opacity-0 transition hover:text-saffron group-hover:opacity-100 max-sm:opacity-100">{copied ? <Check size={13} /> : <Link2 size={13} />}{copied ? "Copied" : ""}</button>
             </div>
-            {e.source && <p className="mt-2 text-[11px] italic text-ink-3">Source: {e.source}</p>}
+            {e.source && <p className="mt-2 text-[11px]  text-ink-3">Source: {e.source}</p>}
           </div>
           {big && e.image && <figure className="relative bg-band">{/* eslint-disable-next-line @next/next/no-img-element */}<img src={e.image} alt={e.image_caption || e.title} className="h-full max-h-72 w-full object-cover sm:max-h-none" loading="lazy" />{e.image_caption && <figcaption className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 p-2 text-[11px] text-white">{e.image_caption}</figcaption>}</figure>}
         </div>

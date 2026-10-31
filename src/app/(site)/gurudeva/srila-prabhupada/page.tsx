@@ -25,7 +25,7 @@ export default function Page() {
         <div className="mx-auto grid max-w-[1100px] items-end gap-8 px-4 pt-10 sm:px-6 lg:grid-cols-[1.3fr_1fr]">
           <div className="pb-10 lg:pb-16">
             <p className="mb-2 text-[10.5px] font-medium uppercase tracking-[0.25em] text-saffron sm:text-[11.5px]">His beloved spiritual master</p>
-            <h1 className="text-[28px] leading-[1.15] text-ink sm:text-[38px]" style={{ fontFamily: "var(--font-reading-serif)" }}>Śrīla A.C. Bhaktivedanta Swami Prabhupāda</h1>
+            <h1 className="text-[28px] leading-[1.15] text-ink sm:text-[38px]">Śrīla A.C. Bhaktivedanta Swami Prabhupāda</h1>
             <p className="mt-4 max-w-xl text-[14px] leading-relaxed text-ink-2 sm:text-[15px]">The founder-ācārya of ISKCON, who carried Śrī Caitanya Mahāprabhu’s message to every part of the world. Śrīla Gurudeva gave him his whole life, and Śrīla Prabhupāda said of him, “Kṛṣṇa sent him.”</p>
           </div>
           <CutOut src="/legacy/prabhupada.webp" alt="Śrīla A.C. Bhaktivedanta Swami Prabhupāda" fade={0} className="mx-auto w-[240px] sm:w-[300px]" />
@@ -40,7 +40,7 @@ export default function Page() {
             <div className="space-y-2">{LINKS.map(([t, u, d]) => <a key={u} href={u} target="_blank" rel="noreferrer" className="group flex items-start gap-3 rounded-xl border border-line p-3 hover:border-line-strong"><span className="min-w-0 flex-1"><span className="block text-[13.5px] font-medium text-ink group-hover:underline">{t}</span><span className="block text-[12px] leading-snug text-ink-3">{d}</span></span><ArrowUpRight size={14} className="mt-0.5 text-ink-3" /></a>)}</div>
           </section>
         </aside>
-        <section><p className="mb-2 text-[10.5px] font-medium uppercase tracking-[0.25em] text-saffron sm:text-[11.5px]">In his own words</p><h2 className="mb-4 text-[22px] text-ink sm:text-[26px]" style={{ fontFamily: "var(--font-reading-serif)" }}>Śrīla Prabhupāda on Śrīla Gurudeva</h2><PrabhupadaWords /></section>
+        <section><p className="mb-2 text-[10.5px] font-medium uppercase tracking-[0.25em] text-saffron sm:text-[11.5px]">In his own words</p><h2 className="mb-4 text-[22px] text-ink sm:text-[26px]">Śrīla Prabhupāda on Śrīla Gurudeva</h2><PrabhupadaWords /></section>
       </div>
     </div>
   );

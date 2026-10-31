@@ -6,7 +6,7 @@ import { listItems, getItem, sectionsOf, itemsByIds } from "@/lib/archive/server
 import { Render } from "@/components/cms/doc";
 import { Gallery } from "./gallery";
 
-const serif = { fontFamily: "var(--font-reading-serif)" } as const;
+const serif = {} as const;
 const W = "mx-auto max-w-[1180px] px-4 sm:px-6";
 
 function Crumbs(_: { items: { href?: string; label: string }[] }) { return null; } // no navigation trail on public pages
@@ -150,7 +150,7 @@ export async function ArchiveItem({ coll, slug, crumbs }: { coll: string; slug: 
             {c.layout === "quotes" && i.person && <div className="mt-4 flex items-center gap-3"><Img src={i.cover} className="size-10 rounded-full object-cover" /><p className="text-[13px] leading-tight"><span className="block font-medium text-ink">{i.person}</span>{i.person_role && <span className="text-ink-3">{i.person_role}</span>}</p></div>}
             {isAlbum && <p className="mt-2 text-[13px] text-ink-3">{[whenOf(i), [i.place, i.country].filter(Boolean).join(", "), `${i.images.length} photos`].filter(Boolean).join(" · ")}</p>}
             {!isAlbum && c.layout !== "quotes" && c.layout !== "people" && coverOf(i) && !(i.images?.length > 1) && <Img src={coverOf(i)} alt={i.title} className={`mt-6 w-full rounded-xl ${isObject ? "max-h-[520px] bg-[#f7f7f7] object-contain p-6" : "max-h-[560px] object-cover"}`} />}
-            {i.summary && <p className={`mt-6 text-[17px] leading-relaxed text-ink-2 ${c.layout === "quotes" ? "border-l-2 border-line-strong pl-4 italic" : ""}`} style={serif}>{c.layout === "quotes" ? `“${i.summary}”` : i.summary}</p>}
+            {i.summary && <p className={`mt-6 text-[17px] leading-relaxed text-ink-2 ${c.layout === "quotes" ? "border-l-2 border-line-strong pl-4 " : ""}`} style={serif}>{c.layout === "quotes" ? `“${i.summary}”` : i.summary}</p>}
             {yt && <div className="mt-6 aspect-video overflow-hidden rounded-xl bg-black"><iframe src={yt} title={i.title} className="h-full w-full" allow="accelerometer; encrypted-media; picture-in-picture" allowFullScreen /></div>}
             {mp3 && <audio controls src={mp3} className="mt-6 w-full" preload="none" />}
             {i.images?.length > (isAlbum ? 0 : 1) && <div className="mt-6"><Gallery images={i.images} masonry={isAlbum} /></div>}

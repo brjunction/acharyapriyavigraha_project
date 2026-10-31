@@ -5,7 +5,7 @@ import { THEMES, FONTS, type Theme, type FontK } from "@/components/books/reader
 
 type Style = "classic" | "wide" | "paper" | "focus";
 type S = { style: Style; theme: Theme; font: FontK; size: number; leading: number; aside: boolean; player: boolean };
-const DEF: S = { style: "classic", theme: "light", font: "literata", size: 18, leading: 1.8, aside: true, player: true };
+const DEF: S = { style: "classic", theme: "light", font: "sans", size: 18, leading: 1.8, aside: true, player: true };
 const STYLES: [Style, string, string][] = [["classic", "Classic", "A calm column of text"], ["wide", "Wide", "Longer lines, more on the screen"], ["paper", "Paper", "The text on a page"], ["focus", "Focus", "Large text, nothing else"]];
 const load = (): S => { try { return { ...DEF, ...JSON.parse(localStorage.getItem("tj_transcript") || "{}") }; } catch { return DEF; } };
 

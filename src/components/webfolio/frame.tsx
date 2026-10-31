@@ -2,8 +2,8 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { PrefsRoot, ReadingMenu, ThemeButton } from "./prefs";
-import { Search, X, Menu, Globe, Download, ChevronRight, Home, ScanSearch, Filter, MonitorDown, CornerDownLeft, Flower2, Headphones, FileText, Music, BookOpen, Quote, Clapperboard, Files, Newspaper, Library, type LucideIcon } from "lucide-react";
+import { PrefsRoot, ReadingMenu, ThemeButton, usePrefs, SIZES, THEME_ORDER } from "./prefs";
+import { Search, X, Menu, Globe, Download, ChevronRight, Home, ScanSearch, Filter, MonitorDown, CornerDownLeft, PanelLeftClose, PanelLeftOpen, Maximize2, Minimize2, BookOpenText, Keyboard, Flower2, Headphones, FileText, Music, BookOpen, Quote, Clapperboard, Files, Newspaper, Library, type LucideIcon } from "lucide-react";
 import type { FSec } from "@/lib/webfolio/data";
 
 const ICONS: Record<string, LucideIcon> = { Flower2, Headphones, FileText, Music, BookOpen, Quote, Clapperboard, Files, Newspaper, Library, Globe };
@@ -15,8 +15,29 @@ export function FolioFrame({ nav, children }: { nav: FSec[]; children: React.Rea
   return <PrefsRoot><Inner nav={nav}>{children}</Inner></PrefsRoot>;
 }
 function Inner({ nav, children }: { nav: FSec[]; children: React.ReactNode }) {
-  const path = usePathname(); const [menu, setMenu] = useState(false); const [search, setSearch] = useState(false); const [filter, setFilter] = useState("");
+  const path = usePathname(); const router = useRouter(); const [menu, setMenu] = useState(false); const [search, setSearch] = useState(false); const [filter, setFilter] = useState(""); const [help, setHelp] = useState(false);
+  const { p, set } = usePrefs(); const pr = useRef(p); pr.current = p;
   const [sec, group] = path.split("/").slice(2);
+  // Every shortcut of the WebFolio. “?” shows them all.
+  useEffect(() => {
+    const k = (e: KeyboardEvent) => {
+      if (e.ctrlKey || e.metaKey || e.altKey || (e.target as HTMLElement).closest("input,textarea,select,[contenteditable]")) return;
+      const q = pr.current; const key = e.key;
+      const go = (sel: string) => { const a = document.querySelector<HTMLAnchorElement>(sel); if (a) router.push(a.getAttribute("href")!); };
+      const acts: Record<string, () => void> = {
+        "?": () => setHelp((h) => !h), "[": () => set({ side: !q.side, mode: "classic" }), "]": () => set({ toc: !q.toc }),
+        f: () => set({ mode: q.mode === "focus" ? "classic" : "focus" }), b: () => set({ mode: q.mode === "book" ? "classic" : "book" }), c: () => set({ mode: "classic" }),
+        t: () => set({ theme: THEME_ORDER[(THEME_ORDER.indexOf(q.theme) + 1) % 3] }), d: () => set({ theme: q.theme === "dark" ? "light" : "dark" }),
+        "+": () => set({ size: SIZES[Math.min(3, SIZES.indexOf(q.size) + 1)] }), "=": () => set({ size: SIZES[Math.min(3, SIZES.indexOf(q.size) + 1)] }), "-": () => set({ size: SIZES[Math.max(0, SIZES.indexOf(q.size) - 1)] }),
+        w: () => set({ width: q.width === "narrow" ? "normal" : q.width === "normal" ? "wide" : "narrow" }), l: () => set({ leading: q.leading === "tight" ? "normal" : q.leading === "normal" ? "loose" : "tight" }),
+        n: () => go("[data-folio-next]"), p: () => go("[data-folio-prev]"), u: () => go("[data-folio-up]"), h: () => router.push("/webfolio"), r: () => router.push("/webfolio/search"),
+        g: () => window.scrollTo({ top: 0, behavior: "smooth" }), G: () => window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" }),
+        Escape: () => { if (q.mode !== "classic") set({ mode: "classic" }); setHelp(false); },
+      };
+      const a = acts[key]; if (a) { e.preventDefault(); a(); }
+    };
+    window.addEventListener("keydown", k); return () => window.removeEventListener("keydown", k);
+  }, [router, set]);
   const [open, setOpen] = useState<Record<string, boolean>>({});
   useEffect(() => { if (sec) setOpen((o) => ({ ...o, [sec]: true })); setMenu(false); }, [path, sec]);
   // Remember the last page read, for “Continue reading” on the WebFolio home.
@@ -50,25 +71,30 @@ function Inner({ nav, children }: { nav: FSec[]; children: React.ReactNode }) {
   );
   return (
     <>
-      <header className="sticky top-0 z-40 border-b border-zinc-200 bg-white/90 backdrop-blur-md">
+      <header className="folio-head sticky top-0 z-40 border-b border-zinc-200 bg-white/90 backdrop-blur-md">
         <div className="flex h-16 items-center gap-3 px-3 sm:px-5">
           <button onClick={() => setMenu(true)} className="flex size-9 items-center justify-center rounded-full text-zinc-600 hover:bg-zinc-100 lg:hidden" aria-label="Contents"><Menu size={20} /></button>
+          <button onClick={() => set({ side: !p.side, mode: p.mode === "classic" ? p.mode : "classic" })} title="Show or hide the contents ( [ )" aria-label="Contents" className="hidden size-9 items-center justify-center rounded-full text-zinc-600 hover:bg-zinc-100 lg:flex">{p.side && p.mode === "classic" ? <PanelLeftClose size={18} /> : <PanelLeftOpen size={18} />}</button>
           <Link href="/webfolio" className="flex shrink-0 items-center gap-2.5 lg:w-[248px]">{/* eslint-disable-next-line @next/next/no-img-element */}<img src="/logo.png" alt="" className="size-8 rounded-lg" /><span className="leading-none"><span className="block text-[15.5px] font-semibold tracking-tight text-zinc-950">WebFolio</span><span className="mt-0.5 hidden text-[11.5px] text-zinc-500 sm:block">Taptajīvanam</span></span></Link>
           <button onClick={() => setSearch(true)} className="group mx-auto hidden h-11 w-full max-w-[600px] items-center gap-3 rounded-full border border-transparent bg-zinc-100 px-4 text-left text-[14px] text-zinc-500 transition hover:border-zinc-200 hover:bg-white hover:shadow-[0_1px_6px_rgba(32,33,36,.18)] md:flex"><Search size={18} className="text-zinc-500" /><span className="flex-1">Search every word of the WebFolio</span><kbd className="rounded-md border border-zinc-200 bg-white px-1.5 py-0.5 text-[11px] font-medium text-zinc-500">Ctrl K</kbd></button>
           <div className="ml-auto flex items-center gap-0.5 md:ml-0">
             <button onClick={() => setSearch(true)} className="flex size-9 items-center justify-center rounded-full text-zinc-600 hover:bg-zinc-100 md:hidden" aria-label="Search"><Search size={18} /></button>
+            <button onClick={() => set({ mode: p.mode === "focus" ? "classic" : "focus" })} title="Focus reading (F)" aria-label="Focus reading" className={`hidden size-9 items-center justify-center rounded-full transition hover:bg-zinc-100 sm:flex ${p.mode === "focus" ? "bg-zinc-100 text-zinc-950" : "text-zinc-600"}`}>{p.mode === "focus" ? <Minimize2 size={17} /> : <Maximize2 size={17} />}</button>
+            <button onClick={() => set({ mode: p.mode === "book" ? "classic" : "book" })} title="Book reader, page by page (B)" aria-label="Book reader" className={`hidden size-9 items-center justify-center rounded-full transition hover:bg-zinc-100 sm:flex ${p.mode === "book" ? "bg-zinc-100 text-zinc-950" : "text-zinc-600"}`}><BookOpenText size={17} /></button>
             <ReadingMenu /><ThemeButton />
+            <button onClick={() => setHelp(true)} title="Keyboard shortcuts (?)" aria-label="Keyboard shortcuts" className="hidden size-9 items-center justify-center rounded-full text-zinc-600 hover:bg-zinc-100 md:flex"><Keyboard size={17} /></button>
             <Link href="/webfolio/download" className="ml-1 hidden h-9 items-center gap-1.5 rounded-full bg-[#1a73e8] px-4 text-[13px] font-semibold text-white transition hover:bg-[#1765cc] sm:flex"><Download size={15} />Install</Link>
             <Link href="/" title="Back to the website" className="flex size-9 items-center justify-center rounded-full text-zinc-600 hover:bg-zinc-100"><Globe size={17} /></Link>
           </div>
         </div>
       </header>
       <div className="mx-auto flex max-w-[1520px]">
-        <aside className="sticky top-16 hidden h-[calc(100dvh-64px)] w-[288px] shrink-0 overflow-y-auto border-r border-zinc-200 px-3 py-5 [scrollbar-width:thin] lg:block">{side}</aside>
+        <aside className="folio-side sticky top-16 hidden h-[calc(100dvh-64px)] w-[288px] shrink-0 overflow-y-auto border-r border-zinc-200 px-3 py-5 [scrollbar-width:thin] lg:block">{side}</aside>
         <div className="min-w-0 flex-1">{children}</div>
       </div>
       {menu && <div className="fixed inset-0 z-50 bg-black/40 lg:hidden" onClick={() => setMenu(false)}><aside className="folio-drawer h-full w-[86%] max-w-[330px] overflow-y-auto bg-white p-4 shadow-xl" onClick={(e) => e.stopPropagation()}><div className="mb-4 flex items-center justify-between"><b className="text-[15px] text-zinc-950">Contents</b><button onClick={() => setMenu(false)} className="flex size-8 items-center justify-center rounded-full hover:bg-zinc-100"><X size={18} /></button></div>{side}</aside></div>}
       {search && <SearchDialog nav={nav} onClose={() => setSearch(false)} />}
+      {help && <Shortcuts onClose={() => setHelp(false)} />}
     </>
   );
 }
@@ -105,6 +131,23 @@ function SearchDialog({ nav, onClose }: { nav: FSec[]; onClose: () => void }) {
         </div>
         <div className="flex items-center justify-between gap-3 border-t border-zinc-200 bg-zinc-50 px-4 py-2.5 text-[12px] text-zinc-500"><span className="hidden items-center gap-1.5 sm:flex"><kbd className="rounded border border-zinc-200 bg-white px-1">↑</kbd><kbd className="rounded border border-zinc-200 bg-white px-1">↓</kbd> move <kbd className="ml-2 rounded border border-zinc-200 bg-white px-1"><CornerDownLeft size={11} className="inline" /></kbd> open</span>
           <Link href={`/webfolio/search${q ? `?q=${encodeURIComponent(q)}` : ""}`} onClick={onClose} className="ml-auto inline-flex items-center gap-1.5 font-medium text-[#1a73e8] hover:underline"><ScanSearch size={14} />Research search{q ? ` for “${q}”` : ""} <span className="hidden text-zinc-400 sm:inline">Ctrl ↵</span></Link></div>
+      </div>
+    </div>
+  );
+}
+
+const KEYS: [string, [string, string][]][] = [
+  ["Find", [["Ctrl K  or  /", "Search the WebFolio"], ["Ctrl ↵", "Research search, in the search box"], ["R", "Open research search"], ["H", "WebFolio home"]]],
+  ["Move", [["N  or  →", "Next page"], ["P  or  ←", "Previous page"], ["U", "Up to the section"], ["G  /  Shift G", "Top / end of the page"], ["Space", "Next screen; in the Book reader, next page"]]],
+  ["Read", [["F", "Focus reader — nothing but the text"], ["B", "Book reader — page by page, in columns"], ["C", "Classic reader"], ["Esc", "Back to Classic"]]],
+  ["Look", [["[", "Show or hide the contents"], ["]", "Show or hide “On this page”"], ["T", "Light → Sepia → Dark"], ["D", "Dark on or off"], ["+  /  −", "Bigger or smaller text"], ["W", "Page width"], ["L", "Line spacing"], ["?", "This list"]]],
+];
+function Shortcuts({ onClose }: { onClose: () => void }) {
+  return (
+    <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/40 p-4 backdrop-blur-[2px]" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
+      <div className="max-h-[85vh] w-full max-w-[760px] overflow-y-auto rounded-2xl border border-zinc-200 bg-white p-6 shadow-[0_24px_60px_-12px_rgba(0,0,0,.35)]">
+        <div className="flex items-center justify-between"><h2 className="flex items-center gap-2 text-[17px] font-semibold text-zinc-950"><Keyboard size={18} />Keyboard shortcuts</h2><button onClick={onClose} className="flex size-8 items-center justify-center rounded-full text-zinc-500 hover:bg-zinc-100"><X size={17} /></button></div>
+        <div className="mt-5 grid gap-x-8 gap-y-6 sm:grid-cols-2">{KEYS.map(([t, ks]) => <section key={t}><p className="mb-2 text-[11.5px] font-semibold uppercase tracking-[0.08em] text-zinc-400">{t}</p><ul className="space-y-1.5">{ks.map(([k, d]) => <li key={k} className="flex items-center justify-between gap-3 text-[13px]"><span className="text-zinc-700">{d}</span><span className="flex shrink-0 gap-1">{k.split(/\s{2}/).map((x, i) => x === "or" || x === "/" ? <span key={i} className="px-0.5 text-[11.5px] text-zinc-400">{x}</span> : <kbd key={i} className="rounded-md border border-zinc-200 bg-zinc-50 px-1.5 py-0.5 text-[11.5px] font-medium text-zinc-700">{x}</kbd>)}</span></li>)}</ul></section>)}</div>
       </div>
     </div>
   );

@@ -34,7 +34,7 @@ export default async function BookHome({ params }: { params: Promise<{ slug: str
         <div className="mt-8 grid items-start gap-10 md:grid-cols-[240px_minmax(0,1fr)]">
           <div className="mx-auto w-[170px] md:sticky md:top-24 md:w-full"><Cover book={book} /></div>
           <div className="min-w-0">
-            <h1 className="text-[28px] leading-[1.15] text-ink sm:text-[34px]" style={{ fontFamily: "var(--font-reading-serif)" }}>{book.title}</h1>
+            <h1 className="text-[28px] leading-[1.15] text-ink sm:text-[34px]">{book.title}</h1>
             {book.subtitle && <p className="mt-2 text-[15px] text-ink-2">{book.subtitle}</p>}
             <dl className="mt-5 flex flex-wrap gap-x-8 gap-y-3 border-y border-line py-3.5 text-[12.5px]">
               {book.author && <div><dt className="text-ink-3">Author</dt><dd className="mt-0.5 text-ink">{book.author}</dd></div>}

@@ -17,7 +17,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" data-theme="light" suppressHydrationWarning>
       <head>
-        <script dangerouslySetInnerHTML={{ __html: `document.documentElement.dataset.theme="light";` }} />
+        <script dangerouslySetInnerHTML={{ __html: `try{var p=JSON.parse(localStorage.getItem("tj-prefs-v3")||"{}"),t=p.theme||"light";if(t==="system")t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";document.documentElement.dataset.theme=t}catch(e){document.documentElement.dataset.theme="light"}` }} />
       </head>
       <body suppressHydrationWarning>
         <Providers>{children}</Providers>

@@ -3,7 +3,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight, Pause, Play, MapPin, X } from "lucide-react";
 import { kindOf, when, type LifeEvent } from "@/lib/content/timeline-shared";
 
-const serif = { fontFamily: "var(--font-reading-serif)" } as const;
+const serif = {} as const;
 const pos = (e: LifeEvent) => e.year + ((e.month || 6) - 1) / 12 + ((e.day || 15) - 1) / 365;
 
 /** A long line of years; every moment is a point on it. Hover or tap a point to see the moment with its picture. */
@@ -38,7 +38,7 @@ function MomentCard({ e, onClose }: { e: LifeEvent; onClose?: () => void }) {
     <div className="tl-fade relative grid gap-5 rounded-2xl border border-line bg-white p-4 shadow-[0_18px_40px_-28px_rgba(0,0,0,0.4)] sm:grid-cols-[200px_minmax(0,1fr)] sm:p-5">
       {onClose && <button onClick={onClose} className="absolute right-3 top-3 text-ink-3 hover:text-ink"><X size={16} /></button>}
       {e.image ? /* eslint-disable-next-line @next/next/no-img-element */ <img src={e.image} alt={e.image_caption || ""} className="aspect-[4/3] w-full rounded-xl object-cover" /> : <div className="flex aspect-[4/3] items-center justify-center rounded-xl text-[34px] text-white/90" style={{ background: `linear-gradient(135deg, ${c}, color-mix(in srgb, ${c} 55%, #000))`, ...serif }}>{e.year}</div>}
-      <div className="min-w-0"><p className="flex flex-wrap items-center gap-2 text-[12px] text-ink-3"><span className="font-medium" style={{ color: c }}>{when(e)}</span><span>· {l}</span>{e.place && <span className="flex items-center gap-1"><MapPin size={12} />{e.place}</span>}</p><h3 className="mt-1 text-[19px] leading-snug text-ink" style={serif}>{e.title}</h3>{e.summary && <p className="mt-2 text-[14px] leading-relaxed text-ink-2">{e.summary}</p>}{e.image_caption && <p className="mt-2 text-[12px] italic text-ink-3">{e.image_caption}</p>}</div>
+      <div className="min-w-0"><p className="flex flex-wrap items-center gap-2 text-[12px] text-ink-3"><span className="font-medium" style={{ color: c }}>{when(e)}</span><span>· {l}</span>{e.place && <span className="flex items-center gap-1"><MapPin size={12} />{e.place}</span>}</p><h3 className="mt-1 text-[19px] leading-snug text-ink" style={serif}>{e.title}</h3>{e.summary && <p className="mt-2 text-[14px] leading-relaxed text-ink-2">{e.summary}</p>}{e.image_caption && <p className="mt-2 text-[12px]  text-ink-3">{e.image_caption}</p>}</div>
     </div>
   );
 }

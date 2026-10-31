@@ -59,7 +59,7 @@ export async function ItemPage({ route, slug }: { route: string; slug: string })
       <p className="mb-4 text-[12.5px] text-ink-3"><Link href="/teachings" className="hover:text-ink">His Teachings</Link> / <Link href={route} className="hover:text-ink">{r.title}</Link></p>
       {(e.title || e.verse_ref) && <h1 className="mb-5 text-[26px] font-bold tracking-[-0.025em] sm:text-[31.5px]">{e.title || e.verse_ref}</h1>}
       {e.original && <p className="whitespace-pre-line text-center text-[18.5px] leading-[1.9] text-[#7a3a06]">{e.original}</p>}
-      {e.transliteration && <p className="mt-3 whitespace-pre-line text-center text-[14.5px] italic leading-[1.85] text-ink-2">{e.transliteration}</p>}
+      {e.transliteration && <p className="mt-3 whitespace-pre-line text-center text-[14.5px]  leading-[1.85] text-ink-2">{e.transliteration}</p>}
       {e.translation && <p className="mt-6 text-[16.5px] font-medium leading-[1.7] text-ink">{e.translation}</p>}
       {e.text && <blockquote className={`mt-6 whitespace-pre-line leading-[1.8] text-ink ${r.kind === "quote" || r.kind === "desire" || r.kind === "nectar" ? "text-[20px]" : "text-[15.5px]"}`}>{r.kind === "quote" ? `“${e.text}”` : e.text}</blockquote>}
       <p className="mt-6 text-[13px] text-ink-2">— Śrī Śrīmad Gour Govinda Swāmī Gurudeva{e.lslug || e.source || e.author ? ", " : ""}{e.lslug ? <Link href={`/teachings/audio/${e.lslug}`} className="underline decoration-line-strong underline-offset-2 hover:text-ink">{e.lecture}{e.at_sec ? `, at ${durText(e.at_sec)}` : ""}</Link> : e.source || e.author}</p>

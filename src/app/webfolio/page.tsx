@@ -13,13 +13,13 @@ export default async function Home() {
       <div className="mx-auto max-w-[1080px]">
         <section className="text-center">
           <span className="inline-flex items-center gap-2 rounded-full border border-zinc-200 px-3 py-1 text-[12px] font-medium text-zinc-600"><span className="size-1.5 rounded-full bg-[#34a853]" />Read, search and keep — even offline</span>
-          <h1 className="mx-auto mt-5 max-w-[760px] text-[34px] font-semibold leading-[1.08] tracking-[-0.035em] text-zinc-950 sm:text-[52px]">The teachings of Śrīla Gurudeva, as one book.</h1>
-          <p className="mx-auto mt-4 max-w-[620px] text-[15.5px] leading-relaxed text-zinc-600 sm:text-[17px]">Every lecture, transcription, book, compilation and page of His Diary — one contents, one search.</p>
-          <form action="/webfolio/search" className="mx-auto mt-8 flex h-14 max-w-[640px] items-center gap-3 rounded-full border border-zinc-200 bg-white pl-5 pr-2 shadow-[0_1px_6px_rgba(32,33,36,.14)] transition focus-within:shadow-[0_2px_12px_rgba(32,33,36,.24)]">
-            <Search size={19} className="shrink-0 text-zinc-400" /><input name="q" placeholder="Search every word — try “Gopāl Jiu”" className="h-full min-w-0 flex-1 bg-transparent text-[16px] text-zinc-950 outline-none placeholder:text-zinc-400" />
-            <button className="h-10 rounded-full bg-[#1a73e8] px-5 text-[14px] font-semibold text-white transition hover:bg-[#1765cc]">Search</button>
+          <h1 className="mx-auto mt-5 max-w-[760px] text-[26px] font-semibold leading-[1.15] tracking-[-0.03em] text-zinc-950 sm:text-[34px]">The teachings of Śrīla Gurudeva, as one book.</h1>
+          <p className="mx-auto mt-3 max-w-[560px] text-[14.5px] leading-relaxed text-zinc-600 sm:text-[15.5px]">Every lecture, transcription, book, compilation and page of His Diary — one contents, one search.</p>
+          <form action="/webfolio/search" className="mx-auto mt-7 flex h-12 max-w-[600px] items-center gap-3 rounded-full border border-zinc-200 bg-white pl-5 pr-2 shadow-[0_1px_6px_rgba(32,33,36,.14)] transition focus-within:shadow-[0_2px_12px_rgba(32,33,36,.24)]">
+            <Search size={19} className="shrink-0 text-zinc-400" /><input name="q" placeholder="Search every word — try “Gopāl Jiu”" className="h-full min-w-0 flex-1 bg-transparent text-[15px] text-zinc-950 outline-none placeholder:text-zinc-400" />
+            <button className="h-9 rounded-full bg-[#1a73e8] px-5 text-[13.5px] font-semibold text-white transition hover:bg-[#1765cc]">Search</button>
           </form>
-          <dl className="mx-auto mt-10 grid max-w-[760px] grid-cols-2 gap-px overflow-hidden rounded-2xl border border-zinc-200 bg-zinc-200 sm:grid-cols-4">{stats.map(([l, v]) => <div key={l} className="bg-white px-4 py-4"><dd className="text-[24px] font-semibold tabular-nums tracking-tight text-zinc-950">{v.toLocaleString()}</dd><dt className="text-[12.5px] text-zinc-500">{l}</dt></div>)}</dl>
+          <dl className="mx-auto mt-10 grid max-w-[760px] grid-cols-2 gap-px overflow-hidden rounded-2xl border border-zinc-200 bg-zinc-200 sm:grid-cols-4">{stats.map(([l, v]) => <div key={l} className="bg-white px-4 py-4"><dd className="text-[20px] font-semibold tabular-nums tracking-tight text-zinc-950">{v.toLocaleString()}</dd><dt className="text-[12.5px] text-zinc-500">{l}</dt></div>)}</dl>
         </section>
 
         <ContinueReading />

@@ -85,7 +85,7 @@ export function Transcript({ l }: { l: Lecture }) {
             className={`group relative -mx-5 cursor-pointer rounded-xl px-5 py-3 transition-colors ${active ? "bg-saffron-soft" : "hover:bg-band"}`}>
             <span className={`absolute -left-14 top-[18px] hidden w-11 text-right font-sans text-[11.5px] tabular lg:block ${active ? "text-saffron" : "text-ink-3"}`}>{fmtClock(p.t)}</span>
             {p.kind === "verse" ? (
-              <div className="my-3 rounded-xl border border-saffron/20 bg-saffron-tint px-6 py-5 text-center italic">
+              <div className="my-3 rounded-xl border border-saffron/20 bg-saffron-tint px-6 py-5 text-center ">
                 {p.text.split("\n").map((x) => <p key={x}>{x}</p>)}
                 <p className="mt-2 font-sans text-[12px] font-semibold not-italic text-saffron">{p.cite}</p>
               </div>

@@ -20,7 +20,7 @@ export async function VideoPage({ slug }: { slug: string }) {
         <div className="mt-5 grid gap-10 lg:grid-cols-[minmax(0,1fr)_280px]">
           <article className="min-w-0">
             {v.youtube_id && <div className="aspect-video overflow-hidden rounded-xl bg-black"><iframe src={`https://www.youtube-nocookie.com/embed/${v.youtube_id}`} title={v.title} className="h-full w-full" allow="accelerometer; encrypted-media; picture-in-picture" allowFullScreen /></div>}
-            <h1 className="mt-5 text-[22px] leading-snug text-ink sm:text-[26px]" style={{ fontFamily: "var(--font-reading-serif)" }}>{v.title}</h1>
+            <h1 className="mt-5 text-[22px] leading-snug text-ink sm:text-[26px]">{v.title}</h1>
             <p className="mt-1.5 text-[13px] text-ink-3">{[when(v), [v.place, v.country].filter(Boolean).join(", "), v.type].filter(Boolean).join(" · ")}</p>
             {v.audio_slug && <Link href={`/teachings/audio/${v.audio_slug}`} className="mt-4 inline-flex items-center gap-2 rounded-lg border border-line px-3 py-2 text-[13px] text-ink-2 hover:border-saffron hover:text-saffron"><FileText size={14} />Read the transcription of this lecture</Link>}
             {v.description && <p className="mt-6 whitespace-pre-line text-[14px] leading-relaxed text-ink-2">{v.description}</p>}

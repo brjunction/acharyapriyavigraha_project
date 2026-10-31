@@ -103,7 +103,7 @@ function Transcript({ info, busy, compact }: { info: Info | null; busy: boolean;
         <div className="flex rounded-md border border-line"><button onClick={() => setSize(Math.max(12, size - 1))} className="px-2 text-[12px] text-ink-2 hover:bg-band">A−</button><button onClick={() => setSize(Math.min(22, size + 1))} className="border-l border-line px-2 text-[13.5px] text-ink-2 hover:bg-band">A+</button></div>
       </div>
       <div className={`min-h-0 flex-1 overflow-y-auto px-5 py-4 [scrollbar-width:thin] ${compact ? "max-h-[300px]" : ""}`} style={{ fontSize: size, lineHeight: 1.75 }}>
-        {info.text.filter((p) => !f || p.h || p.t.toLowerCase().includes(f)).map((p, i) => p.h ? <p key={i} className="mb-2 mt-4 font-semibold text-ink first:mt-0" style={{ fontSize: "1.05em" }}>{mark(p.t)}</p> : <p key={i} className="mb-3 text-ink-2" style={{ fontFamily: "var(--font-reading-serif)" }}>{mark(p.t)}</p>)}
+        {info.text.filter((p) => !f || p.h || p.t.toLowerCase().includes(f)).map((p, i) => p.h ? <p key={i} className="mb-2 mt-4 font-semibold text-ink first:mt-0" style={{ fontSize: "1.05em" }}>{mark(p.t)}</p> : <p key={i} className="mb-3 text-ink-2">{mark(p.t)}</p>)}
       </div>
     </div>
   );
