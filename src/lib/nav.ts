@@ -89,7 +89,7 @@ export const MENUS: NavMenu[] = [
         l("/tattva/krsna-tattva", "Kṛṣṇa-tattva", "His pastimes, mercy and love", Sparkles),
         l("/tattva/gaura-tattva", "Gaura-tattva", "Mahāprabhu's advent, mood and teachings", Sunset),
         l("/tattva/jiva-tattva", "Jīva-tattva", "Soul, Supersoul, karma, death", UserRound),
-        l("/tattva/obstacles", "Obstacles on the path", "Anarthas, aparādha, envy, pride", Lightbulb),
+        l("/tattva/obstacles-on-the-path", "Obstacles on the path", "Anarthas, aparādha, envy, pride", Lightbulb),
       ]),
       g("Indexes", [
         l("/tattva/index/verses", "Verse index", "BG · SB · CC: every lecture, verse by verse", ScrollText),

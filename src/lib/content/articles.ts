@@ -2,7 +2,7 @@ import { sql } from "@/lib/db";
 import { fold, slugify } from "./text";
 import { plainText } from "@/components/cms/doc-text";
 
-export const ARTICLE_COLS = ["title", "subtitle", "author", "series", "series_part", "section", "date", "summary", "cover", "body", "topics", "source", "source_url", "position", "status"] as const;
+export const ARTICLE_COLS = ["title", "subtitle", "author", "series", "series_part", "section", "date", "summary", "cover", "body", "topics", "source", "source_url", "position", "status", "issue_id", "issue_position"] as const;
 export const MAG_COLS = ["title", "publisher", "description", "cover", "url", "issues", "position", "status"] as const;
 
 const docText = (doc: any): string => (Array.isArray(doc) ? doc.map((b: any) => [plainText(b?.content), docText(b?.children)].join(" ")).join(" ") : "");
@@ -10,7 +10,7 @@ export function cleanArticle(b: Record<string, any>) {
   const o: Record<string, any> = {};
   for (const k of ARTICLE_COLS) if (k in b) {
     let v = b[k];
-    if (k === "series_part" || k === "position") v = v === "" || v == null ? (k === "position" ? 0 : null) : Number(v) || null;
+    if (k === "series_part" || k === "position" || k === "issue_position") v = v === "" || v == null ? (k === "position" ? 0 : null) : Number(v) || null;
     else if (k === "topics") v = Array.isArray(v) ? v.map(String).map((x) => x.trim()).filter(Boolean) : String(v || "").split(/[;,]/).map((x) => x.trim()).filter(Boolean);
     else if (k === "body") v = JSON.stringify(Array.isArray(v) ? v : []);
     else if (k === "date") v = v ? String(v).slice(0, 10) : null;

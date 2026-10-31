@@ -1,29 +1,34 @@
-import { Newspaper, ExternalLink } from "lucide-react";
-import { Container, PageHero } from "@/components/ui";
+import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 import { listMagazines } from "@/lib/content/articles-public";
+import { WritingsHeader } from "@/components/articles/header";
+import { MagCover } from "@/components/articles/mag-cover";
 
 export const revalidate = 300;
-export const metadata = { title: "Magazines", description: "The Gopāl Jiu magazine and other magazines with Śrīla Gurudeva's teachings, linked to where they are kept." };
+export const metadata = { title: "Magazines", description: "Kṛṣṇa-kathāmṛta, the Gopāl Jiu magazine and other magazines — every issue with its articles, to read online." };
 
 export default async function Page() {
   const mags = await listMagazines();
   return (
     <>
-      <PageHero crumbs={[{ href: "/teachings", label: "His Teachings" }, { label: "Magazines" }]} icon={Newspaper} title="Magazines" intro="The Gopāl Jiu magazine and others. Each opens where it is kept." />
-      <Container className="py-10">
-        {!mags.length ? <p className="rounded-2xl border border-dashed border-line p-10 text-center text-ink-3">Magazines will appear here soon.</p> :
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">{mags.map((m) => (
-            <div key={m.id} className="flex flex-col overflow-hidden rounded-2xl border border-line bg-surface shadow-[var(--shadow-sm)]">
-              <a href={m.url || m.issues?.[0]?.url || "#"} target="_blank" rel="noreferrer" className="group block">
-                <div className="aspect-[16/10] overflow-hidden bg-band">{m.cover ? /* eslint-disable-next-line @next/next/no-img-element */ <img src={m.cover} alt="" className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]" /> : <div className="flex h-full items-center justify-center text-ink-3"><Newspaper size={36} strokeWidth={1.2} /></div>}</div>
-                <div className="p-4"><h2 className="flex items-center gap-1.5 text-[16px] font-bold group-hover:text-saffron">{m.title}<ExternalLink size={13} className="opacity-50" /></h2>{m.publisher && <p className="text-[12.5px] text-ink-3">{m.publisher}</p>}{m.description && <p className="mt-2 text-[13px] text-ink-2">{m.description}</p>}</div>
-              </a>
-              {m.issues?.length > 0 && <details className="group/i mt-auto border-t border-line">
-                <summary className="flex cursor-pointer list-none items-center justify-between px-4 py-2.5 text-[12.5px] font-medium text-ink-2 hover:text-saffron">{m.issues.length} {m.issues.length === 1 ? "issue" : "issues"}<span className="transition group-open/i:rotate-180">▾</span></summary>
-                <ul className="max-h-64 overflow-y-auto px-2 pb-3">{m.issues.map((x: any, i: number) => <li key={i}><a href={x.url} target="_blank" rel="noreferrer" className="flex items-center justify-between gap-2 rounded-lg px-2 py-1.5 text-[13px] text-ink-2 hover:bg-band hover:text-saffron"><span className="truncate">{x.title || x.url}</span><ExternalLink size={12} className="shrink-0 opacity-50" /></a></li>)}</ul>
-              </details>}
-            </div>))}</div>}
-      </Container>
+      <WritingsHeader at="/teachings/magazines" title="Magazines" intro="Every issue, with its contents — read the articles here, or open the whole issue." stats={[`${mags.length} magazines`, `${mags.reduce((n, m) => n + m.n_issues, 0)} issues`]} />
+      <div className="mx-auto max-w-[1240px] px-4 pb-20 sm:px-6">
+        {!mags.length && <p className="py-20 text-center text-[13.5px] text-ink-3">Magazines will appear here soon.</p>}
+        {mags.map((m) => (
+          <section key={m.id} className="grid gap-8 border-b border-line py-10 last:border-0 md:grid-cols-[200px_minmax(0,1fr)]">
+            <Link href={`/teachings/magazines/${m.slug}`} className="mx-auto w-[150px] md:w-full"><MagCover src={m.cover || m.latest[0]?.cover} label={m.title} /></Link>
+            <div className="min-w-0">
+              <Link href={`/teachings/magazines/${m.slug}`} className="text-[22px] text-ink hover:underline" style={{ fontFamily: "var(--font-reading-serif)" }}>{m.title}</Link>
+              <p className="mt-1 text-[12.5px] text-ink-3">{[m.publisher, m.n_issues ? `${m.n_issues} issues` : null, m.first && m.last ? (m.first === m.last ? String(m.first) : `${m.first}–${m.last}`) : null].filter(Boolean).join(" · ")}</p>
+              {m.description && <p className="mt-3 max-w-2xl text-[14px] leading-relaxed text-ink-2">{m.description}</p>}
+              {m.latest.length > 0 && <>
+                <p className="mb-3 mt-6 text-[12px] font-medium text-ink-3">Latest issues</p>
+                <div className="grid grid-cols-3 gap-4 sm:grid-cols-6">{m.latest.map((i) => <Link key={i.slug} href={`/teachings/magazines/${m.slug}/${i.slug}`} className="group"><MagCover src={i.cover} label={i.label} className="transition group-hover:-translate-y-0.5" /><span className="mt-1.5 block truncate text-[12px] text-ink-2 group-hover:underline">{i.label}</span></Link>)}</div>
+              </>}
+              <div className="mt-5 flex flex-wrap gap-2"><Link href={`/teachings/magazines/${m.slug}`} className="inline-flex h-9 items-center gap-1.5 rounded-md bg-ink px-4 text-[13px] font-medium text-white hover:bg-ink/90">All issues<ArrowRight size={14} /></Link>{m.url && <a href={m.url} target="_blank" rel="noreferrer" className="inline-flex h-9 items-center rounded-md border border-line px-4 text-[13px] text-ink-2 hover:bg-band">Magazine website</a>}</div>
+            </div>
+          </section>))}
+      </div>
     </>
   );
 }

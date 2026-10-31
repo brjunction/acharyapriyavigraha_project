@@ -2,7 +2,7 @@
 import dynamic from "next/dynamic";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { FileText, Plus, Search, Trash2, ExternalLink, ArrowLeft, Image as ImageIcon, UserRound, Layers, FolderOpen, X } from "lucide-react";
-import { Btn, Badge, Card, Field, Input, Select, Textarea, PageHeader, Empty, api, toast, cn } from "../ui";
+import { Btn, Badge, Card, Field, Input, Select, Textarea, PageHeader, Empty, Modal, api, toast, cn } from "../ui";
 import { MediaPicker } from "../media-picker";
 
 const NotionEditor = dynamic(() => import("../notion/editor"), { ssr: false });
@@ -12,11 +12,12 @@ type Data = { rows: Row[]; authors: F[]; series: F[]; sections: F[] };
 
 export function ArticlesPanel() {
   const [data, setData] = useState<Data | null>(null); const [f, setF] = useState<Record<string, string>>({}); const [q, setQ] = useState(""); const t = useRef<any>(null);
-  const [edit, setEdit] = useState<string | null>(null);
+  const [edit, setEdit] = useState<string | null>(null); const [issueFor, setIssueFor] = useState<string | null>(null); const [authorsOpen, setAuthorsOpen] = useState(false);
+  useEffect(() => { const u = new URLSearchParams(location.search); if (u.get("edit")) setEdit(u.get("edit")); else if (u.get("new")) { setIssueFor(u.get("issue")); setEdit("new"); } }, []);
   const load = useCallback(() => { const u = new URLSearchParams(Object.fromEntries(Object.entries(f).filter(([, v]) => v))); api<Data>(`/api/admin/articles?${u}`).then(setData).catch((e) => toast(e.message, true)); }, [f]);
   useEffect(() => { load(); }, [load]);
   const pick = (k: string, v: string) => setF((p) => ({ ...p, [k]: p[k] === v ? "" : v }));
-  if (edit) return <ArticleEditor id={edit} lists={data} onClose={() => { setEdit(null); load(); }} />;
+  if (edit) return <ArticleEditor id={edit} lists={data} issue={issueFor} onClose={() => { setEdit(null); setIssueFor(null); history.replaceState(null, "", location.pathname); load(); }} />;
   const Facet = ({ k, title, icon: I, items }: { k: string; title: string; icon: any; items: F[] }) => (
     <div className="mb-4"><p className="mb-1 flex items-center gap-1.5 px-2 text-[11.5px] font-medium uppercase tracking-wide text-zinc-500"><I className="size-3.5" />{title}</p>
       {items.length ? items.map((x) => <button key={x.name} onClick={() => pick(k, x.name)} className={cn("flex w-full items-center justify-between rounded-md px-2 py-1.5 text-left text-[13px] hover:bg-zinc-100", f[k] === x.name && "bg-zinc-900 text-white hover:bg-zinc-800")}><span className="truncate">{x.name}</span><span className="text-[11.5px] tabular-nums opacity-60">{x.n}</span></button>) : <p className="px-2 text-[12px] text-zinc-400">None yet</p>}
@@ -25,7 +26,7 @@ export function ArticlesPanel() {
   return (
     <div>
       <PageHeader icon={FileText} title="Articles" description="Essays and write-ups, organised by author, series and section. Each article is written in the same editor as pages.">
-        <a href="/teachings/articles" target="_blank"><Btn><ExternalLink />View on website</Btn></a><Btn kind="primary" onClick={() => setEdit("new")}><Plus />New article</Btn>
+        <a href="/teachings/articles" target="_blank"><Btn><ExternalLink />View on website</Btn></a><Btn onClick={() => setAuthorsOpen(true)}><UserRound />Authors</Btn><Btn kind="primary" onClick={() => setEdit("new")}><Plus />New article</Btn>
       </PageHeader>
       <div className="grid gap-6 lg:grid-cols-[220px_1fr]">
         <aside className="lg:sticky lg:top-4 lg:self-start">
@@ -48,7 +49,39 @@ export function ArticlesPanel() {
               </button>))}</Card>}
         </div>
       </div>
+      {authorsOpen && <AuthorsManager onClose={() => { setAuthorsOpen(false); load(); }} />}
     </div>
+  );
+}
+
+/** Authors: a photo, a role and a few lines about each, shown on the website beside their articles. */
+function AuthorsManager({ onClose }: { onClose: () => void }) {
+  const [rows, setRows] = useState<{ name: string; extra: any; used?: number }[] | null>(null); const [sel, setSel] = useState<string | null>(null); const [x, setX] = useState<any>(null); const [pic, setPic] = useState(false); const [nw, setNw] = useState("");
+  const load = useCallback(async () => {
+    const [v, a] = await Promise.all([api<any[]>("/api/admin/vocab?kind=author"), api<Data>("/api/admin/articles")]);
+    const names = new Set([...v.map((r) => r.name), ...a.authors.map((r) => r.name)]);
+    setRows([...names].sort().map((n) => ({ name: n, extra: v.find((r) => r.name === n)?.extra || {}, used: a.authors.find((r) => r.name === n)?.n || 0 })));
+  }, []);
+  useEffect(() => { load(); }, [load]);
+  const open = (n: string) => { const r = rows?.find((y) => y.name === n); setSel(n); setX({ name: n, ...(r?.extra || {}) }); };
+  const save = async () => { if (!x || !sel) return; if (x.name.trim() && x.name.trim() !== sel) await api("/api/admin/vocab", "PATCH", { kind: "author", from: sel, to: x.name.trim() }); await api("/api/admin/vocab", "POST", { kind: "author", name: x.name.trim(), extra: { photo: x.photo || null, role: x.role || null, bio: x.bio || null, position: x.position === "" || x.position == null ? null : Number(x.position) } }); toast("Saved."); setSel(x.name.trim()); load(); };
+  return (
+    <Modal wide title="Authors" description="Give each author a photo, a role (e.g. Śrīla Gurudeva, Śrīla Guru Mahārāja, disciple) and a few lines. Lower numbers are shown first." onClose={onClose}>
+      <div className="grid gap-4 sm:grid-cols-[220px_1fr]">
+        <div>
+          <div className="flex gap-1.5"><Input value={nw} onChange={(e) => setNw(e.target.value)} placeholder="New author" /><Btn size="icon" onClick={async () => { if (!nw.trim()) return; await api("/api/admin/vocab", "POST", { kind: "author", name: nw.trim(), extra: {} }); setNw(""); await load(); open(nw.trim()); }}><Plus /></Btn></div>
+          <div className="mt-2 max-h-[52vh] overflow-y-auto">{rows?.map((r) => <button key={r.name} onClick={() => open(r.name)} className={cn("flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-[13px] hover:bg-zinc-100", sel === r.name && "bg-zinc-100 font-medium")}>{r.extra?.photo ? /* eslint-disable-next-line @next/next/no-img-element */ <img src={r.extra.photo} alt="" className="size-6 rounded-full object-cover" /> : <span className="flex size-6 items-center justify-center rounded-full bg-zinc-200 text-[10px]">{r.name[0]}</span>}<span className="flex-1 truncate">{r.name}</span><span className="text-[11.5px] text-zinc-400">{r.used}</span></button>)}</div>
+        </div>
+        {x ? <div className="space-y-3">
+          <div className="flex items-center gap-3">{x.photo ? /* eslint-disable-next-line @next/next/no-img-element */ <img src={x.photo} alt="" className="size-16 rounded-full object-cover" /> : <span className="flex size-16 items-center justify-center rounded-full bg-zinc-100 text-zinc-400"><UserRound className="size-6" /></span>}<Btn size="sm" onClick={() => setPic(true)}><ImageIcon />{x.photo ? "Change photo" : "Add photo"}</Btn>{x.photo && <Btn size="sm" onClick={() => setX({ ...x, photo: null })}>Remove</Btn>}</div>
+          <Field label="Name" hint="Renaming changes it on every article."><Input value={x.name} onChange={(e) => setX({ ...x, name: e.target.value })} /></Field>
+          <div className="grid grid-cols-[1fr_90px] gap-2"><Field label="Role"><Input value={x.role || ""} onChange={(e) => setX({ ...x, role: e.target.value })} placeholder="e.g. Disciple of Śrīla Gurudeva" /></Field><Field label="Order"><Input type="number" value={x.position ?? ""} onChange={(e) => setX({ ...x, position: e.target.value })} /></Field></div>
+          <Field label="About"><Textarea rows={4} value={x.bio || ""} onChange={(e) => setX({ ...x, bio: e.target.value })} /></Field>
+          <div className="flex justify-end"><Btn kind="primary" onClick={save}>Save</Btn></div>
+        </div> : <p className="flex items-center justify-center text-[13px] text-zinc-500">Choose an author on the left.</p>}
+      </div>
+      {pic && <MediaPicker onClose={() => setPic(false)} onPick={(i) => { setX({ ...x, photo: i[0].url }); setPic(false); }} />}
+    </Modal>
   );
 }
 
@@ -56,8 +89,9 @@ function DL({ id, value, onChange, opts, placeholder }: { id: string; value: str
   return <><Input list={id} value={value || ""} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} /><datalist id={id}>{opts.map((o) => <option key={o.name} value={o.name} />)}</datalist></>;
 }
 
-function ArticleEditor({ id, lists, onClose }: { id: string; lists: Data | null; onClose: () => void }) {
-  const [a, setA] = useState<any>(id === "new" ? { status: "published", topics: [], body: [] } : null); const [cur, setCur] = useState(id);
+function ArticleEditor({ id, lists, onClose, issue }: { id: string; lists: Data | null; onClose: () => void; issue?: string | null }) {
+  const [a, setA] = useState<any>(id === "new" ? { status: "published", topics: [], body: [], issue_id: issue || null } : null);
+  const [issues, setIssues] = useState<any[]>([]); useEffect(() => { api<any[]>("/api/admin/issues").then(setIssues).catch(() => {}); }, []); const [cur, setCur] = useState(id);
   const [busy, setBusy] = useState(false); const [pic, setPic] = useState(false); const [dirty, setDirty] = useState(false); const body = useRef<any[] | null>(null);
   useEffect(() => { if (id !== "new") api(`/api/admin/articles/${id}`).then((r) => setA({ ...r, date: r.date?.slice(0, 10) || "" })).catch((e) => toast(e.message, true)); }, [id]);
   const set = (k: string, v: any) => { setA((p: any) => ({ ...p, [k]: v })); setDirty(true); };
@@ -90,6 +124,7 @@ function ArticleEditor({ id, lists, onClose }: { id: string; lists: Data | null;
             <Field label="Author"><DL id="dl-author" value={a.author} onChange={(v) => set("author", v)} opts={lists?.authors || []} placeholder="Who wrote it" /></Field>
             <div className="grid grid-cols-[1fr_72px] gap-2"><Field label="Series"><DL id="dl-series" value={a.series} onChange={(v) => set("series", v)} opts={lists?.series || []} placeholder="If part of a series" /></Field><Field label="Part"><Input type="number" min={1} value={a.series_part ?? ""} onChange={(e) => set("series_part", e.target.value)} /></Field></div>
             <Field label="Section"><DL id="dl-section" value={a.section} onChange={(v) => set("section", v)} opts={lists?.sections || []} placeholder="e.g. Tattva, Pastimes" /></Field>
+            <Field label="Published in a magazine" hint="Choose the issue; the article then appears in that issue's contents."><Select value={a.issue_id || ""} onChange={(e) => set("issue_id", e.target.value || null)}><option value="">Not in a magazine</option>{Array.from(new Set(issues.map((i) => i.magazine))).map((mg) => <optgroup key={mg} label={mg}>{issues.filter((i) => i.magazine === mg).map((i) => <option key={i.id} value={i.id}>{i.label}{i.date ? ` (${i.date.slice(0, 7)})` : ""}</option>)}</optgroup>)}</Select></Field>
             <Field label="Date"><Input type="date" value={a.date || ""} onChange={(e) => set("date", e.target.value)} /></Field>
             <Field label="Cover picture"><div className="flex flex-wrap gap-2"><Btn size="sm" onClick={() => setPic(true)}><ImageIcon />{a.cover ? "Change" : "Choose"}</Btn>{a.cover && <Btn size="sm" onClick={() => set("cover", null)}>Remove</Btn>}</div>
               <Input className="mt-2" value={a.cover || ""} onChange={(e) => set("cover", e.target.value)} placeholder="…or paste a picture link" /></Field>

@@ -402,3 +402,9 @@ html.nav-hidden .site-header { display: none; }
 .rd-text .book-body [class*="text-[#7a3a06]"], .rd-text .book-body .text-saffron { color: inherit !important; }
 .rd-text .book-body em { font-style: italic; }
 .rd-dark ::selection { background: rgba(255, 255, 255, 0.2); }
+/* Articles: the text follows the size and font chosen in the article bar */
+.rd-article p, .rd-article li, .rd-article blockquote { font-size: 1em !important; line-height: 1.8 !important; color: var(--ink) !important; font-family: inherit !important; }
+.rd-article p { margin: 0 0 1em !important; }
+.rd-article h1, .rd-article h2, .rd-article h3 { font-family: inherit !important; font-weight: 600 !important; letter-spacing: -0.01em; color: var(--ink) !important; }
+.rd-article h2 { font-size: 1.35em !important; margin: 1.6em 0 0.5em !important; }
+.rd-article h3 { font-size: 1.15em !important; margin: 1.4em 0 0.5em !important; }
