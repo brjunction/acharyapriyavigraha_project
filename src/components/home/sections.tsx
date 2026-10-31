@@ -21,31 +21,31 @@ const BAND = "border-y border-[#efe4cf] bg-[#fbf7ef]";
 
 /* ------------------------------------------------------------------ blessing */
 export function BlessingSection() {
-  const frame = (src: string, alt: string, name: string, line: string, delay: string) => (
-    <figure className="bless-rise group" style={{ animationDelay: delay }}>
-      <div className="relative">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={src} alt={alt} className="relative z-10 mx-auto block aspect-[4/5] w-full object-contain object-bottom transition duration-700 group-hover:-translate-y-1.5" loading="lazy" />
-        <span aria-hidden className="absolute inset-x-[12%] -bottom-1 h-4 rounded-[50%] bg-black/10 blur-md" />
-      </div>
-      <figcaption className="mt-4 text-center"><span className="mx-auto mb-2 block h-px w-12 bg-gradient-to-r from-transparent via-[#c2621d] to-transparent" /><span className="block text-[14px] font-semibold text-ink sm:text-[15px]">{name}</span><span className="block text-[11.5px] text-ink-3 sm:text-[12px]">{line}</span></figcaption>
+  const person = (src: string, alt: string, name: string, line: string, side: "l" | "r") => (
+    <figure className={`${side === "l" ? "bless-left" : "bless-right"} relative`}>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={src} alt={alt} className="mx-auto block w-full max-w-[330px] object-contain object-bottom" loading="lazy" />
+      <figcaption className="mt-2 text-center"><span className="block text-[13px] font-semibold text-ink sm:text-[14px]">{name}</span><span className="block text-[11px] text-ink-3 sm:text-[12px]">{line}</span></figcaption>
     </figure>
   );
   return (
     <section className="reveal relative overflow-hidden bg-white">
-      <div className="relative mx-auto max-w-5xl px-4 py-12 text-center sm:px-5 sm:py-16">
-        <p className="mb-3 text-[10.5px] font-medium uppercase tracking-[0.25em] text-saffron sm:text-[11.5px] sm:tracking-[0.3em]">Śrīla Prabhupāda on Śrīla Gurudeva</p>
-        <h2 className="text-[30px] font-semibold leading-tight tracking-[-0.02em] text-ink sm:text-[46px]">{["“Kṛṣṇa", "sent", "him.”"].map((w, i) => <span key={i} className="bless-word inline-block" style={{ animationDelay: `${0.15 + i * 0.18}s` }}>{w}&nbsp;</span>)}</h2>
-        <p className="mt-2 text-[12px] text-ink-3 sm:text-[13px]">Room conversation, Bombay, 5 January 1977</p>
-        <div className="mx-auto mt-8 grid max-w-[760px] grid-cols-2 items-end gap-4 sm:mt-10 sm:gap-10">
-          {frame("/legacy/prabhupada.webp", "Śrīla A.C. Bhaktivedanta Swami Prabhupāda", "Śrīla Prabhupāda", "Founder-ācārya of ISKCON", "0.2s")}
-          {frame("/legacy/gurudeva.webp", "Śrī Śrīmad Gour Govinda Swāmī Gurudeva", "Śrīla Gurudeva", "His dear disciple", "0.35s")}
+      <div className="mx-auto max-w-6xl px-4 pt-10 sm:px-5 sm:pt-14">
+        <div className="grid grid-cols-2 items-end gap-x-3 lg:grid-cols-[1fr_1.35fr_1fr] lg:gap-x-6">
+          <div className="order-2 lg:order-1">{person("/legacy/prabhupada.webp", "Śrīla A.C. Bhaktivedanta Swami Prabhupāda", "Śrīla Prabhupāda", "Founder-ācārya of ISKCON", "l")}</div>
+          <div className="order-1 col-span-2 pb-8 text-center lg:order-2 lg:col-span-1 lg:self-center lg:pb-10">
+            <p className="mb-3 text-[10.5px] font-medium uppercase tracking-[0.25em] text-saffron sm:text-[11.5px] sm:tracking-[0.3em]">Śrīla Prabhupāda on Śrīla Gurudeva</p>
+            <h2 className="text-[30px] font-semibold leading-tight tracking-[-0.02em] text-ink sm:text-[44px]">{["“Kṛṣṇa", "sent", "him.”"].map((w, i) => <span key={i} className="bless-word inline-block" style={{ animationDelay: `${0.2 + i * 0.18}s` }}>{w}&nbsp;</span>)}</h2>
+            <p className="mt-2 text-[12px] text-ink-3 sm:text-[13px]">Room conversation, Bombay, 5 January 1977</p>
+            <div aria-hidden className="bless-line mx-auto my-6 flex w-40 items-center gap-2 text-[9px] text-[#c2621d]"><span className="h-px flex-1 bg-gradient-to-r from-transparent to-[#c2621d]/60" />◆<span className="h-px flex-1 bg-gradient-to-l from-transparent to-[#c2621d]/60" /></div>
+            <p className="mx-auto max-w-sm text-[16px] leading-relaxed text-ink-2 sm:text-[19px]" style={{ fontFamily: "var(--font-reading-serif)" }}>“Krishna is with you and there is no need of disappointment.”</p>
+            <p className="mt-1.5 text-[12px] text-ink-3 sm:text-[12.5px]">His letter to Śrīla Gurudeva, Māyāpur, 12 February 1976</p>
+            <BlessingLetters />
+          </div>
+          <div className="order-3">{person("/legacy/gurudeva.webp", "Śrī Śrīmad Gour Govinda Swāmī Gurudeva", "Śrīla Gurudeva", "His dear disciple", "r")}</div>
         </div>
-        <div aria-hidden className="mx-auto mt-8 flex w-40 items-center gap-2 text-[9px] text-[#c2621d]"><span className="h-px flex-1 bg-[#c2621d]/40" />◆<span className="h-px flex-1 bg-[#c2621d]/40" /></div>
-        <p className="mx-auto mt-5 max-w-lg text-[16px] leading-relaxed text-ink-2 sm:text-[19px]" style={{ fontFamily: "var(--font-reading-serif)" }}>“Krishna is with you and there is no need of disappointment.”</p>
-        <p className="mt-1.5 text-[12px] text-ink-3 sm:text-[12.5px]">Śrīla Prabhupāda’s letter to Śrīla Gurudeva, Māyāpur, 12 February 1976</p>
-        <BlessingLetters />
       </div>
+      <div aria-hidden className="mx-auto mt-6 h-px max-w-5xl bg-gradient-to-r from-transparent via-[#e6d6b8] to-transparent" />
     </section>
   );
 }
@@ -272,12 +272,16 @@ export function WebFolioSection() {
 /* ------------------------------------------------------------------ thanks */
 export function ThanksSection() {
   return (
-    <section className="reveal mx-auto max-w-3xl px-5 py-16 text-center">
-      <span className="mx-auto mb-4 flex size-12 items-center justify-center rounded-full border border-[#eadcc0] bg-[#fbf7ef] text-saffron"><HeartHandshake size={22} /></span>
-      <Kicker center>With gratitude</Kicker>
-      <h2 className="text-[24px] font-semibold tracking-[-0.015em] text-ink sm:text-[30px]">Our Thank List</h2>
-      <p className="mx-auto mt-3 max-w-xl text-[15px] leading-relaxed text-ink-2">This archive is built by the efforts of the disciples, grand-disciples, followers and admirers of Śrī Śrīmad Gour Govinda Swāmī Gurudeva, in many countries.</p>
-      <div className="mt-7 flex justify-center"><PillLine href="/thank-list">Read the Thank List <ArrowRight size={16} /></PillLine></div>
+    <section className="reveal bg-white">
+      <div className="mx-auto max-w-3xl px-5 py-16 text-center sm:py-20">
+        <div aria-hidden className="mx-auto mb-8 h-px max-w-md bg-gradient-to-r from-transparent via-[#e6d6b8] to-transparent" />
+        <span className="mx-auto mb-4 flex size-12 items-center justify-center rounded-full border border-[#eadcc0] text-saffron"><HeartHandshake size={22} strokeWidth={1.6} /></span>
+        <p className="mb-2 text-[10.5px] font-medium uppercase tracking-[0.25em] text-saffron sm:text-[11.5px] sm:tracking-[0.3em]">With gratitude</p>
+        <h2 className="text-[24px] text-ink sm:text-[32px]" style={{ fontFamily: "var(--font-reading-serif)" }}>Our Thank List</h2>
+        <p className="mx-auto mt-3 max-w-xl text-[14px] leading-relaxed text-ink-2 sm:text-[15px]">This archive is built by the efforts of the disciples, grand-disciples, followers and admirers of Śrī Śrīmad Gour Govinda Swāmī Gurudeva, in many countries.</p>
+        <div className="mt-7 flex justify-center"><PillLine href="/thank-list">Read the Thank List <ArrowRight size={16} /></PillLine></div>
+        <div aria-hidden className="mx-auto mt-10 flex w-40 items-center gap-2 text-[9px] text-[#c2621d]"><span className="h-px flex-1 bg-gradient-to-r from-transparent to-[#c2621d]/50" />◆<span className="h-px flex-1 bg-gradient-to-l from-transparent to-[#c2621d]/50" /></div>
+      </div>
     </section>
   );
 }

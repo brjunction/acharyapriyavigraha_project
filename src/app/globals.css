@@ -414,4 +414,15 @@ html.nav-hidden [class*="top-[52px]"], html.nav-hidden [class*="top-[58px]"], ht
 /* Home: the blessing — words and portraits rise in gently, once */
 @keyframes bless-up { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
 .bless-word, .bless-rise { animation: bless-up .7s cubic-bezier(.2,.7,.2,1) both; }
-html[data-motion="reduce"] .bless-word, html[data-motion="reduce"] .bless-rise { animation: none; }
+@keyframes bless-l { from { opacity: 0; transform: translateX(-28px); } to { opacity: 1; transform: none; } }
+@keyframes bless-r { from { opacity: 0; transform: translateX(28px); } to { opacity: 1; transform: none; } }
+@keyframes bless-grow { from { opacity: 0; transform: scaleX(.2); } to { opacity: 1; transform: none; } }
+.bless-left { animation: bless-l 1s .1s cubic-bezier(.2,.7,.2,1) both; }
+.bless-right { animation: bless-r 1s .25s cubic-bezier(.2,.7,.2,1) both; }
+.bless-line { animation: bless-grow .9s .7s cubic-bezier(.2,.7,.2,1) both; }
+html[data-motion="reduce"] .bless-word, html[data-motion="reduce"] .bless-rise, html[data-motion="reduce"] .bless-left, html[data-motion="reduce"] .bless-right, html[data-motion="reduce"] .bless-line { animation: none; }
+/* Life timeline views */
+@keyframes tl-pop { from { opacity: 0; transform: translate(-50%, 8px) scale(.6); } to { opacity: 1; transform: translate(-50%, 0) scale(1); } }
+@keyframes tl-fade { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+.tl-pop { animation: tl-pop .5s cubic-bezier(.2,.7,.2,1) both; }
+.tl-fade { animation: tl-fade .5s cubic-bezier(.2,.7,.2,1) both; }

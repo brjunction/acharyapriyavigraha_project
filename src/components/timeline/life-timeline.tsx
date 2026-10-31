@@ -1,12 +1,13 @@
 "use client";
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Search, Link2, Check, MapPin, Users, Headphones, ChevronDown, Sparkles, Rows3, CalendarRange, X } from "lucide-react";
+import { Search, Link2, Check, MapPin, Users, Headphones, ChevronDown, Sparkles, Rows3, CalendarRange, X, GitCommitHorizontal, LayoutGrid, Film } from "lucide-react";
+import { LineView, CardsView, FilmView } from "./views";
 import { KINDS, kindOf, when, eraOf, type Era, type LifeEvent } from "@/lib/content/timeline-shared";
 
 const fold = (s: string) => s.normalize("NFKD").replace(/[̀-ͯ]/g, "").toLowerCase();
 const serif = { fontFamily: "var(--font-reading-serif)" } as const;
-type View = "story" | "highlights" | "years";
+type View = "story" | "highlights" | "years" | "line" | "cards" | "film";
 
 export function LifeTimeline({ eras, events, recordings }: { eras: Era[]; events: LifeEvent[]; recordings: Record<number, number> }) {
   const [view, setView] = useState<View>("story"); const [q, setQ] = useState(""); const [kinds, setKinds] = useState<string[]>([]);
@@ -32,7 +33,7 @@ export function LifeTimeline({ eras, events, recordings }: { eras: Era[]; events
 
   // Which chapter and year are on screen.
   useEffect(() => {
-    if (view === "years") return;
+    if (view !== "story" && view !== "highlights") return;
     const els = Array.from(document.querySelectorAll<HTMLElement>("[data-year],[data-era]"));
     const io = new IntersectionObserver((xs) => xs.forEach((x) => { if (!x.isIntersecting) return; const el = x.target as HTMLElement; if (el.dataset.era) setActiveEra(Number(el.dataset.era)); if (el.dataset.year) setActiveYear(Number(el.dataset.year)); }), { rootMargin: "-30% 0px -60% 0px" });
     els.forEach((el) => io.observe(el)); return () => io.disconnect();
@@ -65,8 +66,8 @@ export function LifeTimeline({ eras, events, recordings }: { eras: Era[]; events
               {q && <button onClick={() => setQ("")} aria-label="Clear" className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-3"><X size={15} /></button>}
             </label>
             <div className="flex rounded-full border border-line-strong p-0.5 text-[12.5px]" role="tablist">
-              {([["story", Rows3, "Full story"], ["highlights", Sparkles, "Highlights"], ["years", CalendarRange, "All years"]] as const).map(([v, I, l]) => (
-                <button key={v} role="tab" aria-selected={view === v} onClick={() => setView(v)} className={`flex h-8 items-center gap-1.5 rounded-full px-3 transition ${view === v ? "bg-saffron text-white" : "text-ink-2 hover:text-ink"}`}><I size={14} />{l}</button>
+              {([["story", Rows3, "Full story"], ["highlights", Sparkles, "Highlights"], ["line", GitCommitHorizontal, "Line"], ["cards", LayoutGrid, "Pictures"], ["film", Film, "One by one"], ["years", CalendarRange, "All years"]] as const).map(([v, I, l]) => (
+                <button key={v} role="tab" aria-selected={view === v} onClick={() => setView(v)} className={`flex h-8 items-center gap-1.5 rounded-full px-3 transition ${view === v ? "bg-ink text-white" : "text-ink-2 hover:text-ink"}`}><I size={14} />{l}</button>
               ))}
             </div>
           </div>
@@ -90,7 +91,7 @@ export function LifeTimeline({ eras, events, recordings }: { eras: Era[]; events
       </div>}
 
       {!list.length ? <p className="mx-auto max-w-xl px-5 py-24 text-center text-[14px] text-ink-3">Nothing matches. Try another word, or clear the filters.</p> :
-      view === "years" ? <YearsView chapters={chapters} recordings={recordings} onOpen={open} /> : (
+      view === "line" || view === "cards" || view === "film" ? <div className="mx-auto max-w-[1180px] px-5 py-10 sm:px-8">{view === "line" ? <LineView events={list} /> : view === "cards" ? <CardsView events={list} /> : <FilmView events={list} />}</div> : view === "years" ? <YearsView chapters={chapters} recordings={recordings} onOpen={open} /> : (
         <div className="mx-auto grid max-w-[1180px] gap-10 px-5 py-10 sm:px-8 lg:grid-cols-[120px_minmax(0,1fr)]">
           {/* Year rail */}
           <aside className="hidden lg:block">
