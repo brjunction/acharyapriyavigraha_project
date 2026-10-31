@@ -3,7 +3,6 @@ import { ArrowRight, HeartHandshake } from "lucide-react";
 import { Hero } from "@/components/home-client";
 import { Container } from "@/components/ui";
 import { VectorToran } from "@/components/motifs";
-import { Backdrop } from "@/components/backdrop";
 import { Divider, BlessingSection, FounderNew, NumbersSection, ListenSection, ReadSection, TattvaSection, GurudevaSection, EverythingSection, WebFolioSection, type HomeLecture, type HomeBook } from "@/components/home/sections";
 import { sql, hasDb } from "@/lib/db";
 import { STATS } from "@/lib/data";
@@ -50,15 +49,15 @@ export default async function Home() {
       <WebFolioSection />
 
       {/* Thank list */}
-      <section className="reveal mt-24">
+      <section className="reveal mt-16 sm:mt-20">
         <Container>
-          <div className="relative isolate overflow-hidden rounded-3xl bg-[#4a0a0c] px-6 py-14 text-center text-white sm:px-12">
-            <Backdrop src="red-gold-mandala" o={0} className="-z-10 opacity-60" />
-            <VectorToran flip className="absolute inset-x-0 top-0 text-[#e8b872]/30" />
-            <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-white/12 ring-1 ring-[#e8b872]/50"><HeartHandshake size={26} strokeWidth={1.8} className="text-[#f1d3a4]" /></span>
-            <h2 className="mt-3 text-[20px] !text-white sm:text-[24px]">Our Thank List</h2>
-            <p className="mx-auto mt-3 max-w-2xl text-[14px] leading-relaxed text-white/85">This archive is built by the efforts of the disciples, grand-disciples, followers and admirers of Śrī Śrīmad Gour Govinda Swāmī Gurudeva, in many countries.</p>
-            <Link href="/thank-list" className="btn mt-6 !h-10 bg-gradient-to-r from-saffron to-[#e8b872] !px-5 text-white shadow-[0_6px_18px_-8px_rgba(243,179,99,0.8)] hover:brightness-110">Read the Thank List<ArrowRight size={15} /></Link>
+          <div className="relative isolate overflow-hidden rounded-3xl border border-[#eadcc0] bg-[#fdf9f1] px-6 pb-12 pt-16 text-center sm:px-12">
+            <VectorToran flip className="absolute inset-x-0 top-0 text-[#c9a227]/45" />
+            <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl border border-[#eadcc0] bg-white text-saffron"><HeartHandshake size={24} strokeWidth={1.8} /></span>
+            <p className="mt-4 text-[11px] font-medium uppercase tracking-[0.3em] text-saffron">With gratitude</p>
+            <h2 className="mt-1 text-[22px] font-semibold text-ink sm:text-[26px]">Our Thank List</h2>
+            <p className="mx-auto mt-3 max-w-2xl text-[14px] leading-relaxed text-ink-2">This archive is built by the efforts of the disciples, grand-disciples, followers and admirers of Śrī Śrīmad Gour Govinda Swāmī Gurudeva, in many countries.</p>
+            <Link href="/thank-list" className="mt-6 inline-flex h-10 items-center gap-2 rounded-full bg-saffron px-5 text-[13.5px] font-medium text-white hover:opacity-90">Read the Thank List<ArrowRight size={15} /></Link>
           </div>
         </Container>
       </section>

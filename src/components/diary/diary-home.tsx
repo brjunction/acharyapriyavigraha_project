@@ -21,7 +21,7 @@ export function DiaryHome({ entries }: { entries: Entry[] }) {
       <section className="relative overflow-hidden border-b border-[#efe4cf] bg-[#fbf7ef]">
         <div className="mx-auto grid max-w-[1240px] items-center gap-10 px-4 py-12 sm:px-6 lg:grid-cols-[1.2fr_1fr]">
           <div>
-            <nav className="text-[12px] text-ink-3"><Link href="/gurudeva" className="hover:text-ink">Śrīla Gurudeva</Link> <span className="mx-1">/</span> His Diary</nav>
+            
             <p className="mb-3 mt-6 text-[11.5px] font-medium uppercase tracking-[0.3em] text-saffron">His Diary</p>
             <h1 className="text-[30px] leading-[1.15] text-ink sm:text-[40px]" style={{ fontFamily: "var(--font-reading-serif)" }}>Prayers to Śrī Gopāl Jiu</h1>
             <p className="mt-4 max-w-xl text-[15px] leading-relaxed text-ink-2">Throughout his life Śrīla Gurudeva wrote to his beloved Deity, Śrī Gopāl Jiu, day after day. Read them in order, by year and month, with the original beside the translation.</p>

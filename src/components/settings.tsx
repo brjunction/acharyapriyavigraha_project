@@ -21,15 +21,15 @@ export function SettingsPanel({ compact = false }: { compact?: boolean }) {
   const { prefs, set, reset } = usePrefs();
   return (
     <div className="space-y-4">
-      {!compact && <div className="flex items-center justify-between"><p className="font-serif text-lg">Settings</p><button onClick={reset} className="flex items-center gap-1 text-[11.5px] text-ink-3 hover:text-saffron"><RotateCcw size={12} />Reset</button></div>}
+      {!compact && <div className="flex items-center justify-between"><p className="font-serif text-lg">Settings</p><button onClick={reset} className="flex items-center gap-1 text-[11.5px] text-ink-3 hover:text-ink"><RotateCcw size={12} />Reset</button></div>}
       <Row label="Language">
-        <select value={prefs.lang} onChange={(e) => set("lang", e.target.value)} className="h-9 w-full rounded-xl border border-line bg-surface px-3 text-[13px] text-ink outline-none focus:border-saffron">
+        <select value={prefs.lang} onChange={(e) => set("lang", e.target.value)} className="h-9 w-full rounded-xl border border-line bg-surface px-3 text-[13px] text-ink outline-none focus:border-ink/40">
           {LANGUAGES.map((l) => <option key={l.code} value={l.code}>{l.native}{l.native !== l.name ? ` · ${l.name}` : ""}</option>)}
         </select>
       </Row>
       <Row label="Reading size" aside={<span className="tabular text-ink-3">{prefs.size}px</span>}>
         <div className="flex items-center gap-3"><span className="text-xs text-ink-3">A</span>
-          <input type="range" min={14} max={24} value={prefs.size} onChange={(e) => set("size", +e.target.value)} className="flex-1 accent-[var(--saffron)]" aria-label="Reading size" />
+          <input type="range" min={14} max={24} value={prefs.size} onChange={(e) => set("size", +e.target.value)} className="flex-1 accent-[#1a1a1a]" aria-label="Reading size" />
           <span className="text-lg text-ink-3">A</span></div>
       </Row>
       <Row label="Reading font (transcripts, books)">
@@ -41,17 +41,18 @@ export function SettingsPanel({ compact = false }: { compact?: boolean }) {
       <Row label="Audio speed">
         <Seg value={prefs.speed} onChange={(v) => set("speed", v)} options={[0.75, 1, 1.25, 1.5, 2].map((v) => ({ v, label: `${v}×` }))} />
       </Row>
+      <Row label="Page size">
+        <Seg value={prefs.zoom || 100} onChange={(v) => set("zoom", v)} options={[90, 100, 110, 125].map((v) => ({ v, label: `${v}%` }))} />
+      </Row>
       <div className="space-y-1 border-t border-line pt-3">
-        {([["diacritics", "Show diacritics (Śrīmad)"], ["reduceMotion", "Reduce motion"]] as const).map(([k, l]) => (
-          <label key={k} className="flex cursor-pointer items-center justify-between rounded-lg py-1.5 text-[13px]">
-            {l}
-            <span className="relative inline-flex">
-              <input type="checkbox" checked={prefs[k] as boolean} onChange={(e) => set(k, e.target.checked)} className="peer sr-only" />
-              <span className="h-5 w-9 rounded-full bg-line-strong transition peer-checked:bg-saffron" />
-              <span className="absolute left-0.5 top-0.5 h-4 w-4 rounded-full bg-white shadow transition peer-checked:translate-x-4" />
-            </span>
-          </label>
-        ))}
+        <label className="flex cursor-pointer items-center justify-between rounded-lg py-1.5 text-[13px]">
+          <span>Hide the menu while I scroll down<span className="block text-[11.5px] text-ink-3">It comes back as soon as you scroll up</span></span>
+          <span className="relative inline-flex shrink-0">
+            <input type="checkbox" checked={!!prefs.autoHide} onChange={(e) => set("autoHide", e.target.checked)} className="peer sr-only" />
+            <span className="h-5 w-9 rounded-full bg-line-strong transition peer-checked:bg-ink" />
+            <span className="absolute left-0.5 top-0.5 h-4 w-4 rounded-full bg-white shadow transition peer-checked:translate-x-4" />
+          </span>
+        </label>
       </div>
     </div>
   );

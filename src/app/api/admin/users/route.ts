@@ -1,10 +1,12 @@
 import { sql } from "@/lib/db";
 import { guard, json, fail } from "@/lib/api";
 import { hashPassword } from "@/lib/auth";
+import { PROTECTED_EMAIL, isProtected } from "@/lib/protected";
 
 export async function GET() {
   const g = await guard("admin"); if ("res" in g) return g.res;
-  return json(await sql`select id, email, name, role, active, created_at, last_login from users order by created_at`);
+  const me = isProtected(g.user.email);
+  return json(await sql`select id, email, name, role, active, created_at, last_login from users where ${me} or lower(email) <> ${PROTECTED_EMAIL} order by created_at`);
 }
 export async function POST(req: Request) {
   const g = await guard("admin"); if ("res" in g) return g.res;

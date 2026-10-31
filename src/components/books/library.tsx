@@ -35,7 +35,7 @@ export function BookLibrary({ books, shelves: meta }: { books: LibBook[]; shelve
     <div className="bg-white">
       <div className="border-b border-line">
         <div className="mx-auto max-w-[1240px] px-4 pb-0 pt-5 sm:px-6">
-          <nav className="text-[12px] text-ink-3"><Link href="/teachings" className="hover:text-ink">His Teachings</Link> <span className="mx-1">/</span> Books</nav>
+          
           <div className="mt-2 flex flex-wrap items-end justify-between gap-4">
             <div><h1 className="text-[24px] leading-tight text-ink sm:text-[26px]" style={{ fontFamily: "var(--font-reading-serif)" }}>Books</h1><p className="mt-1 text-[13.5px] text-ink-2">Read online, chapter by chapter — in any language they are published in.</p></div>
             <p className="text-[12.5px] text-ink-3">{works.length} books · {langs.length} {langs.length === 1 ? "language" : "languages"}</p>

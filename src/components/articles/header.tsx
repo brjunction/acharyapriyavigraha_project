@@ -7,7 +7,7 @@ export function WritingsHeader({ at, title, intro, stats, crumbs = [] }: { at: s
   return (
     <div className="border-b border-line bg-white">
       <div className="mx-auto max-w-[1240px] px-4 pt-5 sm:px-6">
-        <nav className="flex flex-wrap items-center gap-1 text-[12px] text-ink-3"><Link href="/teachings" className="hover:text-ink">His Teachings</Link>{crumbs.map(([h, l]) => <span key={h} className="flex items-center gap-1"><ChevronRight size={12} /><Link href={h} className="hover:text-ink">{l}</Link></span>)}<ChevronRight size={12} /><span className="text-ink-2">{title}</span></nav>
+        
         <div className="mt-2 flex flex-wrap items-end justify-between gap-3">
           <div><h1 className="text-[24px] leading-tight text-ink sm:text-[26px]" style={{ fontFamily: "var(--font-reading-serif)" }}>{title}</h1><p className="mt-1 max-w-2xl text-[13.5px] text-ink-2">{intro}</p></div>
           {stats.length > 0 && <p className="text-[12.5px] text-ink-3">{stats.join(" · ")}</p>}

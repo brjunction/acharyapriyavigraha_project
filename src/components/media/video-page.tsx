@@ -16,7 +16,7 @@ export async function VideoPage({ slug }: { slug: string }) {
   return (
     <div className="bg-white">
       <div className="mx-auto max-w-[1180px] px-4 pb-16 pt-5 sm:px-6">
-        <nav className="flex items-center gap-1 text-[12px] text-ink-3"><Link href="/teachings" className="hover:text-saffron">His Teachings</Link><ChevronRight size={12} /><Link href="/teachings/videos" className="hover:text-saffron">Videos</Link></nav>
+        
         <div className="mt-5 grid gap-10 lg:grid-cols-[minmax(0,1fr)_280px]">
           <article className="min-w-0">
             {v.youtube_id && <div className="aspect-video overflow-hidden rounded-xl bg-black"><iframe src={`https://www.youtube-nocookie.com/embed/${v.youtube_id}`} title={v.title} className="h-full w-full" allow="accelerometer; encrypted-media; picture-in-picture" allowFullScreen /></div>}

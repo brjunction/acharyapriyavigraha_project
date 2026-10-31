@@ -10,8 +10,10 @@ export type Prefs = {
   diacritics: boolean;
   speed: number;
   reduceMotion: boolean;
+  zoom: number;
+  autoHide: boolean;
 };
-const DEFAULT: Prefs = { theme: "light", lang: "en", font: "sans", size: 17, leading: "comfortable", diacritics: true, speed: 1, reduceMotion: false };
+const DEFAULT: Prefs = { theme: "light", lang: "en", font: "sans", size: 17, leading: "comfortable", diacritics: true, speed: 1, reduceMotion: false, zoom: 100, autoHide: false };
 
 type Ctx = {
   prefs: Prefs; set: <K extends keyof Prefs>(k: K, v: Prefs[K]) => void; reset: () => void;
@@ -26,6 +28,7 @@ function apply(p: Prefs) {
   r.dataset.font = p.font;
   r.dataset.motion = p.reduceMotion ? "reduce" : "full";
   r.style.setProperty("--reading-size", `${p.size}px`);
+  (r.style as any).zoom = p.zoom && p.zoom !== 100 ? String(p.zoom / 100) : "";
   r.style.setProperty("--reading-leading", { compact: "1.55", comfortable: "1.75", spacious: "2" }[p.leading]);
 }
 
@@ -68,6 +71,13 @@ export function Providers({ children }: { children: React.ReactNode }) {
     return () => { io.disconnect(); mo.disconnect(); };
   }, []);
 
+  // Hide the menu while reading down the page, show it again on the way up
+  useEffect(() => {
+    const h = document.documentElement; if (!prefs.autoHide) { h.classList.remove("nav-auto"); return; }
+    let last = window.scrollY, raf = 0;
+    const on = () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(() => { const y = window.scrollY; if (Math.abs(y - last) < 6) return; h.classList.toggle("nav-auto", y > 140 && y > last); last = y; }); };
+    window.addEventListener("scroll", on, { passive: true }); return () => { window.removeEventListener("scroll", on); h.classList.remove("nav-auto"); };
+  }, [prefs.autoHide]);
   // Scroll progress line and a slow parallax variable
   useEffect(() => {
     let raf = 0;

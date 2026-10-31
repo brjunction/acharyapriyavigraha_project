@@ -7,7 +7,7 @@ export function MediaHeader({ at, title, intro, stats }: { at: string; title: st
   return (
     <div className="border-b border-line bg-white">
       <div className="mx-auto max-w-[1240px] px-4 pt-5 sm:px-6">
-        <nav className="flex items-center gap-1 text-[12px] text-ink-3"><Link href="/teachings" className="hover:text-saffron">His Teachings</Link><ChevronRight size={12} /><span className="text-ink-2">{title}</span></nav>
+        
         <div className="mt-2 flex flex-wrap items-end justify-between gap-3">
           <div><h1 className="text-[24px] leading-tight text-ink sm:text-[26px]" style={{ fontFamily: "var(--font-reading-serif)" }}>{title}</h1><p className="mt-1 max-w-2xl text-[13.5px] text-ink-2">{intro}</p></div>
           {stats.length > 0 && <p className="text-[12.5px] text-ink-3">{stats.join(" · ")}</p>}

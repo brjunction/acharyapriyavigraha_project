@@ -29,7 +29,7 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
   ].filter((x) => x.n > 0);
   return (
     <div>
-      <nav className="text-[12px] text-ink-3"><Link href="/tattva" className="hover:text-ink">Tattva</Link>{parent && <> / <Link href={`/tattva/${parent.slug}`} className="hover:text-ink">{parent.name}</Link></>}</nav>
+      
       <h1 className="mt-1 text-[24px] leading-tight text-ink sm:text-[26px]" style={{ fontFamily: "var(--font-reading-serif)" }}>{t.name}</h1>
       {t.description && <p className="mt-1.5 max-w-3xl text-[13.5px] leading-relaxed text-ink-2">{t.description}</p>}
       <p className="mt-2 text-[12px] text-ink-3">{[["quote", c.quotes.length], ["lecture", lectures.length], ["video", c.videos.length], ["article", c.articles.length]].filter(([, n]) => n).map(([w, n]) => `${n} ${w}${n === 1 ? "" : "s"}`).join(" · ") || "Nothing linked yet"}</p>

@@ -30,7 +30,7 @@ export default async function BookHome({ params }: { params: Promise<{ slug: str
     <div className="bg-white">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ld) }} />
       <div className="mx-auto max-w-[1080px] px-4 pb-24 pt-5 sm:px-6">
-        <nav className="flex items-center gap-1 text-[12px] text-ink-3"><Link href="/teachings" className="hover:text-ink">His Teachings</Link><ChevronRight size={12} /><Link href="/teachings/books" className="hover:text-ink">Books</Link>{book.category && <><ChevronRight size={12} /><Link href={`/teachings/books?shelf=${encodeURIComponent(book.category)}`} className="hover:text-ink">{book.category}</Link></>}</nav>
+        
         <div className="mt-8 grid items-start gap-10 md:grid-cols-[240px_minmax(0,1fr)]">
           <div className="mx-auto w-[170px] md:sticky md:top-24 md:w-full"><Cover book={book} /></div>
           <div className="min-w-0">

@@ -47,7 +47,7 @@ export function LifeTimeline({ eras, events, recordings }: { eras: Era[]; events
       {/* Opening */}
       <section className="border-b border-line">
         <div className="mx-auto max-w-[1180px] px-5 pb-8 pt-10 sm:px-8 sm:pt-14">
-          <nav className="text-[12px] text-ink-3"><Link href="/gurudeva" className="hover:text-saffron">Śrīla Gurudeva</Link> <span className="mx-1">/</span> Life timeline</nav>
+          
           <div className="mt-5 grid gap-8 lg:grid-cols-[1fr_auto] lg:items-end">
             <div>
               <h1 className="text-[34px] leading-[1.05] tracking-[-0.02em] text-ink sm:text-[46px]" style={serif}>His life, year by year</h1>

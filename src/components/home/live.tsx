@@ -19,7 +19,7 @@ function Num({ n, label, sub, on }: { n: number; label: string; sub: string; on:
   useEffect(() => { if (!on) return; const t0 = performance.now(); let raf = 0; const f = (t: number) => { const p = Math.min(1, (t - t0) / 1400); setV(Math.round(n * (1 - Math.pow(1 - p, 3)))); if (p < 1) raf = requestAnimationFrame(f); }; raf = requestAnimationFrame(f); return () => cancelAnimationFrame(raf); }, [on, n]);
   return (
     <div className="rounded-2xl border border-[#eadcc0] bg-white px-4 py-5 text-center">
-      <p className="text-[28px] font-semibold leading-none tracking-[-0.02em] tabular-nums text-ink sm:text-[32px]">{v.toLocaleString()}</p>
+      <p className="text-[24px] font-semibold leading-none tracking-[-0.02em] tabular-nums text-ink sm:text-[32px]">{v.toLocaleString()}</p>
       <p className="mt-2 text-[13.5px] font-medium text-saffron">{label}</p>
       <p className="mt-0.5 text-[12px] leading-snug text-ink-3">{sub}</p>
     </div>
@@ -27,25 +27,27 @@ function Num({ n, label, sub, on }: { n: number; label: string; sub: string; on:
 }
 
 const hl = (t: string) => t.split(/«|»/).map((p, i) => (i % 2 ? <mark key={i} className="rounded bg-[#fbf0d2] px-0.5 font-medium text-ink">{p}</mark> : p));
-/** The two sources side by side, each opening to the full text. */
+/** Two quiet links that open the full conversation or the full letter in a large reading window. */
 export function BlessingLetters() {
-  const [open, setOpen] = useState<string | null>(null);
-  const card = "relative rounded-2xl border border-[#eadcc0] bg-white p-6 shadow-[0_20px_40px_-30px_rgba(120,60,10,0.4)] before:absolute before:inset-x-8 before:top-0 before:h-[3px] before:rounded-b before:bg-gradient-to-r before:from-[#e8c766] before:via-[#c2621d] before:to-[#e8c766]";
+  const [open, setOpen] = useState<"c" | "l" | null>(null);
+  useEffect(() => { if (!open) return; const k = (e: KeyboardEvent) => e.key === "Escape" && setOpen(null); window.addEventListener("keydown", k); document.body.style.overflow = "hidden"; return () => { window.removeEventListener("keydown", k); document.body.style.overflow = ""; }; }, [open]);
+  const link = "inline-flex items-center gap-1.5 rounded-full border border-[#e6d6b8] bg-white/70 px-4 py-2 text-[13px] text-ink transition hover:border-saffron hover:text-saffron";
   return (
-    <div className="mt-10 grid gap-6 md:grid-cols-2">
-      <figure className={card}>
-        <div className="flex items-center gap-3">{/* eslint-disable-next-line @next/next/no-img-element */}<img src="/legacy/prabhupada.webp" alt="" className="size-12 rounded-full border border-[#eadcc0] object-cover object-top" /><div><p className="text-[14px] font-semibold text-ink">{CONVERSATION.title.split(",")[0]}</p><p className="text-[12px] text-ink-3">{CONVERSATION.title.split(",").slice(1).join(",").trim()}</p></div></div>
-        <blockquote className="mt-5 text-[15.5px] leading-relaxed text-ink-2">{hl(CONVERSATION.lines.find(([, l]) => l.includes("«"))?.[1].slice(0, 220) + "…")}</blockquote>
-        <button onClick={() => setOpen(open === "c" ? null : "c")} className="mt-4 inline-flex items-center gap-1 text-[13px] font-medium text-saffron">{open === "c" ? "Hide" : "Read the conversation"}<ChevronDown size={14} className={open === "c" ? "rotate-180" : ""} /></button>
-        {open === "c" && <div className="mt-3 max-h-[320px] overflow-y-auto rounded-xl border border-[#f1e7d4] bg-[#fbf7ef]">{CONVERSATION.lines.map(([w, l], i) => <p key={i} className="border-b border-[#f1e7d4] px-4 py-2 text-[13px] leading-relaxed text-ink-2 last:border-0"><span className={`mr-1.5 font-semibold ${w === "Prabhupāda" ? "text-saffron" : "text-ink"}`}>{w}:</span>{hl(l)}</p>)}</div>}
-      </figure>
-      <figure className={card}>
-        <div className="flex items-center gap-3"><span className="flex size-12 items-center justify-center rounded-full border border-[#eadcc0] bg-[#fbf7ef] text-[18px]" style={{ fontFamily: "var(--font-reading-serif)" }}>✉</span><div><p className="text-[14px] font-semibold text-ink">{LETTER.title.split(",")[0]}</p><p className="text-[12px] text-ink-3">{LETTER.title.split(",").slice(1).join(",").trim()}</p></div></div>
-        <blockquote className="mt-5 text-[15.5px] leading-relaxed text-ink-2">{hl(LETTER.paras[1])}</blockquote>
-        <button onClick={() => setOpen(open === "l" ? null : "l")} className="mt-4 inline-flex items-center gap-1 text-[13px] font-medium text-saffron">{open === "l" ? "Hide" : "Read the letter"}<ChevronDown size={14} className={open === "l" ? "rotate-180" : ""} /></button>
-        {open === "l" && <div className="mt-3 max-h-[320px] space-y-2.5 overflow-y-auto rounded-xl border border-[#f1e7d4] bg-[#fbf7ef] p-4 text-[13px] leading-relaxed text-ink-2"><p>{LETTER.salutation}</p>{LETTER.paras.map((p, i) => <p key={i}>{hl(p)}</p>)}<p className="text-ink-3">{LETTER.closing[0]}<br />{LETTER.closing[1]}</p></div>}
-      </figure>
-    </div>
+    <>
+      <div className="mt-6 flex flex-wrap justify-center gap-2"><button onClick={() => setOpen("c")} className={link}>Read the conversation</button><button onClick={() => setOpen("l")} className={link}>Read the letter</button></div>
+      {open && <div className="fixed inset-0 z-[90] flex items-center justify-center bg-black/40 p-3 backdrop-blur-sm sm:p-8" onClick={() => setOpen(null)}>
+        <div className="flex max-h-full w-full max-w-3xl flex-col overflow-hidden rounded-2xl bg-[#fffdf8] shadow-2xl" onClick={(e) => e.stopPropagation()}>
+          <div className="flex items-start justify-between gap-4 border-b border-[#efe4cf] px-6 py-4 sm:px-8">
+            <div><p className="text-[11px] font-medium uppercase tracking-[0.25em] text-saffron">Śrīla Prabhupāda on Śrīla Gurudeva</p><p className="mt-1 text-[17px] font-semibold text-ink sm:text-[19px]">{open === "c" ? CONVERSATION.title : LETTER.title}</p><p className="text-[12.5px] text-ink-3">{open === "c" ? CONVERSATION.speakers : `Letter ${LETTER.ref}`}</p></div>
+            <button onClick={() => setOpen(null)} className="rounded-md px-2 py-1 text-[22px] leading-none text-ink-3 hover:bg-black/5" aria-label="Close">×</button>
+          </div>
+          <div className="overflow-y-auto px-6 py-6 text-[15.5px] leading-[1.8] text-ink-2 sm:px-10 sm:text-[17px]" style={{ fontFamily: "var(--font-reading-serif)" }}>
+            {open === "c" ? CONVERSATION.lines.map(([w, l], i) => <p key={i} className="mb-3"><span className={`mr-2 font-sans text-[13px] font-semibold ${w === "Prabhupāda" ? "text-saffron" : "text-ink"}`}>{w}</span>{hl(l)}</p>)
+              : <><p className="mb-4">{LETTER.salutation}</p>{LETTER.paras.map((p, i) => <p key={i} className="mb-4">{hl(p)}</p>)}<p className="mt-6 text-ink-3">{LETTER.closing[0]}<br />{LETTER.closing[1]}</p></>}
+          </div>
+        </div>
+      </div>}
+    </>
   );
 }
 

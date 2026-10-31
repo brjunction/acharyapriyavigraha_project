@@ -379,7 +379,9 @@ main p.hover-glow:hover { color: var(--saffron); }
 .admin .shadow-xs { box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05); }
 
 /* Top bar can be hidden by the reader, or by a page setting */
-html.nav-hidden .site-header { display: none; }
+.site-header { transition: margin-top .24s cubic-bezier(.2,.7,.2,1), opacity .2s ease; }
+html.nav-hidden .site-header, html.nav-auto .site-header { margin-top: -60px; opacity: 0; pointer-events: none; }
+html.nav-hidden [class*="top-[52px]"], html.nav-hidden [class*="top-[58px]"], html.nav-auto [class*="top-[52px]"], html.nav-auto [class*="top-[58px]"] { top: 0 !important; transition: top .24s cubic-bezier(.2,.7,.2,1); }
 /* Book text follows the reader’s chosen size and font (set on #book-text). */
 .book-body .reading, .book-body { font-size: inherit; line-height: inherit; font-family: inherit; max-width: none; }
 .book-body p { font-size: inherit; line-height: inherit; }

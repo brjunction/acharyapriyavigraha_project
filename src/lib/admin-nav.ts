@@ -32,10 +32,10 @@ export const ADMIN_GROUPS: AdminGroup[] = [
   { key: "resources", label: "Resources", desc: "Calendar, WebFolio and translations", links: [
     { href: "/admin/calendar", label: "Taptajīvanam Calendar", icon: CalendarDays, desc: "Festivals and fasting days" },
     { href: "/admin/webfolio", label: "WebFolio", icon: BookMarked, desc: "The folio of his teachings" },
+    { href: "/admin/pages", label: "WebFolio pages", icon: ToggleRight, desc: "Your own pages, written like documents, shown in the WebFolio" },
     { href: "/admin/translations", label: "Translations", icon: Languages, desc: "Other languages" },
   ] },
-  { key: "website", label: "Website", desc: "Pages, menus, announcements and pictures", links: [
-    { href: "/admin/site-pages", label: "Website pages", icon: ToggleRight, desc: "Which pages you write yourself" },
+  { key: "website", label: "Website", desc: "Menus, announcements and pictures", links: [
     { href: "/admin/menus", label: "Menus", icon: PanelsTopLeft, desc: "The top menus" },
     { href: "/admin/announcements", label: "Announcements", icon: Megaphone, desc: "Messages on top of the site" },
     { href: "/admin/media", label: "Pictures & files", icon: Images, desc: "Everything uploaded" },

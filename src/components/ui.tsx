@@ -5,7 +5,10 @@ import { Ornament, Rosette } from "./motifs";
 import { Backdrop } from "./backdrop";
 export { Img } from "./img";
 
-export function Crumbs({ items }: { items: { href?: string; label: string }[] }) {
+export function Crumbs(_props: { items: { href?: string; label: string }[] }) {
+  return null;
+}
+export function CrumbsOld({ items }: { items: { href?: string; label: string }[] }) {
   return (
     <nav aria-label="Breadcrumb" className="flex flex-wrap items-center gap-1 text-[12.5px] text-ink-3">
       <Link href="/" className="hover:text-saffron">Home</Link>

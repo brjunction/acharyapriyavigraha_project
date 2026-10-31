@@ -9,9 +9,7 @@ import { Gallery } from "./gallery";
 const serif = { fontFamily: "var(--font-reading-serif)" } as const;
 const W = "mx-auto max-w-[1180px] px-4 sm:px-6";
 
-function Crumbs({ items }: { items: { href?: string; label: string }[] }) {
-  return <nav className="flex flex-wrap items-center gap-1 text-[12px] text-ink-3">{items.map((c, i) => <span key={i} className="flex items-center gap-1">{i > 0 && <ChevronRight size={12} />}{c.href ? <Link href={c.href} className="hover:text-ink hover:underline">{c.label}</Link> : <span className="text-ink-2">{c.label}</span>}</span>)}</nav>;
-}
+function Crumbs(_: { items: { href?: string; label: string }[] }) { return null; } // no navigation trail on public pages
 const Img = ({ src, alt = "", className = "" }: { src: string | null; alt?: string; className?: string }) => src ? /* eslint-disable-next-line @next/next/no-img-element */ <img src={src} alt={alt} loading="lazy" className={className} /> : <div className={`flex items-center justify-center bg-[#f4f4f4] text-ink-3/40 ${className}`}><Images size={22} /></div>;
 
 /* ------------------------------------------------------------------ Cards, one design per kind of collection */
@@ -79,6 +77,7 @@ export async function ArchiveIndex({ coll, section, q, title, intro, crumbs }: {
   const count = (k: string) => all.filter((i) => i.section === k).length;
   const url = (o: Record<string, string | undefined>) => { const p = new URLSearchParams(Object.entries(o).filter(([, v]) => v) as [string, string][]); return `${c.base}${p.size ? `?${p}` : ""}`; };
   const grouped = !sec && !q; const used = sections.filter((s) => count(s.key));
+  if (c.layout === "chain" && !q) return <Chain c={c} items={[...all].sort((a, b) => (a.position ?? 0) - (b.position ?? 0))} sections={sections} />;
   const hero = c.layout === "quotes" && grouped ? all.find((i) => i.featured && i.summary) || all.find((i) => i.summary) : null;
   return (
     <div className="bg-white">
@@ -176,3 +175,29 @@ export async function ArchiveItem({ coll, slug, crumbs }: { coll: string; slug: 
   );
 }
 export { Mail };
+
+/** The disciplic succession as one line, from Śrī Kṛṣṇa to Śrīla Gurudeva; the great ācāryas stand out. */
+function Chain({ c, items, sections }: { c: Collection; items: Item[]; sections: Section[] }) {
+  let n = 0;
+  return (
+    <div className="bg-white">
+      <div className="border-b border-line"><div className={`${W} py-8`}><p className="mb-2 text-[10.5px] font-medium uppercase tracking-[0.25em] text-saffron sm:text-[11.5px]">Disciplic succession</p><h1 className="text-[24px] leading-tight text-ink sm:text-[28px]" style={serif}>{c.label}</h1><p className="mt-1.5 max-w-2xl text-[13.5px] leading-relaxed text-ink-2 sm:text-[14.5px]">{c.intro}</p><p className="mt-2 text-[12.5px] text-ink-3">{items.length} ācāryas · the Brahma-Madhva-Gauḍīya sampradāya</p></div></div>
+      <main className="mx-auto max-w-[820px] px-4 pb-20 pt-8 sm:px-6">
+        {sections.map((s) => { const xs = items.filter((i) => i.section === s.key); if (!xs.length) return null; return (
+          <section key={s.key} className="mb-8">
+            <h2 className="mb-4 flex items-center gap-3 text-[12px] font-medium uppercase tracking-[0.18em] text-ink-3"><span className="h-px flex-1 bg-line" />{s.title}<span className="h-px flex-1 bg-line" /></h2>
+            <ol className="relative">
+              <span aria-hidden className="absolute bottom-3 left-[19px] top-3 w-px bg-gradient-to-b from-[#e8c766] via-[#c2621d]/50 to-[#e8c766]" />
+              {xs.map((i) => { n++; const big = i.featured; return (
+                <li key={i.id} className="relative mb-2 last:mb-0">
+                  <Link href={`${c.base}/${i.slug}`} className={`group flex items-start gap-4 rounded-xl py-2 pr-3 transition hover:bg-[#fbf7ef] ${big ? "py-3" : ""}`}>
+                    <span className={`relative z-10 flex size-10 shrink-0 items-center justify-center rounded-full text-[12px] font-semibold tabular-nums ${big ? "bg-saffron text-white shadow-[0_8px_18px_-8px_rgba(133,53,0,0.7)]" : "border border-[#eadcc0] bg-white text-ink-2"}`}>{n}</span>
+                    <span className="min-w-0 pt-1.5"><span className={`block leading-snug text-ink group-hover:underline ${big ? "text-[17px] font-semibold" : "text-[15px] font-medium"}`} style={big ? serif : undefined}>{i.title}</span>{i.subtitle && <span className="block text-[12.5px] text-ink-3">{i.subtitle}</span>}{big && i.summary && <span className="mt-1 block text-[13.5px] leading-relaxed text-ink-2">{i.summary}</span>}</span>
+                  </Link>
+                </li>); })}
+            </ol>
+          </section>); })}
+      </main>
+    </div>
+  );
+}

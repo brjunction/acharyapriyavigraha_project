@@ -8,7 +8,7 @@ import { CutOut } from "@/components/motifs";
 import { Backdrop } from "@/components/backdrop";
 
 export function Kicker({ children, center }: { children: React.ReactNode; center?: boolean }) {
-  return <p className={`mb-3 text-[11.5px] font-medium uppercase tracking-[0.3em] text-saffron ${center ? "text-center" : ""}`}>{children}</p>;
+  return <p className={`mb-3 text-[10.5px] font-medium uppercase tracking-[0.25em] text-saffron sm:text-[11.5px] sm:tracking-[0.3em] ${center ? "text-center" : ""}`}>{children}</p>;
 }
 export function Divider({ w = "w-1/2 max-w-md" }: { w?: string }) {
   return <div aria-hidden className={`mx-auto my-10 flex items-center gap-2 ${w}`}><span className="h-1 w-2.5 shrink-0 rounded-full bg-[#c2621d]" /><span className="h-px flex-1 bg-gradient-to-r from-[#c2621d]/60 via-[#c2621d]/25 to-[#c2621d]/60" /><span className="h-1 w-2.5 shrink-0 rounded-full bg-[#c2621d]" /></div>;
@@ -23,23 +23,22 @@ const BAND = "border-y border-[#efe4cf] bg-[#fbf7ef]";
 /* ------------------------------------------------------------------ blessing */
 export function BlessingSection() {
   return (
-    <section className="reveal relative isolate overflow-hidden border-y border-[#efe4cf] bg-[#fbf7ef]">
-      <Backdrop src="cream-mandala" o={0.35} />
-      <div className="relative mx-auto max-w-6xl px-5 pt-14">
-        <div className="grid grid-cols-2 items-end gap-x-4 lg:grid-cols-[1fr_1.25fr_1fr]">
-          <figure className="order-2 lg:order-1"><CutOut src="/legacy/prabhupada.webp" alt="Śrīla A.C. Bhaktivedanta Swami Prabhupāda" fade={0} className="mx-auto w-full max-w-[320px]" /><figcaption className="pb-4 text-center text-[12.5px] text-ink-3">Śrīla Prabhupāda</figcaption></figure>
-          <div className="order-1 col-span-2 pb-10 text-center lg:order-2 lg:col-span-1 lg:pb-24">
-            <Kicker center>Śrīla Prabhupāda on Śrīla Gurudeva</Kicker>
-            <h2 className="text-[34px] font-semibold leading-tight tracking-[-0.02em] text-ink sm:text-[44px]">“Kṛṣṇa sent him.”</h2>
-            <p className="mt-2 text-[13px] text-ink-3">Room conversation, Bombay, 5 January 1977</p>
-            <div aria-hidden className="mx-auto my-5 flex w-40 items-center gap-2 text-[10px] text-[#c2621d]"><span className="h-px flex-1 bg-[#c2621d]/40" />◆<span className="h-px flex-1 bg-[#c2621d]/40" /></div>
-            <p className="mx-auto max-w-sm text-[16px] leading-relaxed text-ink-2">“Krishna is with you and there is no need of disappointment.”</p>
-            <p className="mt-1.5 text-[12.5px] text-ink-3">Letter, Māyāpur, 12 February 1976</p>
+    <section className="reveal border-y border-[#efe4cf] bg-[#fbf6ec]">
+      <div className="mx-auto max-w-6xl px-4 pt-10 sm:px-5 sm:pt-14">
+        <div className="grid grid-cols-2 items-end gap-x-3 lg:grid-cols-[1fr_1.3fr_1fr]">
+          <figure className="order-2 lg:order-1"><CutOut src="/legacy/prabhupada.webp" alt="Śrīla A.C. Bhaktivedanta Swami Prabhupāda" fade={0} className="mx-auto w-full max-w-[300px]" /><figcaption className="pb-3 text-center text-[11.5px] text-ink-3 sm:text-[12.5px]">Śrīla Prabhupāda</figcaption></figure>
+          <div className="order-1 col-span-2 pb-6 text-center lg:order-2 lg:col-span-1 lg:pb-20">
+            <p className="mb-2 text-[10.5px] font-medium uppercase tracking-[0.25em] text-saffron sm:text-[11.5px] sm:tracking-[0.3em]">Śrīla Prabhupāda on Śrīla Gurudeva</p>
+            <h2 className="text-[26px] font-semibold leading-tight tracking-[-0.02em] text-ink sm:text-[40px]">“Kṛṣṇa sent him.”</h2>
+            <p className="mt-1.5 text-[12px] text-ink-3 sm:text-[13px]">Room conversation, Bombay, 5 January 1977</p>
+            <div aria-hidden className="mx-auto my-4 flex w-32 items-center gap-2 text-[9px] text-[#c2621d]"><span className="h-px flex-1 bg-[#c2621d]/40" />◆<span className="h-px flex-1 bg-[#c2621d]/40" /></div>
+            <p className="mx-auto max-w-sm text-[14px] leading-relaxed text-ink-2 sm:text-[16px]">“Krishna is with you and there is no need of disappointment.”</p>
+            <p className="mt-1 text-[12px] text-ink-3 sm:text-[12.5px]">Letter, Māyāpur, 12 February 1976</p>
+            <BlessingLetters />
           </div>
-          <figure className="order-3"><CutOut src="/legacy/gurudeva.webp" alt="Śrī Śrīmad Gour Govinda Swāmī Gurudeva" fade={0} className="mx-auto w-[90%] max-w-[290px]" /><figcaption className="pb-4 text-center text-[12.5px] text-ink-3">Śrīla Gurudeva</figcaption></figure>
+          <figure className="order-3"><CutOut src="/legacy/gurudeva.webp" alt="Śrī Śrīmad Gour Govinda Swāmī Gurudeva" fade={0} className="mx-auto w-[90%] max-w-[270px]" /><figcaption className="pb-3 text-center text-[11.5px] text-ink-3 sm:text-[12.5px]">Śrīla Gurudeva</figcaption></figure>
         </div>
       </div>
-      <div className="relative border-t border-[#efe4cf] bg-white/60 backdrop-blur-sm"><div className="mx-auto max-w-5xl px-5 pb-14 pt-2"><BlessingLetters /></div></div>
     </section>
   );
 }
@@ -56,19 +55,21 @@ const FOUNDER_STEPS: [string, string, string][] = [
 export function FounderNew() {
   return (
     <section className="reveal">
-      <div className="mx-auto grid max-w-6xl gap-12 px-5 py-16 sm:py-20 lg:grid-cols-[0.85fr_1.15fr]">
+      <div className="mx-auto grid max-w-6xl gap-12 px-5 py-12 sm:py-20 lg:grid-cols-[0.85fr_1.15fr]">
         <div className="lg:sticky lg:top-24 lg:self-start">
           <Kicker>The founder</Kicker>
-          <h2 className="mb-6 text-[26px] font-semibold leading-tight tracking-[-0.02em] text-ink sm:text-[34px]">How Taptajīvanam began</h2>
-          <div className="rounded-3xl border border-[#eadcc0] bg-[#fbf7ef] p-6 shadow-[0_20px_50px_-30px_rgba(120,60,10,0.35)]">
-            <div className="flex items-center gap-5">
-              <div className="shrink-0 rounded-full p-[3px]" style={{ background: "linear-gradient(135deg, #e8c766, #c2621d, #8a1c0f)" }}>{/* eslint-disable-next-line @next/next/no-img-element */}<img src="/photos/haladhara.webp" alt="Śrīla Haladhara Swāmī Guru Mahārāja" className="size-24 rounded-full border-2 border-white object-cover object-top" /></div>
-              <div><p className="text-[11px] font-medium uppercase tracking-[0.2em] text-saffron">Founder of Taptajīvanam</p><p className="mt-1 text-[18px] font-semibold leading-snug text-ink">Śrīla Haladhara Swāmī Guru Mahārāja</p></div>
+          <h2 className="mb-6 text-[22px] font-semibold leading-tight tracking-[-0.02em] text-ink sm:text-[32px]">How Taptajīvanam began</h2>
+          <figure className="relative">
+            <div className="relative mx-auto max-w-[340px] lg:mx-0">
+              <div className="overflow-hidden rounded-[1.25rem] p-[5px] shadow-[0_26px_50px_-28px_rgba(90,30,0,0.55)]" style={{ background: "linear-gradient(135deg, #e8c766 0%, #c2621d 45%, #8a1c0f 100%)" }}>{/* eslint-disable-next-line @next/next/no-img-element */}<img src="/photos/haladhara.webp" alt="Śrīla Haladhara Swāmī Guru Mahārāja" className="block aspect-[4/4.4] w-full rounded-[1rem] object-cover object-top" /></div>
+              <figcaption className="absolute inset-x-4 -bottom-6 rounded-xl border border-[#eadcc0] bg-white/95 px-4 py-3 text-center shadow-[0_14px_30px_-18px_rgba(0,0,0,0.35)] backdrop-blur">
+                <p className="text-[15px] font-semibold leading-snug text-ink sm:text-[16px]">Śrīla Haladhara Swāmī Guru Mahārāja</p>
+                <p className="mt-0.5 text-[10.5px] font-medium uppercase tracking-[0.2em] text-saffron">Founder of Taptajīvanam</p>
+              </figcaption>
             </div>
-            <p className="mt-5 text-[14px] leading-relaxed text-ink-2">ISKCON Guru and Sannyāsī — travels and preaches Kṛṣṇa consciousness all around the world, sharing the teachings of Śrīla Prabhupāda and Śrī Śrīmad Gour Govinda Swāmī Gurudeva.</p>
-            <dl className="mt-5 grid grid-cols-3 gap-2 text-center">{[["Disciple of", "Śrīla Gurudeva"], ["Grand-disciple of", "Śrīla Prabhupāda"], ["Preaches in", "Odia · Hindi · English"]].map(([k, v]) => <div key={k} className="rounded-xl border border-[#eadcc0] bg-white px-2 py-2.5"><dt className="text-[10.5px] uppercase tracking-[0.12em] text-ink-3">{k}</dt><dd className="mt-1 text-[12.5px] font-medium leading-snug text-ink">{v}</dd></div>)}</dl>
-            <p className="mt-4 rounded-xl bg-white px-3 py-2 text-center text-[12.5px] font-medium text-saffron">Śrī Guru Sevā · Śrī Nāma Sevā</p>
-          </div>
+            <p className="mt-12 text-[14px] leading-relaxed text-ink-2">ISKCON Guru and Sannyāsī — he travels and preaches Kṛṣṇa consciousness all around the world, sharing the teachings of Śrīla Prabhupāda and Śrī Śrīmad Gour Govinda Swāmī Gurudeva.</p>
+            <dl className="mt-5 divide-y divide-[#efe4cf] border-y border-[#efe4cf] text-[13.5px]">{[["Disciple of", "Śrīla Gurudeva"], ["Grand-disciple of", "Śrīla Prabhupāda"], ["Preaches in", "Odia · Hindi · English"], ["His service", "Śrī Guru Sevā · Śrī Nāma Sevā"]].map(([k, v]) => <div key={k} className="flex justify-between gap-4 py-2.5"><dt className="text-ink-3">{k}</dt><dd className="text-right font-medium text-ink">{v}</dd></div>)}</dl>
+          </figure>
           <Link href="/about/founder" className="mt-5 inline-flex items-center gap-1 text-[13.5px] font-medium text-saffron">Read his biography <ArrowRight size={14} /></Link>
         </div>
         <ol className="relative">
@@ -92,7 +93,7 @@ export function NumbersSection({ items }: { items: { n: number; label: string; s
   return (
     <section className="reveal mx-auto max-w-6xl px-5 py-16">
       <Kicker center>All in one place</Kicker>
-      <h2 className="mx-auto mb-10 max-w-3xl text-center text-[24px] font-semibold leading-snug tracking-[-0.015em] text-ink sm:text-[30px]">The teachings of Śrīla Gurudeva — heard, read and searched in one place</h2>
+      <h2 className="mx-auto mb-10 max-w-3xl text-center text-[20px] font-semibold leading-snug tracking-[-0.015em] text-ink sm:text-[30px]">The teachings of Śrīla Gurudeva — heard, read and searched in one place</h2>
       <LiveNumbers items={items} />
     </section>
   );
@@ -103,11 +104,11 @@ export type HomeLecture = { slug: string; title: string; date: string | null; pl
 export function ListenSection({ lectures, counts }: { lectures: HomeLecture[]; counts: { lectures: number; kirtans: number; videos: number; transcripts: number } }) {
   return (
     <section className={`reveal ${BAND}`}>
-      <div className="mx-auto grid max-w-6xl items-center gap-12 px-5 py-16 sm:py-20 lg:grid-cols-[1fr_1.1fr]">
+      <div className="mx-auto grid max-w-6xl items-center gap-12 px-5 py-12 sm:py-20 lg:grid-cols-[1fr_1.1fr]">
         <div>
           <Kicker>Hari-kathā in his own voice</Kicker>
-          <h2 className="mb-4 text-[26px] font-semibold leading-tight tracking-[-0.02em] text-ink sm:text-[36px]">Listen, watch, and read along</h2>
-          <p className="mb-8 text-[15px] leading-relaxed text-ink-2">Lectures, darśanas and kīrtanas from 1985 to 1996, sorted by year, place, scripture and type — many with a full transcription you can follow as he speaks.</p>
+          <h2 className="mb-4 text-[22px] font-semibold leading-tight tracking-[-0.02em] text-ink sm:text-[32px]">Listen, watch, and read along</h2>
+          <p className="mb-8 text-[14px] leading-relaxed text-ink-2 sm:text-[15px]">Lectures, darśanas and kīrtanas from 1985 to 1996, sorted by year, place, scripture and type — many with a full transcription you can follow as he speaks.</p>
           <Dots items={[["By year and place", "Bhubaneswar, Vṛndāvana, Māyāpur and around the world"], ["By scripture", "Bhāgavatam, Gītā, Caitanya-caritāmṛta — verse by verse"], ["Read along", `${counts.transcripts.toLocaleString()} transcriptions, searchable`], ["Keep listening", "A player that stays with you across the site"]]} />
           <div className="mt-8 flex flex-wrap gap-3"><PillSolid href="/teachings/audio">Audio lectures <ArrowRight size={16} /></PillSolid><PillLine href="/teachings/kirtans">Kīrtanas</PillLine><PillLine href="/teachings/videos">Videos</PillLine></div>
         </div>
@@ -133,7 +134,7 @@ export type HomeBook = { slug: string; title: string; cover_url: string | null; 
 export function ReadSection({ books, total }: { books: HomeBook[]; total: number }) {
   return (
     <section className="reveal relative overflow-hidden">
-      <div className="mx-auto grid max-w-6xl items-center gap-12 px-5 py-16 sm:py-20 lg:grid-cols-[1.1fr_1fr]">
+      <div className="mx-auto grid max-w-6xl items-center gap-12 px-5 py-12 sm:py-20 lg:grid-cols-[1.1fr_1fr]">
         <div className="order-2 rounded-3xl border border-[#efe4cf] bg-[#fbf7ef] p-6 shadow-[0_20px_50px_-30px_rgba(120,60,10,0.3)] lg:order-1">
           <p className="mb-4 text-center text-[11.5px] font-semibold uppercase tracking-[0.25em] text-ink-3">On the shelf</p>
           <div className="grid grid-cols-3 gap-4 sm:grid-cols-4">{books.slice(0, 8).map((b) => (
@@ -149,8 +150,8 @@ export function ReadSection({ books, total }: { books: HomeBook[]; total: number
         </div>
         <div className="order-1 lg:order-2">
           <Kicker>Books</Kicker>
-          <h2 className="mb-4 text-[26px] font-semibold leading-tight tracking-[-0.02em] text-ink sm:text-[36px]">Read his books, the way you like to read</h2>
-          <p className="mb-8 text-[15px] leading-relaxed text-ink-2">{total ? `${total} ${total === 1 ? "book" : "books"}` : "Books"} to read right here, chapter by chapter — and the same book in other languages as translations are added.</p>
+          <h2 className="mb-4 text-[22px] font-semibold leading-tight tracking-[-0.02em] text-ink sm:text-[32px]">Read his books, the way you like to read</h2>
+          <p className="mb-8 text-[14px] leading-relaxed text-ink-2 sm:text-[15px]">{total ? `${total} ${total === 1 ? "book" : "books"}` : "Books"} to read right here, chapter by chapter — and the same book in other languages as translations are added.</p>
           <ul className="grid gap-x-8 gap-y-4 sm:grid-cols-2">{([[BookOpen, "Four readers", "Classic, Focus, Pages, or two languages side by side"], [Languages, "Every translation", "Switch language in the middle of a chapter"], [Search, "Find in a book", "Any word, in any chapter, in a moment"], [Keyboard, "Made for reading", "Night colours, font size, shortcuts, bookmarks"]] as [LucideIcon, string, string][]).map(([I, t, d]) => <li key={t} className="flex gap-3"><span className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-full bg-[#fbf0d2] text-[#8a5a00]"><I size={15} /></span><span><span className="block text-[14.5px] font-medium text-ink">{t}</span><span className="block text-[13.5px] leading-snug text-ink-2">{d}</span></span></li>)}</ul>
           <div className="mt-8 flex flex-wrap gap-3"><PillSolid href="/teachings/books">Open the library <ArrowRight size={16} /></PillSolid><PillLine href="/gurudeva/who-is-srila-gurudeva">Books about him</PillLine></div>
         </div>
@@ -163,11 +164,11 @@ export function ReadSection({ books, total }: { books: HomeBook[]; total: number
 export function TattvaSection({ topics, quotes }: { topics: { name: string; slug: string; total: number }[]; quotes: number }) {
   return (
     <section className={`reveal ${BAND}`}>
-      <div className="mx-auto grid max-w-6xl items-center gap-12 px-5 py-16 sm:py-20 lg:grid-cols-[1fr_1fr]">
+      <div className="mx-auto grid max-w-6xl items-center gap-12 px-5 py-12 sm:py-20 lg:grid-cols-[1fr_1fr]">
         <div>
           <Kicker>Tattva</Kicker>
-          <h2 className="mb-4 text-[26px] font-semibold leading-tight tracking-[-0.02em] text-ink sm:text-[36px]">Follow one subject through everything he said</h2>
-          <p className="mb-8 text-[15px] leading-relaxed text-ink-2">Open a topic — Guru-tattva, the Holy Name, separation — and find his quotes, lectures, videos and articles on it together, each with its exact source.</p>
+          <h2 className="mb-4 text-[22px] font-semibold leading-tight tracking-[-0.02em] text-ink sm:text-[32px]">Follow one subject through everything he said</h2>
+          <p className="mb-8 text-[14px] leading-relaxed text-ink-2 sm:text-[15px]">Open a topic — Guru-tattva, the Holy Name, separation — and find his quotes, lectures, videos and articles on it together, each with its exact source.</p>
           <div className="grid gap-3 sm:grid-cols-2">{([[Network, "Topics A–Z", "Every tattva in one collapsible list", "/tattva"], [Quote, "Quotes", quotes ? `${quotes.toLocaleString()} quotes, by topic and letter` : "By topic and letter", "/teachings/quotes"], [FileText, "Instructions & desires", "His guidance, in his own words", "/teachings/instructions"], [Search, "Search everything", "A word, a verse, a place or a year", "/search"]] as [LucideIcon, string, string, string][]).map(([I, t, d, h]) => (
             <Link key={t} href={h} className="group rounded-2xl border border-[#eadcc0] bg-white p-4 transition hover:border-saffron"><span className="mb-3 flex size-9 items-center justify-center rounded-full border border-[#eadcc0] text-saffron"><I size={16} /></span><span className="block text-[14.5px] font-medium text-ink group-hover:text-saffron">{t}</span><span className="mt-0.5 block text-[12.5px] leading-snug text-ink-2">{d}</span></Link>))}</div>
         </div>
@@ -186,7 +187,7 @@ export function GurudevaSection() {
   const links: [string, LucideIcon, string][] = [["/gurudeva/who-is-srila-gurudeva", HandHeart, "Who is Śrīla Gurudeva"], ["/gurudeva/timeline", History, "Life timeline"], ["/gurudeva/diaries", NotebookPen, "His diary to Śrī Gopāl Jiu"], ["/gurudeva/memories", HeartHandshake, "Memories & pastimes"], ["/gurudeva/glorifications", Gift, "Glorifications"], ["/gurudeva/letters", Mail, "Letters"], ["/gurudeva/gallery", ImageIcon, "Gallery"], ["/gurudeva/places-of-remembrance", MapPin, "Places of remembrance"]];
   return (
     <section className="reveal">
-      <div className="mx-auto grid max-w-6xl items-center gap-12 px-5 py-16 sm:py-20 lg:grid-cols-[0.9fr_1.1fr]">
+      <div className="mx-auto grid max-w-6xl items-center gap-12 px-5 py-12 sm:py-20 lg:grid-cols-[0.9fr_1.1fr]">
         <div className="relative mx-auto w-full max-w-[460px] pb-10 pl-6 pr-10">
           <div aria-hidden className="absolute -left-2 top-8 size-40 rounded-full bg-[#fbf0d2] blur-2xl" />
           <div className="relative rounded-[1.4rem] p-[6px] shadow-[0_30px_60px_-25px_rgba(90,30,0,0.55)]" style={{ background: "linear-gradient(135deg, #e8c766 0%, #c2621d 45%, #8a1c0f 100%)" }}>
@@ -198,8 +199,8 @@ export function GurudevaSection() {
         </div>
         <div>
           <Kicker>Śrīla Gurudeva</Kicker>
-          <h2 className="mb-4 text-[26px] font-semibold leading-tight tracking-[-0.02em] text-ink sm:text-[36px]">A dear disciple of Śrīla Prabhupāda</h2>
-          <p className="mb-8 text-[15px] leading-relaxed text-ink-2">Born in a family devoted to Śrī Gopāl Jiu, he carried his Guru’s mission across Odisha and the world. Here his life is remembered — by those who knew him, in his own diary, and in photographs.</p>
+          <h2 className="mb-4 text-[22px] font-semibold leading-tight tracking-[-0.02em] text-ink sm:text-[32px]">A dear disciple of Śrīla Prabhupāda</h2>
+          <p className="mb-8 text-[14px] leading-relaxed text-ink-2 sm:text-[15px]">Born in a family devoted to Śrī Gopāl Jiu, he carried his Guru’s mission across Odisha and the world. Here his life is remembered — by those who knew him, in his own diary, and in photographs.</p>
           <div className="grid gap-2 sm:grid-cols-2">{links.map(([h, I, l]) => <Link key={h} href={h} className="group flex items-center gap-3 rounded-xl border border-[#efe4cf] px-3.5 py-2.5 transition hover:border-saffron hover:bg-[#fbf7ef]"><I size={16} className="shrink-0 text-saffron" /><span className="flex-1 text-[13.5px] text-ink">{l}</span><ArrowRight size={14} className="text-ink-3 transition group-hover:translate-x-0.5 group-hover:text-saffron" /></Link>)}</div>
         </div>
       </div>
@@ -222,9 +223,9 @@ export function EverythingSection() {
   ];
   return (
     <section className={`reveal ${BAND}`}>
-      <div className="mx-auto max-w-6xl px-5 py-16 sm:py-20">
+      <div className="mx-auto max-w-6xl px-5 py-12 sm:py-20">
         <Kicker center>On this website</Kicker>
-        <h2 className="mb-10 text-center text-[24px] font-semibold tracking-[-0.015em] text-ink sm:text-[32px]">Everything, in one place</h2>
+        <h2 className="mb-10 text-center text-[20px] font-semibold tracking-[-0.015em] text-ink sm:text-[32px]">Everything, in one place</h2>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{all.map(([h, I, t, d]) => (
           <Link key={h} href={h} className="group flex gap-4 rounded-2xl border border-[#eadcc0] bg-white p-5 transition hover:border-saffron hover:shadow-[0_14px_30px_-20px_rgba(120,60,10,0.4)]">
             <span className="flex size-11 shrink-0 items-center justify-center rounded-full border border-[#eadcc0] bg-[#fbf7ef] text-saffron"><I size={18} /></span>
@@ -241,10 +242,10 @@ export function WebFolioSection() {
   return (
     <section className="reveal relative isolate overflow-hidden bg-[#2a1206] text-white">
       <Backdrop src="maroon-mandala" o={0.25} />
-      <div className="relative mx-auto grid max-w-6xl items-center gap-12 px-5 py-16 sm:py-20 lg:grid-cols-[1fr_1.15fr]">
+      <div className="relative mx-auto grid max-w-6xl items-center gap-12 px-5 py-12 sm:py-20 lg:grid-cols-[1fr_1.15fr]">
         <div>
           <p className="mb-3 text-[11.5px] font-medium uppercase tracking-[0.3em] text-[#f3d9a4]">WebFolio</p>
-          <h2 className="mb-4 text-[28px] font-semibold leading-tight tracking-[-0.02em] text-white sm:text-[40px]">The whole archive, as one book you can carry</h2>
+          <h2 className="mb-4 text-[22px] font-semibold leading-tight tracking-[-0.02em] text-white sm:text-[36px]">The whole archive, as one book you can carry</h2>
           <p className="mb-8 text-[15px] leading-relaxed text-white/75">Every lecture, transcription, book, compilation and page — arranged like documentation, searchable in an instant, and yours to keep offline.</p>
           <ul className="grid gap-x-8 gap-y-4 sm:grid-cols-2">{([[Search, "Search everything", "Ctrl K — any word, without diacritics"], [WifiOff, "Works offline", "Save it once, read anywhere"], [MonitorDown, "Install as an app", "On Windows, Mac, Android or iPhone"], [Download, "Download audio", "Lectures to keep with the pages"]] as [LucideIcon, string, string][]).map(([I, t, d]) => <li key={t} className="flex gap-3"><span className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-full bg-white/10 text-[#f3d9a4] ring-1 ring-white/15"><I size={15} /></span><span><span className="block text-[14.5px] font-medium text-white">{t}</span><span className="block text-[13px] leading-snug text-white/65">{d}</span></span></li>)}</ul>
           <div className="mt-8 flex flex-wrap gap-3"><Link href="/webfolio" className="inline-flex items-center gap-2 rounded-full bg-[#e8c766] px-6 py-3 text-[14px] font-medium text-[#2a1206] transition hover:brightness-105">Open WebFolio <ArrowRight size={16} /></Link><Link href="/webfolio/download" className="inline-flex items-center gap-2 rounded-full border border-white/25 px-6 py-3 text-[14px] text-white transition hover:border-[#e8c766]">Download for offline</Link></div>

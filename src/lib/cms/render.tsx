@@ -17,6 +17,8 @@ export const SITE = process.env.NEXT_PUBLIC_SITE_URL || "https://taptajivanam.co
 async function load(segments: string[], drafts = false): Promise<P | null> {
   if (!hasDb()) return null;
   const path = "/" + segments.map(decodeURIComponent).join("/");
+  // Studio pages now live only in the WebFolio (and articles); the website's own designed pages are always shown.
+  if (!path.startsWith("/webfolio") && !path.startsWith("/d/")) return null;
   try { return ((await sql`select id, parent_id, path, title, type, blocks, seo, settings, updated_at, position, status from pages where path = ${path} and coalesce(settings->>'studio', 'on') <> 'off' and (status = 'published' or ${drafts})`)[0] as P) || null; } catch { return null; }
 }
 const plain = (bs: any[]) => (isOld(bs) ? plainOld(bs) : docText(bs));

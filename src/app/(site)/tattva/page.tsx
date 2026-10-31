@@ -10,8 +10,7 @@ export default async function Page() {
   const groups = all.reduce<Record<string, typeof all>>((a, t) => { const L = fold(t.name)[0]?.toUpperCase() || "#"; (a[/[A-Z]/.test(L) ? L : "#"] ||= []).push(t); return a; }, {});
   return (
     <div>
-      <p className="text-[12px] text-ink-3">His Teachings</p>
-      <h1 className="mt-1 text-[24px] leading-tight text-ink sm:text-[26px]" style={{ fontFamily: "var(--font-reading-serif)" }}>Tattva</h1>
+            <h1 className="mt-1 text-[24px] leading-tight text-ink sm:text-[26px]" style={{ fontFamily: "var(--font-reading-serif)" }}>Tattva</h1>
       <p className="mt-1 max-w-2xl text-[13.5px] text-ink-2">Every subject he spoke on. Open a topic to see his quotes, lectures, videos and articles on it together.</p>
       {!all.length && <p className="mt-10 text-[13.5px] text-ink-3">Topics will appear here once they are added in the Studio.</p>}
       {top.length > 0 && <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">{top.map((t) => { const ch = childrenOf(all, t.name); return (
