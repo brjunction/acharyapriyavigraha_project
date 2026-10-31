@@ -13,13 +13,14 @@ type N = { id: string; parent_id: string | null; kind: string; position: number;
 
 /* ------------------------------------------------------------------ bookshelf */
 export function BooksPanel() {
-  const [books, setBooks] = useState<B[] | null>(null); const [nw, setNw] = useState(false); const [f, setF] = useState({ title: "", author: "Śrī Śrīmad Gour Govinda Swāmī Gurudeva", category: "" });
+  const [books, setBooks] = useState<B[] | null>(null); const [nw, setNw] = useState(false); const [shelves, setShelves] = useState(false); const [f, setF] = useState({ title: "", author: "Śrī Śrīmad Gour Govinda Swāmī Gurudeva", category: "" });
   const load = () => api<B[]>("/api/admin/books").then(setBooks).catch((e) => toast(e.message, true));
   useEffect(() => { load(); }, []);
   const cats = useMemo(() => Array.from(new Set((books || []).map((b) => b.category || "Books"))), [books]);
   return (
     <div>
-      <PageHeader icon={BookOpen} title="Books" description="Every book with its cover, shelf and chapters. Chapters can hold chapters, as deep as the book needs."><Btn kind="primary" onClick={() => setNw(true)}><Plus />New book</Btn></PageHeader>
+      <PageHeader icon={BookOpen} title="Books" description="Every book with its cover, shelf and chapters. Chapters can hold chapters, as deep as the book needs."><Btn onClick={() => setShelves(true)}>Shelves</Btn><Btn kind="primary" onClick={() => setNw(true)}><Plus />New book</Btn></PageHeader>
+      {shelves && <ShelvesManager onClose={() => setShelves(false)} />}
       {books && !books.length && <Empty icon={BookOpen} title="No books yet" text="Make the first book, then add its parts and chapters."><Btn kind="primary" onClick={() => setNw(true)}><Plus />New book</Btn></Empty>}
       {cats.map((c) => (
         <section key={c} className="mb-8">
@@ -142,5 +143,35 @@ function NodeEditor({ id, book, number, onChanged }: { id: string; book: any; nu
         <div className="-mx-[54px] mt-4"><NotionEditor initial={blocks.current} pageId="" onChange={(b) => { blocks.current = b; later(); }} /></div>
       </div>
     </div>
+  );
+}
+
+const SIZES: [string, string][] = [["small", "Small covers"], ["medium", "Medium covers"], ["large", "Large covers"]];
+const COLORS = ["#b45309", "#2563eb", "#059669", "#7c3aed", "#db2777", "#0891b2", "#65a30d", "#dc2626", "#525252"];
+/** Shelves: their order, colour, a line about each, and how large the covers are shown. */
+function ShelvesManager({ onClose }: { onClose: () => void }) {
+  const [rows, setRows] = useState<{ name: string; extra: any; n: number }[] | null>(null); const [nw, setNw] = useState("");
+  const load = useCallback(async () => {
+    const [v, b] = await Promise.all([api<any[]>("/api/admin/vocab?kind=shelf"), api<any[]>("/api/admin/books")]);
+    const names = Array.from(new Set([...v.map((r) => r.name), ...b.map((x) => x.category).filter(Boolean)]));
+    setRows(names.map((n) => ({ name: n, extra: v.find((r) => r.name === n)?.extra || {}, n: b.filter((x) => x.category === n).length })).sort((a, c) => (a.extra.position ?? 999) - (c.extra.position ?? 999) || a.name.localeCompare(c.name)));
+  }, []);
+  useEffect(() => { load(); }, [load]);
+  const save = async (name: string, extra: any) => { await api("/api/admin/vocab", "POST", { kind: "shelf", name, extra }); };
+  const upd = (i: number, k: string, v: any) => setRows((r) => r && r.map((x, j) => (j === i ? { ...x, extra: { ...x.extra, [k]: v } } : x)));
+  const saveAll = async () => { if (!rows) return; for (const [i, r] of rows.entries()) await save(r.name, { ...r.extra, position: i }); toast("Shelves saved."); onClose(); };
+  const move = (i: number, d: number) => setRows((r) => { if (!r) return r; const x = [...r]; const [y] = x.splice(i, 1); x.splice(i + d, 0, y); return x; });
+  return (
+    <Modal wide title="Shelves" description="The order of the shelves on the Books page, their colour, a line about each, and how large their covers are shown." onClose={onClose}>
+      <div className="space-y-2">{rows?.map((r, i) => (
+        <div key={r.name} className="grid items-center gap-2 rounded-lg border border-zinc-200 p-2.5 sm:grid-cols-[auto_1fr_150px_auto]">
+          <div className="flex gap-1"><Btn size="icon" kind="soft" disabled={i === 0} onClick={() => move(i, -1)}><ArrowUp /></Btn><Btn size="icon" kind="soft" disabled={i === rows.length - 1} onClick={() => move(i, 1)}><ArrowDown /></Btn></div>
+          <div className="min-w-0"><Input defaultValue={r.name} onBlur={async (e) => { const t = e.target.value.trim(); if (t && t !== r.name) { await api("/api/admin/vocab", "PATCH", { kind: "shelf", from: r.name, to: t }); load(); } }} /><Input className="mt-1.5" placeholder="A line about this shelf (optional)" value={r.extra.description || ""} onChange={(e) => upd(i, "description", e.target.value)} /></div>
+          <Select value={r.extra.size || "small"} onChange={(e) => upd(i, "size", e.target.value)}>{SIZES.map(([k, l]) => <option key={k} value={k}>{l}</option>)}</Select>
+          <div className="flex flex-wrap gap-1">{COLORS.map((c) => <button key={c} onClick={() => upd(i, "color", c)} className={cn("size-5 rounded-full border-2", r.extra.color === c ? "border-zinc-900" : "border-white")} style={{ background: c }} />)}</div>
+        </div>))}</div>
+      <div className="mt-3 flex gap-2"><Input value={nw} onChange={(e) => setNw(e.target.value)} placeholder="New shelf name" /><Btn onClick={async () => { if (!nw.trim()) return; await save(nw.trim(), { size: "small" }); setNw(""); load(); }}><Plus />Add</Btn></div>
+      <div className="mt-4 flex justify-end gap-2"><Btn onClick={onClose}>Cancel</Btn><Btn kind="primary" onClick={saveAll}>Save</Btn></div>
+    </Modal>
   );
 }

@@ -4,7 +4,6 @@ import Link from "next/link";
 import { ArrowRight, Headphones, Music2, Video, BookOpen, Quote, Network, NotebookPen, Image as ImageIcon, Mail, HandHeart, MapPin, Gift, History, Search, Languages, Keyboard, Columns2, FileText, Newspaper, HeartHandshake, Download, WifiOff, MonitorDown, ChevronRight, type LucideIcon } from "lucide-react";
 import { durText } from "@/lib/content/text";
 import { LiveNumbers, BlessingLetters, TopicCloud } from "./live";
-import { CutOut } from "@/components/motifs";
 import { Backdrop } from "@/components/backdrop";
 
 export function Kicker({ children, center }: { children: React.ReactNode; center?: boolean }) {
@@ -22,22 +21,30 @@ const BAND = "border-y border-[#efe4cf] bg-[#fbf7ef]";
 
 /* ------------------------------------------------------------------ blessing */
 export function BlessingSection() {
+  const frame = (src: string, alt: string, name: string, line: string, delay: string) => (
+    <figure className="bless-rise group" style={{ animationDelay: delay }}>
+      <div className="relative">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={src} alt={alt} className="relative z-10 mx-auto block aspect-[4/5] w-full object-contain object-bottom transition duration-700 group-hover:-translate-y-1.5" loading="lazy" />
+        <span aria-hidden className="absolute inset-x-[12%] -bottom-1 h-4 rounded-[50%] bg-black/10 blur-md" />
+      </div>
+      <figcaption className="mt-4 text-center"><span className="mx-auto mb-2 block h-px w-12 bg-gradient-to-r from-transparent via-[#c2621d] to-transparent" /><span className="block text-[14px] font-semibold text-ink sm:text-[15px]">{name}</span><span className="block text-[11.5px] text-ink-3 sm:text-[12px]">{line}</span></figcaption>
+    </figure>
+  );
   return (
-    <section className="reveal border-y border-[#efe4cf] bg-[#fbf6ec]">
-      <div className="mx-auto max-w-6xl px-4 pt-10 sm:px-5 sm:pt-14">
-        <div className="grid grid-cols-2 items-end gap-x-3 lg:grid-cols-[1fr_1.3fr_1fr]">
-          <figure className="order-2 lg:order-1"><CutOut src="/legacy/prabhupada.webp" alt="Śrīla A.C. Bhaktivedanta Swami Prabhupāda" fade={0} className="mx-auto w-full max-w-[300px]" /><figcaption className="pb-3 text-center text-[11.5px] text-ink-3 sm:text-[12.5px]">Śrīla Prabhupāda</figcaption></figure>
-          <div className="order-1 col-span-2 pb-6 text-center lg:order-2 lg:col-span-1 lg:pb-20">
-            <p className="mb-2 text-[10.5px] font-medium uppercase tracking-[0.25em] text-saffron sm:text-[11.5px] sm:tracking-[0.3em]">Śrīla Prabhupāda on Śrīla Gurudeva</p>
-            <h2 className="text-[26px] font-semibold leading-tight tracking-[-0.02em] text-ink sm:text-[40px]">“Kṛṣṇa sent him.”</h2>
-            <p className="mt-1.5 text-[12px] text-ink-3 sm:text-[13px]">Room conversation, Bombay, 5 January 1977</p>
-            <div aria-hidden className="mx-auto my-4 flex w-32 items-center gap-2 text-[9px] text-[#c2621d]"><span className="h-px flex-1 bg-[#c2621d]/40" />◆<span className="h-px flex-1 bg-[#c2621d]/40" /></div>
-            <p className="mx-auto max-w-sm text-[14px] leading-relaxed text-ink-2 sm:text-[16px]">“Krishna is with you and there is no need of disappointment.”</p>
-            <p className="mt-1 text-[12px] text-ink-3 sm:text-[12.5px]">Letter, Māyāpur, 12 February 1976</p>
-            <BlessingLetters />
-          </div>
-          <figure className="order-3"><CutOut src="/legacy/gurudeva.webp" alt="Śrī Śrīmad Gour Govinda Swāmī Gurudeva" fade={0} className="mx-auto w-[90%] max-w-[270px]" /><figcaption className="pb-3 text-center text-[11.5px] text-ink-3 sm:text-[12.5px]">Śrīla Gurudeva</figcaption></figure>
+    <section className="reveal relative overflow-hidden bg-white">
+      <div className="relative mx-auto max-w-5xl px-4 py-12 text-center sm:px-5 sm:py-16">
+        <p className="mb-3 text-[10.5px] font-medium uppercase tracking-[0.25em] text-saffron sm:text-[11.5px] sm:tracking-[0.3em]">Śrīla Prabhupāda on Śrīla Gurudeva</p>
+        <h2 className="text-[30px] font-semibold leading-tight tracking-[-0.02em] text-ink sm:text-[46px]">{["“Kṛṣṇa", "sent", "him.”"].map((w, i) => <span key={i} className="bless-word inline-block" style={{ animationDelay: `${0.15 + i * 0.18}s` }}>{w}&nbsp;</span>)}</h2>
+        <p className="mt-2 text-[12px] text-ink-3 sm:text-[13px]">Room conversation, Bombay, 5 January 1977</p>
+        <div className="mx-auto mt-8 grid max-w-[760px] grid-cols-2 items-end gap-4 sm:mt-10 sm:gap-10">
+          {frame("/legacy/prabhupada.webp", "Śrīla A.C. Bhaktivedanta Swami Prabhupāda", "Śrīla Prabhupāda", "Founder-ācārya of ISKCON", "0.2s")}
+          {frame("/legacy/gurudeva.webp", "Śrī Śrīmad Gour Govinda Swāmī Gurudeva", "Śrīla Gurudeva", "His dear disciple", "0.35s")}
         </div>
+        <div aria-hidden className="mx-auto mt-8 flex w-40 items-center gap-2 text-[9px] text-[#c2621d]"><span className="h-px flex-1 bg-[#c2621d]/40" />◆<span className="h-px flex-1 bg-[#c2621d]/40" /></div>
+        <p className="mx-auto mt-5 max-w-lg text-[16px] leading-relaxed text-ink-2 sm:text-[19px]" style={{ fontFamily: "var(--font-reading-serif)" }}>“Krishna is with you and there is no need of disappointment.”</p>
+        <p className="mt-1.5 text-[12px] text-ink-3 sm:text-[12.5px]">Śrīla Prabhupāda’s letter to Śrīla Gurudeva, Māyāpur, 12 February 1976</p>
+        <BlessingLetters />
       </div>
     </section>
   );

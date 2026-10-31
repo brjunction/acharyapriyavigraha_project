@@ -5,8 +5,10 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Search, X, BookOpen, Languages, LayoutGrid, List as ListIcon, ArrowRight } from "lucide-react";
 import { langName, langNative } from "@/lib/content/book-langs";
 
-export type LibBook = { slug: string; title: string; subtitle: string | null; author: string | null; category: string | null; cover_url: string | null; language: string; description: string | null; chapters: number; work?: string | null };
-export type Shelf = { name: string; color: string | null; description: string | null };
+export type LibBook = { slug: string; title: string; subtitle: string | null; author: string | null; category: string | null; cover_url: string | null; language: string; description: string | null; chapters: number; work?: string | null; size?: string | null };
+export type Shelf = { name: string; color: string | null; description: string | null; size?: string | null };
+const GRIDS: Record<string, string> = { small: "grid-cols-3 gap-x-4 gap-y-6 sm:grid-cols-5 lg:grid-cols-8", medium: "grid-cols-2 gap-x-5 gap-y-8 sm:grid-cols-4 lg:grid-cols-6", large: "grid-cols-2 gap-x-6 gap-y-9 sm:grid-cols-3 lg:grid-cols-5" };
+const SCALE: Record<string, string> = { small: "w-[78%]", medium: "w-[90%]", large: "w-full" };
 const fold = (s: string) => s.normalize("NFKD").replace(/[̀-ͯ]/g, "").toLowerCase();
 const shelfOf = (b: LibBook) => b.category || "Books";
 
@@ -64,14 +66,14 @@ export function BookLibrary({ books, shelves: meta }: { books: LibBook[]; shelve
         {!list.length ? <p className="py-20 text-center text-[13.5px] text-ink-3">No book matches. {lang && <button onClick={() => pickLang("")} className="underline">Show all languages</button>}</p> : groups.map(([g, xs]) => (
           <section key={g} className="mt-10">
             <div className="mb-5 flex items-baseline gap-2.5 border-b border-line pb-2"><span className="size-2.5 translate-y-[-1px] rounded-full" style={{ background: color(g) || "#c8c8c8" }} /><h2 className="text-[15px] font-semibold text-ink">{g}</h2><span className="text-[12px] text-ink-3">{xs.length}</span>{meta.find((m) => m.name === g)?.description && <span className="hidden truncate text-[12.5px] text-ink-3 sm:inline">— {meta.find((m) => m.name === g)?.description}</span>}</div>
-            {view === "grid" ? <div className="grid grid-cols-2 gap-x-6 gap-y-9 sm:grid-cols-4 lg:grid-cols-6">{xs.map(({ main: b, all }) => (
+            {view === "grid" ? <div className={`grid ${GRIDS[meta.find((m) => m.name === g)?.size || "small"] || GRIDS.small}`}>{xs.map(({ main: b, all }) => (
               <div key={b.slug} className="group">
-                <Link href={`/books/${b.slug}`} className="block">
+                <Link href={`/books/${b.slug}`} className={`block ${b.size ? SCALE[b.size] || "" : ""}`}>
                   <div className="relative aspect-[3/4] overflow-hidden rounded-[2px_6px_6px_2px] bg-band shadow-[0_1px_2px_rgba(0,0,0,0.08),0_10px_24px_-14px_rgba(0,0,0,0.35)] transition group-hover:-translate-y-0.5 group-hover:shadow-[0_1px_2px_rgba(0,0,0,0.08),0_16px_30px_-14px_rgba(0,0,0,0.4)]">
                     {b.cover_url ? /* eslint-disable-next-line @next/next/no-img-element */ <img src={b.cover_url} alt={b.title} loading="lazy" className="h-full w-full object-cover" /> : <div className="flex h-full flex-col items-center justify-center gap-2 bg-gradient-to-br from-[#5b3a1e] to-[#2b1a0c] p-3 text-center text-[#efe2c8]"><BookOpen size={20} /><span className="text-[12px] leading-snug" style={{ fontFamily: "var(--font-reading-serif)" }}>{b.title}</span></div>}
                     <span className="absolute inset-y-0 left-0 w-2 bg-gradient-to-r from-black/25 to-transparent" />
                   </div>
-                  <p className="mt-2.5 line-clamp-2 text-[13.5px] font-medium leading-snug text-ink group-hover:underline">{b.title}</p>
+                  <p className="mt-2 line-clamp-2 text-[12.5px] font-medium leading-snug text-ink group-hover:underline">{b.title}</p>
                 </Link>
                 <p className="mt-0.5 truncate text-[12px] text-ink-3">{b.chapters ? `${b.chapters} chapters` : b.author}</p>
                 <div className="mt-1.5 flex flex-wrap gap-1">{all.map((x) => <Link key={x.slug} href={`/books/${x.slug}`} title={langName(x.language)} className={`rounded px-1.5 py-px text-[10.5px] font-medium uppercase tracking-wide ${x.slug === b.slug ? "bg-ink text-white" : "bg-band text-ink-2 hover:bg-line"}`}>{x.language}</Link>)}</div>

@@ -7,8 +7,8 @@ import type { TocItem } from "@/lib/content/books-public";
 
 /* ------------------------------------------------------------------ settings */
 type Mode = "classic" | "focus" | "pages" | "parallel";
-type Theme = "light" | "sepia" | "dusk" | "dark";
-type FontK = "literata" | "gentium" | "noto" | "sans";
+export type Theme = "light" | "paper" | "sepia" | "sage" | "rose" | "dusk" | "slate" | "dark";
+export type FontK = "literata" | "gentium" | "noto" | "sans";
 export type ReaderSettings = { mode: Mode; theme: Theme; font: FontK; size: number; leading: number; width: number; justify: boolean; sidebar: boolean };
 const DEF: ReaderSettings = { mode: "classic", theme: "light", font: "literata", size: 19, leading: 1.75, width: 680, justify: false, sidebar: true };
 const KEY = "tj_reader_v2";
@@ -16,17 +16,21 @@ export const loadSettings = (): ReaderSettings => { try { return { ...DEF, ...JS
 export const saveSettings = (s: Partial<ReaderSettings>) => { try { localStorage.setItem(KEY, JSON.stringify({ ...loadSettings(), ...s })); } catch {} };
 
 const DEV = '"Noto Serif Devanagari", "Noto Sans Devanagari"';
-const FONTS: Record<FontK, [string, string]> = {
+export const FONTS: Record<FontK, [string, string]> = {
   literata: ["Literata", `"Literata", ${DEV}, Georgia, serif`],
   gentium: ["Gentium", `"Gentium Book Plus", ${DEV}, Georgia, serif`],
   noto: ["Noto Serif", `"Noto Serif", ${DEV}, Georgia, serif`],
   sans: ["Inter", `var(--font-sans), "Noto Sans Devanagari", system-ui, sans-serif`],
 };
-const THEMES: Record<Theme, { label: string; bg: string; ink: string; muted: string; line: string; panel: string; swatch: string }> = {
+export const THEMES: Record<Theme, { label: string; bg: string; ink: string; muted: string; line: string; panel: string; swatch: string }> = {
   light: { label: "White", bg: "#ffffff", ink: "#1c1c1c", muted: "#7a7a7a", line: "rgba(0,0,0,0.08)", panel: "rgba(255,255,255,0.78)", swatch: "#ffffff" },
-  sepia: { label: "Sepia", bg: "#f7f0e2", ink: "#3a2e20", muted: "#8c7a62", line: "rgba(58,46,32,0.12)", panel: "rgba(247,240,226,0.8)", swatch: "#f2e7d0" },
-  dusk: { label: "Dusk", bg: "#2a2826", ink: "#e6dfd3", muted: "#a49c90", line: "rgba(255,255,255,0.1)", panel: "rgba(42,40,38,0.78)", swatch: "#3a3734" },
-  dark: { label: "Night", bg: "#111111", ink: "#cfcbc4", muted: "#8a8680", line: "rgba(255,255,255,0.09)", panel: "rgba(17,17,17,0.78)", swatch: "#111111" },
+  paper: { label: "Paper", bg: "#fbf8f1", ink: "#26221c", muted: "#8a8173", line: "rgba(60,45,20,0.1)", panel: "rgba(251,248,241,0.82)", swatch: "#f6f0e2" },
+  sepia: { label: "Sepia", bg: "#f4ead5", ink: "#3a2e20", muted: "#8c7a62", line: "rgba(58,46,32,0.13)", panel: "rgba(244,234,213,0.82)", swatch: "#eadbb8" },
+  sage: { label: "Sage", bg: "#eef3ec", ink: "#22302a", muted: "#6f8077", line: "rgba(30,60,40,0.11)", panel: "rgba(238,243,236,0.82)", swatch: "#dbe7d6" },
+  rose: { label: "Rose", bg: "#fbf1ef", ink: "#3a2524", muted: "#9a7b78", line: "rgba(90,40,40,0.1)", panel: "rgba(251,241,239,0.82)", swatch: "#f3dcd7" },
+  dusk: { label: "Dusk", bg: "#2a2826", ink: "#e6dfd3", muted: "#a49c90", line: "rgba(255,255,255,0.1)", panel: "rgba(42,40,38,0.8)", swatch: "#3a3734" },
+  slate: { label: "Slate", bg: "#1d232b", ink: "#d7dde5", muted: "#8b96a3", line: "rgba(255,255,255,0.09)", panel: "rgba(29,35,43,0.8)", swatch: "#27303b" },
+  dark: { label: "Night", bg: "#0e0e0e", ink: "#cfcbc4", muted: "#8a8680", line: "rgba(255,255,255,0.09)", panel: "rgba(14,14,14,0.8)", swatch: "#0e0e0e" },
 };
 const MODES: [Mode, string, string, any][] = [
   ["classic", "Classic", "Contents beside the text", PanelLeft],
@@ -134,7 +138,7 @@ export function Reader({ book, chapter, toc, prev, next, translations, parallel,
   );
 
   const icon = "flex size-9 items-center justify-center rounded-md transition hover:bg-black/[0.06] [.rd-dark_&]:hover:bg-white/10";
-  const dark = s.theme === "dusk" || s.theme === "dark";
+  const dark = s.theme === "dusk" || s.theme === "dark" || s.theme === "slate";
 
   return (
     <div className={`rd fixed inset-0 z-[70] flex flex-col ${dark ? "rd-dark" : ""}`} style={{ background: T.bg, color: T.ink, ["--rd-ink" as any]: T.ink, ["--rd-muted" as any]: T.muted, ["--rd-line" as any]: T.line, ["--rd-bg" as any]: T.bg, visibility: ready ? "visible" : "hidden" }}>

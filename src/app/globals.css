@@ -410,3 +410,8 @@ html.nav-hidden [class*="top-[52px]"], html.nav-hidden [class*="top-[58px]"], ht
 .rd-article h1, .rd-article h2, .rd-article h3 { font-family: inherit !important; font-weight: 600 !important; letter-spacing: -0.01em; color: var(--ink) !important; }
 .rd-article h2 { font-size: 1.35em !important; margin: 1.6em 0 0.5em !important; }
 .rd-article h3 { font-size: 1.15em !important; margin: 1.4em 0 0.5em !important; }
+
+/* Home: the blessing — words and portraits rise in gently, once */
+@keyframes bless-up { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+.bless-word, .bless-rise { animation: bless-up .7s cubic-bezier(.2,.7,.2,1) both; }
+html[data-motion="reduce"] .bless-word, html[data-motion="reduce"] .bless-rise { animation: none; }

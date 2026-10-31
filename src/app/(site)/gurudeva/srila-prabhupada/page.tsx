@@ -1,43 +1,47 @@
-import { cmsOverride } from "@/lib/cms/render";
-import { Crown, Quote as QuoteIcon, Mail } from "lucide-react";
-import { Container, PageHero } from "@/components/ui";
+import { ArrowUpRight } from "lucide-react";
 import { CutOut } from "@/components/motifs";
+import { PrabhupadaWords } from "@/components/gurudeva/prabhupada-words";
 
-export const metadata = { title: "Śrīla Prabhupāda on Śrīla Gurudeva" };
+export const metadata = { title: "Śrīla Prabhupāda", description: "Śrīla A.C. Bhaktivedanta Swami Prabhupāda, the beloved spiritual master of Śrī Śrīmad Gour Govinda Swāmī Gurudeva — and what he said about him." };
 
-import { CONVERSATION as C, LETTER as L } from "@/lib/prabhupada";
-const hl = (t: string) => t.split(/(«[^»]+»)/).map((x, k) => x.startsWith("«") ? <mark key={k} className="rounded bg-[#f6d58e]/70 px-1 font-semibold text-ink">{x.slice(1, -1)}</mark> : <span key={k}>{x}</span>);
+const STEPS: [string, string, string][] = [
+  ["September 1974", "Vṛndāvana", "Śrīla Gurudeva met Śrīla Prabhupāda at ISKCON’s centre in Vṛndāvana, and was soon initiated as Gour Govinda Dāsa."],
+  ["20 April 1975", "Vṛndāvana", "At the opening of the Śrī Śrī Kṛṣṇa-Balarāma temple he accepted sannyāsa."],
+  ["1975 onwards", "Bhubaneswar", "On Śrīla Prabhupāda’s order he began ISKCON’s centre in Bhubaneswar, living in a mud hut."],
+  ["12 February 1976", "Māyāpur", "Śrīla Prabhupāda wrote to him: “Krishna is with you and there is no need of disappointment.”"],
+  ["January 1977", "Bhubaneswar", "Śrīla Prabhupāda came to Bhubaneswar and laid the foundation stone of the temple."],
+];
+const LINKS: [string, string, string][] = [
+  ["Śrīla Prabhupāda’s books", "https://vedabase.io/en/library/", "Bhagavad-gītā As It Is, Śrīmad-Bhāgavatam, Caitanya-caritāmṛta and more, on Vedabase"],
+  ["Śrīla Prabhupāda-līlāmṛta", "https://vedabase.io/en/library/spl/", "His biography by Satsvarūpa dāsa Goswami"],
+  ["Lectures, conversations and letters", "https://prabhupadavani.org", "Prabhupāda Vāṇī"],
+];
 
-export default async function Page() {
-  const cms = await cmsOverride('/gurudeva/srila-prabhupada'); if (cms) return cms;
-  return <Original />;
-}
-
-function Original() {
+/** Śrīla Prabhupāda: who he is to Śrīla Gurudeva, the moments they shared, his own words about him, and where to read him. */
+export default function Page() {
   return (
-    <>
-      <PageHero crumbs={[{ href: "/gurudeva", label: "Śrīla Gurudeva" }, { label: "Śrīla Prabhupāda" }]} icon={Crown} title="Śrīla Prabhupāda on Śrīla Gurudeva" intro="What his spiritual master said about him, in Śrīla Prabhupāda's own words: a room conversation and a letter."
-        aside={<CutOut src="/legacy/prabhupada.webp" alt="Śrīla A.C. Bhaktivedanta Swami Prabhupāda" fade={0} className="mx-auto hidden w-48 lg:block" />} />
-      <Container className="max-w-3xl py-14">
-        <section>
-          <div className="flex items-center gap-3"><QuoteIcon className="text-saffron" size={20} /><h2 className="text-[20px]">{C.title}</h2></div>
-          <p className="mt-1 text-[12.5px] text-ink-3">Speakers: {C.speakers}.</p>
-          <div className="card mt-5 divide-y divide-line">
-            {C.lines.map(([who, line], i) => (
-              <p key={i} className="px-5 py-3 text-[14px] leading-relaxed"><span className={`mr-2 font-semibold ${who === "Prabhupāda" ? "text-saffron" : "text-ink-2"}`}>{who}:</span>{hl(line)}</p>
-            ))}
+    <div className="bg-white">
+      <section className="border-b border-[#efe4cf] bg-[#fbf6ec]">
+        <div className="mx-auto grid max-w-[1100px] items-end gap-8 px-4 pt-10 sm:px-6 lg:grid-cols-[1.3fr_1fr]">
+          <div className="pb-10 lg:pb-16">
+            <p className="mb-2 text-[10.5px] font-medium uppercase tracking-[0.25em] text-saffron sm:text-[11.5px]">His beloved spiritual master</p>
+            <h1 className="text-[28px] leading-[1.15] text-ink sm:text-[38px]" style={{ fontFamily: "var(--font-reading-serif)" }}>Śrīla A.C. Bhaktivedanta Swami Prabhupāda</h1>
+            <p className="mt-4 max-w-xl text-[14px] leading-relaxed text-ink-2 sm:text-[15px]">The founder-ācārya of ISKCON, who carried Śrī Caitanya Mahāprabhu’s message to every part of the world. Śrīla Gurudeva gave him his whole life, and Śrīla Prabhupāda said of him, “Kṛṣṇa sent him.”</p>
           </div>
-        </section>
-        <section className="mt-14">
-          <div className="flex items-center gap-3"><Mail className="text-saffron" size={20} /><h2 className="text-[20px]">{L.title}</h2></div>
-          <p className="mt-1 text-[12.5px] text-ink-3">Letter {L.ref}</p>
-          <article className="card mt-5 space-y-4 p-6 text-[14.5px] leading-relaxed text-ink-2">
-            <p>{L.salutation}</p>
-            {L.paras.map((t, i) => <p key={i}>{hl(t)}</p>)}
-            <p className="text-ink-3">{L.closing[0]}<br />{L.closing[1]}<br /><span className="text-[12px]">{L.closing[2]}</span></p>
-          </article>
-        </section>
-      </Container>
-    </>
+          <CutOut src="/legacy/prabhupada.webp" alt="Śrīla A.C. Bhaktivedanta Swami Prabhupāda" fade={0} className="mx-auto w-[240px] sm:w-[300px]" />
+        </div>
+      </section>
+      <div className="mx-auto grid max-w-[1100px] gap-12 px-4 py-12 sm:px-6 lg:grid-cols-[320px_minmax(0,1fr)]">
+        <aside className="space-y-10 lg:sticky lg:top-24 lg:self-start">
+          <section><h2 className="mb-4 text-[14px] font-semibold text-ink">Śrīla Prabhupāda and Śrīla Gurudeva</h2>
+            <ol className="relative border-l border-[#e6d6b8]">{STEPS.map(([d, p, t]) => <li key={d} className="relative mb-5 pl-5 last:mb-0"><span className="absolute -left-[5px] top-1.5 size-[9px] rounded-full bg-saffron" /><p className="text-[11.5px] font-medium uppercase tracking-[0.08em] text-saffron">{d} · {p}</p><p className="mt-0.5 text-[13.5px] leading-relaxed text-ink-2">{t}</p></li>)}</ol>
+          </section>
+          <section><h2 className="mb-3 text-[14px] font-semibold text-ink">Read Śrīla Prabhupāda</h2>
+            <div className="space-y-2">{LINKS.map(([t, u, d]) => <a key={u} href={u} target="_blank" rel="noreferrer" className="group flex items-start gap-3 rounded-xl border border-line p-3 hover:border-line-strong"><span className="min-w-0 flex-1"><span className="block text-[13.5px] font-medium text-ink group-hover:underline">{t}</span><span className="block text-[12px] leading-snug text-ink-3">{d}</span></span><ArrowUpRight size={14} className="mt-0.5 text-ink-3" /></a>)}</div>
+          </section>
+        </aside>
+        <section><p className="mb-2 text-[10.5px] font-medium uppercase tracking-[0.25em] text-saffron sm:text-[11.5px]">In his own words</p><h2 className="mb-4 text-[22px] text-ink sm:text-[26px]" style={{ fontFamily: "var(--font-reading-serif)" }}>Śrīla Prabhupāda on Śrīla Gurudeva</h2><PrabhupadaWords /></section>
+      </div>
+    </div>
   );
 }
