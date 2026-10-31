@@ -29,8 +29,13 @@ function apply(p: Prefs) {
   r.style.setProperty("--reading-leading", { compact: "1.55", comfortable: "1.75", spacious: "2" }[p.leading]);
 }
 
-export type Track = { slug: string; title: string; subtitle: string; duration: number; url?: string; href?: string };
-type PlayerCtx = { track: Track | null; playing: boolean; time: number; play: (t: Track, at?: number) => void; toggle: () => void; seek: (s: number) => void; close: () => void };
+export type Track = { slug: string; title: string; subtitle: string; duration: number; url?: string; href?: string; transcript?: boolean };
+export type PlayerMode = "dock" | "float" | "full";
+type PlayerCtx = {
+  track: Track | null; playing: boolean; time: number; buffered: number; play: (t: Track, at?: number) => void; toggle: () => void; seek: (s: number) => void; skip: (d: number) => void; close: () => void;
+  volume: number; setVolume: (v: number) => void; muted: boolean; toggleMute: () => void; speed: number; setSpeed: (v: number) => void;
+  mode: PlayerMode; setMode: (m: PlayerMode) => void; text: boolean; setText: (b: boolean) => void; sleep: number | null; setSleep: (min: number | null) => void;
+};
 const PlayerContext = createContext<PlayerCtx | null>(null);
 export const usePlayer = () => useContext(PlayerContext)!;
 
@@ -79,8 +84,12 @@ export function Providers({ children }: { children: React.ReactNode }) {
   // Plays the lecture's real audio file when it has one; otherwise a silent preview timer.
   const [track, setTrack] = useState<Track | null>(null);
   const [playing, setPlaying] = useState(false);
-  const [time, setTime] = useState(0);
+  const [time, setTime] = useState(0); const [buffered, setBuffered] = useState(0);
+  const [volume, setVol] = useState(1); const [muted, setMuted] = useState(false);
+  const [mode, setModeS] = useState<PlayerMode>("dock"); const [text, setText] = useState(false); const [sleep, setSleepS] = useState<number | null>(null);
   const audio = useRef<HTMLAudioElement | null>(null);
+  useEffect(() => { try { const p = JSON.parse(localStorage.getItem("tj-player") || "{}"); if (typeof p.volume === "number") setVol(p.volume); if (p.mode === "float") setModeS("float"); } catch {} }, []);
+  const persist = (x: object) => { try { localStorage.setItem("tj-player", JSON.stringify({ ...JSON.parse(localStorage.getItem("tj-player") || "{}"), ...x })); } catch {} };
   useEffect(() => {
     if (track?.url) return;
     if (!playing) return;
@@ -92,19 +101,40 @@ export function Providers({ children }: { children: React.ReactNode }) {
     a.playbackRate = prefs.speed;
     if (playing) a.play().catch(() => setPlaying(false)); else a.pause();
   }, [playing, track, prefs.speed]);
+  useEffect(() => { if (audio.current) { audio.current.volume = volume; audio.current.muted = muted; } }, [volume, muted, track?.url]);
   useEffect(() => {
     if (!track?.url) { audio.current?.pause(); return; }
-    let a = audio.current; if (!a) { a = new Audio(); audio.current = a; a.addEventListener("timeupdate", () => setTime(a!.currentTime)); a.addEventListener("ended", () => setPlaying(false)); a.addEventListener("loadedmetadata", () => setTrack((t) => (t && !t.duration && a!.duration ? { ...t, duration: a!.duration } : t))); }
-    if (a.src !== track.url) { a.src = track.url; a.currentTime = 0; }
+    let a = audio.current; if (!a) { a = new Audio(); a.preload = "metadata"; audio.current = a;
+      a.addEventListener("timeupdate", () => setTime(a!.currentTime));
+      a.addEventListener("progress", () => { try { setBuffered(a!.buffered.length ? a!.buffered.end(a!.buffered.length - 1) : 0); } catch {} });
+      a.addEventListener("ended", () => setPlaying(false));
+      a.addEventListener("loadedmetadata", () => setTrack((t) => (t && (!t.duration || Math.abs(t.duration - a!.duration) > 5) && a!.duration ? { ...t, duration: a!.duration } : t))); }
+    if (a.src !== track.url) { a.src = track.url; a.currentTime = 0; setBuffered(0); }
   }, [track?.url]); // eslint-disable-line react-hooks/exhaustive-deps
+  // remember where each lecture was left
+  useEffect(() => { if (!track || time < 5) return; if (Math.floor(time) % 5) return; try { const m = JSON.parse(localStorage.getItem("tj-resume") || "{}"); m[track.slug] = Math.floor(time); localStorage.setItem("tj-resume", JSON.stringify(m)); } catch {} }, [time, track]);
+  // sleep timer: minutes from now, or -1 for "end of this lecture"
+  useEffect(() => { if (!sleep || sleep < 0) return; const t = setTimeout(() => { setPlaying(false); setSleepS(null); }, sleep * 60000); return () => clearTimeout(t); }, [sleep]);
+  useEffect(() => { if (sleep === -1 && !playing && track && time >= track.duration - 1) setSleepS(null); }, [sleep, playing, time, track]);
 
+  const seek = useCallback((s: number) => { const v = Math.max(0, track?.duration ? Math.min(s, track.duration) : s); setTime(v); if (audio.current && track?.url) audio.current.currentTime = v; }, [track]);
   const player: PlayerCtx = {
-    track, playing, time,
-    play: (t, at = 0) => { setTrack(t); setTime(at); setPlaying(true); if (t.url && audio.current && audio.current.src === t.url) audio.current.currentTime = at; },
+    track, playing, time, buffered,
+    play: (t, at) => { let start = at ?? 0; if (at === undefined) { try { start = JSON.parse(localStorage.getItem("tj-resume") || "{}")[t.slug] || 0; if (t.duration && start > t.duration - 10) start = 0; } catch {} } setTrack(t); setTime(start); setPlaying(true); const a = audio.current; if (a && t.url) { if (a.src !== t.url) { a.src = t.url; } a.currentTime = start; } },
     toggle: () => setPlaying((p) => !p),
-    seek: (s) => { setTime(Math.max(0, s)); if (audio.current && track?.url) audio.current.currentTime = Math.max(0, s); },
-    close: () => { setTrack(null); setPlaying(false); audio.current?.pause(); },
+    seek, skip: (d) => seek(time + d),
+    close: () => { setTrack(null); setPlaying(false); audio.current?.pause(); setModeS((m) => (m === "full" ? "dock" : m)); },
+    volume, setVolume: (v) => { const x = Math.max(0, Math.min(1, v)); setVol(x); setMuted(x === 0); persist({ volume: x }); }, muted, toggleMute: () => setMuted((m) => !m),
+    speed: prefs.speed, setSpeed: (v) => setPrefs((p) => ({ ...p, speed: Math.max(0.5, Math.min(2.5, Math.round(v * 100) / 100)) })),
+    mode, setMode: (m) => { setModeS(m); if (m !== "full") persist({ mode: m }); }, text, setText, sleep, setSleep: setSleepS,
   };
+  // operating-system media controls (keyboard media keys, lock screen, headphones)
+  useEffect(() => {
+    if (!("mediaSession" in navigator) || !track) return;
+    navigator.mediaSession.metadata = new MediaMetadata({ title: track.title, artist: "Śrī Śrīmad Gour Govinda Swāmī Gurudeva", album: track.subtitle || "Taptajīvanam" });
+    navigator.mediaSession.setActionHandler("play", () => setPlaying(true)); navigator.mediaSession.setActionHandler("pause", () => setPlaying(false));
+    navigator.mediaSession.setActionHandler("seekbackward", () => seek((audio.current?.currentTime || 0) - 10)); navigator.mediaSession.setActionHandler("seekforward", () => seek((audio.current?.currentTime || 0) + 10));
+  }, [track, seek]);
 
   return (
     <PrefsContext.Provider value={{ prefs, set, reset: () => setPrefs(DEFAULT), search, setSearch }}>

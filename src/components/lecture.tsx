@@ -5,7 +5,7 @@ import { Play, Pause, FileText, Languages, Download, Share2, Quote, Copy, Rotate
 import { usePlayer, usePrefs } from "./providers";
 import { type Lecture, fmtDate, fmtDur, fmtClock, TRANSCRIPT } from "@/lib/data";
 
-const toTrack = (l: Lecture) => ({ slug: l.slug, title: l.title, subtitle: `${fmtDate(l.date)}, ${l.place}`, duration: l.duration, url: l.url, href: l.href });
+const toTrack = (l: Lecture) => ({ slug: l.slug, title: l.title, subtitle: [l.date ? fmtDate(l.date) : null, l.place].filter(Boolean).join(", "), duration: l.duration, url: l.url, href: l.href, transcript: l.transcribed });
 
 export function PlayButton({ l, size = 40 }: { l: Lecture; size?: number }) {
   const { track, playing, play, toggle } = usePlayer();

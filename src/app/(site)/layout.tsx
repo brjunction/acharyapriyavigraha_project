@@ -4,7 +4,7 @@ import { getSavedMenus, getTheme } from "@/lib/menus-server";
 import { themeCss, fontHref } from "@/lib/theme";
 import { Footer } from "@/components/footer";
 import { SearchPalette } from "@/components/search";
-import { MiniPlayer } from "@/components/lecture";
+import { AudioPlayer } from "@/components/player/player";
 import { Announcement } from "@/components/announcement";
 import { EditBar } from "@/components/edit-bar";
 import { FooterSwitch } from "@/components/footer-switch";
@@ -25,7 +25,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
       </div>
       <NavToggle />
       <SearchPalette />
-      <MiniPlayer />
+      <AudioPlayer />
       <Announcement />
       <EditBar />
     </MenusProvider>
