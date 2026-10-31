@@ -15,6 +15,10 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
   const sets: string[] = []; const vals: any[] = [];
   for (const k of COLS) if (k in b) { vals.push(k === "position" ? Number(b[k]) || 0 : b[k] === "" ? null : b[k]); sets.push(`${k} = $${vals.length}`); }
   if (b.slug) { vals.push(slugify(b.slug)); sets.push(`slug = $${vals.length}`); }
+  if ("translation_of" in b) {
+    if (!b.translation_of) { sets.push("work = null"); }
+    else { const o = (await sql`select id, slug, work from books where id = ${b.translation_of}`)[0] as any; if (o && o.id !== id) { const key = o.work || o.slug; await sql`update books set work = ${key} where id = ${o.id} and work is null`; vals.push(key); sets.push(`work = $${vals.length}`); } }
+  }
   if ("settings" in b) { vals.push(JSON.stringify(b.settings || {})); sets.push(`settings = $${vals.length}::jsonb`); }
   if (!sets.length) return json({ ok: true }); vals.push(id);
   try { await sql.query(`update books set ${sets.join(", ")}, updated_at = now() where id = $${vals.length}`, vals); } catch { return fail("Another book already uses that address."); }

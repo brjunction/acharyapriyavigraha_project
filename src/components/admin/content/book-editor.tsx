@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ArrowLeft, ArrowUp, ArrowDown, ChevronLeft, ChevronRight, Plus, Trash2, ExternalLink, FileUp, Image as ImageIcon, IndentIncrease, IndentDecrease, X, Check, Upload, Link2 } from "lucide-react";
 import { LAYOUTS } from "@/lib/content/book-layouts";
+import { BOOK_LANGS, langName } from "@/lib/content/book-langs";
 import { Btn, Badge, Field, Input, Select, Textarea, Modal, api, toast, cn } from "../ui";
 import { MediaPicker } from "../media-picker";
 
@@ -147,6 +148,24 @@ function Writer({ bookTitle, id, order, num, onGo, onClose }: { bookTitle: strin
   );
 }
 
+/* ------------------------------------------------------------------ Translations */
+/** Link this book with the same book in other languages, so readers can switch between them. */
+function Translations({ book, set }: { book: any; set: (k: string, v: any) => void }) {
+  const [all, setAll] = useState<any[]>([]);
+  useEffect(() => { api<any[]>("/api/admin/books").then((r) => setAll(Array.isArray(r) ? r : (r as any).books || [])).catch(() => {}); }, []);
+  const same = all.filter((x) => x.id !== book.id && book.work && x.work === book.work);
+  const cur = "translation_of" in book ? book.translation_of : same[0]?.id || "";
+  return (
+    <Field label="Same book in other languages" hint="Pick the original (or any other language) of this book. Readers can then switch language, or read both side by side.">
+      <Select value={cur || ""} onChange={(e) => set("translation_of", e.target.value || null)}>
+        <option value="">Not linked — a book on its own</option>
+        {all.filter((x) => x.id !== book.id).map((x) => <option key={x.id} value={x.id}>{x.title} · {langName(x.language)}</option>)}
+      </Select>
+      {same.length > 0 && <p className="mt-1.5 text-[12px] text-zinc-500">Linked now with: {same.map((x) => `${x.title} (${langName(x.language)})`).join(", ")}</p>}
+    </Field>
+  );
+}
+
 /* ------------------------------------------------------------------ Cover & details */
 function Details({ book, onSaved }: { book: any; onSaved: () => void }) {
   const [b, setB] = useState(book); const [busy, setBusy] = useState(false); const [crop, setCrop] = useState(false); const [pick, setPick] = useState(false);
@@ -163,7 +182,8 @@ function Details({ book, onSaved }: { book: any; onSaved: () => void }) {
           <Field label="Title"><Input value={b.title} onChange={(e) => set("title", e.target.value)} /></Field>
           <Field label="Subtitle"><Input value={b.subtitle || ""} onChange={(e) => set("subtitle", e.target.value)} /></Field>
           <div className="grid gap-4 sm:grid-cols-2"><Field label="Author"><Input value={b.author || ""} onChange={(e) => set("author", e.target.value)} /></Field><Field label="Shelf" hint="Books on the same shelf are shown together"><Input value={b.category || ""} onChange={(e) => set("category", e.target.value)} placeholder="e.g. Books about Śrīla Gurudeva" /></Field></div>
-          <div className="grid gap-4 sm:grid-cols-3"><Field label="Publisher"><Input value={b.publisher || ""} onChange={(e) => set("publisher", e.target.value)} /></Field><Field label="Year"><Input value={b.year || ""} onChange={(e) => set("year", e.target.value)} /></Field><Field label="Language"><Select value={b.language} onChange={(e) => set("language", e.target.value)}>{[["en", "English"], ["hi", "Hindi"], ["or", "Odia"], ["bn", "Bengali"], ["ru", "Russian"], ["id", "Indonesian"], ["nl", "Dutch"], ["es", "Spanish"]].map(([k, l]) => <option key={k} value={k}>{l}</option>)}</Select></Field></div>
+          <div className="grid gap-4 sm:grid-cols-3"><Field label="Publisher"><Input value={b.publisher || ""} onChange={(e) => set("publisher", e.target.value)} /></Field><Field label="Year"><Input value={b.year || ""} onChange={(e) => set("year", e.target.value)} /></Field><Field label="Language"><Select value={b.language} onChange={(e) => set("language", e.target.value)}>{BOOK_LANGS.map(([k, l, n]) => <option key={k} value={k}>{l}{n !== l ? ` · ${n}` : ""}</option>)}</Select></Field></div>
+          <Translations book={b} set={set} />
           <Field label="About the book" hint="Shown on the book’s first page"><Textarea rows={4} value={b.description || ""} onChange={(e) => set("description", e.target.value)} /></Field>
           <Field label="How the book is shown"><div className="grid gap-2 sm:grid-cols-2">{LAYOUTS.map(([k, l, d]) => <button key={k} onClick={() => set("layout", k)} className={cn("rounded-lg border p-3 text-left", b.layout === k ? "border-zinc-900 ring-1 ring-zinc-900" : "border-zinc-200 hover:bg-zinc-50")}><p className="text-[13px] font-medium">{l}</p><p className="text-[12px] text-zinc-500">{d}</p></button>)}</div></Field>
           <details className="text-[12.5px]"><summary className="cursor-pointer text-zinc-500">Web address</summary><Input className="mt-2" value={b.slug} onChange={(e) => set("slug", e.target.value)} /><p className="mt-1 text-zinc-400">taptajivanam.com/books/{b.slug}</p></details>

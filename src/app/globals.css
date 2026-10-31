@@ -383,3 +383,22 @@ html.nav-hidden .site-header { display: none; }
 /* Book text follows the reader’s chosen size and font (set on #book-text). */
 .book-body .reading, .book-body { font-size: inherit; line-height: inherit; font-family: inherit; max-width: none; }
 .book-body p { font-size: inherit; line-height: inherit; }
+
+/* ---- Book reader: the text follows the reader's chosen font, size and colours */
+.rd { -webkit-font-smoothing: antialiased; }
+.rd-text .book-body p, .rd-text .book-body li, .rd-text .book-body blockquote, .rd-text .book-body summary, .rd-text .book-body figcaption, .rd-text .book-body td { font-size: 1em !important; line-height: inherit !important; color: var(--rd-ink) !important; font-family: inherit !important; }
+.rd-text .book-body p { margin: 0 0 0.95em !important; }
+.rd-text .book-body h1, .rd-text .book-body h2, .rd-text .book-body h3, .rd-text .book-body h4 { color: var(--rd-ink) !important; font-family: inherit !important; letter-spacing: -0.01em; font-weight: 600 !important; line-height: 1.3 !important; break-after: avoid; }
+.rd-text .book-body h1 { font-size: 1.45em !important; margin: 1.6em 0 0.6em !important; }
+.rd-text .book-body h2 { font-size: 1.3em !important; margin: 1.5em 0 0.55em !important; }
+.rd-text .book-body h3 { font-size: 1.12em !important; margin: 1.3em 0 0.5em !important; }
+.rd-text .book-body h4, .rd-text .book-body h5, .rd-text .book-body h6 { font-size: 1em !important; margin: 1.2em 0 0.4em !important; }
+.rd-text .book-body blockquote { background: transparent !important; border-left: 2px solid var(--rd-line) !important; font-style: italic; padding: 0.1em 0 0.1em 1.1em !important; margin: 1.3em 0 !important; }
+.rd-text .book-body figure { break-inside: avoid; }
+.rd-text .book-body img { max-width: 100%; height: auto; border-radius: 4px; }
+.rd-text .book-body hr { border-color: var(--rd-line) !important; }
+.rd-text .book-body a { color: inherit; text-decoration: underline; text-decoration-color: var(--rd-muted); text-underline-offset: 2px; }
+.rd-text .book-body [class*="bg-[#fdf6e8]"], .rd-text .book-body .card { background: color-mix(in srgb, var(--rd-ink) 4%, transparent) !important; border-color: var(--rd-line) !important; }
+.rd-text .book-body [class*="text-[#7a3a06]"], .rd-text .book-body .text-saffron { color: inherit !important; }
+.rd-text .book-body em { font-style: italic; }
+.rd-dark ::selection { background: rgba(255, 255, 255, 0.2); }

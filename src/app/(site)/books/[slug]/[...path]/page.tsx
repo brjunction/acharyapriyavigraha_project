@@ -1,12 +1,13 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { getBook, findByPath, numbering, hrefOf } from "@/lib/content/books-public";
-import { ReaderBar } from "@/components/books/reader-bar";
-import { BookToc, PrevNext } from "@/components/cms/book-view";
+import { getBook, findByPath, numbering, hrefOf, getTranslations, tocOf } from "@/lib/content/books-public";
+import { Reader } from "@/components/books/reader";
 import { Render, docText } from "@/components/cms/doc";
 import { sql } from "@/lib/db";
+import { langName, langNative } from "@/lib/content/book-langs";
 
 export const revalidate = 300;
+const READER_FONTS = "https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;1,7..72,400&family=Noto+Serif:ital,wght@0,400;0,600;1,400&family=Noto+Serif+Devanagari:wght@400;600&family=Noto+Sans+Devanagari:wght@400;600&family=Gentium+Book+Plus:ital,wght@0,400;0,700;1,400&display=swap";
 async function load(slug: string, path: string[]) {
   const r = await getBook(slug); if (!r) return null; const n = findByPath(r.nodes, path); if (!n) return null;
   const full = (await sql`select blocks from book_nodes where id = ${n.id}`)[0] as any;
@@ -14,29 +15,34 @@ async function load(slug: string, path: string[]) {
 }
 export async function generateMetadata({ params }: { params: Promise<{ slug: string; path: string[] }> }): Promise<Metadata> {
   const { slug, path } = await params; const r = await load(slug, path); if (!r) return {};
-  return { title: `${r.node.title} — ${r.book.title}`, description: docText(r.blocks) || r.book.description };
+  return { title: `${r.node.title} — ${r.book.title}`, description: docText(r.blocks) || r.book.description, alternates: { canonical: hrefOf(slug, r.nodes, r.node) } };
 }
-export default async function Chapter({ params }: { params: Promise<{ slug: string; path: string[] }> }) {
-  const { slug, path } = await params; const r = await load(slug, path); if (!r) notFound();
-  const { book, nodes, flat, node, blocks } = r; const num = numbering(nodes); const scripture = book.layout === "scripture";
-  const kids = nodes.filter((n) => n.parent_id === node.id).sort((a, b) => a.position - b.position);
+export default async function Chapter({ params, searchParams }: { params: Promise<{ slug: string; path: string[] }>; searchParams: Promise<{ with?: string }> }) {
+  const { slug, path } = await params; const { with: other } = await searchParams; const r = await load(slug, path); if (!r) notFound();
+  const { book, nodes, flat, node, blocks } = r; const num = numbering(nodes);
   const i = flat.findIndex((n) => n.id === node.id); const prev = flat[i - 1], next = flat[i + 1];
-  const toc = <BookToc book={book} nodes={nodes} current={node.id} compact />;
+  const trs = await getTranslations(book);
+  const translations = await Promise.all(trs.map(async (t) => {
+    if (t.slug === slug) return { slug: t.slug, title: t.title, language: langName(t.language), native: langNative(t.language), href: hrefOf(slug, nodes, node), current: true };
+    const o = await getBook(t.slug); const on = o?.flat[i];
+    return { slug: t.slug, title: t.title, language: langName(t.language), native: langNative(t.language), href: o && on ? hrefOf(t.slug, o.nodes, on) : `/books/${t.slug}`, current: false };
+  }));
+  let parallel = null;
+  if (other && trs.some((t) => t.slug === other) && other !== slug) {
+    const o = await getBook(other); const on = o?.flat[i];
+    if (o && on) { const ob = ((await sql`select blocks from book_nodes where id = ${on.id}`)[0] as any)?.blocks || []; parallel = { title: on.title, slug: other, language: langName(o.book.language), native: langNative(o.book.language), node: <div className="book-body"><Render doc={ob} /></div> }; }
+  }
   return (
-    <div className="bg-white">
-      <ReaderBar book={{ title: book.title, href: `/books/${book.slug}` }} chapter={node.title} prev={prev ? { href: hrefOf(book.slug, nodes, prev), title: prev.title } : null} next={next ? { href: hrefOf(book.slug, nodes, next), title: next.title } : null} toc={toc} />
-      <div className="mx-auto grid max-w-[1100px] gap-10 px-4 pb-20 pt-10 sm:px-6 lg:grid-cols-[240px_minmax(0,1fr)]">
-        <aside className="hidden lg:block"><div className="sticky top-[130px] max-h-[calc(100dvh-150px)] overflow-y-auto pr-2 [scrollbar-width:thin]"><p className="mb-2 px-2 text-[12px] font-medium text-ink-3">Contents</p>{toc}</div></aside>
-        <article className="min-w-0">
-          <div id="book-text" className={`mx-auto ${scripture ? "text-center" : ""}`} style={{ maxWidth: 680, fontSize: 18, lineHeight: 1.8, fontFamily: "var(--font-reading-serif)" }}>
-            <p className="font-sans text-[12.5px] text-ink-3">{node.kind === "part" ? "Part" : "Chapter"} {num[node.id]}</p>
-            <h1 className="mt-1 font-sans text-[26px] font-semibold leading-tight tracking-[-0.01em] text-ink sm:text-[30px]">{node.title}</h1>
-            <div className={`book-body mt-8 ${scripture ? "text-left" : ""}`}><Render doc={blocks} /></div>
-            {kids.length > 0 && <div className="mt-10 rounded-xl border border-line p-5 font-sans text-left"><p className="mb-2 text-[12px] font-medium text-ink-3">In this {node.kind === "part" ? "part" : "chapter"}</p><BookToc book={book} nodes={nodes.filter((n) => n.id !== node.id)} compact /></div>}
-            <div className="font-sans"><PrevNext book={book} nodes={nodes} flat={flat} current={node.id} /></div>
-          </div>
-        </article>
-      </div>
-    </div>
+    <>
+      <link rel="stylesheet" href={READER_FONTS} precedence="default" />
+      <Reader
+        book={{ slug, title: book.title, href: `/books/${slug}`, language: book.language, cover: book.cover_url }}
+        chapter={{ id: node.id, title: node.title, num: num[node.id], label: node.kind === "part" ? "Part" : "Chapter", href: hrefOf(slug, nodes, node), index: i, total: flat.length }}
+        toc={tocOf(slug, nodes, flat)} prev={prev ? { href: hrefOf(slug, nodes, prev), title: prev.title } : null} next={next ? { href: hrefOf(slug, nodes, next), title: next.title } : null}
+        translations={translations} parallel={parallel}
+      >
+        <div className="book-body" lang={book.language}><Render doc={blocks} /></div>
+      </Reader>
+    </>
   );
 }
