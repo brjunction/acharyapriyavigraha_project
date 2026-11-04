@@ -6,6 +6,7 @@ The complete, organized home of the teachings of Śrīla Gurudeva, Śrī Śrīma
 
 - Specification: [docs/REQUIREMENTS.md](docs/REQUIREMENTS.md)
 - Run locally: `npm install`, then `npm run dev`, and open http://localhost:3000 (dashboard at `/admin`, sign-in at `/admin/login`)
+- Production deployments are triggered by pushes to `main` on Vercel.
 
 ## Design
 - Identity of taptajivanam.com: saffron `#853500`, charcoal `#525252`, page `#EEECEB`, paisley footer `#592300` / `#4C1B00`, the flower-band divider and its banners.
