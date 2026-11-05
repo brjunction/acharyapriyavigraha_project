@@ -520,3 +520,16 @@ html[data-motion="reduce"] .bless-word, html[data-motion="reduce"] .bless-rise, 
 @keyframes gi-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
 .gi-float { animation: gi-float 7s ease-in-out infinite; }
 @media (prefers-reduced-motion: reduce) { .gi-band .gi-in { opacity: 1; transform: none; transition: none; } .gi-sign[data-draw] { clip-path: none; animation: none; } .gi-glow, .gi-float, .gi-num::after { animation: none !important; } }
+/* Mission band: no colour change on hover or touch, a soft selection, the lotus breathing behind, rising lights, a light passing over the title */
+.gi-band h2:hover, .gi-band p:hover { color: inherit; }
+.gi-dark ::selection { background: rgba(255,255,255,.22); color: #fff; }
+.gi-band ::selection { background: color-mix(in srgb, var(--saffron) 14%, transparent); }
+.gi-watermark { opacity: .035; animation: gi-breathe 14s ease-in-out infinite; }
+@keyframes gi-breathe { 0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: .035; } 50% { transform: translate(-50%, -50%) scale(1.05); opacity: .065; } }
+.gi-spark { opacity: 0; filter: blur(.4px); box-shadow: 0 0 8px currentColor; animation-name: gi-spark; animation-timing-function: linear; animation-iteration-count: infinite; }
+@keyframes gi-spark { 0% { transform: translateY(0); opacity: 0; } 10% { opacity: .7; } 80% { opacity: .45; } 100% { transform: translateY(-640px); opacity: 0; } }
+.gi-shine { background: linear-gradient(100deg, #fff 0%, #fff 40%, var(--gi-accent, #f3c77a) 50%, #fff 60%, #fff 100%); background-size: 250% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; animation: gi-shine 7s ease-in-out 1.5s infinite; }
+.gi-band h2.gi-shine:hover { color: transparent; }
+@keyframes gi-shine { 0% { background-position: 100% 0; } 45%, 100% { background-position: 0% 0; } }
+.gi-dark li:hover { border-color: color-mix(in srgb, var(--gi-accent) 45%, transparent); }
+@media (prefers-reduced-motion: reduce) { .gi-watermark, .gi-spark, .gi-shine { animation: none !important; } .gi-shine { color: #fff; background: none; } }

@@ -23,6 +23,8 @@ function useInView<T extends HTMLElement>() {
   useEffect(() => { const el = ref.current; if (!el) return; const io = new IntersectionObserver(([e]) => { if (e.isIntersecting) { setOn(true); io.disconnect(); } }, { threshold: 0.18 }); io.observe(el); return () => io.disconnect(); }, []);
   return [ref, on] as const;
 }
+/** Small lights rising slowly through the mission band: [left %, delay s, duration s, size px]. */
+const SPARKS: [number, number, number, number][] = [[6, 0, 16, 3], [14, 5, 21, 2], [23, 9, 18, 4], [31, 2, 24, 2], [42, 12, 19, 3], [51, 6, 23, 2], [60, 1, 17, 3], [68, 10, 22, 2], [77, 4, 20, 4], [85, 8, 25, 2], [93, 3, 18, 3], [47, 15, 26, 2]];
 const mask = (url: string): React.CSSProperties => ({ WebkitMask: `url(${url}) center / contain no-repeat`, mask: `url(${url}) center / contain no-repeat`, background: "currentColor" });
 const Sign = ({ className = "", draw }: { className?: string; draw?: boolean }) => <span role="img" data-draw={draw === undefined ? undefined : draw ? "on" : "off"} aria-label="Signature of Śrī Śrīmad Gour Govinda Swāmī Gurudeva" className={`gi-sign block aspect-[1112/271] ${className}`} style={mask("/gurudeva-sign-mask.png")} />;
 
@@ -31,15 +33,17 @@ const Sign = ({ className = "", draw }: { className?: string; draw?: boolean }) 
 export function ThreeThings({ intro, kicker = "Śrīla Gurudeva’s mission", bg = "#3a0f0a", glow = "#e8b872", accent = "#f3c77a" }: { intro?: string; kicker?: string; bg?: string; glow?: string; accent?: string }) {
   const [ref, on] = useInView<HTMLElement>();
   return (
-    <section ref={ref} data-in={on ? "on" : "off"} className="gi-band relative isolate overflow-hidden py-16 text-white sm:py-24" style={{ background: bg }}>
+    <section ref={ref} data-in={on ? "on" : "off"} className="gi-band gi-dark relative isolate overflow-hidden py-16 text-white sm:py-24" style={{ background: bg, ["--gi-accent" as any]: accent }}>
       <div aria-hidden className="gi-glow absolute left-1/2 top-[-30%] -z-10 size-[700px] -translate-x-1/2 rounded-full" style={{ background: `radial-gradient(circle, ${glow}2e, transparent 62%)` }} />
+      <span aria-hidden className="gi-watermark pointer-events-none absolute left-1/2 top-[38%] -z-10 aspect-[544/322] w-[640px] max-w-none -translate-x-1/2 -translate-y-1/2 sm:w-[900px]" style={{ ...mask("/iskcon-lotus-mask.png"), color: accent }} />
+      <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">{SPARKS.map(([l, d, t, z], k) => <span key={k} className="gi-spark absolute bottom-[-10px] rounded-full" style={{ left: `${l}%`, width: z, height: z, background: accent, animationDuration: `${t}s`, animationDelay: `${d}s` }} />)}</div>
       <div aria-hidden className="absolute inset-0 -z-10 opacity-60" style={{ background: `radial-gradient(60% 55% at 50% 0%, ${glow}33, transparent 70%), radial-gradient(40% 40% at 90% 100%, ${glow}22, transparent 70%)` }} />
       <div aria-hidden className="absolute inset-x-0 top-0 -z-10 h-px" style={{ background: `linear-gradient(90deg, transparent, ${accent}99, transparent)` }} />
       <div className="mx-auto max-w-[1120px] px-5 sm:px-8">
         <div className="text-center">
           <span aria-label="ISKCON" role="img" className="gi-in gi-lotus mx-auto block h-16 w-[76px] sm:h-20 sm:w-[95px]" style={{ ...mask("/iskcon-mask.png"), color: accent }} />
           <p className="gi-in mt-5 flex items-center justify-center gap-3 text-[11px] font-semibold uppercase tracking-[0.22em] sm:text-[12px]" style={{ color: accent, ["--d" as any]: ".15s" }}><span className="h-px w-8 sm:w-14" style={{ background: `linear-gradient(90deg, transparent, ${accent})` }} />{kicker}<span className="h-px w-8 sm:w-14" style={{ background: `linear-gradient(90deg, ${accent}, transparent)` }} /></p>
-          <h2 style={{ ["--d" as any]: ".25s" }} className="gi-in mx-auto mt-3 max-w-[760px] font-display text-[24px] font-bold leading-tight tracking-[-0.02em] sm:text-[38px]">There are three things that are very important to me</h2>
+          <h2 style={{ ["--d" as any]: ".25s" }} className="gi-in gi-shine mx-auto mt-3 max-w-[760px] font-display text-[24px] font-bold leading-tight tracking-[-0.02em] sm:text-[38px]" >There are three things that are very important to me</h2>
           {intro && <p style={{ ["--d" as any]: ".35s" }} className="gi-in mx-auto mt-4 max-w-[640px] text-[14px] leading-relaxed text-white/70 sm:text-[15px]">{intro}</p>}
         </div>
         <ol className="mt-10 grid gap-4 md:grid-cols-3">
@@ -72,7 +76,7 @@ export function OnPrabhupada({ kicker = "Śrīla Gurudeva on Śrīla Prabhupāda
   const go = (k: number) => { setI((k + ON_PRABHUPADA.length) % ON_PRABHUPADA.length); setPaused(true); setTick((x) => x + 1); };
   const q = ON_PRABHUPADA[i]; const [ref, on] = useInView<HTMLElement>();
   return (
-    <section ref={ref} data-in={on ? "on" : "off"} className="gi-band relative isolate overflow-hidden bg-page py-16 sm:py-24" onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
+    <section ref={ref} data-in={on ? "on" : "off"} className="gi-band relative isolate overflow-hidden border-y border-line bg-page py-14 sm:py-20" onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
       <div className="mx-auto max-w-[1180px] px-5 sm:px-8">
         <div className="grid items-center gap-8 lg:grid-cols-[300px_minmax(0,1fr)] lg:gap-14">
           <div style={{ ["--d" as any]: ".1s" }} className="gi-in relative mx-auto w-[170px] sm:w-[220px] lg:w-full">
