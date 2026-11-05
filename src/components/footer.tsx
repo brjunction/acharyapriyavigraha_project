@@ -27,7 +27,7 @@ export async function Footer() {
               <p className="relative mx-auto mt-3 max-w-xl text-[12.5px] sm:mt-4 sm:text-[13.5px] leading-relaxed text-[#f3e2d2]/90">{SITE.verseTranslation}</p>
             </div>
             <div className="mt-7 flex flex-col items-center gap-2">
-              <Signature src={IMG.sign} className="h-9 w-auto sm:h-12 brightness-0 invert opacity-90" />
+              <Signature src={IMG.sign} className="h-12 w-auto brightness-0 invert opacity-90" />
             </div>
           </div>
 
