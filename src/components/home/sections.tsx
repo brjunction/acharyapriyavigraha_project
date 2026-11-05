@@ -12,10 +12,10 @@ export function Kicker({ children, center }: { children: React.ReactNode; center
 export function Divider({ w = "w-1/2 max-w-md" }: { w?: string }) {
   return <div aria-hidden className={`mx-auto my-10 flex items-center gap-2 ${w}`}><span className="h-1 w-2.5 shrink-0 rounded-full bg-[#c2621d]" /><span className="h-px flex-1 bg-gradient-to-r from-[#c2621d]/60 via-[#c2621d]/25 to-[#c2621d]/60" /><span className="h-1 w-2.5 shrink-0 rounded-full bg-[#c2621d]" /></div>;
 }
-const PillSolid = ({ href, children }: { href: string; children: React.ReactNode }) => <Link href={href} className="inline-flex items-center gap-2 rounded-full bg-saffron px-6 py-3 text-[14px] font-medium text-white transition hover:opacity-90">{children}</Link>;
-const PillLine = ({ href, children }: { href: string; children: React.ReactNode }) => <Link href={href} className="inline-flex items-center gap-2 rounded-full border border-[#e6d6b8] px-6 py-3 text-[14px] text-ink transition hover:border-saffron hover:text-saffron">{children}</Link>;
+const PillSolid = ({ href, children }: { href: string; children: React.ReactNode }) => <Link href={href} className="inline-flex items-center gap-1.5 rounded-full bg-saffron px-4 py-2 text-[13px] sm:gap-2 sm:px-6 sm:py-3 sm:text-[14px] font-medium text-white transition hover:opacity-90">{children}</Link>;
+const PillLine = ({ href, children }: { href: string; children: React.ReactNode }) => <Link href={href} className="inline-flex items-center gap-1.5 rounded-full border border-[#e6d6b8] px-4 py-2 text-[13px] sm:gap-2 sm:px-6 sm:py-3 sm:text-[14px] text-ink transition hover:border-saffron hover:text-saffron">{children}</Link>;
 const Dots = ({ items }: { items: [string, string][] }) => (
-  <ul className="grid gap-x-8 gap-y-4 sm:grid-cols-2">{items.map(([t, d]) => <li key={t} className="relative pl-4"><span className="absolute left-0 top-[7px] size-1.5 rounded-full bg-[#c2621d]" /><p className="text-[14.5px] font-medium text-ink">{t}</p><p className="text-[13.5px] leading-snug text-ink-2">{d}</p></li>)}</ul>
+  <ul className="grid grid-cols-2 gap-x-4 gap-y-3 sm:gap-x-8 sm:gap-y-4">{items.map(([t, d]) => <li key={t} className="relative pl-4"><span className="absolute left-0 top-[7px] size-1.5 rounded-full bg-[#c2621d]" /><p className="text-[14.5px] font-medium text-ink">{t}</p><p className="text-[13.5px] leading-snug text-ink-2">{d}</p></li>)}</ul>
 );
 const BAND = "border-y border-[#efe4cf] bg-[#fbf7ef]";
 
@@ -60,7 +60,7 @@ const FOUNDER_STEPS: [string, string, string][] = [
 export function FounderNew() {
   return (
     <section className="reveal">
-      <div className="mx-auto grid max-w-6xl gap-12 px-5 py-12 sm:py-20 lg:grid-cols-[0.85fr_1.15fr]">
+      <div className="mx-auto grid max-w-6xl gap-8 px-5 py-10 sm:gap-12 sm:py-20 lg:grid-cols-[0.85fr_1.15fr]">
         <div className="lg:sticky lg:top-24 lg:self-start">
           <Kicker>The founder</Kicker>
           <h2 className="mb-6 text-[22px] font-semibold leading-tight tracking-[-0.02em] text-ink sm:text-[32px]">How Taptajīvanam began</h2>
@@ -78,13 +78,13 @@ export function FounderNew() {
           <Link href="/about/founder" className="mt-5 inline-flex items-center gap-1 text-[13.5px] font-medium text-saffron">Read his biography <ArrowRight size={14} /></Link>
         </div>
         <ol className="relative">
-          <span aria-hidden className="absolute bottom-6 left-[27px] top-6 w-px bg-gradient-to-b from-[#e8c766] via-[#c2621d]/60 to-[#e8c766]" />
+          <span aria-hidden className="absolute bottom-6 left-[21.5px] top-6 w-px sm:left-[27px] bg-gradient-to-b from-[#e8c766] via-[#c2621d]/60 to-[#e8c766]" />
           {FOUNDER_STEPS.map(([y, t, d], i) => (
-            <li key={y} className="relative flex gap-5 pb-5 last:pb-0">
-              <span className={`relative z-10 flex size-14 shrink-0 items-center justify-center rounded-full border text-[12px] font-semibold tabular-nums ${i === 3 ? "border-transparent bg-saffron text-white shadow-[0_8px_20px_-8px_rgba(133,53,0,0.7)]" : "border-[#eadcc0] bg-white text-saffron"}`}>{y}</span>
-              <div className={`flex-1 rounded-2xl border p-5 transition hover:border-saffron/50 ${i === 3 ? "border-[#e8c766] bg-[#fdf6e4]" : "border-[#efe4cf] bg-white"}`}>
-                <p className="text-[15.5px] font-semibold text-ink">{t}</p>
-                <p className="mt-1.5 text-[13.5px] leading-relaxed text-ink-2">{d}</p>
+            <li key={y} className="relative flex gap-3 pb-4 last:pb-0 sm:gap-5 sm:pb-5">
+              <span className={`relative z-10 flex size-11 shrink-0 items-center justify-center rounded-full border text-[11px] sm:size-14 sm:text-[12px] font-semibold tabular-nums ${i === 3 ? "border-transparent bg-saffron text-white shadow-[0_8px_20px_-8px_rgba(133,53,0,0.7)]" : "border-[#eadcc0] bg-white text-saffron"}`}>{y}</span>
+              <div className={`flex-1 rounded-2xl border p-3.5 transition sm:p-5 hover:border-saffron/50 ${i === 3 ? "border-[#e8c766] bg-[#fdf6e4]" : "border-[#efe4cf] bg-white"}`}>
+                <p className="text-[14px] font-semibold text-ink sm:text-[15.5px]">{t}</p>
+                <p className="mt-1 text-[12.5px] leading-relaxed text-ink-2 sm:mt-1.5 sm:text-[13.5px]">{d}</p>
               </div>
             </li>))}
         </ol>
@@ -109,13 +109,13 @@ export type HomeLecture = { slug: string; title: string; date: string | null; pl
 export function ListenSection({ lectures, counts }: { lectures: HomeLecture[]; counts: { lectures: number; kirtans: number; videos: number; transcripts: number } }) {
   return (
     <section className={`reveal ${BAND}`}>
-      <div className="mx-auto grid max-w-6xl items-center gap-12 px-5 py-12 sm:py-20 lg:grid-cols-[1fr_1.1fr]">
+      <div className="mx-auto grid max-w-6xl items-center gap-8 px-5 py-10 sm:gap-12 sm:py-20 lg:grid-cols-[1fr_1.1fr]">
         <div>
           <Kicker>Hari-kathā in his own voice</Kicker>
           <h2 className="mb-4 text-[22px] font-semibold leading-tight tracking-[-0.02em] text-ink sm:text-[32px]">Listen, watch, and read along</h2>
           <p className="mb-8 text-[14px] leading-relaxed text-ink-2 sm:text-[15px]">Lectures, darśanas and kīrtanas from 1985 to 1996, sorted by year, place, scripture and type — many with a full transcription you can follow as he speaks.</p>
           <Dots items={[["By year and place", "Bhubaneswar, Vṛndāvana, Māyāpur and around the world"], ["By scripture", "Bhāgavatam, Gītā, Caitanya-caritāmṛta — verse by verse"], ["Read along", `${counts.transcripts.toLocaleString()} transcriptions, searchable`], ["Keep listening", "A player that stays with you across the site"]]} />
-          <div className="mt-8 flex flex-wrap gap-3"><PillSolid href="/teachings/audio">Audio lectures <ArrowRight size={16} /></PillSolid><PillLine href="/teachings/kirtans">Kīrtanas</PillLine><PillLine href="/teachings/videos">Videos</PillLine></div>
+          <div className="mt-6 flex flex-wrap gap-2 sm:mt-8 sm:gap-3"><PillSolid href="/teachings/audio">Audio lectures <ArrowRight size={16} /></PillSolid><PillLine href="/teachings/kirtans">Kīrtanas</PillLine><PillLine href="/teachings/videos">Videos</PillLine></div>
         </div>
         <div className="rounded-2xl border border-[#eadcc0] bg-white p-2 shadow-[0_20px_50px_-30px_rgba(120,60,10,0.35)]">
           <div className="flex items-center justify-between px-4 pb-2 pt-3"><p className="text-[12.5px] font-medium text-saffron">Recently added</p><div className="flex gap-3 text-[11.5px] text-ink-3"><span className="flex items-center gap-1"><Headphones size={13} />{counts.lectures.toLocaleString()}</span><span className="flex items-center gap-1"><Music2 size={13} />{counts.kirtans.toLocaleString()}</span><span className="flex items-center gap-1"><Video size={13} />{counts.videos.toLocaleString()}</span></div></div>
@@ -139,7 +139,7 @@ export type HomeBook = { slug: string; title: string; cover_url: string | null; 
 export function ReadSection({ books, total }: { books: HomeBook[]; total: number }) {
   return (
     <section className="reveal relative overflow-hidden">
-      <div className="mx-auto grid max-w-6xl items-center gap-12 px-5 py-12 sm:py-20 lg:grid-cols-[1.1fr_1fr]">
+      <div className="mx-auto grid max-w-6xl items-center gap-8 px-5 py-10 sm:gap-12 sm:py-20 lg:grid-cols-[1.1fr_1fr]">
         <div className="order-2 rounded-3xl border border-[#efe4cf] bg-[#fbf7ef] p-6 shadow-[0_20px_50px_-30px_rgba(120,60,10,0.3)] lg:order-1">
           <p className="mb-4 text-center text-[11.5px] font-semibold uppercase tracking-[0.25em] text-ink-3">On the shelf</p>
           <div className="grid grid-cols-3 gap-4 sm:grid-cols-4">{books.slice(0, 8).map((b) => (
@@ -157,8 +157,8 @@ export function ReadSection({ books, total }: { books: HomeBook[]; total: number
           <Kicker>Books</Kicker>
           <h2 className="mb-4 text-[22px] font-semibold leading-tight tracking-[-0.02em] text-ink sm:text-[32px]">Read his books, the way you like to read</h2>
           <p className="mb-8 text-[14px] leading-relaxed text-ink-2 sm:text-[15px]">{total ? `${total} ${total === 1 ? "book" : "books"}` : "Books"} to read right here, chapter by chapter — and the same book in other languages as translations are added.</p>
-          <ul className="grid gap-x-8 gap-y-4 sm:grid-cols-2">{([[BookOpen, "Four readers", "Classic, Focus, Pages, or two languages side by side"], [Languages, "Every translation", "Switch language in the middle of a chapter"], [Search, "Find in a book", "Any word, in any chapter, in a moment"], [Keyboard, "Made for reading", "Night colours, font size, shortcuts, bookmarks"]] as [LucideIcon, string, string][]).map(([I, t, d]) => <li key={t} className="flex gap-3"><span className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-full bg-[#fbf0d2] text-[#8a5a00]"><I size={15} /></span><span><span className="block text-[14.5px] font-medium text-ink">{t}</span><span className="block text-[13.5px] leading-snug text-ink-2">{d}</span></span></li>)}</ul>
-          <div className="mt-8 flex flex-wrap gap-3"><PillSolid href="/teachings/books">Open the library <ArrowRight size={16} /></PillSolid><PillLine href="/gurudeva/who-is-srila-gurudeva">Books about him</PillLine></div>
+          <ul className="grid grid-cols-2 gap-x-4 gap-y-3 sm:gap-x-8 sm:gap-y-4">{([[BookOpen, "Four readers", "Classic, Focus, Pages, or two languages side by side"], [Languages, "Every translation", "Switch language in the middle of a chapter"], [Search, "Find in a book", "Any word, in any chapter, in a moment"], [Keyboard, "Made for reading", "Night colours, font size, shortcuts, bookmarks"]] as [LucideIcon, string, string][]).map(([I, t, d]) => <li key={t} className="flex gap-3"><span className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-full bg-[#fbf0d2] text-[#8a5a00]"><I size={15} /></span><span><span className="block text-[14.5px] font-medium text-ink">{t}</span><span className="block text-[13.5px] leading-snug text-ink-2">{d}</span></span></li>)}</ul>
+          <div className="mt-6 flex flex-wrap gap-2 sm:mt-8 sm:gap-3"><PillSolid href="/teachings/books">Open the library <ArrowRight size={16} /></PillSolid><PillLine href="/gurudeva/who-is-srila-gurudeva">Books about him</PillLine></div>
         </div>
       </div>
     </section>
@@ -169,13 +169,13 @@ export function ReadSection({ books, total }: { books: HomeBook[]; total: number
 export function TattvaSection({ topics, quotes }: { topics: { name: string; slug: string; total: number }[]; quotes: number }) {
   return (
     <section className={`reveal ${BAND}`}>
-      <div className="mx-auto grid max-w-6xl items-center gap-12 px-5 py-12 sm:py-20 lg:grid-cols-[1fr_1fr]">
+      <div className="mx-auto grid max-w-6xl items-center gap-8 px-5 py-10 sm:gap-12 sm:py-20 lg:grid-cols-[1fr_1fr]">
         <div>
           <Kicker>Tattva</Kicker>
           <h2 className="mb-4 text-[22px] font-semibold leading-tight tracking-[-0.02em] text-ink sm:text-[32px]">Follow one subject through everything he said</h2>
           <p className="mb-8 text-[14px] leading-relaxed text-ink-2 sm:text-[15px]">Open a topic — Guru-tattva, the Holy Name, separation — and find his quotes, lectures, videos and articles on it together, each with its exact source.</p>
-          <div className="grid gap-3 sm:grid-cols-2">{([[Network, "Topics A–Z", "Every tattva in one collapsible list", "/tattva"], [Quote, "Quotes", quotes ? `${quotes.toLocaleString()} quotes, by topic and letter` : "By topic and letter", "/teachings/quotes"], [FileText, "Instructions & desires", "His guidance, in his own words", "/teachings/instructions"], [Search, "Search everything", "A word, a verse, a place or a year", "/search"]] as [LucideIcon, string, string, string][]).map(([I, t, d, h]) => (
-            <Link key={t} href={h} className="group rounded-2xl border border-[#eadcc0] bg-white p-4 transition hover:border-saffron"><span className="mb-3 flex size-9 items-center justify-center rounded-full border border-[#eadcc0] text-saffron"><I size={16} /></span><span className="block text-[14.5px] font-medium text-ink group-hover:text-saffron">{t}</span><span className="mt-0.5 block text-[12.5px] leading-snug text-ink-2">{d}</span></Link>))}</div>
+          <div className="grid grid-cols-2 gap-2.5 sm:gap-3">{([[Network, "Topics A–Z", "Every tattva in one collapsible list", "/tattva"], [Quote, "Quotes", quotes ? `${quotes.toLocaleString()} quotes, by topic and letter` : "By topic and letter", "/teachings/quotes"], [FileText, "Instructions & desires", "His guidance, in his own words", "/teachings/instructions"], [Search, "Search everything", "A word, a verse, a place or a year", "/search"]] as [LucideIcon, string, string, string][]).map(([I, t, d, h]) => (
+            <Link key={t} href={h} className="group rounded-2xl border border-[#eadcc0] bg-white p-3 transition hover:border-saffron sm:p-4"><span className="mb-2 flex size-8 sm:mb-3 sm:size-9 items-center justify-center rounded-full border border-[#eadcc0] text-saffron"><I size={16} /></span><span className="block text-[13.5px] font-medium text-ink group-hover:text-saffron sm:text-[14.5px]">{t}</span><span className="mt-0.5 block text-[11.5px] sm:text-[12.5px] leading-snug text-ink-2">{d}</span></Link>))}</div>
         </div>
         <div className="rounded-3xl border border-[#eadcc0] bg-white p-6 shadow-[0_20px_50px_-30px_rgba(120,60,10,0.3)]">
           <p className="mb-4 text-[12.5px] font-medium text-saffron">Open a topic</p>
@@ -192,7 +192,7 @@ export function GurudevaSection() {
   const links: [string, LucideIcon, string][] = [["/gurudeva/who-is-srila-gurudeva", HandHeart, "Who is Śrīla Gurudeva"], ["/gurudeva/timeline", History, "Life timeline"], ["/gurudeva/diaries", NotebookPen, "His diary to Śrī Gopāl Jiu"], ["/gurudeva/memories", HeartHandshake, "Memories & pastimes"], ["/gurudeva/glorifications", Gift, "Glorifications"], ["/gurudeva/letters", Mail, "Letters"], ["/gurudeva/gallery", ImageIcon, "Gallery"], ["/gurudeva/places-of-remembrance", MapPin, "Places of remembrance"]];
   return (
     <section className="reveal">
-      <div className="mx-auto grid max-w-6xl items-center gap-12 px-5 py-12 sm:py-20 lg:grid-cols-[0.9fr_1.1fr]">
+      <div className="mx-auto grid max-w-6xl items-center gap-8 px-5 py-10 sm:gap-12 sm:py-20 lg:grid-cols-[0.9fr_1.1fr]">
         <div className="relative mx-auto w-full max-w-[460px] pb-10 pl-6 pr-10">
           <div aria-hidden className="absolute -left-2 top-8 size-40 rounded-full bg-[#fbf0d2] blur-2xl" />
           <div className="relative rounded-[1.4rem] p-[6px] shadow-[0_30px_60px_-25px_rgba(90,30,0,0.55)]" style={{ background: "linear-gradient(135deg, #e8c766 0%, #c2621d 45%, #8a1c0f 100%)" }}>
@@ -206,7 +206,7 @@ export function GurudevaSection() {
           <Kicker>Śrīla Gurudeva</Kicker>
           <h2 className="mb-4 text-[22px] font-semibold leading-tight tracking-[-0.02em] text-ink sm:text-[32px]">A dear disciple of Śrīla Prabhupāda</h2>
           <p className="mb-8 text-[14px] leading-relaxed text-ink-2 sm:text-[15px]">Born in a family devoted to Śrī Gopāl Jiu, he carried his Guru’s mission across Odisha and the world. Here his life is remembered — by those who knew him, in his own diary, and in photographs.</p>
-          <div className="grid gap-2 sm:grid-cols-2">{links.map(([h, I, l]) => <Link key={h} href={h} className="group flex items-center gap-3 rounded-xl border border-[#efe4cf] px-3.5 py-2.5 transition hover:border-saffron hover:bg-[#fbf7ef]"><I size={16} className="shrink-0 text-saffron" /><span className="flex-1 text-[13.5px] text-ink">{l}</span><ArrowRight size={14} className="text-ink-3 transition group-hover:translate-x-0.5 group-hover:text-saffron" /></Link>)}</div>
+          <div className="grid grid-cols-2 gap-2">{links.map(([h, I, l]) => <Link key={h} href={h} className="group flex items-center gap-3 rounded-xl border border-[#efe4cf] px-3.5 py-2.5 transition hover:border-saffron hover:bg-[#fbf7ef]"><I size={16} className="shrink-0 text-saffron" /><span className="flex-1 text-[13.5px] text-ink">{l}</span><ArrowRight size={14} className="text-ink-3 transition group-hover:translate-x-0.5 group-hover:text-saffron" /></Link>)}</div>
         </div>
       </div>
     </section>
@@ -228,13 +228,13 @@ export function EverythingSection() {
   ];
   return (
     <section className={`reveal ${BAND}`}>
-      <div className="mx-auto max-w-6xl px-5 py-12 sm:py-20">
+      <div className="mx-auto max-w-6xl px-5 py-10 sm:py-20">
         <Kicker center>On this website</Kicker>
         <h2 className="mb-10 text-center text-[20px] font-semibold tracking-[-0.015em] text-ink sm:text-[32px]">Everything, in one place</h2>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{all.map(([h, I, t, d]) => (
-          <Link key={h} href={h} className="group flex gap-4 rounded-2xl border border-[#eadcc0] bg-white p-5 transition hover:border-saffron hover:shadow-[0_14px_30px_-20px_rgba(120,60,10,0.4)]">
-            <span className="flex size-11 shrink-0 items-center justify-center rounded-full border border-[#eadcc0] bg-[#fbf7ef] text-saffron"><I size={18} /></span>
-            <span><span className="block text-[15px] font-medium text-ink group-hover:text-saffron">{t}</span><span className="mt-1 block text-[13px] leading-snug text-ink-2">{d}</span></span>
+        <div className="grid grid-cols-2 gap-2.5 sm:gap-4 lg:grid-cols-3">{all.map(([h, I, t, d]) => (
+          <Link key={h} href={h} className="group flex flex-col gap-2.5 rounded-2xl border border-[#eadcc0] bg-white p-3.5 transition sm:flex-row sm:gap-4 sm:p-5 hover:border-saffron hover:shadow-[0_14px_30px_-20px_rgba(120,60,10,0.4)]">
+            <span className="flex size-9 shrink-0 items-center justify-center rounded-full border border-[#eadcc0] bg-[#fbf7ef] text-saffron sm:size-11"><I size={17} /></span>
+            <span><span className="block text-[13.5px] font-medium text-ink group-hover:text-saffron sm:text-[15px]">{t}</span><span className="mt-0.5 line-clamp-2 block text-[11.5px] leading-snug text-ink-2 sm:mt-1 sm:text-[13px]">{d}</span></span>
           </Link>))}</div>
       </div>
     </section>
@@ -247,13 +247,13 @@ export function WebFolioSection() {
   return (
     <section className="reveal relative isolate overflow-hidden bg-[#2a1206] text-white">
       <Backdrop src="maroon-mandala" o={0.25} />
-      <div className="relative mx-auto grid max-w-6xl items-center gap-12 px-5 py-12 sm:py-20 lg:grid-cols-[1fr_1.15fr]">
+      <div className="relative mx-auto grid max-w-6xl items-center gap-8 px-5 py-10 sm:gap-12 sm:py-20 lg:grid-cols-[1fr_1.15fr]">
         <div>
           <p className="mb-3 text-[11.5px] font-medium uppercase tracking-[0.3em] text-[#f3d9a4]">WebFolio</p>
           <h2 className="mb-4 text-[22px] font-semibold leading-tight tracking-[-0.02em] text-white sm:text-[36px]">The whole archive, as one book you can carry</h2>
           <p className="mb-8 text-[15px] leading-relaxed text-white/75">Every lecture, transcription, book, compilation and page — arranged like documentation, searchable in an instant, and yours to keep offline.</p>
-          <ul className="grid gap-x-8 gap-y-4 sm:grid-cols-2">{([[Search, "Search everything", "Ctrl K — any word, without diacritics"], [WifiOff, "Works offline", "Save it once, read anywhere"], [MonitorDown, "Install as an app", "On Windows, Mac, Android or iPhone"], [Download, "Download audio", "Lectures to keep with the pages"]] as [LucideIcon, string, string][]).map(([I, t, d]) => <li key={t} className="flex gap-3"><span className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-full bg-white/10 text-[#f3d9a4] ring-1 ring-white/15"><I size={15} /></span><span><span className="block text-[14.5px] font-medium text-white">{t}</span><span className="block text-[13px] leading-snug text-white/65">{d}</span></span></li>)}</ul>
-          <div className="mt-8 flex flex-wrap gap-3"><Link href="/webfolio" className="inline-flex items-center gap-2 rounded-full bg-[#e8c766] px-6 py-3 text-[14px] font-medium text-[#2a1206] transition hover:brightness-105">Open WebFolio <ArrowRight size={16} /></Link><Link href="/webfolio/download" className="inline-flex items-center gap-2 rounded-full border border-white/25 px-6 py-3 text-[14px] text-white transition hover:border-[#e8c766]">Download for offline</Link></div>
+          <ul className="grid grid-cols-2 gap-x-4 gap-y-3 sm:gap-x-8 sm:gap-y-4">{([[Search, "Search everything", "Ctrl K — any word, without diacritics"], [WifiOff, "Works offline", "Save it once, read anywhere"], [MonitorDown, "Install as an app", "On Windows, Mac, Android or iPhone"], [Download, "Download audio", "Lectures to keep with the pages"]] as [LucideIcon, string, string][]).map(([I, t, d]) => <li key={t} className="flex gap-3"><span className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-full bg-white/10 text-[#f3d9a4] ring-1 ring-white/15"><I size={15} /></span><span><span className="block text-[14.5px] font-medium text-white">{t}</span><span className="block text-[13px] leading-snug text-white/65">{d}</span></span></li>)}</ul>
+          <div className="mt-6 flex flex-wrap gap-2 sm:mt-8 sm:gap-3"><Link href="/webfolio" className="inline-flex items-center gap-2 rounded-full bg-[#e8c766] px-6 py-3 text-[14px] font-medium text-[#2a1206] transition hover:brightness-105">Open WebFolio <ArrowRight size={16} /></Link><Link href="/webfolio/download" className="inline-flex items-center gap-2 rounded-full border border-white/25 px-6 py-3 text-[14px] text-white transition hover:border-[#e8c766]">Download for offline</Link></div>
         </div>
         <div className="overflow-hidden rounded-2xl border border-white/15 bg-white text-ink shadow-[0_40px_80px_-30px_rgba(0,0,0,0.7)]">
           <div className="flex items-center gap-2 border-b border-line bg-[#fafafa] px-4 py-2.5"><span className="size-2.5 rounded-full bg-[#ff5f57]" /><span className="size-2.5 rounded-full bg-[#febc2e]" /><span className="size-2.5 rounded-full bg-[#28c840]" /><span className="ml-3 flex-1 rounded-md border border-line bg-white px-3 py-1 text-[11.5px] text-ink-3">taptajivanam.com/webfolio</span></div>
@@ -284,7 +284,7 @@ export function ThanksSection() {
           <span className="inline-flex items-center gap-2 rounded-full border border-line bg-white px-3 py-1 text-[12px] font-medium text-ink-2 shadow-sm"><HeartHandshake size={14} className="text-[#b3261e]" /> With gratitude</span>
           <h2 className="mt-5 text-[30px] font-semibold leading-[1.1] tracking-[-0.03em] text-ink sm:text-[44px]">Our Thank List</h2>
           <p className="mt-4 max-w-md text-[15px] leading-relaxed text-ink-2 sm:text-[16px]">This archive is built by the efforts of the disciples, grand-disciples, followers and admirers of Śrī Śrīmad Gour Govinda Swāmī Gurudeva, in many countries.</p>
-          <div className="mt-8 flex flex-wrap gap-3">
+          <div className="mt-6 flex flex-wrap gap-2 sm:mt-8 sm:gap-3">
             <Link href="/thank-list" className="group inline-flex h-11 items-center gap-2 rounded-full bg-[#1a73e8] px-6 text-[14px] font-semibold text-white shadow-[0_6px_16px_-6px_rgba(26,115,232,.6)] transition hover:-translate-y-0.5 hover:bg-[#1765cc]">Read the Thank List <ArrowRight size={16} className="transition group-hover:translate-x-0.5" /></Link>
             <Link href="/about/contact" className="inline-flex h-11 items-center gap-2 rounded-full border border-line-strong bg-white px-6 text-[14px] font-semibold text-ink transition hover:-translate-y-0.5 hover:border-ink">Offer your service</Link>
           </div>

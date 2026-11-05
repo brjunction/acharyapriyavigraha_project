@@ -1,4 +1,5 @@
 "use client";
+import { isProtected } from "@/lib/protected";
 import { BLESSINGS } from "@/components/home/blessing";
 import { useEffect, useRef, useState } from "react";
 import { Upload, Trash2, Plus, Copy } from "lucide-react";
@@ -68,9 +69,9 @@ export function UsersAdmin() {
       <Head t="People & roles" s="Choose who can write, publish or manage."><Btn kind="primary" onClick={() => setNw({ name: "", email: "", password: "", role: "editor" })}><Plus size={16} />Add a person</Btn></Head>
       <div className="card divide-y divide-line">{!rows ? <p className="p-5 text-ink-3">Loading…</p> : rows.map((u) => (
         <div key={u.id} className="flex flex-wrap items-center gap-3 px-4 py-3"><div className="min-w-0 flex-1"><b>{u.name || u.email}</b><span className="block text-[12.5px] text-ink-3">{u.email}</span></div>
-          <Select className="!w-56" value={u.role} onChange={(e) => patch(u.id, { role: e.target.value })}>{ROLES.map(([v, l]) => <option key={v} value={v}>{l}</option>)}</Select>
+          {isProtected(u.email) ? <span className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-[#e8f0fe] px-3 text-[12.5px] font-semibold text-[#1765cc]">Developer · everything, always</span> : <Select className="!w-56" value={u.role} onChange={(e) => patch(u.id, { role: e.target.value })}>{ROLES.map(([v, l]) => <option key={v} value={v}>{l}</option>)}</Select>}
           <Btn onClick={() => { const p = prompt("New password (at least 8 characters):"); if (p) patch(u.id, { password: p }); }}>Reset password</Btn>
-          <Btn kind={u.active ? "danger" : "soft"} onClick={() => patch(u.id, { active: !u.active })}>{u.active ? "Turn off" : "Turn on"}</Btn></div>))}</div>
+          {!isProtected(u.email) && <Btn kind={u.active ? "danger" : "soft"} onClick={() => patch(u.id, { active: !u.active })}>{u.active ? "Turn off" : "Turn on"}</Btn>}</div>))}</div>
       {nw && <Modal title="Add a person" onClose={() => setNw(null)}><div className="space-y-3.5">
         <Field label="Name"><Input value={nw.name} onChange={(e) => setNw({ ...nw, name: e.target.value })} /></Field>
         <Field label="Email"><Input type="email" value={nw.email} onChange={(e) => setNw({ ...nw, email: e.target.value })} /></Field>

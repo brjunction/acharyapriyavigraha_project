@@ -67,17 +67,17 @@ export function Hero() {
       {[8, 22, 36, 61, 74, 90].map((x, i) => (
         <div key={x} className="pointer-events-none absolute bottom-24" style={{ left: `${x}%` }}><div className="hero-petal" style={{ animationDelay: `${i * 1.5}s` }}><Padma className="h-5 w-5 text-[#ffd48a]" layers={2} /></div></div>
       ))}
-      <div className="relative mx-auto grid max-w-[1240px] grid-cols-[minmax(0,1fr)] items-center gap-6 px-5 pb-12 pt-14 sm:gap-10 sm:px-8 sm:pb-24 sm:pt-24 lg:min-h-[740px] lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:py-28">
+      <div className="relative mx-auto grid max-w-[1240px] grid-cols-[minmax(0,1fr)] content-center items-center gap-5 px-5 py-8 max-lg:min-h-[calc(100svh-132px)] sm:gap-9 sm:px-10 sm:py-12 lg:min-h-[740px] lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:py-28">
         <div className="rise order-2 text-center lg:order-1 lg:text-left">
-          <span className="hero-pill inline-flex items-center gap-2 rounded-full border border-[#f3b363]/70 bg-[#f3b363]/20 py-1 pl-3 pr-3 text-[11px] font-semibold text-[#fff1da] sm:py-1.5 sm:pl-4 sm:pr-4 sm:text-[12px] backdrop-blur">
+          <span className="hero-pill inline-flex max-w-[330px] items-center gap-2 rounded-full border border-[#f3b363]/70 bg-[#f3b363]/20 py-1 pl-3 pr-3 text-[10.5px] leading-snug sm:max-w-none font-semibold text-[#fff1da] sm:py-1.5 sm:pl-4 sm:pr-4 sm:text-[12px] backdrop-blur">
             The Complete Life and Teachings of Śrī Śrīmad Gour Govinda Swāmī Gurudeva
           </span>
-          <h1 className="mt-4 text-[21px] font-bold leading-[1.15] tracking-[-0.03em] text-[#fff1da] sm:mt-6 sm:text-[29.5px] lg:text-[38.5px]">
+          <h1 className="mt-4 text-[23px] font-bold leading-[1.15] tracking-[-0.03em] text-[#fff1da] sm:mt-5 sm:text-[32px] lg:mt-6 lg:text-[38.5px]">
             {["Words", "that", "give", "life"].map((w, i) => <span key={w} className="hero-word mr-[0.28em]" style={{ animationDelay: `${0.15 + i * 0.12}s` }}>{w}</span>)}<br />
             {["to", "a"].map((w, i) => <span key={w} className="hero-word mr-[0.28em]" style={{ animationDelay: `${0.63 + i * 0.12}s` }}>{w}</span>)}<span className="hero-word hero-gold" style={{ animationDelay: "0.9s" }}>burning heart</span>
           </h1>
           <div className="hero-rule mx-auto mt-5 h-[3px] w-24 rounded-full bg-gradient-to-r from-[#ffc566] to-transparent lg:mx-0" />
-          <p className="mx-auto mt-3 max-w-xl text-[12.5px] leading-relaxed text-[#ffe9cc]/90 sm:mt-5 sm:text-[14.5px] lg:mx-0">
+          <p className="mx-auto mt-3 max-w-[34rem] text-[12.5px] leading-relaxed text-[#ffe9cc]/90 sm:mt-4 sm:text-[14.5px] lg:mx-0 lg:mt-5 lg:max-w-xl">
             Lectures, letters, books, quotes and photographs of Śrīla Gurudeva, gathered in one searchable home and growing in many languages. Listen, read, and find the exact words you were looking for.
           </p>
           <form onSubmit={(e) => { e.preventDefault(); if (q.trim()) r.push(`/search?q=${encodeURIComponent(q)}`); else setSearch(true); }}
@@ -95,7 +95,7 @@ export function Hero() {
         </div>
 
         {/* Portrait: a plain circular frame, no animation */}
-        <div className="relative order-1 mx-auto w-full max-w-[170px] sm:max-w-[300px] lg:order-2 lg:max-w-[340px]">
+        <div className="relative order-1 mx-auto w-full max-w-[min(190px,26svh)] sm:max-w-[min(280px,28svh)] lg:order-2 lg:max-w-[340px]">
           <div aria-hidden className="pointer-events-none absolute inset-[-42%]"><VMask name="mandala-saffron" className="hero-spin h-full w-full text-[#f3b363] opacity-[0.34]" /></div>
           <div className="relative"><PortraitFrame photo focus="center 30%" src="/photos/gurudeva-hero.webp" alt="Śrī Śrīmad Gour Govinda Swāmī Gurudeva" className="mx-auto w-full" /></div>
         </div>

@@ -1,4 +1,5 @@
 "use client";
+import { isProtected } from "@/lib/protected";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -82,7 +83,7 @@ export function Shell({ user, children }: { user: { name: string; email: string;
         </>}
       </div>
       <div className="border-t border-zinc-200 p-2">
-        <div className="flex items-center gap-2 rounded-md p-2"><span className="flex size-8 items-center justify-center rounded-lg bg-zinc-900 text-[11.5px] font-semibold text-white">{(user.name || user.email).slice(0, 2).toUpperCase()}</span><div className="min-w-0 flex-1 leading-tight"><p className="truncate text-[12.5px] font-medium">{user.name || "You"}</p><p className="truncate text-[11.5px] text-zinc-500">{user.email}</p></div>
+        <div className="flex items-center gap-2 rounded-md p-2"><span className="flex size-8 items-center justify-center rounded-lg bg-zinc-900 text-[11.5px] font-semibold text-white">{(user.name || user.email).slice(0, 2).toUpperCase()}</span><div className="min-w-0 flex-1 leading-tight"><p className="flex items-center gap-1.5 truncate text-[12.5px] font-medium">{user.name || "You"}{isProtected(user.email) && <span className="rounded-full bg-[#e8f0fe] px-1.5 py-px text-[10px] font-semibold text-[#1765cc]">Developer</span>}</p><p className="truncate text-[11.5px] text-zinc-500">{user.email}</p></div>
           <a href="/" target="_blank" title="View website" className="rounded-md p-1.5 text-zinc-500 hover:bg-zinc-200/60"><Globe className="size-4" /></a>
           <button title="Sign out" onClick={async () => { await api("/api/admin/auth", "POST", { action: "logout" }); window.location.href = "/admin/login"; }} className="rounded-md p-1.5 text-zinc-500 hover:bg-zinc-200/60"><LogOut className="size-4" /></button></div>
       </div>

@@ -290,8 +290,8 @@ export function Header() {
               )}
             </div>
             <button onClick={() => { document.documentElement.classList.add("nav-hidden"); try { localStorage.setItem("tj_nav_hidden", "1"); } catch {} window.dispatchEvent(new Event("tj:nav")); }} aria-label="Hide the top bar" title="Hide the top bar"
-              className="flex h-8 w-8 items-center justify-center rounded-full border border-line bg-band/60 text-ink-2 transition hover:border-saffron hover:bg-white hover:text-saffron sm:h-9 sm:w-9"><ChevronUp size={16} /></button>
-            <button onClick={() => setMobile(true)} aria-label="Open menu" className="flex h-8 w-8 items-center justify-center rounded-full text-ink hover:bg-white/70 lg:hidden"><Menu size={21} /></button>
+              className="hidden h-8 w-8 items-center justify-center rounded-full border border-line bg-band/60 text-ink-2 transition hover:border-saffron hover:bg-white hover:text-saffron sm:flex sm:h-9 sm:w-9"><ChevronUp size={16} /></button>
+            <button onClick={() => setMobile(true)} aria-label="Open menu" className="-mr-0.5 flex h-8 w-8 items-center justify-center rounded-full bg-ink text-white transition hover:bg-ink/85 sm:h-9 sm:w-9 lg:hidden"><Menu size={17} /></button>
           </div>
         </div>
       </div>

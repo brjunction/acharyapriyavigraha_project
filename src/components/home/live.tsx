@@ -9,7 +9,7 @@ export function LiveNumbers({ items }: { items: { n: number; label: string; sub:
   const ref = useRef<HTMLDivElement>(null); const [on, setOn] = useState(false);
   useEffect(() => { const el = ref.current; if (!el) return; const io = new IntersectionObserver(([e]) => { if (e.isIntersecting) { setOn(true); io.disconnect(); } }, { threshold: 0.3 }); io.observe(el); return () => io.disconnect(); }, []);
   return (
-    <div ref={ref} className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+    <div ref={ref} className="grid grid-cols-3 gap-2 sm:gap-3 lg:grid-cols-6">
       {items.map((x) => <Num key={x.label} {...x} on={on} />)}
     </div>
   );
@@ -18,10 +18,10 @@ function Num({ n, label, sub, on }: { n: number; label: string; sub: string; on:
   const [v, setV] = useState(0);
   useEffect(() => { if (!on) return; const t0 = performance.now(); let raf = 0; const f = (t: number) => { const p = Math.min(1, (t - t0) / 1400); setV(Math.round(n * (1 - Math.pow(1 - p, 3)))); if (p < 1) raf = requestAnimationFrame(f); }; raf = requestAnimationFrame(f); return () => cancelAnimationFrame(raf); }, [on, n]);
   return (
-    <div className="rounded-2xl border border-[#eadcc0] bg-white px-4 py-5 text-center">
-      <p className="text-[24px] font-semibold leading-none tracking-[-0.02em] tabular-nums text-ink sm:text-[32px]">{v.toLocaleString()}</p>
-      <p className="mt-2 text-[13.5px] font-medium text-saffron">{label}</p>
-      <p className="mt-0.5 text-[12px] leading-snug text-ink-3">{sub}</p>
+    <div className="rounded-2xl border border-[#eadcc0] bg-white px-2 py-3.5 text-center sm:px-4 sm:py-5">
+      <p className="text-[20px] font-semibold leading-none tracking-[-0.02em] tabular-nums text-ink sm:text-[32px]">{v.toLocaleString()}</p>
+      <p className="mt-1.5 text-[12px] font-medium text-saffron sm:mt-2 sm:text-[13.5px]">{label}</p>
+      <p className="mt-0.5 text-[10.5px] leading-snug text-ink-3 sm:text-[12px]">{sub}</p>
     </div>
   );
 }
