@@ -501,3 +501,22 @@ html[data-motion="reduce"] .bless-word, html[data-motion="reduce"] .bless-rise, 
 @keyframes gi-rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
 .gi-rise { animation: gi-rise .5s cubic-bezier(.2,.7,.2,1); }
 @media (prefers-reduced-motion: reduce) { .gi-rise { animation: none; } }
+@keyframes gi-progress { from { width: 0; } to { width: 100%; } }
+.gi-rise { animation: gi-rise .5s cubic-bezier(.2,.7,.2,1); }
+@keyframes gi-progress { from { width: 0; } to { width: 100%; } }
+/* Śrīla Gurudeva’s mission and quotes: reveal on scroll, the signature written out, a soft glow and floating portrait */
+.gi-band .gi-in { opacity: 0; transform: translateY(22px); transition: opacity .9s cubic-bezier(.2,.7,.2,1), transform .9s cubic-bezier(.2,.7,.2,1); transition-delay: var(--d, 0s); }
+.gi-band[data-in="on"] .gi-in { opacity: 1; transform: none; }
+.gi-band .gi-lotus { transform: translateY(10px) scale(.85); }
+.gi-band[data-in="on"] .gi-lotus { transform: none; }
+.gi-sign[data-draw] { clip-path: inset(0 100% 0 0); }
+.gi-sign[data-draw="on"] { animation: gi-write 2.2s cubic-bezier(.45,.05,.3,1) .4s forwards; }
+@keyframes gi-write { to { clip-path: inset(0 0 0 0); } }
+.gi-num::after { content: ""; position: absolute; inset: -5px; border-radius: 999px; border: 1px solid var(--ring); opacity: 0; }
+.gi-band[data-in="on"] .gi-num::after { animation: gi-ping 2.6s ease-out 1.2s infinite; }
+@keyframes gi-ping { 0% { transform: scale(.9); opacity: .7; } 80%, 100% { transform: scale(1.5); opacity: 0; } }
+@keyframes gi-glow { 0%, 100% { opacity: .75; transform: translateX(-50%) scale(1); } 50% { opacity: 1; transform: translateX(-50%) scale(1.08); } }
+.gi-glow { animation: gi-glow 9s ease-in-out infinite; }
+@keyframes gi-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+.gi-float { animation: gi-float 7s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) { .gi-band .gi-in { opacity: 1; transform: none; transition: none; } .gi-sign[data-draw] { clip-path: none; animation: none; } .gi-glow, .gi-float, .gi-num::after { animation: none !important; } }
