@@ -1,6 +1,7 @@
 /* The home page. Rendered by / and, with another design chosen, by /home-new?blessing=… */
 import { Hero } from "@/components/home-client";
 import { Blessing } from "@/components/home/blessing";
+import { ThreeThings, OnPrabhupada } from "@/components/gurudeva-instructions";
 import { Divider, FounderNew, NumbersSection, ListenSection, ReadSection, TattvaSection, GurudevaSection, EverythingSection, WebFolioSection, ThanksSection, type HomeLecture, type HomeBook } from "@/components/home/sections";
 import { sql, hasDb } from "@/lib/db";
 import { STATS } from "@/lib/data";
@@ -32,6 +33,8 @@ export async function HomePage({ blessing }: { blessing?: string }) {
       <Divider />
       <Blessing v={variant} />
       <FounderNew />
+      <ThreeThings />
+      <OnPrabhupada />
       <NumbersSection items={[
         { n: lectures, label: "Lectures", sub: "audio, 1985–1996" },
         { n: kirtans, label: "Kīrtanas", sub: "songs he sang" },
