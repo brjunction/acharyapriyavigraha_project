@@ -30,10 +30,10 @@ export async function HomePage({ blessing }: { blessing?: string }) {
   return (
     <>
       <Hero />
-      <ThreeThings />
       <Divider />
       <Blessing v={variant} />
       <FounderNew />
+      <ThreeThings />
       <NumbersSection items={[
         { n: lectures, label: "Lectures", sub: "audio, 1985–1996" },
         { n: kirtans, label: "Kīrtanas", sub: "songs he sang" },
@@ -43,11 +43,11 @@ export async function HomePage({ blessing }: { blessing?: string }) {
         { n: quotes || tps.length, label: quotes ? "Compilations" : "Topics", sub: quotes ? "quotes, verses, stories" : "in Tattva" },
       ]} />
       <ListenSection lectures={latest} counts={{ lectures, kirtans, videos, transcripts }} />
+      <OnPrabhupada />
       <ReadSection books={shelf} total={books} />
       <TattvaSection topics={topTopics} quotes={quotes} />
       <GurudevaSection />
       <EverythingSection />
-      <OnPrabhupada />
       <WebFolioSection />
 
       <ThanksSection />

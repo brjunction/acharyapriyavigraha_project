@@ -72,16 +72,12 @@ export function OnPrabhupada({ kicker = "Śrīla Gurudeva on Śrīla Prabhupāda
   const go = (k: number) => { setI((k + ON_PRABHUPADA.length) % ON_PRABHUPADA.length); setPaused(true); setTick((x) => x + 1); };
   const q = ON_PRABHUPADA[i]; const [ref, on] = useInView<HTMLElement>();
   return (
-    <section ref={ref} data-in={on ? "on" : "off"} className="gi-band relative isolate overflow-hidden bg-band py-16 sm:py-24" onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
-      <span aria-hidden className="pointer-events-none absolute -left-10 top-6 -z-10 select-none font-serif text-[260px] leading-none opacity-[0.06] sm:text-[420px]" style={{ color: accent }}>“</span>
-      <div aria-hidden className="pointer-events-none absolute -right-32 bottom-0 -z-10 size-[520px] rounded-full opacity-40" style={{ background: `radial-gradient(circle, color-mix(in srgb, ${accent} 25%, transparent), transparent 65%)` }} />
+    <section ref={ref} data-in={on ? "on" : "off"} className="gi-band relative isolate overflow-hidden bg-page py-16 sm:py-24" onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
       <div className="mx-auto max-w-[1180px] px-5 sm:px-8">
         <div className="grid items-center gap-8 lg:grid-cols-[300px_minmax(0,1fr)] lg:gap-14">
           <div style={{ ["--d" as any]: ".1s" }} className="gi-in relative mx-auto w-[170px] sm:w-[220px] lg:w-full">
-            <div aria-hidden className="absolute inset-x-[6%] bottom-0 top-[18%] rounded-[40%_40%_24px_24px]" style={{ background: `linear-gradient(180deg, color-mix(in srgb, ${accent} 22%, transparent), color-mix(in srgb, ${accent} 8%, transparent))` }} />
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={portrait} alt="Śrīla A.C. Bhaktivedanta Swami Prabhupāda" className="gi-float relative mx-auto block w-full object-contain object-bottom" loading="lazy" />
-            <p className="relative mt-3 text-center text-[12px] font-semibold uppercase tracking-[0.16em] text-ink-3">Śrīla Prabhupāda</p>
           </div>
           <div style={{ ["--d" as any]: ".25s" }} className="gi-in">
             <p className="text-[11px] font-semibold uppercase tracking-[0.22em] sm:text-[12px]" style={{ color: accent }}>{kicker}</p>
