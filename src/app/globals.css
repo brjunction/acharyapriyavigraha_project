@@ -576,5 +576,28 @@ html[data-motion="reduce"] .bless-word, html[data-motion="reduce"] .bless-rise, 
 .home-foot { background: #fbf0dd; }
 .home-foot > footer { margin-top: 0; }
 [data-theme="dark"] .home-foot { background: transparent; }
-.gi-shine-ink { background: linear-gradient(100deg, #2b1a10 0%, #2b1a10 40%, #c2621d 50%, #2b1a10 60%, #2b1a10 100%); background-size: 250% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; animation: gi-shine 7s ease-in-out 1.5s infinite; }
-@media (prefers-reduced-motion: reduce) { .gi-shine-ink { animation: none !important; color: #2b1a10; background: none; } }
+/* The opening sections (components/home/opening.tsx): things arrive once, slowly; lines draw themselves. */
+.op .op-up, .op .op-step { opacity: 0; transform: translateY(18px); transition: opacity 1s cubic-bezier(.2,.7,.2,1), transform 1s cubic-bezier(.2,.7,.2,1); }
+.op[data-on="1"] .op-up, .op[data-on="1"] .op-step { opacity: 1; transform: none; }
+.op .op-sheet { opacity: 0; transform: rotate(var(--t)) translateY(24px); transition: opacity 1s cubic-bezier(.2,.7,.2,1), transform .9s cubic-bezier(.2,.7,.2,1), box-shadow .5s; }
+.op[data-on="1"] .op-sheet { opacity: 1; transform: rotate(var(--t)); }
+.op[data-on="1"] .op-sheet:hover { transform: rotate(0deg) translateY(-6px); transition-delay: 0s !important; box-shadow: 0 34px 50px -26px rgba(90,40,5,.6); }
+.op .op-node { opacity: 0; scale: .2; transition: opacity .6s ease, scale .8s cubic-bezier(.3,1.6,.5,1); }
+.op[data-on="1"] .op-node { opacity: 1; scale: 1; }
+.op .op-draw { stroke-dasharray: 100; stroke-dashoffset: 100; transition: stroke-dashoffset 2.4s cubic-bezier(.6,.1,.2,1) .2s; }
+.op .op-draw-late { transition-delay: 1s; transition-duration: 1.2s; }
+.op .op-draw-slow { transition-duration: 3.4s; transition-delay: .4s; }
+.op[data-on="1"] .op-draw { stroke-dashoffset: 0; }
+.op .op-p1, .op .op-p2, .op .op-names { opacity: 0; transform: translateY(22px); transition: opacity 1.2s cubic-bezier(.2,.7,.2,1), transform 1.4s cubic-bezier(.2,.7,.2,1); }
+.op .op-p2 { transition-delay: .25s; } .op .op-names { transition-delay: .6s; }
+.op[data-on="1"] .op-p1, .op[data-on="1"] .op-p2, .op[data-on="1"] .op-names { opacity: 1; transform: none; }
+.op .op-vline { transform: scaleY(0); transition: transform 2.4s cubic-bezier(.6,.1,.2,1) .2s; }
+.op[data-on="1"] .op-vline { transform: none; }
+.op-light { animation: op-light 7s ease-in-out infinite alternate; }
+@keyframes op-light { from { opacity: .75; transform: scale(.96); } to { opacity: 1; transform: scale(1.04); } }
+.op-turn { animation: tv-turn 160s linear infinite; }
+.op-pulse { animation: op-pulse 2.8s ease-out infinite; }
+@keyframes op-pulse { from { transform: translate(-50%,-50%) scale(1); opacity: .8; } to { transform: translate(-50%,-50%) scale(2.6); opacity: 0; } }
+.op-fade { animation: op-fade .3s ease both; } .op-rise { animation: tv-rise .45s cubic-bezier(.2,.8,.2,1) both; }
+@keyframes op-fade { from { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .op .op-up, .op .op-step, .op .op-sheet, .op .op-node, .op .op-p1, .op .op-p2, .op .op-names, .op .op-vline { opacity: 1 !important; transform: none !important; scale: 1 !important; transition: none !important; } .op .op-draw { stroke-dashoffset: 0; transition: none; } .op-light, .op-turn, .op-pulse { animation: none; } }
