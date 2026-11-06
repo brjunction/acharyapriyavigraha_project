@@ -2,7 +2,10 @@
 /* Śrīla Gurudeva’s three instructions (New York, July 1994), and his words on Śrīla Prabhupāda.
    The words are exactly as published; only their presentation is designed here. */
 import { useEffect, useRef, useState } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import Link from "next/link";
+import { ChevronLeft, ChevronRight, ArrowRight } from "lucide-react";
+import { BlessingLetters } from "@/components/home/live";
+import { FOUNDER_STEPS } from "@/components/home/home-data";
 
 const THREE: { n: string; lead: string; bold: string; rest: string }[] = [
   { n: "1", lead: "One is that", bold: "I want to preach to the preachers.", rest: "It causes me so much pain to see the devotees falling down and going away." },
@@ -125,5 +128,94 @@ export function OnPrabhupada({ kicker = "Śrīla Gurudeva on Śrīla Prabhupāda
         </div>
       </div>
     </section>
+  );
+}
+
+/* The two light bands that open the home page, built the way the mission band is: an emblem, a kicker between fine lines,
+   a shining title, cards with a hairline of colour along the top, small lights rising, and a closing line with a rule above. */
+const LIGHT = { bg: "linear-gradient(180deg,#fffaf2 0%,#fbf0dd 100%)", accent: "#a8430a", glow: "#f3b363" };
+function LightBand({ children, on, bandRef, bg = LIGHT.bg }: { children: React.ReactNode; on: boolean; bandRef: React.Ref<HTMLElement>; bg?: string }) {
+  return (
+    <section ref={bandRef} data-in={on ? "on" : "off"} className="gi-band relative isolate overflow-hidden py-16 sm:py-24" style={{ background: bg, ["--gi-accent" as any]: LIGHT.accent }}>
+      <div aria-hidden className="gi-glow absolute left-1/2 top-[-30%] -z-10 size-[700px] -translate-x-1/2 rounded-full" style={{ background: `radial-gradient(circle, ${LIGHT.glow}40, transparent 62%)` }} />
+      <span aria-hidden className="gi-watermark pointer-events-none absolute left-1/2 top-[40%] -z-10 aspect-[544/322] w-[640px] max-w-none -translate-x-1/2 -translate-y-1/2 !opacity-[0.05] sm:w-[900px]" style={{ ...mask("/iskcon-lotus-mask.png"), color: LIGHT.accent }} />
+      <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">{SPARKS.map(([l, d, t, z], k) => <span key={k} className="gi-spark absolute bottom-[-10px] rounded-full" style={{ left: `${l}%`, width: z, height: z, background: LIGHT.glow, color: LIGHT.glow, animationDuration: `${t}s`, animationDelay: `${d}s` }} />)}</div>
+      <div aria-hidden className="absolute inset-x-0 top-0 -z-10 h-px" style={{ background: `linear-gradient(90deg, transparent, ${LIGHT.glow}, transparent)` }} />
+      <div className="mx-auto max-w-[1120px] px-5 sm:px-8">{children}</div>
+    </section>
+  );
+}
+const LKicker = ({ children, d }: { children: React.ReactNode; d: string }) => (
+  <p className="gi-in mt-5 flex items-center justify-center gap-3 text-[11px] font-semibold uppercase tracking-[0.22em] sm:text-[12px]" style={{ color: LIGHT.accent, ["--d" as any]: d }}><span className="h-px w-8 sm:w-14" style={{ background: `linear-gradient(90deg, transparent, ${LIGHT.accent})` }} />{children}<span className="h-px w-8 sm:w-14" style={{ background: `linear-gradient(90deg, ${LIGHT.accent}, transparent)` }} /></p>
+);
+const CARD = "gi-in group relative overflow-hidden rounded-3xl border border-[#efe2cb] bg-white/80 p-6 shadow-[0_30px_60px_-36px_rgba(120,60,10,.45)] backdrop-blur-sm transition duration-500 hover:-translate-y-1.5 hover:border-[#e8c79a] sm:p-7";
+const Hairline = () => <span aria-hidden className="absolute inset-x-6 top-0 h-px opacity-80" style={{ background: `linear-gradient(90deg, transparent, ${LIGHT.glow}, transparent)` }} />;
+
+/** “Kṛṣṇa sent him.” — Śrīla Prabhupāda and Śrīla Gurudeva as two portraits joined at the top, then Śrīla Prabhupāda’s two sentences as cards. */
+export function KrishnaSentBand() {
+  const [ref, on] = useInView<HTMLElement>();
+  const words: [string, string, string][] = [["“He’s a good boy. … Yes. Yes. He’s organizing nicely.”", "In the same conversation", "Room conversation · Bombay, 5 January 1977"], ["“Krishna is with you and there is no need of disappointment.”", "Śrīla Prabhupāda’s letter to Śrīla Gurudeva", "Māyāpur, 12 February 1976"]];
+  return (
+    <LightBand on={on} bandRef={ref}>
+      <div className="text-center">
+        <div className="gi-in gi-lotus mx-auto flex w-fit items-center">
+          {([["/legacy/prabhupada.webp", "Śrīla Prabhupāda", "object-[50%_10%]"], ["/legacy/gurudeva.webp", "Śrīla Gurudeva", "object-[50%_8%]"]] as const).map(([src, alt, pos], k) => (
+            <span key={src} className={`relative block size-[76px] overflow-hidden rounded-full bg-[#fbf0dd] ring-[3px] ring-white shadow-[0_14px_30px_-14px_rgba(120,60,10,.7)] sm:size-[92px] ${k ? "-ml-4" : ""}`}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={src} alt={alt} className={`h-full w-full scale-[1.45] object-cover ${pos} origin-[50%_0%] translate-y-[6%]`} loading="lazy" />
+            </span>))}
+        </div>
+        <LKicker d=".15s">Śrīla Prabhupāda on Śrīla Gurudeva</LKicker>
+        <h2 style={{ ["--d" as any]: ".25s" }} className="gi-in gi-shine-ink mx-auto mt-3 max-w-[760px] font-display text-[30px] font-bold leading-tight tracking-[-0.02em] sm:text-[46px]">“Kṛṣṇa sent him.”</h2>
+        <p style={{ ["--d" as any]: ".32s" }} className="gi-in mt-2 text-[13px] text-ink-3">Room conversation · Bombay, 5 January 1977</p>
+      </div>
+      <ol className="mt-10 grid gap-4 md:grid-cols-2">
+        {words.map(([q, who, where], k) => (
+          <li key={q} style={{ ["--d" as any]: `${0.4 + k * 0.15}s` }} className={CARD}>
+            <Hairline />
+            <span aria-hidden className="absolute -right-2 -top-10 font-display text-[150px] font-black leading-none text-[#a8430a] opacity-[0.06] transition group-hover:opacity-[0.1]">”</span>
+            <span className="gi-num relative flex size-10 items-center justify-center rounded-full text-[15px] font-bold text-white" style={{ background: LIGHT.accent, ["--ring" as any]: LIGHT.accent }}>{k + 1}</span>
+            <p className="relative mt-5 text-[13px] text-ink-3">{who}</p>
+            <p className="relative mt-1 font-display text-[18px] font-bold leading-snug sm:text-[21px]" style={{ color: LIGHT.accent }}>{q}</p>
+            <p className="relative mt-3 text-[13.5px] text-ink-2">{where}</p>
+          </li>))}
+      </ol>
+      <div style={{ ["--d" as any]: ".8s" }} className="gi-in mt-6 border-t border-[#efe2cb] pt-1"><BlessingLetters /></div>
+    </LightBand>
+  );
+}
+
+/** How Taptajīvanam began — Śrīla Guru Mahārāja’s portrait as the emblem, then the six steps as cards; the wish of 2019 lit in saffron. */
+export function FounderBand() {
+  const [ref, on] = useInView<HTMLElement>();
+  return (
+    <LightBand on={on} bandRef={ref} bg="linear-gradient(180deg,#fbf0dd 0%,#fffaf2 100%)">
+      <div className="text-center">
+        <span className="gi-in gi-lotus relative mx-auto block size-[92px] overflow-hidden rounded-full ring-[3px] ring-white shadow-[0_14px_30px_-14px_rgba(120,60,10,.7)] sm:size-[104px]">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/photos/haladhara.webp" alt="Śrīla Haladhara Swāmī Guru Mahārāja" className="h-full w-full object-cover object-top" loading="lazy" />
+        </span>
+        <LKicker d=".15s">The founder</LKicker>
+        <h2 style={{ ["--d" as any]: ".25s" }} className="gi-in gi-shine-ink mx-auto mt-3 max-w-[760px] font-display text-[24px] font-bold leading-tight tracking-[-0.02em] sm:text-[38px]">How Taptajīvanam began</h2>
+        <p style={{ ["--d" as any]: ".35s" }} className="gi-in mx-auto mt-4 max-w-[640px] text-[14px] leading-relaxed text-ink-2 sm:text-[15px]">Śrīla Haladhara Swāmī Guru Mahārāja, ISKCON Guru and Sannyāsī, travels and preaches Kṛṣṇa consciousness all around the world, sharing the teachings of Śrīla Prabhupāda and Śrī Śrīmad Gour Govinda Swāmī Gurudeva.</p>
+      </div>
+      <ol className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {FOUNDER_STEPS.map(([y, t, d], k) => {
+          const hi = k === 3;
+          return (
+            <li key={y} style={{ ["--d" as any]: `${0.4 + k * 0.1}s`, ...(hi ? { background: "linear-gradient(150deg,#c2621d,#853500 70%)" } : {}) }} className={hi ? "gi-in group relative overflow-hidden rounded-3xl p-6 text-white shadow-[0_30px_60px_-30px_rgba(133,53,0,.8)] transition duration-500 hover:-translate-y-1.5 sm:p-7" : CARD}>
+              {!hi && <Hairline />}
+              <span aria-hidden className={`absolute -right-2 -top-5 font-display text-[78px] font-black leading-none tabular-nums transition ${hi ? "text-white opacity-[0.12]" : "text-[#a8430a] opacity-[0.07] group-hover:opacity-[0.11]"}`}>{y}</span>
+              <span className={`gi-num relative inline-flex h-9 items-center justify-center rounded-full px-3.5 text-[12.5px] font-bold tabular-nums ${hi ? "bg-white text-[#853500]" : "text-white"}`} style={hi ? { ["--ring" as any]: "#fff" } : { background: LIGHT.accent, ["--ring" as any]: LIGHT.accent }}>{y}</span>
+              <p className={`relative mt-5 font-display text-[17px] font-bold leading-snug sm:text-[19px] ${hi ? "text-white" : ""}`} style={hi ? undefined : { color: LIGHT.accent }}>{t}</p>
+              <p className={`relative mt-2 text-[13.5px] leading-relaxed ${hi ? "text-white/85" : "text-ink-2"}`}>{d}</p>
+            </li>);
+        })}
+      </ol>
+      <div style={{ ["--d" as any]: "1s" }} className="gi-in mt-10 flex flex-col items-center justify-between gap-4 border-t border-[#efe2cb] pt-7 sm:flex-row">
+        <p className="text-[13px] text-ink-3"><span className="font-semibold text-ink">Śrīla Haladhara Swāmī Guru Mahārāja</span> · Founder of Taptajīvanam</p>
+        <Link href="/about/founder" className="group inline-flex items-center gap-1.5 text-[13.5px] font-semibold" style={{ color: LIGHT.accent }}>Read his biography<ArrowRight size={15} className="transition group-hover:translate-x-0.5" /></Link>
+      </div>
+    </LightBand>
   );
 }

@@ -24,7 +24,7 @@ export const usePrefs = () => useContext(PrefsContext)!;
 
 function apply(p: Prefs) {
   const r = document.documentElement;
-  r.dataset.theme = p.theme === "system" ? (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light") : p.theme;
+  r.dataset.theme = "light"; // the site has one look; any earlier colour choice is ignored
   r.dataset.font = p.font;
   r.dataset.motion = p.reduceMotion ? "reduce" : "full";
   r.style.setProperty("--reading-size", `${p.size}px`);

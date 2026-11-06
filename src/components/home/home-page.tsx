@@ -1,9 +1,9 @@
 /* The home page. Rendered by / and, with another design chosen, by /home-new?blessing=… */
 import { Hero } from "@/components/home-client";
 import { Blessing } from "@/components/home/blessing";
-import { ThreeThings, OnPrabhupada } from "@/components/gurudeva-instructions";
+import { ThreeThings, OnPrabhupada, KrishnaSentBand, FounderBand } from "@/components/gurudeva-instructions";
 import { NumbersSection, GurudevaSection, WebFolioSection, type HomeLecture, type HomeBook } from "@/components/home/sections";
-import { KrishnaSent, FounderGlass, ListenNew, BooksNew, TattvaNew, EverythingNew, ThanksNew } from "@/components/home/new-sections";
+import { ListenNew, BooksNew, TattvaNew, EverythingNew, ThanksNew } from "@/components/home/new-sections";
 import { sql, hasDb } from "@/lib/db";
 import { STATS } from "@/lib/data";
 import { topics as getTopics } from "@/lib/content/topics";
@@ -30,8 +30,8 @@ export async function HomePage({ blessing }: { blessing?: string }) {
     <>
       <Hero />
       {/* “Kṛṣṇa sent him”: the new design here; /home-new?blessing=… still shows the four older ones */}
-      {blessing ? <Blessing v={blessing} /> : <KrishnaSent />}
-      <FounderGlass />
+      {blessing ? <Blessing v={blessing} /> : <KrishnaSentBand />}
+      <FounderBand />
       <ThreeThings />
       <NumbersSection items={[
         { n: lectures, label: "Lectures", sub: "audio, 1985–1996" },
