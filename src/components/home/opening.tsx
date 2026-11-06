@@ -54,20 +54,20 @@ export function KrishnaSentOpening() {
         <div className="op-up grid grid-cols-2 items-end gap-2 sm:gap-4 lg:order-2" aria-label="Śrīla Prabhupāda and Śrīla Gurudeva">
           {([["/legacy/prabhupada.webp", "Śrīla A.C. Bhaktivedanta Swami Prabhupāda"], ["/legacy/gurudeva.webp", "Śrī Śrīmad Gour Govinda Swāmī Gurudeva"]] as const).map(([src, alt]) => (
             /* eslint-disable-next-line @next/next/no-img-element */
-            <img key={src} src={src} alt={alt} className="block aspect-[4/5] w-full object-contain object-bottom [mask-image:linear-gradient(to_bottom,#000_80%,transparent)]" loading="lazy" />
+            <img key={src} src={src} alt={alt} className="block aspect-[4/5] w-full cursor-pointer object-contain object-bottom transition duration-700 ease-out [mask-image:linear-gradient(to_bottom,#000_80%,transparent)] hover:-translate-y-2 hover:scale-[1.04] hover:drop-shadow-[0_22px_28px_rgba(120,60,10,.22)]" loading="lazy" />
           ))}
         </div>
         <div className="text-center lg:order-1 lg:text-left">
           <p className="op-up text-[10.5px] font-semibold uppercase tracking-[0.2em] text-saffron sm:text-[11px]" style={{ transitionDelay: ".1s" }}>Śrīla Prabhupāda on Śrīla Gurudeva</p>
           <h2 className="op-up mt-4 font-display text-[34px] font-semibold leading-[1.1] tracking-[-0.03em] text-ink sm:text-[46px]" style={{ transitionDelay: ".18s" }}>“Kṛṣṇa sent him.”</h2>
           <p className="op-up mt-3 text-[12.5px] text-ink-3 sm:text-[13.5px]" style={{ transitionDelay: ".24s" }}>Room conversation · Bombay, 5 January 1977</p>
-          <div className="op-up mx-auto mt-8 max-w-[480px] border-t border-[#efe2cb] pt-7 lg:mx-0" style={{ transitionDelay: ".32s" }}>
-            <p className="text-[16px] font-medium leading-relaxed text-ink sm:text-[18px]">“Krishna is with you and there is no need of disappointment.”</p>
+          <div className="op-up group mx-auto mt-8 max-w-[480px] border-t border-[#efe2cb] pt-7 lg:mx-0" style={{ transitionDelay: ".32s" }}>
+            <p className="text-[16px] font-medium leading-relaxed text-ink transition duration-500 group-hover:text-[#853500] sm:text-[18px]">“Krishna is with you and there is no need of disappointment.”</p>
             <p className="mt-2 text-[12.5px] text-ink-3 sm:text-[13.5px]">Śrīla Prabhupāda’s letter to Śrīla Gurudeva · Māyāpur, 12 February 1976</p>
           </div>
           <div className="op-up mt-8 flex flex-wrap justify-center gap-3 lg:justify-start" style={{ transitionDelay: ".4s" }}>
-            <button onClick={() => setOpen("c")} className="inline-flex h-11 items-center gap-2 rounded-full bg-[#853500] px-5 text-[13px] font-semibold text-white transition hover:bg-[#6b2a00]">Read the conversation<ArrowRight size={15} /></button>
-            <button onClick={() => setOpen("l")} className="inline-flex h-11 items-center gap-2 rounded-full border border-[#e3cfae] bg-white px-5 text-[13px] font-semibold text-[#853500] transition hover:border-[#853500]">Read the letter<ArrowRight size={15} /></button>
+            <button onClick={() => setOpen("c")} className="group inline-flex h-11 items-center gap-2 rounded-full bg-[#853500] px-5 text-[13px] font-semibold text-white transition duration-300 hover:-translate-y-0.5 hover:bg-[#6b2a00] hover:shadow-[0_12px_24px_-10px_rgba(133,53,0,.7)]">Read the conversation<ArrowRight size={15} /></button>
+            <button onClick={() => setOpen("l")} className="group inline-flex h-11 items-center gap-2 rounded-full border border-[#e3cfae] bg-white px-5 text-[13px] font-semibold text-[#853500] transition duration-300 hover:-translate-y-0.5 hover:border-[#853500] hover:shadow-[0_12px_24px_-12px_rgba(133,53,0,.45)]">Read the letter<ArrowRight size={15} /></button>
           </div>
         </div>
       </div>
@@ -85,20 +85,18 @@ export function FounderJourney() {
     <section ref={ref} data-on={on ? "1" : "0"} className="op relative isolate overflow-hidden bg-[linear-gradient(180deg,#fdf1e2_0%,#fbe6cc_100%)] py-16 sm:py-24">
       <div aria-hidden className="absolute inset-0 -z-10 bg-[radial-gradient(60%_50%_at_15%_10%,rgba(255,255,255,.7),transparent_70%)]" />
       <div className="mx-auto max-w-[1180px] px-5 sm:px-8">
-        <div className="flex flex-col items-center gap-8 text-center lg:flex-row lg:items-end lg:justify-between lg:text-left">
-          <div className="max-w-[620px]">
-            <p className="op-up flex items-center justify-center gap-3 text-[10.5px] font-semibold uppercase tracking-[0.24em] text-saffron sm:text-[11px] lg:justify-start"><span className="hidden h-px w-10 bg-saffron/50 lg:block" />The founder</p>
-            <h2 className="op-up mt-4 font-display text-[30px] font-bold leading-[1.05] tracking-[-0.035em] text-[#2b1a10] sm:text-[48px]" style={{ transitionDelay: ".1s" }}>How Taptajīvanam began</h2>
-            <p className="op-up mt-4 text-[13.5px] leading-relaxed text-ink-2 sm:text-[15px]" style={{ transitionDelay: ".2s" }}>Śrīla Haladhara Swāmī Guru Mahārāja, ISKCON Guru and Sannyāsī, travels and preaches Kṛṣṇa consciousness all around the world, sharing the teachings of Śrīla Prabhupāda and Śrī Śrīmad Gour Govinda Swāmī Gurudeva.</p>
-          </div>
-          <Link href="/about/founder" className="op-up group flex w-full max-w-[260px] shrink-0 flex-col items-center rounded-[24px] bg-white px-5 pb-5 pt-6 text-center shadow-[0_24px_48px_-28px_rgba(90,40,5,.6)] ring-1 ring-[#efe2cb] transition duration-300 hover:-translate-y-1" style={{ transitionDelay: ".15s" }}>
-            <span className="block size-40 overflow-hidden rounded-full ring-4 ring-[#fbeedb] shadow-[0_16px_30px_-18px_rgba(90,40,5,.7)] sm:size-44">
+        {/* Śrīla Guru Mahārāja in a round frame at the centre, the biography link beneath, then the heading */}
+        <div className="flex flex-col items-center text-center">
+          <Link href="/about/founder" className="op-up group flex flex-col items-center" style={{ transitionDelay: ".05s" }}>
+            <span className="block size-36 overflow-hidden rounded-full ring-4 ring-white shadow-[0_18px_36px_-18px_rgba(90,40,5,.6)] sm:size-44">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="/photos/haladhara.webp" alt="Śrīla Haladhara Swāmī Guru Mahārāja" className="h-full w-full object-cover object-[50%_20%] transition duration-700 group-hover:scale-[1.04]" />
             </span>
-            <span className="mt-4 block text-[14px] font-semibold leading-snug text-ink">Śrīla Haladhara Swāmī Guru Mahārāja</span>
-            <span className="mt-1.5 inline-flex items-center gap-1 text-[12.5px] font-medium text-saffron">Read his biography<ArrowRight size={13} className="transition group-hover:translate-x-0.5" /></span>
+            <span className="mt-4 block text-[14px] font-semibold text-ink">Śrīla Haladhara Swāmī Guru Mahārāja</span>
+            <span className="mt-1 inline-flex items-center gap-1 text-[13px] font-medium text-saffron">Read his biography<ArrowRight size={13} className="transition group-hover:translate-x-0.5" /></span>
           </Link>
+          <h2 className="op-up mt-10 font-display text-[28px] font-bold leading-[1.1] tracking-[-0.03em] text-[#2b1a10] sm:text-[40px]" style={{ transitionDelay: ".12s" }}>How Taptajīvanam began</h2>
+          <p className="op-up mt-3 max-w-[640px] text-[13.5px] leading-relaxed text-ink-2 sm:text-[15px]" style={{ transitionDelay: ".2s" }}>Śrīla Haladhara Swāmī Guru Mahārāja, ISKCON Guru and Sannyāsī, travels and preaches Kṛṣṇa consciousness all around the world, sharing the teachings of Śrīla Prabhupāda and Śrī Śrīmad Gour Govinda Swāmī Gurudeva.</p>
         </div>
 
         {/* desktop: the line across, years above and below it */}
@@ -111,13 +109,15 @@ export function FounderJourney() {
           {FOUNDER_STEPS.map(([y, t, desc], i) => {
             const hi = i === 3; const up = i % 2 === 0; const top = 170 + ys[i];
             return (
-              <div key={y} className="absolute" style={{ left: `${(xs[i] / W) * 100}%`, top }}>
-                <span className={`op-node absolute left-0 top-0 block -translate-x-1/2 -translate-y-1/2 rounded-full ${hi ? "size-6 bg-[radial-gradient(circle_at_35%_30%,#f3c77a,#c2621d)] shadow-[0_0_0_6px_rgba(232,145,60,.18),0_0_30px_rgba(232,145,60,.7)]" : "size-3.5 border-[3px] border-white bg-[#c2621d] shadow-[0_0_0_4px_rgba(194,98,29,.12)]"}`} style={{ transitionDelay: `${0.6 + i * 0.32}s` }} />
+              <div key={y} className="group absolute" style={{ left: `${(xs[i] / W) * 100}%`, top }}>
+                <span className={`op-node absolute left-0 top-0 block -translate-x-1/2 -translate-y-1/2 rounded-full transition-[scale,box-shadow] duration-300 group-hover:scale-150 ${hi ? "size-6 bg-[radial-gradient(circle_at_35%_30%,#f3c77a,#c2621d)] shadow-[0_0_0_6px_rgba(232,145,60,.18),0_0_30px_rgba(232,145,60,.7)]" : "size-3.5 border-[3px] border-white bg-[#c2621d] shadow-[0_0_0_4px_rgba(194,98,29,.12)]"}`} style={{ transitionDelay: `${0.6 + i * 0.32}s` }} />
                 {hi && <span aria-hidden className="op-pulse absolute left-0 top-0 block size-6 rounded-full border border-[#e8913c]" />}
-                <div className={`op-step absolute left-0 w-[176px] -translate-x-1/2 text-center ${up ? "bottom-6" : "top-6"}`} style={{ transitionDelay: `${0.7 + i * 0.32}s` }}>
-                  <p className={`font-display text-[22px] font-bold tabular-nums leading-none ${hi ? "text-[#c2621d]" : "text-[#d9a46c]"}`}>{y}</p>
-                  <p className={`mt-2 text-[14px] font-semibold leading-snug ${hi ? "text-[#853500]" : "text-ink"}`}>{t}</p>
-                  <p className="mt-1.5 text-[12px] leading-relaxed text-ink-2">{desc}</p>
+                <div className={`op-step absolute left-0 w-[196px] -translate-x-1/2 text-center ${up ? "bottom-6" : "top-6"}`} style={{ transitionDelay: `${0.7 + i * 0.32}s` }}>
+                  <div className="cursor-default rounded-2xl px-3 py-3 transition duration-300 ease-out group-hover:-translate-y-1.5 group-hover:bg-white/85 group-hover:shadow-[0_18px_36px_-22px_rgba(90,40,5,.55)]">
+                    <p className={`font-display text-[22px] font-bold tabular-nums leading-none transition-colors duration-300 group-hover:text-[#c2621d] ${hi ? "text-[#c2621d]" : "text-[#d9a46c]"}`}>{y}</p>
+                    <p className={`mt-2 text-[14px] font-semibold leading-snug ${hi ? "text-[#853500]" : "text-ink"}`}>{t}</p>
+                    <p className="mt-1.5 text-[12px] leading-relaxed text-ink-2">{desc}</p>
+                  </div>
                 </div>
               </div>);
           })}
