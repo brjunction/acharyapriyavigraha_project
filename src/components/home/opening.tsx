@@ -51,18 +51,13 @@ export function KrishnaSentOpening() {
     <section ref={ref} data-on={on ? "1" : "0"} className="op relative isolate overflow-hidden bg-[#fffaf3] py-16 sm:py-24">
       <div aria-hidden className="absolute inset-0 -z-10 bg-[radial-gradient(55%_60%_at_25%_55%,rgba(243,179,99,.16),transparent_70%)]" />
       <div className="mx-auto grid max-w-[1120px] grid-cols-1 items-center gap-10 px-5 sm:px-8 lg:grid-cols-2 lg:gap-16">
-        <div className="op-up grid grid-cols-2 items-end gap-4 sm:gap-6">
-          {([["/legacy/prabhupada.webp", "Śrīla A.C. Bhaktivedanta Swami Prabhupāda", "Śrīla Prabhupāda"], ["/legacy/gurudeva.webp", "Śrī Śrīmad Gour Govinda Swāmī Gurudeva", "Śrīla Gurudeva"]] as const).map(([src, alt, name]) => (
-            <figure key={src} className="text-center">
-              <div className="relative overflow-hidden rounded-[20px] bg-[linear-gradient(180deg,#fbeedb,#f6dfbf)]">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={src} alt={alt} className="block aspect-[4/5] w-full object-contain object-bottom" loading="lazy" />
-              </div>
-              <figcaption className="mt-3 text-[12.5px] font-medium text-ink-2 sm:text-[13.5px]">{name}</figcaption>
-            </figure>
+        <div className="op-up grid grid-cols-2 items-end gap-2 sm:gap-4 lg:order-2" aria-label="Śrīla Prabhupāda and Śrīla Gurudeva">
+          {([["/legacy/prabhupada.webp", "Śrīla A.C. Bhaktivedanta Swami Prabhupāda"], ["/legacy/gurudeva.webp", "Śrī Śrīmad Gour Govinda Swāmī Gurudeva"]] as const).map(([src, alt]) => (
+            /* eslint-disable-next-line @next/next/no-img-element */
+            <img key={src} src={src} alt={alt} className="block aspect-[4/5] w-full object-contain object-bottom [mask-image:linear-gradient(to_bottom,#000_80%,transparent)]" loading="lazy" />
           ))}
         </div>
-        <div className="text-center lg:text-left">
+        <div className="text-center lg:order-1 lg:text-left">
           <p className="op-up text-[10.5px] font-semibold uppercase tracking-[0.2em] text-saffron sm:text-[11px]" style={{ transitionDelay: ".1s" }}>Śrīla Prabhupāda on Śrīla Gurudeva</p>
           <h2 className="op-up mt-4 font-display text-[34px] font-semibold leading-[1.1] tracking-[-0.03em] text-ink sm:text-[46px]" style={{ transitionDelay: ".18s" }}>“Kṛṣṇa sent him.”</h2>
           <p className="op-up mt-3 text-[12.5px] text-ink-3 sm:text-[13.5px]" style={{ transitionDelay: ".24s" }}>Room conversation · Bombay, 5 January 1977</p>
@@ -96,13 +91,13 @@ export function FounderJourney() {
             <h2 className="op-up mt-4 font-display text-[30px] font-bold leading-[1.05] tracking-[-0.035em] text-[#2b1a10] sm:text-[48px]" style={{ transitionDelay: ".1s" }}>How Taptajīvanam began</h2>
             <p className="op-up mt-4 text-[13.5px] leading-relaxed text-ink-2 sm:text-[15px]" style={{ transitionDelay: ".2s" }}>Śrīla Haladhara Swāmī Guru Mahārāja, ISKCON Guru and Sannyāsī, travels and preaches Kṛṣṇa consciousness all around the world, sharing the teachings of Śrīla Prabhupāda and Śrī Śrīmad Gour Govinda Swāmī Gurudeva.</p>
           </div>
-          <Link href="/about/founder" className="op-up group block w-full max-w-[280px] shrink-0 overflow-hidden rounded-[22px] bg-white shadow-[0_24px_48px_-28px_rgba(90,40,5,.6)] ring-1 ring-[#efe2cb] transition duration-300 hover:-translate-y-1" style={{ transitionDelay: ".3s" }}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/photos/haladhara.webp" alt="Śrīla Haladhara Swāmī Guru Mahārāja" className="block aspect-[4/3] w-full object-cover object-top transition duration-700 group-hover:scale-[1.03]" />
-            <span className="block px-4 py-3.5 text-left">
-              <span className="block text-[14px] font-semibold text-ink">Śrīla Haladhara Swāmī Guru Mahārāja</span>
-              <span className="mt-1 flex items-center gap-1 text-[12.5px] font-medium text-saffron">Read his biography<ArrowRight size={13} className="transition group-hover:translate-x-0.5" /></span>
+          <Link href="/about/founder" className="op-up group flex w-full max-w-[260px] shrink-0 flex-col items-center rounded-[24px] bg-white px-5 pb-5 pt-6 text-center shadow-[0_24px_48px_-28px_rgba(90,40,5,.6)] ring-1 ring-[#efe2cb] transition duration-300 hover:-translate-y-1" style={{ transitionDelay: ".15s" }}>
+            <span className="block size-40 overflow-hidden rounded-full ring-4 ring-[#fbeedb] shadow-[0_16px_30px_-18px_rgba(90,40,5,.7)] sm:size-44">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/photos/haladhara.webp" alt="Śrīla Haladhara Swāmī Guru Mahārāja" className="h-full w-full object-cover object-[50%_20%] transition duration-700 group-hover:scale-[1.04]" />
             </span>
+            <span className="mt-4 block text-[14px] font-semibold leading-snug text-ink">Śrīla Haladhara Swāmī Guru Mahārāja</span>
+            <span className="mt-1.5 inline-flex items-center gap-1 text-[12.5px] font-medium text-saffron">Read his biography<ArrowRight size={13} className="transition group-hover:translate-x-0.5" /></span>
           </Link>
         </div>
 
