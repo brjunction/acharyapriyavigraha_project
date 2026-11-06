@@ -1,20 +1,12 @@
-/* A second design of the home page, shown at /home-v2 for review. The words are the same as on the home page; only the design is new:
-   a deep saffron dusk and gold, Indian ornament, soft gradients and slow motion, light and dark sections taking turns. */
+/* Home page sections in the newer design: deep saffron and gold, Indian ornament, soft gradients and slow motion. The words are as before. */
 import Link from "next/link";
 import { ArrowRight, Headphones, Music2, Video, BookOpen, FileText, Newspaper, Quote, Network, Columns2, HandHeart, History, NotebookPen, HeartHandshake, Gift, Mail, ImageIcon, MapPin, Captions, Languages, Search as SearchIcon, Type } from "lucide-react";
-import { sql, hasDb } from "@/lib/db";
-import { STATS } from "@/lib/data";
-import { topics as getTopics } from "@/lib/content/topics";
-import { ThreeThings, OnPrabhupada } from "@/components/gurudeva-instructions";
-import { WebFolioSection, type HomeLecture, type HomeBook } from "@/components/home/sections";
-import { FOUNDER_STEPS, THANKS } from "@/components/home/home-data";
+import type { HomeLecture, HomeBook } from "@/components/home/sections";
+import { THANKS } from "@/components/home/home-data";
 import { BlessingLetters, TopicCloud } from "@/components/home/live";
 import { VMask, Padma } from "@/components/motifs";
-import { V2Hero } from "./v2-hero";
-import { Lights, CountUp } from "./v2-motion";
+import { Lights, CountUp } from "./motion";
 
-const one = async (q: Promise<any[]>) => { try { return Number((await q)[0]?.n || 0); } catch { return 0; } };
-const rows = async <T,>(q: Promise<any[]>) => { try { return (await q) as T[]; } catch { return [] as T[]; } };
 const W = "mx-auto w-full max-w-[1200px] px-5 sm:px-8";
 const fmt = (s: number | null) => (s ? `${Math.floor(s / 60)} min` : "");
 
@@ -37,28 +29,11 @@ const Rule = ({ light }: { light?: boolean }) => (
   </div>
 );
 
-export async function V2Home() {
-  const db = hasDb();
-  const [lectures, kirtans, videos, transcripts, books, quotes, latest, shelf, tps] = await Promise.all([
-    db ? one(sql`select count(*)::int n from audios where status = 'published' and kind not in ('kirtan','bhajan')`) : STATS.lectures,
-    db ? one(sql`select count(*)::int n from audios where status = 'published' and kind in ('kirtan','bhajan')`) : 0,
-    db ? one(sql`select count(*)::int n from videos where status = 'published'`) : STATS.videos,
-    db ? one(sql`select count(*)::int n from audios where status = 'published' and transcript_status = 'done'`) : STATS.transcriptions,
-    db ? one(sql`select count(*)::int n from books where status = 'published'`) : STATS.books,
-    db ? one(sql`select count(*)::int n from excerpts where status = 'published'`) : 0,
-    db ? rows<HomeLecture>(sql`select slug, title, to_char(date, 'YYYY-MM-DD') date, place, duration_sec, transcript_status from audios where status = 'published' and kind not in ('kirtan','bhajan') order by created_at desc limit 5`) : [],
-    db ? rows<HomeBook>(sql`select slug, title, cover_url, language from books where status = 'published' order by position, title limit 6`) : [],
-    getTopics().catch(() => []),
-  ]);
-  const topTopics = [...tps].sort((a, b) => b.total - a.total).slice(0, 22).map((t) => ({ name: t.name, slug: t.slug, total: t.total }));
-  const stats = [{ n: lectures, label: "Lectures" }, { n: kirtans, label: "Kīrtanas" }, { n: videos, label: "Videos" }, { n: transcripts, label: "Transcriptions" }, { n: books, label: "Books" }, { n: quotes || tps.length, label: quotes ? "Compilations" : "Topics" }];
-
+export function KrishnaSent() {
   return (
-    <div className="tv-home">
-      <V2Hero stats={stats} />
-
+    <>
       {/* ───────── Kṛṣṇa sent him ───────── */}
-      <section id="v2-next" className="relative isolate overflow-hidden bg-[linear-gradient(180deg,#fffaf2_0%,#fbf0dd_100%)] py-16 sm:py-24">
+      <section className="relative isolate overflow-hidden bg-[linear-gradient(180deg,#fffaf2_0%,#fbf0dd_100%)] py-16 sm:py-24">
         <VMask name="mandala-saffron" className="tv-spin-slow pointer-events-none absolute left-1/2 top-1/2 -z-10 size-[900px] -translate-x-1/2 -translate-y-1/2 text-[#853500] opacity-[0.045]" />
         <div className={`${W} grid grid-cols-2 items-end gap-x-3 gap-y-8 lg:grid-cols-[300px_minmax(0,1fr)_300px] lg:items-center lg:gap-x-10`}>
           {([["/legacy/prabhupada.webp", "Śrīla A.C. Bhaktivedanta Swami Prabhupāda", "order-2 lg:order-1", "tv-from-left"], ["/legacy/gurudeva.webp", "Śrī Śrīmad Gour Govinda Swāmī Gurudeva", "order-3", "tv-from-right"]] as const).map(([src, alt, o, a]) => (
@@ -80,43 +55,13 @@ export async function V2Home() {
           </div>
         </div>
       </section>
+    </>
+  );
+}
 
-      {/* ───────── Śrīla Gurudeva’s mission ───────── */}
-      <ThreeThings bg="#2a0d03" glow="#f3b363" accent="#f3c77a" />
-
-      {/* ───────── Śrīla Gurudeva ───────── */}
-      <section className="relative isolate overflow-hidden bg-white py-16 sm:py-24">
-        <div aria-hidden className="tv-drift absolute -right-40 top-10 -z-10 size-[560px] rounded-full bg-[radial-gradient(closest-side,rgba(243,179,99,.22),transparent)]" />
-        <div className={`${W} grid grid-cols-1 items-center gap-12 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:gap-16`}>
-          <div className="reveal relative mx-auto w-full max-w-[400px]">
-            {/* an arch, as at a temple door */}
-            <div className="relative rounded-t-[999px] rounded-b-[28px] bg-[linear-gradient(160deg,#f3c77a,#c2621d_45%,#7a2a08)] p-[6px] shadow-[0_40px_80px_-40px_rgba(90,30,0,.7)]">
-              <div className="overflow-hidden rounded-t-[999px] rounded-b-[23px] bg-[#fbf0dd]">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/photos/gurudeva-marigold.webp" alt="Śrī Śrīmad Gour Govinda Swāmī Gurudeva" className="block aspect-[931/1240] w-full object-cover object-top" loading="lazy" />
-              </div>
-            </div>
-            <VMask name="crest-gold" className="absolute -top-7 left-1/2 h-14 w-28 -translate-x-1/2 text-[#c98a2b]" />
-            <div className="absolute -bottom-6 -right-3 w-[38%] rotate-[4deg] rounded-2xl bg-white p-1.5 shadow-[0_24px_40px_-20px_rgba(0,0,0,.5)] sm:-right-8">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/photos/gurudeva-writing.webp" alt="" className="aspect-[16/10] w-full rounded-xl object-cover" loading="lazy" />
-            </div>
-          </div>
-          <div className="reveal">
-            <Kicker>Śrīla Gurudeva</Kicker>
-            <H2>A dear disciple of Śrīla Prabhupāda</H2>
-            <p className="mt-4 text-[13.5px] leading-relaxed text-ink-2 sm:text-[15px]">Born in a family devoted to Śrī Gopāl Jiu, he carried his Guru’s mission across Odisha and the world. Here his life is remembered — by those who knew him, in his own diary, and in photographs.</p>
-            <div className="mt-7 grid grid-cols-2 gap-2 sm:gap-2.5">
-              {([["/gurudeva/who-is-srila-gurudeva", HandHeart, "Who is Śrīla Gurudeva"], ["/gurudeva/timeline", History, "Life timeline"], ["/gurudeva/diaries", NotebookPen, "His diary to Śrī Gopāl Jiu"], ["/gurudeva/memories", HeartHandshake, "Memories & pastimes"], ["/gurudeva/glorifications", Gift, "Glorifications"], ["/gurudeva/letters", Mail, "Letters"], ["/gurudeva/gallery", ImageIcon, "Gallery"], ["/gurudeva/places-of-remembrance", MapPin, "Places of remembrance"]] as const).map(([h, I, l]) => (
-                <Link key={h} href={h} className="group flex items-center gap-2.5 rounded-2xl bg-[#fbf5ec] px-3 py-2.5 text-[12.5px] font-medium text-ink ring-1 ring-[#efe2cb] transition duration-300 hover:-translate-y-0.5 hover:bg-white hover:shadow-[0_14px_28px_-18px_rgba(120,60,10,.55)] hover:ring-saffron/40 sm:px-3.5 sm:text-[13.5px]">
-                  <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-white text-saffron ring-1 ring-[#efe2cb] transition group-hover:bg-saffron group-hover:text-white"><I size={15} /></span>
-                  <span className="min-w-0 flex-1 leading-tight">{l}</span>
-                </Link>))}
-            </div>
-          </div>
-        </div>
-      </section>
-
+export function ListenNew({ latest, lectures, kirtans, videos, transcripts }: { latest: HomeLecture[]; lectures: number; kirtans: number; videos: number; transcripts: number }) {
+  return (
+    <>
       {/* ───────── Listen ───────── */}
       <section className="relative isolate overflow-hidden bg-[linear-gradient(160deg,#3d1305_0%,#2a0d03_55%,#1f0902_100%)] py-16 text-[#fff1da] sm:py-24">
         <Lights />
@@ -149,10 +94,13 @@ export async function V2Home() {
           </div>
         </div>
       </section>
+    </>
+  );
+}
 
-      {/* ───────── Everything is in Śrīla Prabhupāda’s books ───────── */}
-      <OnPrabhupada />
-
+export function BooksNew({ shelf }: { shelf: HomeBook[] }) {
+  return (
+    <>
       {/* ───────── Books ───────── */}
       <section className="relative isolate overflow-hidden bg-[linear-gradient(200deg,#4a1708_0%,#2a0d03_60%,#1f0902_100%)] py-16 text-[#fff1da] sm:py-24">
         <VMask name="paisley-red" repeat="repeat" size="380px" className="pointer-events-none absolute inset-0 -z-10 text-[#f3b363] opacity-[0.04]" />
@@ -188,7 +136,13 @@ export async function V2Home() {
           </div>
         </div>
       </section>
+    </>
+  );
+}
 
+export function TattvaNew({ topTopics }: { topTopics: { name: string; slug: string; total: number }[] }) {
+  return (
+    <>
       {/* ───────── Tattva ───────── */}
       <section className="relative isolate overflow-hidden bg-[linear-gradient(180deg,#fffaf2,#fbf0dd)] py-16 sm:py-24">
         <VMask name="mandala-half-curve" className="pointer-events-none absolute -right-20 top-0 -z-10 h-[420px] w-[420px] text-[#853500] opacity-[0.05]" />
@@ -198,8 +152,12 @@ export async function V2Home() {
             <H2>Follow one subject through everything he said</H2>
             <p className="mt-4 text-[13.5px] leading-relaxed text-ink-2 sm:text-[15px]">Open a topic — Guru-tattva, the Holy Name, separation — and find his quotes, lectures, videos and articles on it together, each with its exact source.</p>
           </div>
-          <div className="reveal mx-auto mt-10 max-w-[900px] rounded-[28px] bg-white/80 p-5 shadow-[0_30px_60px_-40px_rgba(120,60,10,.5)] ring-1 ring-[#efe2cb] backdrop-blur sm:p-8">
-            <TopicCloud topics={topTopics} />
+          <div className="reveal relative mx-auto mt-10 max-w-[900px] rounded-[28px] bg-[linear-gradient(140deg,#f3c77a,#e8913c_40%,rgba(232,145,60,.15)_70%,#f3c77a)] p-[1.5px] shadow-[0_34px_60px_-40px_rgba(120,60,10,.7)]">
+            <VMask name="mandala-saffron" className="tv-spin-a pointer-events-none absolute -left-16 -top-16 size-40 text-[#e8913c] opacity-25 sm:-left-20 sm:-top-20 sm:size-52" />
+            <div className="relative rounded-[27px] bg-white/95 p-5 backdrop-blur sm:p-8">
+              <p className="mb-4 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-ink-3"><Network size={13} className="text-saffron" />Open a topic</p>
+              <TopicCloud topics={topTopics} />
+            </div>
           </div>
           <div className="mx-auto mt-6 grid max-w-[900px] grid-cols-2 gap-2.5 sm:grid-cols-4 sm:gap-3">
             {([["/tattva", Network, "Topics A–Z"], ["/teachings/quotes", Quote, "Quotes"], ["/teachings/instructions", HandHeart, "Instructions & desires"], ["/search", SearchIcon, "Search everything"]] as const).map(([h, I, t]) => (
@@ -207,7 +165,13 @@ export async function V2Home() {
           </div>
         </div>
       </section>
+    </>
+  );
+}
 
+export function EverythingNew() {
+  return (
+    <>
       {/* ───────── Everything, in one place ───────── */}
       <section className="relative isolate overflow-hidden bg-[linear-gradient(135deg,#f8d7a4_0%,#f3b363_55%,#e8913c_100%)] py-16 sm:py-24">
         <div aria-hidden className="tv-aurora-light absolute inset-0 -z-10" />
@@ -223,43 +187,13 @@ export async function V2Home() {
           </div>
         </div>
       </section>
+    </>
+  );
+}
 
-      {/* ───────── How Taptajīvanam began ───────── */}
-      <section className="relative isolate overflow-hidden bg-white py-16 sm:py-24">
-        <div className={`${W} grid grid-cols-1 gap-12 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] lg:gap-16`}>
-          <div className="reveal lg:sticky lg:top-24 lg:self-start">
-            <Kicker>The founder</Kicker>
-            <H2>How Taptajīvanam began</H2>
-            <figure className="relative mx-auto mt-8 max-w-[340px] lg:mx-0">
-              <div className="rounded-[26px] bg-[linear-gradient(140deg,#f3c77a,#c2621d_45%,#7a2a08)] p-[5px] shadow-[0_30px_60px_-30px_rgba(90,30,0,.6)]">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/photos/haladhara.webp" alt="Śrīla Haladhara Swāmī Guru Mahārāja" className="block aspect-square w-full rounded-[21px] object-cover object-top" loading="lazy" />
-              </div>
-              <figcaption className="absolute inset-x-5 -bottom-6 rounded-2xl bg-white/95 px-4 py-3 text-center shadow-[0_16px_34px_-18px_rgba(0,0,0,.4)] ring-1 ring-[#efe2cb] backdrop-blur">
-                <p className="text-[14.5px] font-semibold text-ink sm:text-[15.5px]">Śrīla Haladhara Swāmī Guru Mahārāja</p>
-                <p className="mt-0.5 text-[10px] font-semibold uppercase tracking-[0.2em] text-saffron">Founder of Taptajīvanam</p>
-              </figcaption>
-            </figure>
-            <p className="mt-12 text-[13px] leading-relaxed text-ink-2 sm:text-[14px]">ISKCON Guru and Sannyāsī — he travels and preaches Kṛṣṇa consciousness all around the world, sharing the teachings of Śrīla Prabhupāda and Śrī Śrīmad Gour Govinda Swāmī Gurudeva.</p>
-            <Link href="/about/founder" className="group mt-4 inline-flex items-center gap-1.5 text-[13.5px] font-semibold text-saffron">Read his biography<ArrowRight size={14} className="transition group-hover:translate-x-0.5" /></Link>
-          </div>
-          <ol className="relative">
-            <span aria-hidden className="absolute bottom-8 left-[23px] top-8 w-px bg-gradient-to-b from-[#f3c77a] via-[#c2621d]/50 to-[#f3c77a] sm:left-[29px]" />
-            {FOUNDER_STEPS.map(([y, t, d], i) => (
-              <li key={y} className="reveal relative flex gap-4 pb-4 last:pb-0 sm:gap-6 sm:pb-5">
-                <span className={`relative z-10 flex size-12 shrink-0 items-center justify-center rounded-full text-[11px] font-semibold tabular-nums sm:size-[60px] sm:text-[12.5px] ${i === 3 ? "tv-flow text-[#2a0d03] shadow-[0_10px_24px_-8px_rgba(194,98,29,.8)]" : "bg-white text-saffron ring-1 ring-[#efe2cb]"}`}>{y}</span>
-                <div className={`flex-1 rounded-[20px] p-4 transition duration-300 hover:-translate-y-0.5 sm:p-5 ${i === 3 ? "bg-[linear-gradient(135deg,#fff6e4,#fde6c4)] ring-1 ring-[#f3c77a]" : "bg-[#fbf7f0] ring-1 ring-[#f1e6d3] hover:bg-white hover:shadow-[0_16px_30px_-22px_rgba(120,60,10,.5)]"}`}>
-                  <p className="text-[13.5px] font-semibold text-ink sm:text-[15.5px]">{t}</p>
-                  <p className="mt-1 text-[12px] leading-relaxed text-ink-2 sm:text-[13.5px]">{d}</p>
-                </div>
-              </li>))}
-          </ol>
-        </div>
-      </section>
-
-      {/* ───────── WebFolio ───────── */}
-      <WebFolioSection />
-
+export function ThanksNew() {
+  return (
+    <>
       {/* ───────── With gratitude ───────── */}
       <section className="relative isolate overflow-hidden bg-[linear-gradient(180deg,#fffaf2,#fbf0dd)] py-16 sm:py-24">
         <div className={`${W} grid grid-cols-1 items-center gap-10 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]`}>
@@ -278,8 +212,8 @@ export async function V2Home() {
               </div>))}
           </div>
         </div>
-        <div className="mt-14"><Rule /></div>
       </section>
-    </div>
+    </>
   );
 }
+

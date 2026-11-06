@@ -534,45 +534,26 @@ html[data-motion="reduce"] .bless-word, html[data-motion="reduce"] .bless-rise, 
 .gi-dark li:hover { border-color: color-mix(in srgb, var(--gi-accent) 45%, transparent); }
 @media (prefers-reduced-motion: reduce) { .gi-watermark, .gi-spark, .gi-shine { animation: none !important; } .gi-shine { color: #fff; background: none; } }
 
-/* ───────── The new home (/home-v2): every movement slow and eased ───────── */
+/* ───────── Home page, newer sections: every movement slow and eased ───────── */
 .tv-home { overflow-x: clip; }
-.tv-aurora { background: radial-gradient(40% 50% at 18% 25%, rgba(243,179,99,.22), transparent 70%), radial-gradient(35% 45% at 85% 80%, rgba(232,145,60,.2), transparent 70%), radial-gradient(30% 35% at 55% 5%, rgba(255,212,138,.18), transparent 70%); background-size: 170% 170%; animation: tv-aurora 24s ease-in-out infinite alternate; }
+.tv-aurora { background: radial-gradient(40% 50% at 18% 25%, rgba(243,179,99,.2), transparent 70%), radial-gradient(35% 45% at 85% 80%, rgba(232,145,60,.16), transparent 70%); background-size: 170% 170%; animation: tv-aurora 24s ease-in-out infinite alternate; }
 .tv-aurora-light { background: radial-gradient(40% 50% at 20% 30%, rgba(255,255,255,.35), transparent 70%), radial-gradient(35% 45% at 80% 70%, rgba(255,240,210,.35), transparent 70%); background-size: 170% 170%; animation: tv-aurora 22s ease-in-out infinite alternate; }
 @keyframes tv-aurora { 0% { background-position: 0% 0%; } 100% { background-position: 100% 100%; } }
 .tv-light { opacity: 0; box-shadow: 0 0 10px currentColor; animation-name: tv-light; animation-timing-function: linear; animation-iteration-count: infinite; will-change: transform, opacity; }
 @keyframes tv-light { 0% { transform: translate3d(0,0,0); opacity: 0; } 12% { opacity: .8; } 50% { transform: translate3d(14px,-50vh,0); } 85% { opacity: .35; } 100% { transform: translate3d(-6px,-100vh,0); opacity: 0; } }
 .tv-spin-a { animation: tv-turn 120s linear infinite; }
-.tv-spin-b { animation: tv-turn 100s linear infinite reverse; }
-.tv-spin-c { animation: tv-turn 80s linear infinite; }
 .tv-spin-slow { animation: tv-turn 180s linear infinite; }
-.tv-spin-rev { animation: tv-turn 160s linear infinite reverse; }
 @keyframes tv-turn { to { transform: rotate(360deg); } }
 .tv-spin-slow.-translate-x-1\/2 { animation-name: tv-turn-c; }
 @keyframes tv-turn-c { from { transform: translate(-50%,-50%) rotate(0); } to { transform: translate(-50%,-50%) rotate(360deg); } }
-.tv-breathe { animation: tv-breathe 7s ease-in-out infinite alternate; }
-@keyframes tv-breathe { from { transform: scale(.975); } to { transform: scale(1.03); } }
-.tv-open { animation: tv-open 1.8s cubic-bezier(.2,.8,.2,1) both; }
-@keyframes tv-open { from { opacity: 0; transform: scale(.8) rotate(-14deg); } to { opacity: 1; transform: none; } }
-.tv-pulse { animation: tv-pulse 6s ease-in-out infinite alternate; transform-origin: 300px 300px; }
-@keyframes tv-pulse { from { opacity: .7; transform: scale(.96); } to { opacity: 1; transform: scale(1.04); } }
-.tv-ripple { position: absolute; inset: 16%; border-radius: 9999px; border: 1px solid rgba(243,199,122,.5); opacity: 0; animation: tv-ripple 9s cubic-bezier(.2,.6,.3,1) infinite; }
-@keyframes tv-ripple { 0% { transform: scale(.8); opacity: 0; } 15% { opacity: .7; } 100% { transform: scale(1.34); opacity: 0; } }
-.tv-tilt { transform: translate(var(--tx,0), var(--ty,0)); transition: transform 1.2s cubic-bezier(.2,.7,.2,1); }
-.tv-portrait { animation: tv-portrait 1.4s cubic-bezier(.2,.8,.2,1) .2s both; }
-@keyframes tv-portrait { from { opacity: 0; transform: scale(.9); } to { opacity: 1; transform: none; } }
 .tv-glass { background: linear-gradient(135deg, rgba(255,241,218,.1), rgba(255,241,218,.04)); border: 1px solid rgba(243,179,99,.22); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); box-shadow: 0 30px 60px -30px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,241,218,.08); }
 .tv-flow { background: linear-gradient(100deg, #f3b363, #ffd48a, #f8c27a, #e8913c, #f3b363); background-size: 300% 100%; animation: tv-flow 9s ease-in-out infinite alternate; }
 @keyframes tv-flow { to { background-position: 100% 0; } }
 .tv-gold { background: linear-gradient(100deg, #f3b363 20%, #fff1c9 45%, #ffd48a 55%, #f3b363 80%) 0 0 / 250% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; animation: tv-shine 7s ease-in-out 1.2s infinite; }
 .tv-ink-gold { background: linear-gradient(100deg, #853500 20%, #e8913c 45%, #c98a2b 55%, #853500 80%) 0 0 / 250% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; animation: tv-shine 8s ease-in-out 1s infinite; }
 @keyframes tv-shine { 0%, 100% { background-position: 100% 0; } 50% { background-position: 0 0; } }
-.tv-line { display: block; overflow: hidden; padding-bottom: .06em; }
-.tv-line > span { display: inline-block; animation: tv-line 1.1s cubic-bezier(.2,.8,.2,1) both; }
-@keyframes tv-line { from { transform: translateY(105%); opacity: 0; } to { transform: none; opacity: 1; } }
 .tv-rise { animation: tv-rise 1s cubic-bezier(.2,.8,.2,1) both; }
 @keyframes tv-rise { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
-.tv-bob { animation: tv-bob 2.4s ease-in-out infinite; }
-@keyframes tv-bob { 0%, 100% { transform: translate(-50%, 0); } 50% { transform: translate(-50%, 6px); } }
 .tv-drift { animation: tv-drift 16s ease-in-out infinite alternate; }
 @keyframes tv-drift { from { transform: translate3d(0,0,0) scale(1); } to { transform: translate3d(-30px,24px,0) scale(1.08); } }
 .tv-halo { background: radial-gradient(circle, rgba(243,179,99,.38), rgba(243,179,99,.08) 60%, transparent 72%); animation: tv-pulse-c 6s ease-in-out infinite alternate; }
@@ -586,4 +567,18 @@ html[data-motion="reduce"] .bless-word, html[data-motion="reduce"] .bless-rise, 
 @keyframes tv-wave { from { transform: scaleY(.35); opacity: .7; } to { transform: scaleY(1); opacity: 1; } }
 .tv-book { transform: rotateY(var(--r)) translateY(var(--y)); transition: transform .7s cubic-bezier(.2,.7,.2,1); }
 .tv-book:hover { transform: rotateY(0deg) translateY(calc(var(--y) - 16px)) scale(1.04); }
-@media (prefers-reduced-motion: reduce) { .tv-aurora, .tv-aurora-light, .tv-light, .tv-spin-a, .tv-spin-b, .tv-spin-c, .tv-spin-slow, .tv-spin-rev, .tv-breathe, .tv-open, .tv-pulse, .tv-ripple, .tv-flow, .tv-gold, .tv-ink-gold, .tv-line > span, .tv-rise, .tv-bob, .tv-drift, .tv-halo, .tv-wave, .tv-portrait, .tv-from-left, .tv-from-right { animation: none !important; } .tv-light, .tv-ripple { display: none; } }
+@media (prefers-reduced-motion: reduce) { .tv-aurora, .tv-aurora-light, .tv-light, .tv-spin-a, .tv-spin-slow, .tv-flow, .tv-gold, .tv-ink-gold, .tv-rise, .tv-drift, .tv-halo, .tv-wave, .tv-from-left, .tv-from-right { animation: none !important; } .tv-light { display: none; } }
+.op-halo { background: radial-gradient(circle, rgba(243,179,99,.42), rgba(243,179,99,.1) 58%, transparent 72%); animation: tv-pulse-c 6s ease-in-out infinite alternate; }
+.op-ring { animation: tv-turn-c 120s linear infinite; }
+.op-drift { animation: tv-drift 16s ease-in-out infinite alternate; }
+@media (prefers-reduced-motion: reduce) { .op-halo, .op-ring, .op-drift { animation: none !important; transform: translate(-50%,-50%); } }
+.hp-sweep { position: relative; overflow: hidden; }
+.hp-sweep::after { content: ""; position: absolute; inset: 0; background: linear-gradient(105deg, transparent 35%, rgba(255,241,218,.35) 50%, transparent 65%); transform: translateX(-120%); animation: hp-sweep 7s ease-in-out 2s infinite; pointer-events: none; }
+@keyframes hp-sweep { 0% { transform: translateX(-120%); } 35%, 100% { transform: translateX(120%); } }
+.hero-desc { animation: tv-rise 1s cubic-bezier(.2,.8,.2,1) 1.1s both; }
+.hero-search { animation: tv-rise 1s cubic-bezier(.2,.8,.2,1) 1.25s both; }
+@media (prefers-reduced-motion: reduce) { .hp-sweep::after, .hero-desc, .hero-search { animation: none !important; } }
+/* On the home page the footer follows the cream Thank List directly: no white gap above its fringe. */
+.home-foot { background: #fbf0dd; }
+.home-foot > footer { margin-top: 0; }
+[data-theme="dark"] .home-foot { background: transparent; }

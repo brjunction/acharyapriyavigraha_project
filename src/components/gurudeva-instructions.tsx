@@ -76,40 +76,52 @@ export function OnPrabhupada({ kicker = "Śrīla Gurudeva on Śrīla Prabhupāda
   const go = (k: number) => { setI((k + ON_PRABHUPADA.length) % ON_PRABHUPADA.length); setPaused(true); setTick((x) => x + 1); };
   const q = ON_PRABHUPADA[i]; const [ref, on] = useInView<HTMLElement>();
   return (
-    <section ref={ref} data-in={on ? "on" : "off"} className="gi-band relative isolate overflow-hidden border-y border-line bg-page py-14 sm:py-20" onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
+    <section ref={ref} data-in={on ? "on" : "off"} className="gi-band relative isolate overflow-hidden bg-[linear-gradient(180deg,#fffaf2_0%,#fbf0dd_100%)] py-16 sm:py-24" onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
+      <div aria-hidden className="op-drift absolute -left-40 top-10 -z-10 size-[560px] rounded-full bg-[radial-gradient(closest-side,rgba(243,179,99,.25),transparent)]" />
       <div className="mx-auto max-w-[1180px] px-5 sm:px-8">
-        <div className="grid items-center gap-8 lg:grid-cols-[300px_minmax(0,1fr)] lg:gap-14">
-          <div style={{ ["--d" as any]: ".1s" }} className="gi-in relative mx-auto w-[170px] sm:w-[220px] lg:w-full">
+        <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-[340px_minmax(0,1fr)] lg:gap-16">
+          {/* Śrīla Prabhupāda within a golden halo */}
+          <div style={{ ["--d" as any]: ".1s" }} className="gi-in relative mx-auto w-[210px] sm:w-[260px] lg:w-full">
+            <span aria-hidden className="op-halo absolute left-1/2 top-[46%] -z-10 aspect-square w-[96%] rounded-full" />
+            <span aria-hidden className="op-ring absolute left-1/2 top-[46%] -z-10 aspect-square w-[108%] rounded-full border border-dashed" style={{ borderColor: "rgba(133,53,0,.25)" }} />
+            <span aria-hidden className="absolute left-1/2 top-[46%] -z-10 aspect-square w-[122%] -translate-x-1/2 -translate-y-1/2 rounded-full border border-[#e8c766]/40" />
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={portrait} alt="Śrīla A.C. Bhaktivedanta Swami Prabhupāda" className="gi-float relative mx-auto block w-full object-contain object-bottom" loading="lazy" />
+            <img src={portrait} alt="Śrīla A.C. Bhaktivedanta Swami Prabhupāda" className="gi-float relative mx-auto block w-full object-contain object-bottom [mask-image:linear-gradient(to_bottom,#000_80%,transparent)]" loading="lazy" />
+            <p className="relative -mt-4 text-center"><span className="inline-block rounded-full bg-white/90 px-4 py-1.5 text-[11.5px] font-semibold text-saffron-ink shadow-[0_10px_24px_-14px_rgba(120,60,10,.6)] ring-1 ring-[#efe2cb] backdrop-blur">Śrīla A.C. Bhaktivedanta Swami Prabhupāda</span></p>
           </div>
-          <div style={{ ["--d" as any]: ".25s" }} className="gi-in">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.22em] sm:text-[12px]" style={{ color: accent }}>{kicker}</p>
-            <h2 className="mt-2 text-[22px] font-bold leading-tight tracking-[-0.02em] text-ink sm:text-[32px]">{title}</h2>
-            <figure key={i} className="gi-rise mt-6 sm:mt-8">
-              <p className="text-[12.5px] font-bold uppercase tracking-[0.12em] text-ink-3">{q.title}</p>
-              <blockquote className="mt-3 border-l-[3px] pl-4 text-[15.5px] font-medium leading-[1.75] text-ink sm:pl-6 sm:text-[19px] sm:leading-[1.7]" style={{ borderColor: accent }}>{q.text}</blockquote>
-              <figcaption className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2 pl-4 sm:pl-6">
-                <Sign key={i} className="w-[140px] sm:w-[190px]" draw={on} />
-                <span className="text-[12.5px] text-ink-3">Śrī Śrīmad Gour Govinda Swāmī Gurudeva · {q.place}</span>
-              </figcaption>
-            </figure>
+          <div style={{ ["--d" as any]: ".25s" }} className="gi-in min-w-0">
+            <p className="text-[10.5px] font-semibold uppercase tracking-[0.22em] sm:text-[11px]" style={{ color: accent }}>{kicker}</p>
+            <h2 className="mt-3 text-[22px] font-semibold leading-tight tracking-[-0.025em] text-ink sm:text-[32px] lg:text-[36px]">{title}</h2>
+            {/* the words, on a white card with a fine golden edge */}
+            <div className="mt-7 rounded-[26px] bg-[linear-gradient(140deg,#f3c77a,#e8913c_40%,rgba(232,145,60,.15)_70%,#f3c77a)] p-[1.5px] shadow-[0_34px_60px_-40px_rgba(120,60,10,.7)]">
+              <figure key={i} className="gi-rise relative overflow-hidden rounded-[25px] bg-white px-5 pb-6 pt-7 sm:px-9 sm:pb-8 sm:pt-9">
+                <span aria-hidden className="pointer-events-none absolute -right-2 -top-10 select-none text-[180px] font-bold leading-none text-[#f7e6cf]">”</span>
+                <p className="relative inline-flex items-center gap-2 rounded-full bg-[#fbf0dd] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-saffron-ink"><span className="size-1.5 rounded-full bg-saffron" />{q.title}</p>
+                <blockquote className="relative mt-4 text-[15px] font-medium leading-[1.75] text-ink sm:text-[18.5px] sm:leading-[1.7]">{q.text}</blockquote>
+                <figcaption className="relative mt-6 flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-[#f1e6d3] pt-5">
+                  <Sign key={i} className="w-[130px] sm:w-[170px]" draw={on} />
+                  <span className="text-[12px] text-ink-3 sm:text-[12.5px]">Śrī Śrīmad Gour Govinda Swāmī Gurudeva · {q.place}</span>
+                </figcaption>
+              </figure>
+            </div>
           </div>
         </div>
-        <div style={{ ["--d" as any]: ".45s" }} className="gi-in -mx-5 mt-10 flex snap-x gap-3 overflow-x-auto px-5 pb-2 [scrollbar-width:none] sm:mx-0 sm:grid sm:grid-cols-4 sm:overflow-visible sm:px-0" role="tablist">
-          {ON_PRABHUPADA.map((x, k) => (
-            <button key={x.title} role="tab" aria-selected={k === i} onClick={() => go(k)}
-              className={`relative w-[220px] shrink-0 snap-start overflow-hidden rounded-2xl border p-4 text-left transition sm:w-auto ${k === i ? "border-transparent bg-surface shadow-[var(--shadow-md)]" : "border-line bg-surface/60 hover:bg-surface"}`}>
-              <span className="text-[11px] font-semibold tabular-nums text-ink-3">0{k + 1} · {x.place.split(",")[1]?.trim()}</span>
-              <span className={`mt-1 block text-[14px] font-bold leading-snug ${k === i ? "text-ink" : "text-ink-2"}`}>{x.title}</span>
-              <span className="absolute inset-x-0 bottom-0 h-[3px] bg-line" />
-              {k === i && <span key={tick} className="absolute bottom-0 left-0 h-[3px]" style={{ background: accent, width: paused ? "100%" : undefined, animation: paused ? undefined : `gi-progress ${MS}ms linear forwards` }} />}
-            </button>
-          ))}
-        </div>
-        <div className="mt-4 flex items-center justify-end gap-2">
-          <button onClick={() => go(i - 1)} aria-label="Previous" className="flex size-10 items-center justify-center rounded-full border border-line-strong bg-surface text-ink-2 transition hover:text-ink"><ChevronLeft size={18} /></button>
-          <button onClick={() => go(i + 1)} aria-label="Next" className="flex size-10 items-center justify-center rounded-full border border-line-strong bg-surface text-ink-2 transition hover:text-ink"><ChevronRight size={18} /></button>
+        <div style={{ ["--d" as any]: ".45s" }} className="gi-in mt-10 flex items-stretch gap-3">
+          <div className="-mx-5 flex min-w-0 flex-1 snap-x gap-2.5 overflow-x-auto px-5 pb-2 [scrollbar-width:none] sm:mx-0 sm:grid sm:grid-cols-4 sm:overflow-visible sm:px-0" role="tablist">
+            {ON_PRABHUPADA.map((x, k) => (
+              <button key={x.title} role="tab" aria-selected={k === i} onClick={() => go(k)}
+                className={`group relative w-[210px] shrink-0 snap-start overflow-hidden rounded-2xl p-4 text-left transition duration-300 sm:w-auto ${k === i ? "bg-white shadow-[0_18px_34px_-22px_rgba(120,60,10,.6)] ring-1 ring-[#f3c77a]" : "bg-white/50 ring-1 ring-[#efe2cb] hover:bg-white"}`}>
+                <span className="flex items-center gap-2"><span className={`flex size-6 items-center justify-center rounded-full text-[10.5px] font-semibold tabular-nums transition ${k === i ? "bg-saffron text-white" : "bg-[#fbf0dd] text-saffron-ink"}`}>{k + 1}</span><span className="text-[11px] tabular-nums text-ink-3">{x.place.split(",")[1]?.trim()}</span></span>
+                <span className={`mt-2 block text-[13.5px] font-semibold leading-snug ${k === i ? "text-ink" : "text-ink-2"}`}>{x.title}</span>
+                <span className="absolute inset-x-0 bottom-0 h-[3px] bg-[#f1e6d3]" />
+                {k === i && <span key={tick} className="absolute bottom-0 left-0 h-[3px] bg-[linear-gradient(90deg,#e8913c,#853500)]" style={{ width: paused ? "100%" : undefined, animation: paused ? undefined : `gi-progress ${MS}ms linear forwards` }} />}
+              </button>
+            ))}
+          </div>
+          <div className="hidden flex-col justify-center gap-2 sm:flex">
+            <button onClick={() => go(i - 1)} aria-label="Previous" className="flex size-10 items-center justify-center rounded-full bg-white text-saffron-ink ring-1 ring-[#efe2cb] transition hover:ring-saffron"><ChevronLeft size={18} /></button>
+            <button onClick={() => go(i + 1)} aria-label="Next" className="flex size-10 items-center justify-center rounded-full bg-white text-saffron-ink ring-1 ring-[#efe2cb] transition hover:ring-saffron"><ChevronRight size={18} /></button>
+          </div>
         </div>
       </div>
     </section>

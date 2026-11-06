@@ -4,7 +4,7 @@ import { usePathname } from "next/navigation";
 /** The full footer on the home page; one quiet line everywhere else. */
 export function FooterSwitch({ children }: { children: React.ReactNode }) {
   const path = usePathname();
-  if (path === "/" || path === "/home-new" || path === "/home-v2") return <>{children}</>;
+  if (path === "/" || path === "/home-new") return <div className="home-foot">{children}</div>;
   return (
     <footer className="mt-14 border-t border-line bg-white">
       <div className="mx-auto flex max-w-[1240px] flex-wrap items-center justify-center gap-x-2 gap-y-0.5 px-4 py-3.5 text-center text-[12.5px] text-ink-3">

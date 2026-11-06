@@ -2,7 +2,8 @@
 import { Hero } from "@/components/home-client";
 import { Blessing } from "@/components/home/blessing";
 import { ThreeThings, OnPrabhupada } from "@/components/gurudeva-instructions";
-import { FounderNew, NumbersSection, ListenSection, ReadSection, TattvaSection, GurudevaSection, EverythingSection, WebFolioSection, ThanksSection, type HomeLecture, type HomeBook } from "@/components/home/sections";
+import { FounderNew, NumbersSection, GurudevaSection, WebFolioSection, type HomeLecture, type HomeBook } from "@/components/home/sections";
+import { KrishnaSent, ListenNew, BooksNew, TattvaNew, EverythingNew, ThanksNew } from "@/components/home/new-sections";
 import { sql, hasDb } from "@/lib/db";
 import { STATS } from "@/lib/data";
 import { topics as getTopics } from "@/lib/content/topics";
@@ -13,8 +14,6 @@ const rows = async <T,>(q: Promise<any[]>) => { try { return (await q) as T[]; }
 
 export async function HomePage({ blessing }: { blessing?: string }) {
   const db = hasDb();
-  let variant = blessing || "a";
-  if (!blessing && db) { try { const r = (await sql`select value from settings where key = 'home_blessing'`)[0] as any; if (r?.value) variant = String(r.value); } catch {} }
   const [lectures, kirtans, videos, transcripts, books, quotes, latest, shelf, tps] = await Promise.all([
     db ? one(sql`select count(*)::int n from audios where status = 'published' and kind not in ('kirtan','bhajan')`) : STATS.lectures,
     db ? one(sql`select count(*)::int n from audios where status = 'published' and kind in ('kirtan','bhajan')`) : 0,
@@ -22,7 +21,7 @@ export async function HomePage({ blessing }: { blessing?: string }) {
     db ? one(sql`select count(*)::int n from audios where status = 'published' and transcript_status = 'done'`) : STATS.transcriptions,
     db ? one(sql`select count(*)::int n from books where status = 'published'`) : STATS.books,
     db ? one(sql`select count(*)::int n from excerpts where status = 'published'`) : 0,
-    db ? rows<HomeLecture>(sql`select slug, title, to_char(date, 'YYYY-MM-DD') date, place, duration_sec, transcript_status from audios where status = 'published' and kind not in ('kirtan','bhajan') order by created_at desc limit 6`) : [],
+    db ? rows<HomeLecture>(sql`select slug, title, to_char(date, 'YYYY-MM-DD') date, place, duration_sec, transcript_status from audios where status = 'published' and kind not in ('kirtan','bhajan') order by created_at desc limit 5`) : [],
     db ? rows<HomeBook>(sql`select slug, title, cover_url, language from books where status = 'published' order by position, title limit 8`) : [],
     getTopics().catch(() => []),
   ]);
@@ -30,7 +29,8 @@ export async function HomePage({ blessing }: { blessing?: string }) {
   return (
     <>
       <Hero />
-      <Blessing v={variant} />
+      {/* “Kṛṣṇa sent him”: the new design here; /home-new?blessing=… still shows the four older ones */}
+      {blessing ? <Blessing v={blessing} /> : <KrishnaSent />}
       <FounderNew />
       <ThreeThings />
       <NumbersSection items={[
@@ -41,15 +41,14 @@ export async function HomePage({ blessing }: { blessing?: string }) {
         { n: books, label: "Books", sub: "to read online" },
         { n: quotes || tps.length, label: quotes ? "Compilations" : "Topics", sub: quotes ? "quotes, verses, stories" : "in Tattva" },
       ]} />
-      <ListenSection lectures={latest} counts={{ lectures, kirtans, videos, transcripts }} />
+      <ListenNew latest={latest} lectures={lectures} kirtans={kirtans} videos={videos} transcripts={transcripts} />
       <OnPrabhupada />
-      <ReadSection books={shelf} total={books} />
-      <TattvaSection topics={topTopics} quotes={quotes} />
+      <BooksNew shelf={shelf} />
+      <TattvaNew topTopics={topTopics} />
       <GurudevaSection />
-      <EverythingSection />
+      <EverythingNew />
       <WebFolioSection />
-
-      <ThanksSection />
+      <ThanksNew />
     </>
   );
 }
