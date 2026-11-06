@@ -3,12 +3,11 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { ChevronDown, ChevronRight, ChevronLeft, ChevronUp, Search, SlidersHorizontal, Menu, X, ArrowRight } from "lucide-react";
+import { ChevronDown, ChevronRight, ChevronLeft, ChevronUp, Search, Menu, X, ArrowRight } from "lucide-react";
 import { ACCENT, type NavMenu } from "@/lib/nav";
 import { useMenus } from "./menus-context";
 import { LogoMark, Rosette } from "./motifs";
 import { usePrefs } from "./providers";
-import { SettingsPanel } from "./settings";
 import { Img } from "./img";
 
 export function Logo({ compact = false }: { compact?: boolean }) {
@@ -220,32 +219,23 @@ export function Header() {
   const MENUS = useMenus();
   const { setSearch } = usePrefs();
   const [active, setActive] = useState<string | null>(null);
-  const [settings, setSettings] = useState(false);
   const [mobile, setMobile] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pinned = useRef(false);
-  const settingsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => setMounted(true), []);
-  useEffect(() => { setActive(null); setMobile(false); setSettings(false); }, [path]);
+  useEffect(() => { setActive(null); setMobile(false); }, [path]);
   useEffect(() => { document.body.style.overflow = mobile ? "hidden" : ""; }, [mobile]);
   useEffect(() => { const f = () => setScrolled(window.scrollY > 8); f(); window.addEventListener("scroll", f, { passive: true }); return () => window.removeEventListener("scroll", f); }, []);
-  useEffect(() => {
-    if (!settings) return;
-    const f = (e: MouseEvent) => { if (!settingsRef.current?.contains(e.target as Node)) setSettings(false); };
-    const k = (e: KeyboardEvent) => e.key === "Escape" && setSettings(false);
-    document.addEventListener("mousedown", f); document.addEventListener("keydown", k);
-    return () => { document.removeEventListener("mousedown", f); document.removeEventListener("keydown", k); };
-  }, [settings]);
   useEffect(() => {
     if (!active) return;
     const k = (e: KeyboardEvent) => e.key === "Escape" && setActive(null);
     document.addEventListener("keydown", k); return () => document.removeEventListener("keydown", k);
   }, [active]);
 
-  const show = (k: string) => { if (timer.current) clearTimeout(timer.current); setActive(k); setSettings(false); };
+  const show = (k: string) => { if (timer.current) clearTimeout(timer.current); setActive(k); };
   const hide = () => { if (timer.current) clearTimeout(timer.current); timer.current = setTimeout(() => { if (!pinned.current) setActive(null); }, 150); };
   const menu = MENUS.find((m) => m.key === active);
   const wide = menu && (menu.layout === "flyout" ? 1080 : menu.layout === "tiles" ? 880 : menu.groups.length >= 4 ? 1240 : menu.groups.length === 3 ? 980 : 780);
@@ -278,17 +268,6 @@ export function Header() {
               <Search size={15} /><span className="hidden flex-1 whitespace-nowrap text-left text-[12px] text-ink-3 xl:inline">Search…</span>
               <kbd className="hidden whitespace-nowrap rounded border border-line bg-surface px-1.5 text-[10px] text-ink-3 xl:inline">Ctrl K</kbd>
             </button>
-            <div className="relative" ref={settingsRef}>
-              <button onClick={() => { setSettings(!settings); setActive(null); }} aria-label="Settings" aria-expanded={settings} title="Settings"
-                className={`flex h-8 w-8 items-center justify-center rounded-full border transition sm:h-9 sm:w-9 ${settings ? "border-saffron bg-white text-saffron" : "border-line bg-band/60 text-ink-2 hover:border-saffron hover:bg-white hover:text-saffron"}`}>
-                <SlidersHorizontal size={16} />
-              </button>
-              {settings && (
-                <div className="mega-enter absolute right-0 top-[calc(100%+14px)] z-[60] max-h-[calc(100vh-90px)] w-[330px] max-lg:fixed max-lg:inset-x-3 max-lg:top-[60px] max-lg:w-auto overflow-y-auto rounded-2xl border border-line bg-surface p-5 text-ink shadow-[var(--shadow-lg)]">
-                  <SettingsPanel />
-                </div>
-              )}
-            </div>
             <button onClick={() => { document.documentElement.classList.add("nav-hidden"); try { localStorage.setItem("tj_nav_hidden", "1"); } catch {} window.dispatchEvent(new Event("tj:nav")); }} aria-label="Hide the top bar" title="Hide the top bar"
               className="hidden h-8 w-8 items-center justify-center rounded-full border border-line bg-band/60 text-ink-2 transition hover:border-saffron hover:bg-white hover:text-saffron sm:flex sm:h-9 sm:w-9"><ChevronUp size={16} /></button>
             <button onClick={() => setMobile(true)} aria-label="Open menu" className="flex h-8 w-8 items-center justify-center rounded-full bg-ink text-white transition hover:bg-ink/85 sm:h-9 sm:w-9 lg:hidden"><Menu size={17} /></button>

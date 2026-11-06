@@ -2,7 +2,7 @@
 import { Hero } from "@/components/home-client";
 import { Blessing } from "@/components/home/blessing";
 import { ThreeThings, OnPrabhupada } from "@/components/gurudeva-instructions";
-import { NumbersSection, GurudevaSection, WebFolioSection, type HomeLecture, type HomeBook } from "@/components/home/sections";
+import { NumbersSection, WebFolioSection, type HomeLecture, type HomeBook } from "@/components/home/sections";
 import { KrishnaSentOpening, FounderJourney } from "@/components/home/opening";
 import { ListenNew, BooksNew, TattvaNew, EverythingNew, ThanksNew } from "@/components/home/new-sections";
 import { sql, hasDb } from "@/lib/db";
@@ -46,7 +46,6 @@ export async function HomePage({ blessing }: { blessing?: string }) {
       <OnPrabhupada />
       <BooksNew shelf={shelf} />
       <TattvaNew topTopics={topTopics} />
-      <GurudevaSection />
       <EverythingNew />
       <WebFolioSection />
       <ThanksNew />

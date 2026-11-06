@@ -26,7 +26,7 @@ function apply(p: Prefs) {
   const r = document.documentElement;
   r.dataset.theme = "light"; // the site has one look; any earlier colour choice is ignored
   r.dataset.font = p.font;
-  r.dataset.motion = p.reduceMotion ? "reduce" : "full";
+  r.dataset.motion = "full"; // motion always on (an older “reduce motion” choice no longer stops it)
   r.style.setProperty("--reading-size", `${p.size}px`);
   (r.style as any).zoom = p.zoom && p.zoom !== 100 ? String(p.zoom / 100) : "";
   r.style.setProperty("--reading-leading", { compact: "1.55", comfortable: "1.75", spacious: "2" }[p.leading]);
@@ -48,7 +48,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
   const loaded = useRef(false);
 
   useEffect(() => {
-    try { const s = localStorage.getItem("tj-prefs-v3"); if (s) setPrefs({ ...DEFAULT, ...JSON.parse(s) }); } catch {}
+    try { const s = localStorage.getItem("tj-prefs-v3"); if (s) { const o = JSON.parse(s); setPrefs({ ...DEFAULT, speed: Number(o.speed) || 1 }); /* no settings panel any more: only the audio speed is remembered */ } } catch {}
     loaded.current = true;
   }, []);
   useEffect(() => { apply(prefs); }, [prefs]);

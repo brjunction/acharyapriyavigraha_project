@@ -1,14 +1,12 @@
 "use client";
 /* The two sections after the hero.
-   “Kṛṣṇa sent him.” — the words set large like a page, a golden ring drawing itself around Śrīla Prabhupāda and Śrīla Gurudeva,
-   and the conversation and the letter as two sheets of paper that open to be read in full.
+   “Kṛṣṇa sent him.” — Śrīla Prabhupāda and Śrīla Gurudeva side by side, his words beside them; the conversation and the letter open in full.
    How Taptajīvanam began — one golden line that draws itself through the years, each year a point on it. */
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { ArrowRight, ArrowUpRight, X } from "lucide-react";
+import { ArrowRight, X } from "lucide-react";
 import { CONVERSATION, LETTER } from "@/lib/prabhupada";
 import { FOUNDER_STEPS } from "@/components/home/home-data";
-import { Padma } from "@/components/motifs";
 
 function useInView<T extends HTMLElement>(margin = "-12%") {
   const ref = useRef<T>(null); const [on, setOn] = useState(false);
@@ -45,62 +43,36 @@ function Reading({ which, onClose }: { which: "c" | "l"; onClose: () => void }) 
   );
 }
 
-/** A sheet of paper: a ruled page, a saffron seal, the date, one line, and “Read”. */
-function Sheet({ kind, date, line, tilt, onOpen, delay }: { kind: string; date: string; line: string; tilt: string; onOpen: () => void; delay: string }) {
-  return (
-    <button onClick={onOpen} style={{ ["--t" as any]: tilt, transitionDelay: delay }}
-      className="op-sheet group relative w-full overflow-hidden rounded-[6px_14px_14px_6px] bg-[#fffdf7] p-5 pb-4 text-left shadow-[0_24px_40px_-24px_rgba(90,40,5,.55),0_2px_6px_-2px_rgba(90,40,5,.15)] ring-1 ring-[#efe2cb] sm:p-6 sm:pb-5">
-      <span aria-hidden className="pointer-events-none absolute inset-0 opacity-60 [background:repeating-linear-gradient(180deg,transparent_0,transparent_27px,#f3e7d3_27px,#f3e7d3_28px)]" />
-      <span aria-hidden className="absolute inset-y-0 left-0 w-[3px] bg-[linear-gradient(180deg,#e8913c,#853500)]" />
-      <span className="relative flex items-start justify-between gap-3">
-        <span><span className="block text-[10px] font-semibold uppercase tracking-[0.22em] text-saffron">{kind}</span><span className="mt-0.5 block text-[12px] text-ink-3">{date}</span></span>
-        <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-[radial-gradient(circle_at_35%_30%,#d9782a,#853500)] text-[#fff1da] shadow-[0_6px_12px_-4px_rgba(133,53,0,.7),inset_0_-2px_4px_rgba(0,0,0,.25)] transition duration-500 group-hover:rotate-[20deg]"><Padma className="size-4" layers={2} /></span>
-      </span>
-      <span className="relative mt-4 block text-[15px] font-medium leading-[28px] text-ink sm:text-[16px]">{line}</span>
-      <span className="relative mt-3 inline-flex items-center gap-1.5 text-[12.5px] font-semibold text-saffron">Read in full<ArrowUpRight size={14} className="transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5" /></span>
-    </button>
-  );
-}
-
+/** “Kṛṣṇa sent him.” — Śrīla Prabhupāda and Śrīla Gurudeva side by side, and Śrīla Prabhupāda’s words beside them, plainly set. */
 export function KrishnaSentOpening() {
   const [ref, on] = useInView<HTMLElement>();
   const [open, setOpen] = useState<"c" | "l" | null>(null);
   return (
     <section ref={ref} data-on={on ? "1" : "0"} className="op relative isolate overflow-hidden bg-[#fffaf3] py-16 sm:py-24">
-      <div aria-hidden className="absolute inset-0 -z-10 bg-[radial-gradient(70%_60%_at_78%_45%,rgba(243,179,99,.22),transparent_70%),radial-gradient(50%_50%_at_10%_90%,rgba(232,145,60,.1),transparent_70%)]" />
-      <div className="mx-auto grid max-w-[1180px] grid-cols-1 items-center gap-12 px-5 sm:px-8 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:gap-16">
-        {/* the two of them, inside a ring that draws itself */}
-        <div className="relative mx-auto w-full max-w-[300px] sm:max-w-[420px] lg:order-2 lg:max-w-[480px]">
-          <div className="relative aspect-square">
-            <span aria-hidden className="op-light absolute inset-[8%] rounded-full bg-[radial-gradient(circle,rgba(255,236,200,1)_0%,rgba(250,214,160,.55)_45%,transparent_70%)]" />
-            <svg viewBox="0 0 200 200" className="absolute inset-0 h-full w-full -rotate-90" aria-hidden>
-              <circle cx="100" cy="100" r="96" fill="none" stroke="#efdcc0" strokeWidth=".5" />
-              <circle cx="100" cy="100" r="96" fill="none" stroke="url(#op-g)" strokeWidth="1.2" strokeLinecap="round" pathLength={100} className="op-draw" />
-              <circle cx="100" cy="100" r="88" fill="none" stroke="#e8c79a" strokeWidth=".4" strokeDasharray=".6 2.4" className="op-turn" style={{ transformOrigin: "100px 100px" }} />
-              <defs><linearGradient id="op-g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#f3c77a" /><stop offset=".5" stopColor="#c2621d" /><stop offset="1" stopColor="#f3c77a" /></linearGradient></defs>
-            </svg>
-            <div className="absolute inset-[4%] overflow-hidden rounded-full">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/legacy/prabhupada.webp" alt="Śrīla A.C. Bhaktivedanta Swami Prabhupāda" className="op-p1 absolute bottom-0 left-[2%] w-[60%] object-contain [mask-image:linear-gradient(to_bottom,#000_70%,transparent)]" loading="lazy" />
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/legacy/gurudeva.webp" alt="Śrī Śrīmad Gour Govinda Swāmī Gurudeva" className="op-p2 absolute bottom-0 right-[2%] w-[56%] object-contain [mask-image:linear-gradient(to_bottom,#000_72%,transparent)]" loading="lazy" />
-            </div>
-          </div>
-          <div className="op-names mt-4 flex items-center justify-center gap-2 whitespace-nowrap text-[11.5px] sm:gap-3 font-medium text-ink-2 sm:text-[12.5px]">
-            <span>Śrīla Prabhupāda</span><span className="h-px w-8 bg-gradient-to-r from-[#e8c79a] to-[#c2621d]" /><Padma className="size-3.5 text-saffron" layers={2} /><span className="h-px w-8 bg-gradient-to-l from-[#e8c79a] to-[#c2621d]" /><span>Śrīla Gurudeva</span>
-          </div>
+      <div aria-hidden className="absolute inset-0 -z-10 bg-[radial-gradient(55%_60%_at_25%_55%,rgba(243,179,99,.16),transparent_70%)]" />
+      <div className="mx-auto grid max-w-[1120px] grid-cols-1 items-center gap-10 px-5 sm:px-8 lg:grid-cols-2 lg:gap-16">
+        <div className="op-up grid grid-cols-2 items-end gap-4 sm:gap-6">
+          {([["/legacy/prabhupada.webp", "Śrīla A.C. Bhaktivedanta Swami Prabhupāda", "Śrīla Prabhupāda"], ["/legacy/gurudeva.webp", "Śrī Śrīmad Gour Govinda Swāmī Gurudeva", "Śrīla Gurudeva"]] as const).map(([src, alt, name]) => (
+            <figure key={src} className="text-center">
+              <div className="relative overflow-hidden rounded-[20px] bg-[linear-gradient(180deg,#fbeedb,#f6dfbf)]">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={src} alt={alt} className="block aspect-[4/5] w-full object-contain object-bottom" loading="lazy" />
+              </div>
+              <figcaption className="mt-3 text-[12.5px] font-medium text-ink-2 sm:text-[13.5px]">{name}</figcaption>
+            </figure>
+          ))}
         </div>
-
-        {/* the words */}
-        <div className="text-center lg:order-1 lg:text-left">
-          <p className="op-up flex items-center justify-center gap-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-saffron sm:text-[11px] sm:tracking-[0.24em] lg:justify-start" style={{ transitionDelay: ".1s" }}><span className="hidden h-px w-10 bg-saffron/50 lg:block" />Śrīla Prabhupāda on Śrīla Gurudeva</p>
-          <h2 className="op-up mt-5 font-display text-[44px] font-semibold leading-[1] tracking-[-0.045em] text-[#2b1a10] sm:text-[68px] lg:text-[76px]" style={{ transitionDelay: ".2s" }}>
-            <span className="text-[#c2621d]">“</span>Kṛṣṇa<br className="hidden lg:block" /> <span className="relative inline-block">sent him.<svg viewBox="0 0 300 20" preserveAspectRatio="none" className="absolute -bottom-1 left-0 h-[0.22em] w-full sm:-bottom-2" aria-hidden><path d="M3 14 C 70 4, 160 4, 297 10" fill="none" stroke="#e8913c" strokeWidth="5" strokeLinecap="round" pathLength={100} className="op-draw op-draw-late" /></svg></span><span className="text-[#c2621d]">”</span>
-          </h2>
-          <p className="op-up mt-6 text-[12.5px] text-ink-3 sm:text-[13.5px]" style={{ transitionDelay: ".3s" }}>Śrīla Prabhupāda · Room conversation, Bombay, 5 January 1977</p>
-          <div className="mx-auto mt-9 grid max-w-[560px] grid-cols-1 gap-4 sm:grid-cols-2 lg:mx-0">
-            <Sheet kind="The conversation" date="Bombay · 5 January 1977" line="“He’s a good boy. … He’s organizing nicely.”" tilt="-1.5deg" onOpen={() => setOpen("c")} delay=".45s" />
-            <Sheet kind="The letter" date="Māyāpur · 12 February 1976" line="“Krishna is with you and there is no need of disappointment.”" tilt="1.2deg" onOpen={() => setOpen("l")} delay=".6s" />
+        <div className="text-center lg:text-left">
+          <p className="op-up text-[10.5px] font-semibold uppercase tracking-[0.2em] text-saffron sm:text-[11px]" style={{ transitionDelay: ".1s" }}>Śrīla Prabhupāda on Śrīla Gurudeva</p>
+          <h2 className="op-up mt-4 font-display text-[34px] font-semibold leading-[1.1] tracking-[-0.03em] text-ink sm:text-[46px]" style={{ transitionDelay: ".18s" }}>“Kṛṣṇa sent him.”</h2>
+          <p className="op-up mt-3 text-[12.5px] text-ink-3 sm:text-[13.5px]" style={{ transitionDelay: ".24s" }}>Room conversation · Bombay, 5 January 1977</p>
+          <div className="op-up mx-auto mt-8 max-w-[480px] border-t border-[#efe2cb] pt-7 lg:mx-0" style={{ transitionDelay: ".32s" }}>
+            <p className="text-[16px] font-medium leading-relaxed text-ink sm:text-[18px]">“Krishna is with you and there is no need of disappointment.”</p>
+            <p className="mt-2 text-[12.5px] text-ink-3 sm:text-[13.5px]">Śrīla Prabhupāda’s letter to Śrīla Gurudeva · Māyāpur, 12 February 1976</p>
+          </div>
+          <div className="op-up mt-8 flex flex-wrap justify-center gap-3 lg:justify-start" style={{ transitionDelay: ".4s" }}>
+            <button onClick={() => setOpen("c")} className="inline-flex h-11 items-center gap-2 rounded-full bg-[#853500] px-5 text-[13px] font-semibold text-white transition hover:bg-[#6b2a00]">Read the conversation<ArrowRight size={15} /></button>
+            <button onClick={() => setOpen("l")} className="inline-flex h-11 items-center gap-2 rounded-full border border-[#e3cfae] bg-white px-5 text-[13px] font-semibold text-[#853500] transition hover:border-[#853500]">Read the letter<ArrowRight size={15} /></button>
           </div>
         </div>
       </div>
@@ -124,10 +96,13 @@ export function FounderJourney() {
             <h2 className="op-up mt-4 font-display text-[30px] font-bold leading-[1.05] tracking-[-0.035em] text-[#2b1a10] sm:text-[48px]" style={{ transitionDelay: ".1s" }}>How Taptajīvanam began</h2>
             <p className="op-up mt-4 text-[13.5px] leading-relaxed text-ink-2 sm:text-[15px]" style={{ transitionDelay: ".2s" }}>Śrīla Haladhara Swāmī Guru Mahārāja, ISKCON Guru and Sannyāsī, travels and preaches Kṛṣṇa consciousness all around the world, sharing the teachings of Śrīla Prabhupāda and Śrī Śrīmad Gour Govinda Swāmī Gurudeva.</p>
           </div>
-          <Link href="/about/founder" className="op-up group flex shrink-0 items-center gap-3 rounded-full bg-white/70 py-1.5 pl-1.5 pr-5 shadow-[0_18px_36px_-22px_rgba(90,40,5,.6)] ring-1 ring-white backdrop-blur transition hover:-translate-y-0.5" style={{ transitionDelay: ".3s" }}>
+          <Link href="/about/founder" className="op-up group block w-full max-w-[280px] shrink-0 overflow-hidden rounded-[22px] bg-white shadow-[0_24px_48px_-28px_rgba(90,40,5,.6)] ring-1 ring-[#efe2cb] transition duration-300 hover:-translate-y-1" style={{ transitionDelay: ".3s" }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/photos/haladhara.webp" alt="" className="size-12 rounded-full object-cover object-top ring-2 ring-[#f3c77a]" />
-            <span className="text-left"><span className="block text-[13px] font-semibold text-ink">Śrīla Haladhara Swāmī Guru Mahārāja</span><span className="flex items-center gap-1 text-[12px] font-medium text-saffron">Read his biography<ArrowRight size={13} className="transition group-hover:translate-x-0.5" /></span></span>
+            <img src="/photos/haladhara.webp" alt="Śrīla Haladhara Swāmī Guru Mahārāja" className="block aspect-[4/3] w-full object-cover object-top transition duration-700 group-hover:scale-[1.03]" />
+            <span className="block px-4 py-3.5 text-left">
+              <span className="block text-[14px] font-semibold text-ink">Śrīla Haladhara Swāmī Guru Mahārāja</span>
+              <span className="mt-1 flex items-center gap-1 text-[12.5px] font-medium text-saffron">Read his biography<ArrowRight size={13} className="transition group-hover:translate-x-0.5" /></span>
+            </span>
           </Link>
         </div>
 
