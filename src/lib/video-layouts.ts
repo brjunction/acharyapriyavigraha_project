@@ -9,6 +9,10 @@ export const LAYOUTS = [
   ["carousel", "Carousel — big slides that change by themselves"],
   ["list", "List — a neat numbered list"],
   ["channels", "Channels — channel cards with their pictures"],
+  ["folder", "Folder — holds sub-sections, one below another"],
+  ["tabs", "Tabs — sub-sections as switchable tabs inside"],
 ] as const;
+/** Whether a section can be folded: no, open at first, or closed at first. */
+export const FOLDS = [["none", "Always open"], ["open", "Foldable, open at first"], ["closed", "Foldable, closed at first"]] as const;
 export type Layout = (typeof LAYOUTS)[number][0];
 export const COLORS = ["saffron", "rose", "teal", "indigo", "leaf", "gold", "plum"] as const;
