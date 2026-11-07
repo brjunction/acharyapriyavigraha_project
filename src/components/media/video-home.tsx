@@ -3,7 +3,10 @@
    Calm on a phone: few videos per section on Home, rows swipe sideways, every section has its own tab. */
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ChevronLeft, ChevronRight, ListVideo, Play, Search, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, ListVideo, Play, Search, X, SlidersHorizontal } from "lucide-react";
+import { useRouter } from "next/navigation";
+import type { AdvFilter, AdvResult } from "@/lib/video-advanced";
+import { LENGTHS } from "@/lib/video-layouts";
 import type { Shelf, VCard, VSection } from "@/lib/video-home";
 
 const dur = (s: number) => (!s ? "" : s >= 3600 ? `${Math.floor(s / 3600)}:${String(Math.floor((s % 3600) / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}` : `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`);
@@ -15,11 +18,12 @@ export const watchHref = (v: VCard, q?: string) => `/teachings/videos/${v.slug}$
 
 /* ---------- The tab bar along the top of every Videos page ---------- */
 export function VideoTabsBar({ tabs, active, channels }: { tabs: { name: string; slug: string; color: string }[]; active: string; channels: number }) {
-  const ref = useRef<HTMLDivElement>(null);
+  const ref = useRef<HTMLDivElement>(null); const [away, setAway] = useState(false);
   useEffect(() => { ref.current?.querySelector<HTMLElement>("[aria-current=page]")?.scrollIntoView({ inline: "center", block: "nearest" }); }, [active]);
+  useEffect(() => { let y = window.scrollY; const f = () => { const n = window.scrollY; if (Math.abs(n - y) < 6) return; setAway(n > y && n > 160); y = n; }; window.addEventListener("scroll", f, { passive: true }); return () => window.removeEventListener("scroll", f); }, []);
   const all = [{ name: "Home", slug: "", color: "saffron" }, ...tabs, ...(channels ? [{ name: "Channels", slug: "channels", color: "saffron" }] : [])];
   return (
-    <div className="sticky top-[52px] z-30 border-b border-line bg-white/95 backdrop-blur sm:top-[58px]">
+    <div className={`sticky top-[52px] z-30 border-b border-line bg-white/95 backdrop-blur transition-transform duration-300 sm:top-[58px] ${away ? "-translate-y-[calc(100%+60px)]" : ""}`}>
       <div className="mx-auto flex max-w-[1240px] items-center gap-3 px-4 sm:px-6">
         <div ref={ref} className="-mx-1 flex min-w-0 flex-1 gap-1 overflow-x-auto px-1 py-2 [scrollbar-width:none]">
           {all.map((t) => { const on = active === (t.slug || "home"); const href = !t.slug ? "/teachings/videos" : t.slug === "channels" ? "/teachings/videos/channels" : `/teachings/videos/s/${t.slug}`; return (
@@ -28,6 +32,7 @@ export function VideoTabsBar({ tabs, active, channels }: { tabs: { name: string;
               {t.slug && t.slug !== "channels" && <span className={`size-2 rounded-full ${on ? "bg-white" : "bg-[var(--acc)]"}`} />}{t.name}
             </Link>); })}
         </div>
+        <Link href="/teachings/videos/advanced" aria-current={active === "advanced" ? "page" : undefined} className={`flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-[12.5px] font-medium transition ${active === "advanced" ? "border-ink bg-ink text-white" : "border-line text-ink-2 hover:border-ink-3 hover:text-ink"}`}><SlidersHorizontal size={14} /><span className="max-sm:hidden">Advanced</span></Link>
         <form action="/teachings/videos/search" className="relative hidden w-56 shrink-0 md:block">
           <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-3" />
           <input name="q" placeholder="Search videos" aria-label="Search videos" className="h-9 w-full rounded-full border border-line bg-band/50 pl-9 pr-3 text-[13px] outline-none focus:border-saffron focus:bg-white" />
@@ -44,11 +49,8 @@ export function VideoHomeView({ sections, latest, channels }: { sections: VSecti
   return (
     <div className="mx-auto max-w-[1240px] space-y-5 px-4 pb-16 pt-6 sm:space-y-7 sm:px-6">
       {!sections.length && (latest.length ? <Block title="Newest videos" color="saffron"><Row items={latest} /></Block> : <p className="py-20 text-center text-[14px] text-ink-3">Videos are being added.</p>)}
-      {sections.map((s) => (
-        <Block key={s.id} title={s.name} intro={s.intro} color={s.color} more={{ href: `/teachings/videos/s/${s.slug}`, label: s.layout === "playlists" ? `All ${s.playlists.length} playlists` : s.layout === "channels" ? `All ${s.playlists.length} channels` : `All ${s.count}` }}>
-          <SectionBody s={s} home onShorts={(i) => setShorts({ list: s.items, i })} />
-        </Block>))}
-      {channels.length > 0 && (
+      {sections.map((s) => <SectionBlock key={s.id} s={s} onShorts={(list, i) => setShorts({ list, i })} />)}
+      {channels.length > 0 && !hasChannels(sections) && (
         <Block title="Channels" color="saffron" more={{ href: "/teachings/videos/channels", label: "All channels" }}>
           <div className="-mx-4 flex snap-x scroll-px-4 gap-4 overflow-x-auto px-4 pb-1 [scrollbar-width:none] sm:mx-0 sm:grid sm:grid-cols-4 sm:px-0 lg:grid-cols-8">
             {channels.map((c) => <ChannelChip key={c.id} c={c} />)}
@@ -59,19 +61,57 @@ export function VideoHomeView({ sections, latest, channels }: { sections: VSecti
   );
 }
 
-/** A section's panel: soft colour, a coloured title, and a way to its own tab. */
-function Block({ title, intro, color, more, children }: { title: string; intro?: string | null; color: string; more?: { href: string; label: string }; children: React.ReactNode }) {
+const hasChannels = (xs: VSection[]): boolean => xs.some((x) => x.layout === "channels" || hasChannels(x.children || []));
+const moreOf = (s: VSection) => ({ href: `/teachings/videos/s/${s.slug}`, label: s.layout === "playlists" ? `All ${s.playlists.length} playlists` : s.layout === "channels" ? `All ${s.playlists.length} channels` : ["folder", "tabs"].includes(s.layout) ? "Open" : `All ${s.count}` });
+
+/** A section's panel: soft colour, a coloured title, a way to its own tab — and, when it folds, a header that opens and closes it.
+    Sections inside sections sit on white, a size smaller. */
+function Block({ title, intro, color, more, children, fold = "none", depth = 0 }: { title: string; intro?: string | null; color: string; more?: { href: string; label: string }; children: React.ReactNode; fold?: string; depth?: number }) {
+  const [open, setOpen] = useState(fold !== "closed"); const can = fold === "open" || fold === "closed"; const sub = depth > 0;
+  const head = (
+    <div className="min-w-0">
+      <h2 className={`flex items-center gap-2.5 font-semibold tracking-[-0.01em] text-ink ${sub ? "text-[15.5px] sm:text-[16.5px]" : "text-[19px] sm:text-[21px]"}`}><span className={`w-1.5 rounded-full bg-[var(--acc)] ${sub ? "h-5" : "h-6"}`} />{title}{can && <ChevronRight size={sub ? 16 : 18} className={`text-[var(--acc)] transition duration-300 ${open ? "rotate-90" : ""}`} />}</h2>
+      {intro && <p className="mt-1 pl-4 text-[12.5px] text-ink-3 sm:text-[13px]">{intro}</p>}
+    </div>);
   return (
-    <section className={`acc-${color} rounded-[28px] bg-acc-tint p-4 sm:p-6`}>
-      <div className="mb-4 flex items-end justify-between gap-3">
-        <div className="min-w-0">
-          <h2 className="flex items-center gap-2.5 text-[19px] font-semibold tracking-[-0.01em] text-ink sm:text-[21px]"><span className="h-6 w-1.5 rounded-full bg-[var(--acc)]" />{title}</h2>
-          {intro && <p className="mt-1 pl-4 text-[13px] text-ink-3">{intro}</p>}
-        </div>
-        {more && <Link href={more.href} className="flex shrink-0 items-center gap-0.5 rounded-full bg-white px-3.5 py-1.5 text-[13px] font-medium text-[var(--acc)] shadow-[0_1px_3px_rgba(0,0,0,.08)] transition hover:shadow-md">{more.label}<ChevronRight size={15} /></Link>}
+    <section className={`acc-${color} ${sub ? "rounded-[22px] bg-white/80 p-3 shadow-[0_1px_3px_rgba(0,0,0,.05)] sm:p-4" : "rounded-[28px] bg-acc-tint p-4 sm:p-6"}`}>
+      <div className={`flex items-end justify-between gap-3 ${open ? (sub ? "mb-3" : "mb-4") : ""}`}>
+        {can ? <button onClick={() => setOpen((o) => !o)} aria-expanded={open} className="min-w-0 text-left">{head}</button> : head}
+        {more && open && <Link href={more.href} className="flex shrink-0 items-center gap-0.5 rounded-full bg-white px-3.5 py-1.5 text-[12.5px] font-medium text-[var(--acc)] shadow-[0_1px_3px_rgba(0,0,0,.08)] transition hover:shadow-md sm:text-[13px]">{more.label}<ChevronRight size={15} /></Link>}
       </div>
-      {children}
+      <div className={`grid transition-[grid-template-rows] duration-500 ease-out ${open ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}><div className="min-h-0 overflow-hidden">{children}</div></div>
     </section>
+  );
+}
+
+/** A section and everything inside it, in its design: a Folder shows its sub-sections one below another,
+    Tabs shows them as tabs to switch between; any other design shows its videos, then its sub-sections. */
+export function SectionBlock({ s, depth = 0, onShorts, full = false }: { s: VSection; depth?: number; onShorts?: (list: VCard[], i: number) => void; full?: boolean }) {
+  const inner = <SectionInner s={s} depth={depth} onShorts={onShorts} full={full} />;
+  return <Block title={s.name} intro={s.intro} color={s.color} fold={s.fold} depth={depth} more={moreOf(s)}>{inner}</Block>;
+}
+function SectionInner({ s, depth = 0, onShorts, full = false }: { s: VSection; depth?: number; onShorts?: (list: VCard[], i: number) => void; full?: boolean }) {
+  const kids = s.children || [];
+  if (s.layout === "tabs") return <ChildTabs list={kids} depth={depth} onShorts={onShorts} />;
+  return (
+    <div className="space-y-3 sm:space-y-4">
+      {s.layout !== "folder" && <SectionBody s={s} home={!full} onShorts={(i) => onShorts?.(s.items, i)} />}
+      {kids.map((c) => <SectionBlock key={c.id} s={c} depth={depth + 1} onShorts={onShorts} />)}
+      {s.layout === "folder" && !kids.length && <p className="py-6 text-center text-[13px] text-ink-3">Nothing here yet.</p>}
+    </div>
+  );
+}
+/** Sub-sections as tabs inside a section. */
+function ChildTabs({ list, depth, onShorts }: { list: VSection[]; depth: number; onShorts?: (list: VCard[], i: number) => void }) {
+  const [i, setI] = useState(0); const cur = list[i];
+  if (!cur) return <p className="py-6 text-center text-[13px] text-ink-3">Nothing here yet.</p>;
+  return (
+    <div>
+      <div className="-mx-1 mb-3 flex gap-1.5 overflow-x-auto px-1 pb-1 [scrollbar-width:none]">
+        {list.map((c, k) => <button key={c.id} onClick={() => setI(k)} className={`acc-${c.color} shrink-0 rounded-full px-3.5 py-1.5 text-[12.5px] font-medium transition ${k === i ? "bg-[var(--acc)] text-white" : "bg-white text-ink-2 hover:text-ink"}`}>{c.name}</button>)}
+      </div>
+      <div className={`acc-${cur.color}`}><SectionInner s={cur} depth={depth + 1} onShorts={onShorts} /></div>
+    </div>
   );
 }
 
@@ -168,7 +208,7 @@ function Row({ items, q }: { items: VCard[]; q?: string }) {
   return (
     <div className="group/row relative">
       <div ref={ref} className="-mx-4 flex snap-x scroll-px-4 gap-4 overflow-x-auto scroll-smooth px-4 pb-1 [scrollbar-width:none] sm:-mx-6 sm:scroll-px-6 sm:px-6">
-        {items.map((v) => <VideoCard key={v.slug} v={v} q={q} className="w-[70vw] shrink-0 snap-start sm:w-[264px]" />)}
+        {items.map((v) => <VideoCard key={v.slug} v={v} q={q} className="w-[60vw] shrink-0 snap-start sm:w-[248px]" />)}
       </div>
       {items.length > 4 && <>
         <button onClick={() => by(-1)} aria-label="Previous" className="absolute -left-2 top-[28%] hidden size-10 items-center justify-center rounded-full bg-white text-ink shadow-md transition hover:text-[var(--acc)] sm:group-hover/row:flex"><ChevronLeft size={20} /></button>
@@ -268,11 +308,11 @@ function ShortCard({ v, onClick }: { v: VCard; onClick: () => void }) {
   );
 }
 function ShortsRow({ items, onOpen }: { items: VCard[]; onOpen: (i: number) => void }) {
-  return <div className="-mx-4 flex snap-x scroll-px-4 gap-3 overflow-x-auto px-4 pb-1 [scrollbar-width:none] sm:-mx-6 sm:scroll-px-6 sm:px-6">{items.map((v, i) => <div key={v.slug} className="w-[40vw] shrink-0 snap-start sm:w-[176px]"><ShortCard v={v} onClick={() => onOpen(i)} /></div>)}</div>;
+  return <div className="-mx-4 flex snap-x scroll-px-4 gap-3 overflow-x-auto px-4 pb-1 [scrollbar-width:none] sm:-mx-6 sm:scroll-px-6 sm:px-6">{items.map((v, i) => <div key={v.slug} className="w-[26vw] shrink-0 snap-start sm:w-[124px] lg:w-[132px]"><ShortCard v={v} onClick={() => onOpen(i)} /></div>)}</div>;
 }
 function ShortsGrid({ items }: { items: VCard[] }) {
   const [open, setOpen] = useState<number | null>(null);
-  return <><div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-6">{items.map((v, i) => <ShortCard key={v.slug} v={v} onClick={() => setOpen(i)} />)}</div>{open !== null && <ShortsPlayer list={items} start={open} onClose={() => setOpen(null)} />}</>;
+  return <><div className="grid grid-cols-3 gap-2 sm:grid-cols-5 sm:gap-3 lg:grid-cols-7 xl:grid-cols-8">{items.map((v, i) => <ShortCard key={v.slug} v={v} onClick={() => setOpen(i)} />)}</div>{open !== null && <ShortsPlayer list={items} start={open} onClose={() => setOpen(null)} />}</>;
 }
 function ShortsPlayer({ list, start, onClose }: { list: VCard[]; start: number; onClose: () => void }) {
   const [i, setI] = useState(start); const v = list[i];
@@ -312,7 +352,7 @@ export function SectionView({ s }: { s: VSection }) {
           {!["playlists", "channels", "shorts"].includes(s.layout) && s.items[0] && <Link href={watchHref(s.items[0], `sec=${s.slug}`)} className="inline-flex h-10 items-center gap-2 rounded-full bg-[var(--acc)] px-5 text-[13.5px] font-semibold text-white hover:brightness-110"><Play size={15} fill="currentColor" />Play all</Link>}
         </div>
       </header>
-      {f && !items.length ? <p className="py-16 text-center text-[14px] text-ink-3">Nothing found in {s.name}.</p> : <SectionBody s={view} />}
+      {f && !items.length ? <p className="py-16 text-center text-[14px] text-ink-3">Nothing found in {s.name}.</p> : <SectionInner s={view} full />}
     </div>
   );
 }
@@ -334,6 +374,54 @@ export function QueuePlayer({ id, title, next }: { id: string; title: string; ne
   return (
     <div className="aspect-video overflow-hidden rounded-2xl bg-black [&>div]:h-full [&>div]:w-full [&_iframe]:h-full [&_iframe]:w-full">
       {next ? <div ref={box} /> : <iframe src={`https://www.youtube-nocookie.com/embed/${id}?rel=0`} title={title} className="h-full w-full" allow="accelerometer; autoplay; encrypted-media; picture-in-picture" allowFullScreen />}
+    </div>
+  );
+}
+
+/* ---------- Advanced search: every filter at once, with counts ---------- */
+export function AdvancedVideos({ f, r }: { f: AdvFilter; r: AdvResult }) {
+  const router = useRouter(); const [open, setOpen] = useState(false); const [q, setQ] = useState(f.q || "");
+  const go = (p: Partial<AdvFilter>) => { const n: Record<string, string> = {}; Object.entries({ ...f, page: undefined, ...p }).forEach(([k, v]) => { if (v) n[k] = String(v); }); router.push(`/teachings/videos/advanced${Object.keys(n).length ? `?${new URLSearchParams(n)}` : ""}`); };
+  const on = Object.entries(f).filter(([k, v]) => v && !["page", "sort"].includes(k));
+  const Sel = ({ k, label, opts, all = "All" }: { k: keyof AdvFilter; label: string; opts: { v: string; label: string; n?: number; depth?: number }[]; all?: string }) => (
+    <label className="block"><span className="mb-1 block text-[11px] font-semibold uppercase tracking-[0.12em] text-ink-3">{label}</span>
+      <select value={(f[k] as string) || ""} onChange={(e) => go({ [k]: e.target.value || undefined })} className="h-9 w-full rounded-lg border border-line bg-white px-2.5 text-[13px] outline-none focus:border-saffron">
+        <option value="">{all}</option>{opts.map((o) => <option key={o.v} value={o.v}>{"\u00a0\u00a0".repeat(o.depth || 0)}{o.label}{o.n ? ` (${o.n})` : ""}</option>)}
+      </select></label>);
+  const panel = (
+    <div className="space-y-3.5">
+      <form onSubmit={(e) => { e.preventDefault(); go({ q: q.trim() || undefined }); }} className="flex items-center gap-2 rounded-lg border border-line bg-white pl-2.5 focus-within:border-saffron">
+        <Search size={15} className="shrink-0 text-ink-3" /><input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Words in the title" className="h-9 min-w-0 flex-1 bg-transparent text-[13px] outline-none" /><button className="h-9 shrink-0 rounded-r-lg bg-saffron px-3 text-[12.5px] font-semibold text-white">Go</button>
+      </form>
+      <Sel k="sec" label="Section" opts={r.facets.sections} all="All sections" />
+      <Sel k="kind" label="Kind" opts={r.facets.kinds} all="All kinds" />
+      <Sel k="lang" label="Language" opts={r.facets.langs} all="All languages" />
+      <Sel k="year" label="Year" opts={r.facets.years} all="Any year" />
+      <Sel k="place" label="Place" opts={r.facets.places} all="Any place" />
+      <Sel k="src" label="Channel or playlist" opts={r.facets.sources.map((x) => ({ ...x, n: 0 }))} all="Any" />
+      <Sel k="len" label="Length" opts={LENGTHS.map(([v, label]) => ({ v, label }))} all="Any length" />
+      {on.length > 0 && <button onClick={() => router.push("/teachings/videos/advanced")} className="w-full rounded-lg border border-line py-2 text-[12.5px] font-medium text-ink-2 hover:border-ink-3">Clear all filters</button>}
+    </div>);
+  return (
+    <div className="acc-saffron mx-auto max-w-[1240px] px-4 pb-16 pt-5 sm:px-6">
+      <div className="grid gap-6 lg:grid-cols-[250px_minmax(0,1fr)]">
+        <aside className="hidden lg:block"><div className="sticky top-[130px] rounded-2xl bg-band/60 p-4">{panel}</div></aside>
+        <div className="min-w-0">
+          <div className="mb-4 flex flex-wrap items-center gap-2">
+            <p className="mr-auto text-[14px] text-ink-2"><b className="font-semibold text-ink">{r.total.toLocaleString()}</b> videos</p>
+            <button onClick={() => setOpen((o) => !o)} className="flex items-center gap-1.5 rounded-full border border-line px-3 py-1.5 text-[12.5px] font-medium lg:hidden"><SlidersHorizontal size={14} />Filters{on.length ? ` (${on.length})` : ""}</button>
+            <select value={f.sort || "newest"} onChange={(e) => go({ sort: e.target.value === "newest" ? undefined : e.target.value })} className="h-8 rounded-full border border-line bg-white px-3 text-[12.5px] outline-none"><option value="newest">Newest first</option><option value="oldest">Oldest first</option><option value="longest">Longest first</option><option value="shortest">Shortest first</option><option value="az">A–Z</option></select>
+          </div>
+          {open && <div className="mb-5 rounded-2xl bg-band/60 p-4 lg:hidden">{panel}</div>}
+          {on.length > 0 && <div className="mb-4 flex flex-wrap gap-1.5">{on.map(([k, v]) => <button key={k} onClick={() => go({ [k]: undefined })} className="flex items-center gap-1 rounded-full bg-saffron-soft px-2.5 py-1 text-[12px] text-ink">{k === "src" ? r.facets.sources.find((x) => x.v === v)?.label : k === "sec" ? r.facets.sections.find((x) => x.v === v)?.label : k === "kind" ? r.facets.kinds.find((x) => x.v === v)?.label || v : k === "len" ? LENGTHS.find(([x]) => x === v)?.[1] : String(v)}<X size={12} /></button>)}</div>}
+          {!r.items.length ? <p className="py-16 text-center text-[14px] text-ink-3">No videos match. Try fewer filters.</p> : <div className="grid grid-cols-2 gap-x-3 gap-y-6 sm:grid-cols-3 sm:gap-x-4 xl:grid-cols-4">{r.items.map((v) => <VideoCard key={v.slug} v={v} />)}</div>}
+          {r.pages > 1 && <div className="mt-8 flex items-center justify-center gap-2 text-[13px]">
+            <button disabled={r.page <= 1} onClick={() => go({ ...f, page: String(r.page - 1) })} className="rounded-full border border-line px-4 py-2 disabled:opacity-40">Previous</button>
+            <span className="px-2 text-ink-3">Page {r.page} of {r.pages}</span>
+            <button disabled={r.page >= r.pages} onClick={() => go({ ...f, page: String(r.page + 1) })} className="rounded-full border border-line px-4 py-2 disabled:opacity-40">Next</button>
+          </div>}
+        </div>
+      </div>
     </div>
   );
 }

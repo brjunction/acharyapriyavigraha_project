@@ -2,6 +2,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Clapperboard, Plus, Search, Youtube, Trash2, Eye, EyeOff, ExternalLink, Play, Check, ArrowUp, ArrowDown, RefreshCw } from "lucide-react";
 import { durText, parseDur } from "@/lib/content/text";
+import { fetchSources, FetchPanel } from "./fetch-runner";
 import { Btn, Badge, Card, Field, Input, Select, Textarea, PageHeader, Sheet, Empty, Modal, Tabs, api, toast, cn } from "../ui";
 import { LecturePicker, TopicsInput } from "./shared";
 import { VideoSections } from "./video-sections";
@@ -91,16 +92,13 @@ function Sources() {
   const [secs, setSecs] = useState<{ id: string; name: string }[]>([]);
   const load = () => { api("/api/admin/videos/sources").then(setD).catch((e) => toast(e.message, true)); api<{ sections: { id: string; name: string }[] }>("/api/admin/videos/sections").then((r) => setSecs(r.sections)).catch(() => {}); }; useEffect(() => { load(); }, []);
   const lines = text.split(/[\n\s,]+/).map((x) => x.trim()).filter(Boolean);
-  const add = async () => { setBusy("add"); try { const r = await api<{ results: { url: string; ok: boolean; note: string }[] }>("/api/admin/videos/sources", "POST", { urls: lines, kind: kind || null }); setLog(r.results); setText(""); load(); } catch (e: any) { toast(e.message, true); } finally { setBusy(""); } };
-  // One source at a time, and again while a big channel still has videos to bring in, so no request runs too long.
-  const sync = async (id: string) => {
-    setBusy(id); const ids = id === "all" ? (d?.sources || []).map((s) => s.id) : [id]; const out: { ok: boolean; note: string }[] = [];
-    for (const one of ids) { let left = 1; let rounds = 0; while (left > 0 && rounds++ < 20) { try { const r = await api<{ results: { name: string; seen?: number; added?: number; left?: number; error?: string }[] }>("/api/admin/videos/sources", "POST", { sync: one }); const x = r.results[0]; left = x?.left || 0; out.push({ ok: !x?.error, note: x?.error ? `${x.name}: ${x.error}` : `${x?.name}: ${x?.added} new videos (of ${x?.seen})${left ? ` — ${left} more coming…` : ""}` }); setLog([...out]); } catch (e: any) { out.push({ ok: false, note: e.message }); setLog([...out]); left = 0; } } load(); }
-    setBusy("");
-  };
+  const add = async () => { setBusy("add"); try { const r = await api<{ results: { url: string; ok: boolean; note: string; source?: string }[] }>("/api/admin/videos/sources", "POST", { urls: lines, kind: kind || null }); setLog(r.results); setText(""); load(); const ids = r.results.filter((x) => x.source).map((x) => ({ id: x.source!, name: x.note.split(": ").slice(1).join(": ") || x.url })); if (ids.length) fetchSources(ids, load); } catch (e: any) { toast(e.message, true); } finally { setBusy(""); } };
+  // Fetching runs step by step in the background, with its progress in the corner; the page can be used meanwhile.
+  const sync = (id: string) => fetchSources((id === "all" ? d?.sources || [] : (d?.sources || []).filter((s) => s.id === id)).map((s) => ({ id: s.id, name: s.name || s.url })), load);
   const total = d?.sources.reduce((a, s) => a + (s.videos || 0), 0) || 0;
   return (
     <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
+      <FetchPanel />
       <div className="space-y-4">
         <Card className="p-4">
           <p className="text-[13.5px] font-semibold">Add links</p>
@@ -113,20 +111,21 @@ function Sources() {
           {log.length > 0 && <ul className="mt-3 space-y-1 rounded-md bg-zinc-50 p-3 text-[12px]">{log.map((l, i) => <li key={i} className={l.ok ? "text-zinc-700" : "text-red-600"}>{l.ok ? <Check className="mr-1 inline size-3.5 text-emerald-600" /> : "✕ "}{l.url ? <span className="text-zinc-400">{l.url} — </span> : null}{l.note}</li>)}</ul>}
         </Card>
         <Card>
-          <div className="flex items-center justify-between border-b border-zinc-100 px-4 py-3"><p className="text-[13.5px] font-semibold">Channels & playlists <span className="font-normal text-zinc-400">{d?.sources.length || 0} · {total.toLocaleString()} videos</span></p>{d && d.sources.length > 0 && <Btn size="sm" busy={busy === "all"} onClick={() => sync("all")}>Fetch all</Btn>}</div>
+          <div className="flex items-center justify-between border-b border-zinc-100 px-4 py-3"><p className="text-[13.5px] font-semibold">Channels & playlists <span className="font-normal text-zinc-400">{d?.sources.length || 0} · {total.toLocaleString()} videos</span></p>{d && d.sources.length > 0 && <Btn size="sm" onClick={() => sync("all")}>Fetch all</Btn>}</div>
           {d?.sources.length ? <div className="divide-y divide-zinc-100">{d.sources.map((s, si) => { const up = (u: Record<string, any>) => api("/api/admin/videos/sources", "POST", { update: { id: s.id, ...u } }).then(load); const move = (dir: number) => { const ids = d.sources.map((x) => x.id); const j = si + dir; if (j < 0 || j >= ids.length) return; [ids[si], ids[j]] = [ids[j], ids[si]]; api("/api/admin/videos/sources", "POST", { order: ids }).then(load); }; return (
             <div key={s.id} className={cn("flex flex-wrap items-center gap-3 px-4 py-3", s.hidden && "opacity-50")}>
               {s.avatar ? /* eslint-disable-next-line @next/next/no-img-element */ <img src={s.avatar} alt="" className={cn("size-10 shrink-0 object-cover", s.kind === "channel" ? "rounded-full" : "aspect-video w-16 rounded-md")} /> : <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-red-50"><Youtube className="size-4 text-red-600" /></span>}
               <div className="min-w-0 flex-1"><input defaultValue={s.name || ""} placeholder={s.url} onBlur={(e) => e.target.value !== (s.name || "") && up({ name: e.target.value })} className="w-full truncate rounded px-1 text-[13px] font-medium outline-none hover:bg-zinc-50 focus:bg-zinc-50" title="Click to rename" />
-                <p className="truncate px-1 text-[11.5px] text-zinc-500">{s.kind === "playlist" ? "Playlist" : "Channel"} · {s.videos} videos{s.last_synced_at ? ` · fetched ${new Date(s.last_synced_at).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}` : " · not fetched yet"} · <a href={s.kind === "playlist" ? `https://www.youtube.com/playlist?list=${s.ref}` : `https://www.youtube.com/channel/${s.ref}`} target="_blank" className="underline">open</a></p>
+                <p className="truncate px-1 text-[11.5px] text-zinc-500">{s.kind === "playlist" ? "Playlist" : "Channel"} · {s.videos} videos{s.missing ? ` (${s.missing} still to add)` : ""}{s.sync_state ? " · fetch unfinished" : ""}{s.last_synced_at ? ` · fetched ${new Date(s.last_synced_at).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}` : " · not fetched yet"} · <a href={s.kind === "playlist" ? `https://www.youtube.com/playlist?list=${s.ref}` : `https://www.youtube.com/channel/${s.ref}`} target="_blank" className="underline">open</a></p>
+                {s.sync_error && <p className="mt-1 flex items-start gap-1 px-1 text-[11.5px] text-red-600"><span>✕</span>{s.sync_error}</p>}
                 <div className="mt-1.5 flex flex-wrap gap-1.5">
-                  <Select value={s.section_id || ""} onChange={(e) => api("/api/admin/videos/sections", "POST", e.target.value ? { attach: { id: e.target.value, source: s.id } } : { detach: { source: s.id } }).then(load)} className="!h-7 !w-48 text-[12px]" title="The page section this playlist or channel feeds"><option value="">Not in a section</option>{secs.map((x) => <option key={x.id} value={x.id}>{x.name}</option>)}</Select>
+                  <Select value={s.section_id || ""} onChange={(e) => api("/api/admin/videos/sections", "POST", e.target.value ? { attach: { id: e.target.value, source: s.id } } : { detach: { source: s.id } }).then(() => { load(); if (e.target.value && !s.last_synced_at) fetchSources([{ id: s.id, name: s.name }], load); })} className="!h-7 !w-48 text-[12px]" title="The page section this playlist or channel feeds"><option value="">Not in a section</option>{secs.map((x) => <option key={x.id} value={x.id}>{x.name}</option>)}</Select>
                   <Select value={s.default_kind || ""} onChange={(e) => up({ default_kind: e.target.value })} className="!h-7 !w-36 text-[12px]"><option value="">Kind from title</option>{VIDEO_KINDS.map(([k, l]) => <option key={k} value={k}>{l}</option>)}</Select>
                 </div></div>
               <span className="flex items-center"><button title="Move up" onClick={() => move(-1)} className="p-1 text-zinc-400 hover:text-zinc-900"><ArrowUp className="size-4" /></button><button title="Move down" onClick={() => move(1)} className="p-1 text-zinc-400 hover:text-zinc-900"><ArrowDown className="size-4" /></button></span>
               <button title={s.hidden ? "Show on the website" : "Hide from the website"} onClick={() => up({ hidden: !s.hidden })} className="p-1.5 text-zinc-400 hover:text-zinc-900">{s.hidden ? <EyeOff className="size-4" /> : <Eye className="size-4" />}</button>
               <button title="Fetch the icon and description again" onClick={() => api("/api/admin/videos/sources", "POST", { refreshMeta: s.id }).then(load)} className="p-1.5 text-zinc-400 hover:text-zinc-900"><RefreshCw className="size-4" /></button>
-              <Btn size="sm" busy={busy === s.id} onClick={() => sync(s.id)}>Fetch</Btn>
+              <Btn size="sm" onClick={() => sync(s.id)}>{s.sync_state ? "Continue" : "Fetch"}</Btn>
               <button onClick={async () => { if (!confirm("Remove this source? Its videos stay.")) return; await api("/api/admin/videos/sources", "DELETE", { id: s.id }); load(); }} className="p-1.5 text-zinc-400 hover:text-red-600" title="Remove"><Trash2 className="size-4" /></button>
             </div>); })}</div> : <p className="p-4 text-[12.5px] text-zinc-500">None yet. Add links above.</p>}
         </Card>

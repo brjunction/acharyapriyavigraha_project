@@ -2,7 +2,7 @@ import { sql } from "@/lib/db";
 import { guard, json, fail } from "@/lib/api";
 import { fold } from "@/lib/content/text";
 import { VIDEO, insertRow, rememberTopics } from "@/lib/content/generic";
-import { revalidatePath } from "next/cache";
+import { freshSite } from "@/lib/fresh";
 
 export async function GET(req: Request) {
   const g = await guard("viewer"); if ("res" in g) return g.res;
@@ -19,5 +19,5 @@ export async function POST(req: Request) {
   const g = await guard("contributor"); if ("res" in g) return g.res;
   const b = await req.json(); if (!String(b.title || "").trim()) return fail("Give the video a title.");
   if (g.user.role === "contributor") b.status = "draft";
-  const r = await insertRow(VIDEO, b); await rememberTopics(b.topics); revalidatePath("/teachings/videos"); return json(r);
+  const r = await insertRow(VIDEO, b); await rememberTopics(b.topics); freshSite(); return json(r);
 }

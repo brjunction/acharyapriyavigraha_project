@@ -2,7 +2,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ChevronRight, ExternalLink, FileText, ListVideo, Play, Search } from "lucide-react";
 import { getShelf, getQueue, getVideoNav, getSection, getChannels, searchVideos } from "@/lib/video-home";
-import { QueuePlayer, VideoCard, watchHref, VideoTabsBar, SectionView, ChannelChip } from "./video-home";
+import { QueuePlayer, VideoCard, watchHref, VideoTabsBar, SectionView, ChannelChip, AdvancedVideos } from "./video-home";
+import { advancedVideos, type AdvFilter } from "@/lib/video-advanced";
 import { sql } from "@/lib/db";
 import { getVideo } from "@/lib/cms/library";
 
@@ -77,7 +78,7 @@ export async function ShelfPage({ id }: { id: string }) {
 /** A section's own tab. */
 export async function SectionPage({ slug }: { slug: string }) {
   const s = await getSection(slug); if (!s) notFound();
-  return <VideosShell active={slug}><SectionView s={s} /></VideosShell>;
+  return <VideosShell active={s.parent?.slug || slug}><SectionView s={s} /></VideosShell>;
 }
 
 /** Every channel with videos of Śrīla Gurudeva. */
@@ -109,4 +110,10 @@ export async function SearchVideosPage({ q }: { q?: string }) {
       </div>
     </VideosShell>
   );
+}
+
+/** Advanced search: every filter at once. */
+export async function AdvancedVideosPage({ f }: { f: AdvFilter }) {
+  const r = await advancedVideos(f);
+  return <VideosShell active="advanced"><AdvancedVideos f={f} r={r} /></VideosShell>;
 }
