@@ -450,7 +450,7 @@ export function Header() {
               <kbd className="hidden whitespace-nowrap rounded border border-line bg-surface px-1.5 text-[10px] text-ink-3 xl:inline">Ctrl K</kbd>
             </button>
             <div className="hidden lg:block"><ModeSwitch mode={mode} setMode={setMode} small /></div>
-            <button onClick={() => setMobile(true)} aria-label="Open menu" className="flex h-8 items-center gap-1.5 rounded-full bg-ink px-3 text-[12.5px] font-medium text-white transition hover:bg-ink/85 sm:h-9 lg:hidden"><Menu size={16} />Menu</button>
+            <button onClick={() => setMobile(true)} aria-label="Open menu" className="flex h-8 items-center gap-1.5 rounded-full bg-[linear-gradient(135deg,#7a3206,#592300)] px-3 text-[12.5px] font-medium text-[#fff1df] shadow-[0_6px_16px_-8px_rgba(89,35,0,.8)] ring-1 ring-[#e8b872]/30 transition hover:brightness-125 sm:h-9 lg:hidden"><Menu size={16} />Menu</button>
           </div>
         </div>
       </div>
