@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { Reader } from "@/components/books/reader";
+import { DiaryJournal } from "@/components/diary/journal";
 import { diaryIndex, diaryPage } from "@/lib/content/diary-public";
 import type { TocItem } from "@/lib/content/books-public";
 
@@ -14,11 +15,13 @@ const paras = (t: string | null) => String(t || "").split(/\n{2,}/).map((p) => p
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> { const { slug } = await params; const e = await diaryPage(slug); return e ? { title: `His Diary, ${when(e)}`, description: String(e.translation || "").slice(0, 155), alternates: { canonical: `/gurudeva/diaries/${slug}` } } : {}; }
 
 /** One page of His Diary, in the same reader as the books: contents by month, colours, text size, shortcuts — and the original beside the translation. */
-export default async function Entry({ params, searchParams }: { params: Promise<{ slug: string }>; searchParams: Promise<{ with?: string }> }) {
-  const { slug } = await params; const { with: w } = await searchParams;
+export default async function Entry({ params, searchParams }: { params: Promise<{ slug: string }>; searchParams: Promise<{ with?: string; view?: string }> }) {
+  const { slug } = await params; const { with: w, view } = await searchParams;
   const [e, list] = await Promise.all([diaryPage(slug), diaryIndex()]); if (!e) notFound();
+  // the Diary's own view is the default; ?view=book opens the book reader
+  if (view !== "book") return <DiaryJournal e={{ ...e, volume: (list.find((x) => x.slug === slug) as any)?.volume ?? null, page: (list.find((x) => x.slug === slug) as any)?.page ?? null } as any} list={list as any} />;
   const i = list.findIndex((x) => x.slug === slug); const prev = list[i - 1], next = list[i + 1];
-  const year = e.date?.slice(0, 4) || ""; const sameYear = list.filter((x) => (x.date?.slice(0, 4) || "") === year);
+  const sameYear = list; // the contents hold every year and volume
   const months = Array.from(new Set(sameYear.map((x) => x.date?.slice(0, 7) || "undated")));
   const toc: TocItem[] = months.flatMap((m) => { const xs = sameYear.filter((x) => (x.date?.slice(0, 7) || "undated") === m); const label = m === "undated" ? "Undated" : `${MON[Number(m.slice(5, 7)) - 1]} ${m.slice(0, 4)}`;
     return [{ id: `m-${m}`, title: label, href: `/gurudeva/diaries/${xs[0].slug}`, num: String(xs.length), depth: 0, part: true, parent: null }, ...xs.map((x) => ({ id: x.slug, title: when(x), href: `/gurudeva/diaries/${x.slug}`, num: x.date ? String(Number(x.date.slice(8, 10))) : "", depth: 1, part: false, parent: `m-${m}` }))]; });
