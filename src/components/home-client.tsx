@@ -83,9 +83,9 @@ export function Hero() {
       <VMask name="mandala-saffron" className="hero-spin-rev pointer-events-none absolute -bottom-24 -left-24 size-[240px] text-[#e8b872] opacity-[0.12] sm:-bottom-32 sm:-left-32 sm:size-[360px]" />
             <div className="relative mx-auto grid max-w-[1240px] grid-cols-[minmax(0,1fr)] content-center items-center gap-5 px-5 py-8 min-h-[calc(100svh-52px)] sm:min-h-[calc(100svh-58px)] sm:gap-9 sm:px-10 sm:py-12 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:py-28">
         <div className="rise relative order-2 text-center lg:order-1 lg:text-left">
-          <span className="hero-pill hx-sweep relative inline-flex items-center gap-2.5 overflow-hidden rounded-full bg-[#5d140c]/45 py-1 pl-2 pr-4 text-[11px] font-medium leading-snug text-[#fff1df] shadow-[0_12px_30px_-16px_rgba(40,5,2,.7),inset_0_1px_0_rgba(255,255,255,.18)] ring-1 ring-white/25 backdrop-blur-md sm:gap-3 sm:py-1.5 sm:pr-5 sm:text-[12px]">
+          <span className="hero-pill hx-sweep relative inline-flex items-center gap-2.5 overflow-hidden rounded-full bg-[linear-gradient(135deg,rgba(232,145,60,.35),rgba(194,98,29,.25))] py-1 pl-2 pr-4 text-[11px] font-semibold leading-snug text-[#fff3d6] shadow-[0_12px_30px_-16px_rgba(40,5,2,.6),inset_0_1px_0_rgba(255,255,255,.22)] ring-1 ring-[#f3c77a]/55 backdrop-blur-md sm:gap-3 sm:py-1.5 sm:pr-5 sm:text-[12px]">
             <span role="img" aria-label="ISKCON" className="block h-6 w-[30px] shrink-0 text-[#ffd98a] sm:h-7 sm:w-[34px]" style={{ WebkitMaskImage: "url(/iskcon-mask.png)", maskImage: "url(/iskcon-mask.png)", WebkitMaskSize: "contain", maskSize: "contain", WebkitMaskRepeat: "no-repeat", maskRepeat: "no-repeat", WebkitMaskPosition: "center", maskPosition: "center", background: "currentColor" }} />
-            <span className="h-4 w-px shrink-0 bg-white/30" />
+            <span className="h-4 w-px shrink-0 bg-[#f3c77a]/60" />
             The Complete Life &amp; Teachings of Śrīla Gurudeva
           </span>
           {/* His name, set between two fine gold rules */}
@@ -109,7 +109,7 @@ export function Hero() {
               </Link>))}
           </nav>
           <div className="hx-in mx-auto mt-5 grid max-w-xl grid-cols-2 gap-2.5 sm:flex sm:flex-wrap sm:justify-center lg:mx-0 lg:justify-start" style={{ animationDelay: ".7s" }}>
-            <Link href="/teachings/audio" className="hx-sweep relative inline-flex h-10 items-center justify-center overflow-hidden gap-2 sm:justify-start rounded-full bg-[#fffaf2] pl-1.5 pr-5 text-[12.5px] font-semibold text-[#8a2a0c] shadow-[0_14px_30px_-14px_rgba(90,20,4,.55)] transition hover:-translate-y-0.5"><span className="flex size-8 items-center justify-center rounded-full bg-[#f3a24a]/25"><Headphones size={15} /></span><span className="sm:hidden">Listen</span><span className="max-sm:hidden">Listen to His Lectures</span></Link>
+            <Link href="/teachings/audio" className="hx-sweep relative inline-flex h-10 items-center justify-center overflow-hidden gap-2 sm:justify-start rounded-full bg-[linear-gradient(135deg,#ffd76a,#f0a23c)] pl-1.5 pr-5 text-[12.5px] font-semibold text-[#4a1a00] shadow-[0_14px_30px_-12px_rgba(240,162,60,.65)] ring-1 ring-[#ffe7a8]/60 transition hover:-translate-y-0.5"><span className="flex size-8 items-center justify-center rounded-full bg-[#4a1a00]/12"><Headphones size={15} /></span><span className="sm:hidden">Listen</span><span className="max-sm:hidden">Listen to His Lectures</span></Link>
             <Link href="/teachings/books" className="hx-border relative inline-flex h-10 items-center justify-center sm:justify-start gap-2 rounded-full border border-white/60 bg-white/[0.14] pl-1.5 pr-5 text-[12.5px] font-semibold text-[#fff6ea] backdrop-blur transition hover:-translate-y-0.5 hover:border-[#f3c35e]/60"><span className="flex size-8 items-center justify-center rounded-full bg-white/15"><BookOpen size={15} /></span><span className="sm:hidden">Read</span><span className="max-sm:hidden">Read His Books</span></Link>
           </div>
         </div>
