@@ -630,3 +630,37 @@ html[data-motion="reduce"] .bless-word, html[data-motion="reduce"] .bless-rise, 
 @keyframes hero-base { 0% { background-position: 0% 30%; } 100% { background-position: 100% 70%; } }
 .hero-follow { background: radial-gradient(520px circle at calc(50% + var(--px, 0) * 100%) calc(50% + var(--py, 0) * 100%), rgba(255,190,130,.20), rgba(255,140,170,.08) 40%, transparent 65%); }
 @media (prefers-reduced-motion: reduce) { .hero-base { animation: none; } }
+
+/* Home hero lotus (saffron and gold) */
+.gd-spin { animation: gl-orbit 130s linear infinite; }
+.gd-spin.gd-ccw { animation-duration: 100s; animation-direction: reverse; }
+.gd-spin.gd-cw2 { animation-duration: 80s; }
+.gd-spin.gd-outer { animation-duration: 160s; animation-direction: reverse; }
+.gd-breathe { animation: gl-breathe 7s ease-in-out infinite alternate; }
+.gd-open { animation: gd-open 2s cubic-bezier(.2,.8,.2,1) both; }
+@keyframes gd-open { from { opacity: 0; transform: scale(.7) rotate(-18deg); } to { opacity: 1; transform: none; } }
+.gd-stamens { animation: gl-orbit 70s linear infinite reverse; }
+.gd-shine { animation: gd-shine 7s cubic-bezier(.45,.05,.35,1) 2.5s infinite; }
+@keyframes gd-shine { 0% { transform: translateX(0) skewX(-18deg); } 55%, 100% { transform: translateX(1100px) skewX(-18deg); } }
+.gd-rays { background: repeating-conic-gradient(from 0deg, rgba(243,195,94,.06) 0deg 2deg, transparent 2deg 12deg); -webkit-mask-image: radial-gradient(closest-side, #000 30%, transparent 100%); mask-image: radial-gradient(closest-side, #000 30%, transparent 100%); animation: gl-orbit 240s linear infinite; }
+.gd-ripple { position: absolute; inset: 18%; border-radius: 9999px; border: 1px solid rgba(243,195,94,.28); opacity: 0; animation: gl-ripple 10.5s cubic-bezier(.2,.6,.3,1) infinite; pointer-events: none; }
+.gd-portrait { animation: gl-portrait 1.4s cubic-bezier(.2,.8,.2,1) .15s both; }
+@media (prefers-reduced-motion: reduce) { .gd-spin, .gd-breathe, .gd-open, .gd-stamens, .gd-shine, .gd-rays, .gd-ripple, .gd-portrait { animation: none !important; } .gd-ripple { display: none; } }
+
+/* Hero lotus seat: petals sway, leaves float, water ripples, a shine passes */
+.lp-sway { animation: lp-sway 9s ease-in-out infinite alternate; }
+.lp-sway-f { animation-duration: 11s; }
+@keyframes lp-sway { from { transform: rotate(-1.4deg); } to { transform: rotate(1.4deg); } }
+.lp-open-back, .lp-open-front { animation: lp-rise 1.8s cubic-bezier(.2,.8,.2,1) both; }
+.lp-open-front { animation-delay: .25s; }
+@keyframes lp-rise { from { opacity: 0; transform: scale(.82) translateY(24px); } to { opacity: 1; transform: none; } }
+.lp-leaf-a, .lp-leaf-b, .lp-leaf-c, .lp-leaf-d { animation: lp-float 12s ease-in-out infinite alternate; }
+.lp-leaf-b { animation-duration: 14s; animation-delay: -4s; } .lp-leaf-c { animation-duration: 13s; animation-delay: -7s; } .lp-leaf-d { animation-duration: 15s; animation-delay: -2s; }
+@keyframes lp-float { from { transform: translateY(0) rotate(-.6deg); } to { transform: translateY(-5px) rotate(.6deg); } }
+.lp-bud { animation: lp-bud 10s ease-in-out infinite alternate; }
+@keyframes lp-bud { from { transform: rotate(-2deg); } to { transform: rotate(2.5deg); } }
+.lp-water { opacity: 0; animation: lp-water 9s cubic-bezier(.2,.6,.3,1) infinite; }
+@keyframes lp-water { 0% { transform: scale(.6); opacity: 0; } 20% { opacity: .6; } 100% { transform: scale(2.2); opacity: 0; } }
+.lp-shine { animation: lp-shine 8s cubic-bezier(.45,.05,.35,1) 2.5s infinite; }
+@keyframes lp-shine { 0% { transform: translateX(0) skewX(-18deg); } 50%, 100% { transform: translateX(1100px) skewX(-18deg); } }
+@media (prefers-reduced-motion: reduce) { .lp-sway, .lp-open-back, .lp-open-front, .lp-leaf-a, .lp-leaf-b, .lp-leaf-c, .lp-leaf-d, .lp-bud, .lp-water, .lp-shine { animation: none !important; } }

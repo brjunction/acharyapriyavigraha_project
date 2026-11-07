@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { ArrowRight, Search, Play, Pause, SkipForward, ChevronLeft, ChevronRight, Headphones, Quote as QuoteIcon, Copy, Check, PlayCircle } from "lucide-react";
+import { ArrowRight, Search, Play, Pause, SkipForward, ChevronLeft, ChevronRight, Headphones, Quote as QuoteIcon, Copy, Check, PlayCircle, BookOpen, UserRound } from "lucide-react";
 import { CONVERSATION, LETTER } from "@/lib/prabhupada";
 import { LECTURES, fmtDate, DIARY, IMG, LANGUAGES, QUOTE_OF_DAY, TIMELINE } from "@/lib/data";
 import { Img } from "./img";
@@ -66,14 +66,16 @@ export function Hero() {
       <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(60%_50%_at_50%_100%,rgba(0,0,0,.25),transparent_70%)]" />
       {[6, 14, 23, 31, 44, 52, 63, 71, 79, 88, 95].map((x, k) => <span key={x} aria-hidden className="hero-spark" style={{ left: `${x}%`, animationDuration: `${14 + (k % 5) * 3}s`, animationDelay: `${-k * 2.1}s`, width: k % 3 ? 2 : 3, height: k % 3 ? 2 : 3 }} />)}
       <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-[#f3c35e]/50 to-transparent" />
-      <div className="relative mx-auto grid max-w-[1240px] grid-cols-[minmax(0,1fr)] content-center items-center gap-4 px-5 pb-10 pt-6 max-lg:min-h-[calc(100svh-52px)] sm:gap-8 sm:px-10 sm:pt-10 lg:min-h-[680px] lg:grid-cols-[minmax(0,1fr)_minmax(0,540px)] lg:gap-12 lg:py-14">
+      <div className="relative mx-auto grid min-h-[calc(100svh-52px)] max-w-[1320px] grid-cols-[minmax(0,1fr)] content-center items-center gap-2 px-5 pb-8 pt-4 sm:min-h-[calc(100svh-58px)] sm:gap-6 sm:px-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)] lg:gap-6 lg:py-8">
         <div className="rise order-2 text-center lg:order-1 lg:text-left">
-          <span className="inline-flex max-w-[340px] items-center gap-2 rounded-full border border-[#f3c35e]/35 bg-white/[0.08] px-3.5 py-1 text-[9.5px] font-semibold uppercase leading-snug tracking-[0.14em] text-[#ffe2b0] backdrop-blur sm:max-w-none sm:text-[11px]">
-            <span className="size-1.5 shrink-0 rounded-full bg-[#f3c35e] max-sm:hidden" />The Complete Life and Teachings of Śrī Śrīmad Gour Govinda Swāmī Gurudeva
-          </span>
-          <h1 className="mt-5 text-[30px] font-semibold leading-[1.1] tracking-[-0.035em] text-[#fff6ea] sm:text-[42px] lg:text-[52px]">
-            {["Words", "that", "give", "life"].map((w, i) => <span key={w} className="hero-word mr-[0.26em]" style={{ animationDelay: `${0.1 + i * 0.1}s` }}>{w}</span>)}<br />
-            {["to", "a"].map((w, i) => <span key={w} className="hero-word mr-[0.26em]" style={{ animationDelay: `${0.5 + i * 0.1}s` }}>{w}</span>)}<span className="hero-word hero-gold" style={{ animationDelay: "0.7s" }}>burning heart</span>
+          <div className="inline-flex max-w-full items-center gap-2.5 rounded-full border border-[#f3c35e]/30 bg-white/[0.07] py-1 pl-2 pr-3.5 backdrop-blur sm:gap-3 sm:py-1.5 sm:pr-4">
+            <span role="img" aria-label="ISKCON" className="block h-6 w-[30px] shrink-0 text-[#f7c556] sm:h-7 sm:w-[34px]" style={{ WebkitMaskImage: "url(/iskcon-mask.png)", maskImage: "url(/iskcon-mask.png)", WebkitMaskSize: "contain", maskSize: "contain", WebkitMaskRepeat: "no-repeat", maskRepeat: "no-repeat", WebkitMaskPosition: "center", maskPosition: "center", background: "currentColor" }} />
+            <span className="h-4 w-px shrink-0 bg-[#f3c35e]/30" />
+            <span className="text-left text-[11px] font-medium leading-snug text-[#ffe2b0] sm:text-[12.5px]">The Complete Life &amp; Teachings of Śrī Śrīmad Gour Govinda Swāmī Gurudeva</span>
+          </div>
+          <h1 className="mt-5 text-[32px] font-bold leading-[1.08] tracking-[-0.04em] text-[#fff6ea] sm:text-[46px] lg:text-[58px]">
+            {["Words", "That", "Give", "Life"].map((w, i) => <span key={w} className="hero-word mr-[0.24em]" style={{ animationDelay: `${0.1 + i * 0.1}s` }}>{w}</span>)}<br />
+            {["to", "a"].map((w, i) => <span key={w} className="hero-word mr-[0.24em]" style={{ animationDelay: `${0.5 + i * 0.1}s` }}>{w}</span>)}<span className="hero-word hero-gold" style={{ animationDelay: "0.7s" }}>Burning Heart</span>
           </h1>
           <p className="mx-auto mt-4 max-w-[34rem] text-[14px] leading-relaxed text-[#ffe9d2]/85 sm:text-[16px] lg:mx-0">
             Lectures, letters, books, quotes and photographs of Śrīla Gurudeva, gathered in one searchable home and growing in many languages. Listen, read, and find the exact words you were looking for.
@@ -87,11 +89,13 @@ export function Hero() {
             </div>
             <button className="h-10 shrink-0 rounded-full bg-[linear-gradient(135deg,#c2621d,#7a1e10)] px-5 text-[13.5px] font-semibold text-white shadow-[0_8px_18px_-8px_rgba(122,30,16,.8)] transition hover:brightness-110 sm:h-11 sm:px-6">Search</button>
           </form>
-          <div className="mx-auto mt-4 flex max-w-xl flex-wrap justify-center gap-1.5 lg:mx-0 lg:justify-start">
-            {CHIPS.map(([l, k], ci) => <Link key={k} href={`/search?q=${k}`} className={`${ci > 2 ? "max-sm:hidden" : ""} rounded-full border border-white/20 bg-white/[0.07] px-3 py-1 text-[12.5px] text-[#ffe9d2] backdrop-blur transition hover:-translate-y-0.5 hover:border-[#f3c35e]/50 hover:bg-white/[0.14]`}>{l}</Link>)}
+          <div className="mx-auto mt-5 flex max-w-xl flex-wrap justify-center gap-2 sm:gap-2.5 lg:mx-0 lg:justify-start">
+            <Link href="/teachings/audio" className="hero-cta group inline-flex h-11 items-center gap-2 rounded-full bg-[linear-gradient(135deg,#f7c556,#e8913c)] pl-1.5 pr-5 text-[13.5px] font-semibold text-[#4a0d0b] shadow-[0_14px_30px_-14px_rgba(247,197,86,.8)] transition hover:-translate-y-0.5 hover:shadow-[0_18px_36px_-14px_rgba(247,197,86,.95)]"><span className="flex size-8 items-center justify-center rounded-full bg-[#4a0d0b]/15"><Headphones size={15} /></span>Listen to His Lectures</Link>
+            <Link href="/teachings/books" className="group inline-flex h-11 items-center gap-2 rounded-full border border-white/25 bg-white/[0.08] pl-1.5 pr-5 text-[13.5px] font-semibold text-[#fff6ea] backdrop-blur transition hover:-translate-y-0.5 hover:border-[#f3c35e]/60 hover:bg-white/[0.14]"><span className="flex size-8 items-center justify-center rounded-full bg-white/15"><BookOpen size={15} /></span>Read His Books</Link>
+            <Link href="/gurudeva/who-is-srila-gurudeva" className="group inline-flex h-11 items-center gap-2 rounded-full border border-white/25 bg-white/[0.08] pl-1.5 pr-5 text-[13.5px] font-semibold text-[#fff6ea] backdrop-blur transition hover:-translate-y-0.5 hover:border-[#f3c35e]/60 hover:bg-white/[0.14]"><span className="flex size-8 items-center justify-center rounded-full bg-white/15"><UserRound size={15} /></span>Who Is Śrīla Gurudeva?</Link>
           </div>
         </div>
-        <div className="order-1 mx-auto w-full max-w-[min(300px,40svh)] sm:max-w-[min(420px,44svh)] lg:order-2 lg:max-w-[540px]">
+        <div className="order-1 mx-auto w-full max-w-[min(94vw,46svh)] sm:max-w-[min(560px,50svh)] lg:order-2 lg:max-w-[min(680px,calc(100svh-120px))]">
           <GurudevaLotus src="/photos/gurudeva-hero.webp" alt="Śrī Śrīmad Gour Govinda Swāmī Gurudeva" />
         </div>
       </div>
