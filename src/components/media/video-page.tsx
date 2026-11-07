@@ -22,7 +22,7 @@ export async function VideosShell({ active, children }: { active: string; childr
 export async function VideoPage({ slug, list, sec }: { slug: string; list?: string; sec?: string }) {
   const v = await getVideo(slug);
   if (!v) { const moved = await findMovedVideo(slug); if (moved) redirect(`/teachings/videos/${moved}${list ? `?list=${list}` : sec ? `?sec=${sec}` : ""}`); notFound(); }
-  const shelf = await getQueue({ list, sec });
+  const shelf = await getQueue({ list, sec }).catch(() => null);
   const shelfRef = list ? ((await sql`select ref, kind from video_sources where id::text = ${list}`.catch(() => [])) as any[]).filter((r) => r.kind === "playlist")[0]?.ref || null : null; const at = shelf ? shelf.items.findIndex((x) => x.slug === v.slug) : -1; const next = shelf && at >= 0 ? shelf.items[at + 1] : undefined;
   const more = (await sql`select slug, title, youtube_id, date, year from videos where status = 'published' and id <> ${v.id} and ((${v.year}::int is not null and coalesce(year, extract(year from date)::int) = ${v.year}) or (place is not null and place = ${v.place}) or (series is not null and series = ${v.series})) order by date desc nulls last limit 8`.catch(() => [])) as any[];
   const facts: [string, string | null, string | null][] = [["Date", when(v) || null, null], ["Place", [v.place, v.country].filter(Boolean).join(", ") || null, v.place ? `/teachings/videos/search?q=${encodeURIComponent(v.place)}` : null], ["Type", v.type || null, null], ["Verse", v.scripture || null, null], ["Channel", v.series || v.channel || null, null], ["Length", dur(v.duration_sec) || null, null]];

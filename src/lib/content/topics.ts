@@ -4,7 +4,7 @@ import { unstable_cache } from "next/cache";
 import { sql, hasDb } from "@/lib/db";
 import { slugify } from "./text";
 
-export type Topic = { name: string; slug: string; parent: string | null; description: string | null; counts: { quotes: number; compilations: number; lectures: number; videos: number; articles: number }; total: number };
+export type Topic = { name: string; slug: string; parent: string | null; description: string | null; aliases: string[]; counts: { quotes: number; compilations: number; lectures: number; videos: number; articles: number }; total: number; deep: number };
 const q = async (p: Promise<any[]>) => { try { return await p; } catch { return []; } };
 
 async function build(): Promise<Topic[]> {
@@ -20,12 +20,18 @@ async function build(): Promise<Topic[]> {
   const m = (rows: any[]) => Object.fromEntries(rows.map((r) => [r.t, r.n]));
   const E = m(ex), Q = m(qu), A = m(au), V = m(vi), R = m(ar);
   const names = new Set<string>([...v.map((r: any) => r.name), ...Object.keys(Q), ...Object.keys(E), ...Object.keys(A), ...Object.keys(V), ...Object.keys(R)]);
-  return [...names].filter(Boolean).sort((a, b) => a.localeCompare(b)).map((name) => {
+  const out: Topic[] = [...names].filter(Boolean).sort((a, b) => a.localeCompare(b)).map((name) => {
     const x = (v.find((r: any) => r.name === name)?.extra || {}) as any; const counts = { quotes: Q[name] || 0, compilations: E[name] || 0, lectures: A[name] || 0, videos: V[name] || 0, articles: R[name] || 0 };
-    return { name, slug: slugify(name), parent: x.parent || null, description: x.description || null, counts, total: Object.values(counts).reduce((a, b) => a + b, 0) };
+    return { name, slug: slugify(name), parent: x.parent || null, description: x.description || null, aliases: Array.isArray(x.aliases) ? x.aliases : String(x.aliases || "").split(/[,;]/).map((a: string) => a.trim()).filter(Boolean), counts, total: Object.values(counts).reduce((a, b) => a + b, 0), deep: 0 };
   });
+  // each topic's total including everything under it
+  const by = new Map(out.map((t) => [t.name, t])); const deep = (t: Topic, seen = new Set<string>()): number => { if (seen.has(t.name)) return 0; seen.add(t.name); return t.total + out.filter((c) => c.parent === t.name).reduce((a, c) => a + deep(c, seen), 0); };
+  out.forEach((t) => { t.deep = deep(t); if (t.parent && !by.has(t.parent)) t.parent = null; });
+  return out;
 }
-export const topics = unstable_cache(build, ["topics-v1"], { revalidate: 300, tags: ["topics"] });
+export const topics = unstable_cache(build, ["topics-v2"], { revalidate: 300, tags: ["topics"] });
+/** All the names under a topic, at every level. */
+export const namesBelow = (all: Topic[], name: string, seen = new Set<string>()): string[] => { if (seen.has(name)) return []; seen.add(name); return all.filter((c) => c.parent === name).flatMap((c) => [c.name, ...namesBelow(all, c.name, seen)]); };
 export const childrenOf = (all: Topic[], name: string | null) => all.filter((t) => (t.parent || null) === name);
 /** Everything linked to one topic (and to the topics under it). */
 export async function topicContent(names: string[]) {
@@ -38,4 +44,19 @@ export async function topicContent(names: string[]) {
     q(sql`select slug, title, author, summary, date from articles where status = 'published' and topics && ${names} order by date desc nulls last limit 60`),
   ]);
   return { quotes, compilations, lectures, videos, articles };
+}
+
+const PER = 40;
+/** Quotes on a topic, a page at a time — built for very many: words to find, newest or by order, with the full count. */
+export async function topicQuotes(names: string[], o: { page?: number; q?: string; sort?: string } = {}) {
+  if (!hasDb() || !names.length) return { rows: [] as any[], total: 0, page: 1, pages: 1, per: PER };
+  const page = Math.max(1, o.page || 1); const words = (o.q || "").normalize("NFKD").replace(/[̀-ͯ]/g, "").toLowerCase().split(/\s+/).filter(Boolean).slice(0, 6).map((w) => `%${w}%`);
+  try {
+    const rows = (await sql`select e.slug, e.text, e.title, e.source, e.verse_ref, e.topics, a.title as lecture, a.slug as lslug, a.code as lcode, to_char(a.date, 'YYYY-MM-DD') as date, a.place, count(*) over() as total
+      from excerpts e left join audios a on a.id = e.audio_id
+      where e.status = 'published' and e.kind = 'quote' and e.topics && ${names} and (${words.length === 0} or e.search ilike all(${words.length ? words : ["%"]}::text[]))
+      order by case when ${o.sort === "date"} then a.date end desc nulls last, e.position, e.created_at limit ${PER} offset ${(page - 1) * PER}`) as any[];
+    const total = Number(rows[0]?.total || 0);
+    return { rows, total, page, pages: Math.max(1, Math.ceil(total / PER)), per: PER };
+  } catch { return { rows: [] as any[], total: 0, page, pages: 1, per: PER }; }
 }

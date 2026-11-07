@@ -43,7 +43,7 @@ export const SIMPLE_DEFAULTS: { key: string; label: string; intro: string; icon:
     { group: "His words", href: "/teachings/quotes", label: "Quotes", note: "By subject, with source", icon: "Quote" },
     { group: "His words", href: "/teachings/instructions", label: "Instructions", note: "Guidance for sādhana and life", icon: "ListChecks" },
     { group: "His words", href: "/teachings/stories", label: "Stories", note: "Stories he told", icon: "BookHeart" },
-    { group: "His words", href: "/tattva", label: "Tattva", note: "The topics of his teachings", icon: "Network" }] },
+    { group: "Tattva", href: "/tattva", label: "Tattva", note: "Every subject of his teachings, topic by topic", icon: "Network" }] },
   { key: "about", label: "About", intro: "Archive, contact, resources", icon: "Info", accent: "leaf", featured: [
     { href: "/about", label: "About this website", note: "Why and how this archive exists", icon: "Archive" },
     { href: "/gurudeva/taptajivanam-projects", label: "Taptajīvanam project", note: "The archive and its services", icon: "Library" },

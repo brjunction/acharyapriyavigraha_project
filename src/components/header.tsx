@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { ChevronDown, ChevronRight, ChevronLeft, Search, Menu, X, ArrowRight } from "lucide-react";
@@ -185,7 +185,7 @@ const cardCols = (n: number) => (n <= 4 ? Math.max(n, 1) : n === 6 || n === 5 ||
 
 /** Simple panel: first only the groups (His life, Remembrance…) as a few tiles; a click opens that group's pages, with a way back. */
 function SimplePanel({ menu, onNavigate, onEverything }: { menu: SimpleMenu; onNavigate: () => void; onEverything: () => void }) {
-  const here = usePathname();
+  const here = usePathname(); const router = useRouter();
   const [ti, setTi] = useState(-1);
   const tabs = menu.tabs; const t = tabs[ti];
   return (
@@ -193,7 +193,7 @@ function SimplePanel({ menu, onNavigate, onEverything }: { menu: SimpleMenu; onN
       {!t ? (
         <div className="grid gap-3 p-4" style={{ gridTemplateColumns: `repeat(${tabs.length <= 5 ? tabs.length : 3}, minmax(0, 1fr))` }}>
           {tabs.map((x, k) => (
-            <button key={x.title} onClick={() => setTi(k)} className={`acc-${x.acc} sm-card group flex flex-col items-center gap-3 rounded-2xl bg-acc-tint px-3 pb-5 pt-6 text-center ring-1 ring-transparent transition duration-200 hover:-translate-y-1 hover:bg-white hover:shadow-[0_14px_30px_-16px_rgba(0,0,0,.35)] hover:ring-[var(--acc)]/35`} style={{ animationDelay: `${k * 50}ms` }}>
+            <button key={x.title} onClick={() => { if (x.items.length === 1) { router.push(x.items[0].href); onNavigate(); } else setTi(k); }} className={`acc-${x.acc} sm-card group flex flex-col items-center gap-3 rounded-2xl bg-acc-tint px-3 pb-5 pt-6 text-center ring-1 ring-transparent transition duration-200 hover:-translate-y-1 hover:bg-white hover:shadow-[0_14px_30px_-16px_rgba(0,0,0,.35)] hover:ring-[var(--acc)]/35`} style={{ animationDelay: `${k * 50}ms` }}>
               <span className="flex size-[72px] items-center justify-center overflow-hidden rounded-full bg-white text-[var(--acc)] shadow-[0_4px_14px_-6px_rgba(0,0,0,.25)] ring-4 ring-white transition duration-300 group-hover:scale-105">
                 {x.img ? /* eslint-disable-next-line @next/next/no-img-element */ <img src={x.img} alt="" className="h-full w-full object-cover" style={x.pos ? { objectPosition: x.pos } : undefined} /> : <x.icon size={30} strokeWidth={1.5} />}
               </span>
@@ -221,14 +221,14 @@ function SimplePanel({ menu, onNavigate, onEverything }: { menu: SimpleMenu; onN
 
 /** Phone, Simple: each group opens in place when tapped; the first is open. */
 function MobileTabs({ menu, onClose }: { menu: SimpleMenu; onClose: () => void }) {
-  const here = usePathname();
+  const here = usePathname(); const router = useRouter();
   const [o, setO] = useState(-1);
   if (menu.tabs.length === 1) return <div className="grid grid-cols-2 gap-2">{menu.tabs[0].items.map((f, k) => <div key={f.href} className="sm-card" style={{ animationDelay: `${k * 35}ms` }}><FeatureCard f={f} onClick={onClose} here={here} compact /></div>)}</div>;
   return (
     <div className="space-y-2">
       {menu.tabs.map((t, k) => (
         <div key={t.title} className={`acc-${t.acc} overflow-hidden rounded-2xl ${k === o ? "bg-acc-tint" : "border border-line bg-white"}`}>
-          <button onClick={() => setO(k === o ? -1 : k)} aria-expanded={k === o} className="flex w-full items-center gap-3 px-3 py-2.5 text-left">
+          <button onClick={() => { if (t.items.length === 1) { router.push(t.items[0].href); onClose(); } else setO(k === o ? -1 : k); }} aria-expanded={k === o} className="flex w-full items-center gap-3 px-3 py-2.5 text-left">
             <span className="flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-full bg-white text-[var(--acc)] ring-1 ring-line">{t.img ? /* eslint-disable-next-line @next/next/no-img-element */ <img src={t.img} alt="" className="h-full w-full object-cover" style={t.pos ? { objectPosition: t.pos } : undefined} /> : <t.icon size={20} strokeWidth={1.6} />}</span>
             <span className="flex-1 text-[15px] font-semibold text-ink">{t.title}</span>
             <span className="text-[12px] tabular-nums text-ink-3">{t.items.length}</span>

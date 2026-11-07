@@ -359,21 +359,24 @@ export function SectionView({ s }: { s: VSection }) {
 
 /** The player on a watch page: when a video ends, the next one in the section or playlist starts. */
 export function QueuePlayer({ id, title, next }: { id: string; title: string; next?: string }) {
-  const box = useRef<HTMLDivElement>(null);
+  // The embed is always React's own iframe; the YouTube API only listens to it (to go on to the next video),
+  // so nothing on the page is replaced behind React's back. If the API fails, the video still plays as usual.
+  const frame = useRef<HTMLIFrameElement>(null);
   useEffect(() => {
-    if (!next) return; let player: any; let stop = false;
-    const make = () => { const YT = (window as any).YT; if (stop || !YT?.Player || !box.current) return;
-      const el = document.createElement("div"); box.current.innerHTML = ""; box.current.appendChild(el);
-      player = new YT.Player(el, { videoId: id, host: "https://www.youtube-nocookie.com", playerVars: { autoplay: 1, rel: 0 }, events: { onStateChange: (e: any) => { if (e.data === 0) window.location.href = next; } } }); };
-    if ((window as any).YT?.Player) make(); else {
-      const prev = (window as any).onYouTubeIframeAPIReady; (window as any).onYouTubeIframeAPIReady = () => { prev?.(); make(); };
-      if (!document.querySelector('script[src="https://www.youtube.com/iframe_api"]')) { const s = document.createElement("script"); s.src = "https://www.youtube.com/iframe_api"; document.head.appendChild(s); }
-    }
-    return () => { stop = true; try { player?.destroy(); } catch {} if (box.current) box.current.innerHTML = ""; };
+    if (!next) return; let player: any = null; let stop = false;
+    const attach = () => { try { const YT = (window as any).YT; if (stop || !YT?.Player || !frame.current) return; player = new YT.Player(frame.current, { events: { onStateChange: (e: any) => { if (e?.data === 0 && !stop) window.location.href = next; } } }); } catch {} };
+    try {
+      if ((window as any).YT?.Player) attach(); else {
+        const prev = (window as any).onYouTubeIframeAPIReady; (window as any).onYouTubeIframeAPIReady = () => { try { prev?.(); } catch {} attach(); };
+        if (!document.querySelector('script[src="https://www.youtube.com/iframe_api"]')) { const sc = document.createElement("script"); sc.src = "https://www.youtube.com/iframe_api"; sc.async = true; document.head.appendChild(sc); }
+      }
+    } catch {}
+    return () => { stop = true; try { player?.destroy?.(); } catch {} };
   }, [id, next]);
+  const src = `https://www.youtube-nocookie.com/embed/${id}?rel=0${next ? "&autoplay=1&enablejsapi=1" : ""}`;
   return (
-    <div className="aspect-video overflow-hidden rounded-2xl bg-black [&>div]:h-full [&>div]:w-full [&_iframe]:h-full [&_iframe]:w-full">
-      {next ? <div ref={box} /> : <iframe src={`https://www.youtube-nocookie.com/embed/${id}?rel=0`} title={title} className="h-full w-full" allow="accelerometer; autoplay; encrypted-media; picture-in-picture" allowFullScreen />}
+    <div className="aspect-video overflow-hidden rounded-2xl bg-black">
+      <iframe key={id} ref={frame} src={src} title={title} className="h-full w-full" allow="accelerometer; autoplay; encrypted-media; picture-in-picture" allowFullScreen />
     </div>
   );
 }

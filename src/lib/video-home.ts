@@ -98,6 +98,9 @@ async function shelfOnce(id: string): Promise<Shelf | null | undefined> {
 
 /** The queue a watch page follows: a section (sec=) or a channel/playlist (list=). */
 export async function getQueue(o: { sec?: string; list?: string }): Promise<{ id: string; name: string; href: string; param: string; items: VCard[] } | null> {
+  try { return await queueOnce(o); } catch { return null; }
+}
+async function queueOnce(o: { sec?: string; list?: string }): Promise<{ id: string; name: string; href: string; param: string; items: VCard[] } | null> {
   if (o.list) { const s = await getShelf(o.list); return s ? { id: s.id, name: s.name, href: `/teachings/videos/list/${s.id}`, param: `list=${s.id}`, items: s.items } : null; }
   if (o.sec && hasDb()) { const s = await getSection(o.sec); return s ? { id: s.id, name: s.name, href: `/teachings/videos/s/${s.slug}`, param: `sec=${s.slug}`, items: s.items } : null; }
   return null;

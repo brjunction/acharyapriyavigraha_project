@@ -172,3 +172,4 @@ create unique index if not exists audios_code_key on audios(code) where code is 
 alter table video_source_items add column if not exists title text, add column if not exists seconds int, add column if not exists published text, add column if not exists gen int not null default 0;
 alter table video_sources add column if not exists sync_state text, add column if not exists sync_error text, add column if not exists sync_gen int not null default 0;
 alter table suggestions add column if not exists reply text, add column if not exists replied_at timestamptz, add column if not exists applied boolean not null default false;
+create table if not exists site_errors (id bigserial primary key, at timestamptz not null default now(), side text not null, path text, message text, stack text, digest text, ua text);
