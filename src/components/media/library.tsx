@@ -5,6 +5,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Search, X, ChevronDown, ChevronRight, SlidersHorizontal, FileText, PlayCircle, ArrowDownUp, Rows3, BookOpen, CalendarDays, MapPin, Tag, Mic } from "lucide-react";
 import type { Lecture } from "@/lib/data";
 import { PlayButton } from "@/components/lecture";
+import { TextSizeControl } from "@/components/text-scale";
 
 export type MediaItem = Lecture & { thumb?: string; singer?: string; author?: string; song?: string; video?: boolean };
 export type Mode = "audio" | "kirtan" | "video";
@@ -172,26 +173,11 @@ function VideoCard({ l }: { l: MediaItem }) {
 type View = "basic" | "advanced";
 const VIEW_KEY = "tj_audio_view";
 
-const ZOOM_KEY = "tj_audio_zoom";
-const ZOOMS = [1, 1.15, 1.3, 1.45];
-
-/** Audio lectures: Basic (default) or Advanced, remembered on this device, with a text-size control. Other media use the advanced library. */
+/** Audio lectures: Basic (default) or Advanced, remembered on this device, with the site's text-size control. Other media use the advanced library. */
 export function MediaLibrary({ items, mode }: { items: MediaItem[]; mode: Mode }) {
   const [view, setViewS] = useState<View>("basic");
-  const [z, setZS] = useState(0);
-  useEffect(() => { try { const u = new URLSearchParams(location.search); const any = [...u.keys()].some((k) => k !== "q"); if (localStorage.getItem(VIEW_KEY) === "advanced" || any) setViewS("advanced"); const n = Number(localStorage.getItem(ZOOM_KEY)); if (n > 0 && n < ZOOMS.length) setZS(n); } catch {} }, []);
+  useEffect(() => { try { const u = new URLSearchParams(location.search); const any = [...u.keys()].some((k) => k !== "q"); if (localStorage.getItem(VIEW_KEY) === "advanced" || any) setViewS("advanced"); } catch {} }, []);
   const setView = (v: View) => { setViewS(v); try { localStorage.setItem(VIEW_KEY, v); } catch {} if (v === "basic") history.replaceState(null, "", location.pathname); };
-  // Bigger text only: every text grows by the chosen factor; width, spacing and icons stay as they are.
-  const box = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    const el = box.current; if (!el) return; const k = ZOOMS[z]; let raf = 0;
-    const apply = () => { const all = [el, ...el.querySelectorAll<HTMLElement>("*")].filter((e) => !(e instanceof SVGElement)) as HTMLElement[];
-      all.forEach((e) => { e.style.fontSize = ""; }); if (k === 1) return;
-      const sizes = all.map((e) => parseFloat(getComputedStyle(e).fontSize)); all.forEach((e, i) => { e.style.fontSize = `${(sizes[i] * k).toFixed(2)}px`; }); };
-    apply(); const mo = new MutationObserver(() => { cancelAnimationFrame(raf); raf = requestAnimationFrame(apply); }); mo.observe(el, { childList: true, subtree: true, characterData: true });
-    return () => { mo.disconnect(); cancelAnimationFrame(raf); };
-  }, [z, view]);
-  const setZ = (n: number) => { const k = Math.max(0, Math.min(ZOOMS.length - 1, n)); setZS(k); try { localStorage.setItem(ZOOM_KEY, String(k)); } catch {} };
   if (mode !== "audio") return <AdvancedLibrary items={items} mode={mode} />;
   return (
     <>
@@ -199,15 +185,9 @@ export function MediaLibrary({ items, mode }: { items: MediaItem[]; mode: Mode }
         <div role="radiogroup" aria-label="Search style" className="flex rounded-full border border-line bg-band/60 p-0.5">
           {(["basic", "advanced"] as View[]).map((v) => <button key={v} role="radio" aria-checked={view === v} onClick={() => setView(v)} className={`rounded-full px-3 py-1.5 text-[12.5px] font-medium transition sm:px-3.5 sm:text-[13px] ${view === v ? "bg-white text-ink shadow-[0_1px_3px_rgba(0,0,0,.12)]" : "text-ink-3 hover:text-ink"}`}>{v === "basic" ? "Basic" : "Advanced"}<span className="max-sm:hidden"> search</span></button>)}
         </div>
-        <div className="flex items-center gap-1 rounded-full border border-line bg-white p-0.5" aria-label="Text size">
-          <button onClick={() => setZ(z - 1)} disabled={z === 0} aria-label="Smaller text" title="Smaller text" className="flex h-8 w-8 items-center justify-center rounded-full text-[13px] font-semibold text-ink-2 hover:bg-band disabled:opacity-30">A−</button>
-          <span className="px-1 text-[12px] tabular-nums text-ink-3 max-sm:hidden">{Math.round(ZOOMS[z] * 100)}%</span>
-          <button onClick={() => setZ(z + 1)} disabled={z === ZOOMS.length - 1} aria-label="Bigger text" title="Bigger text" className="flex h-8 w-8 items-center justify-center rounded-full text-[16px] font-semibold text-ink-2 hover:bg-band disabled:opacity-30">A+</button>
-        </div>
+        <TextSizeControl big />
       </div>
-      <div ref={box}>
-        {view === "basic" ? <BasicAudio items={items} /> : <AdvancedLibrary items={items} mode={mode} />}
-      </div>
+      {view === "basic" ? <BasicAudio items={items} /> : <AdvancedLibrary items={items} mode={mode} />}
     </>
   );
 }

@@ -5,7 +5,8 @@ import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { ChevronDown, ChevronRight, ChevronLeft, Search, Menu, X, ArrowRight } from "lucide-react";
 import { ACCENT, type NavMenu } from "@/lib/nav";
-import { simpleMenus, type SimpleMenu } from "@/lib/simple-nav";
+import { simpleMenus, ADV_KEY, type SimpleMenu } from "@/lib/simple-nav";
+import { TextSizeControl } from "./text-scale";
 import { useMenus, useSimpleCfg } from "./menus-context";
 import { LogoMark, Rosette } from "./motifs";
 import { usePrefs } from "./providers";
@@ -26,7 +27,7 @@ const isIn = (path: string, m: NavMenu) => hit(path, m.href) || m.groups.some((g
 
 const dot = (desc: string, soon?: boolean) => (soon ? "bg-line-strong" : desc.includes("In progress") ? "bg-[#d99a1c]" : "bg-ok");
 
-function MegaPanel({ menu, onNavigate, onPin }: { menu: NavMenu; onNavigate: () => void; onPin: (b: boolean) => void }) {
+function MegaPanel({ menu, onNavigate, onPin, controls }: { menu: NavMenu; onNavigate: () => void; onPin: (b: boolean) => void; controls?: React.ReactNode }) {
   const tiles = menu.layout === "tiles";
   const fly = menu.layout === "flyout";
   const I = menu.icon;
@@ -132,7 +133,7 @@ function MegaPanel({ menu, onNavigate, onPin }: { menu: NavMenu; onNavigate: () 
       </div>
       <div className="flex items-center justify-between gap-4 border-t border-line bg-acc-tint px-4 py-1.5 text-[10.5px] text-ink-3">
         <span>{links.length} {menu.key === "translations" ? "languages" : "sections"}{menu.key === "translations" && <> · <span className="inline-block h-1.5 w-1.5 rounded-full bg-ok" /> live <span className="ml-1 inline-block h-1.5 w-1.5 rounded-full bg-[#d99a1c]" /> in progress <span className="ml-1 inline-block h-1.5 w-1.5 rounded-full bg-line-strong" /> planned</>}</span>
-        <span className="hidden sm:inline">Press <kbd className="rounded border border-line bg-surface px-1">Ctrl</kbd> <kbd className="rounded border border-line bg-surface px-1">K</kbd> to search everything</span>
+        {controls || <span className="hidden sm:inline">Press <kbd className="rounded border border-line bg-surface px-1">Ctrl</kbd> <kbd className="rounded border border-line bg-surface px-1">K</kbd> to search everything</span>}
       </div>
     </div>
   );
@@ -142,12 +143,12 @@ type Mode = "simple" | "advanced";
 const MODE_KEY = "tj_menu_mode";
 
 /** Simple | Advanced — remembered on this device. */
-function ModeSwitch({ mode, setMode, big = false }: { mode: Mode; setMode: (m: Mode) => void; big?: boolean }) {
+function ModeSwitch({ mode, setMode, big = false, small = false }: { mode: Mode; setMode: (m: Mode) => void; big?: boolean; small?: boolean }) {
   return (
     <div role="radiogroup" aria-label="Menu style" className={`flex shrink-0 items-center rounded-full border border-line bg-band/60 p-0.5 ${big ? "w-full" : ""}`}>
       {(["simple", "advanced"] as Mode[]).map((m) => (
         <button key={m} role="radio" aria-checked={mode === m} onClick={() => setMode(m)}
-          className={`rounded-full font-medium transition ${big ? "flex-1 py-2 text-[13.5px]" : "px-3 py-1 text-[12px]"} ${mode === m ? "bg-white text-ink shadow-[0_1px_3px_rgba(0,0,0,.12)]" : "text-ink-3 hover:text-ink"}`}>
+          className={`rounded-full font-medium transition ${big ? "flex-1 py-2 text-[13.5px]" : small ? "px-2.5 py-1 text-[11.5px]" : "px-3 py-1 text-[12px]"} ${mode === m ? "bg-white text-ink shadow-[0_1px_3px_rgba(0,0,0,.12)]" : "text-ink-3 hover:text-ink"}`}>
           {m === "simple" ? "Simple" : "Advanced"}
         </button>
       ))}
@@ -181,51 +182,41 @@ function FeatureCard({ f, onClick, here }: { f: SimpleMenu["featured"][number]; 
   );
 }
 
-function SimplePanel({ menu, onNavigate }: { menu: SimpleMenu; onNavigate: () => void }) {
+const cardCols = (n: number) => (n <= 4 ? Math.max(n, 1) : n === 6 || n === 5 || n === 9 ? 3 : 4);
+
+/** Simple panel: the chosen main pages as cards; below, the way to everything else and the view controls. */
+function SimplePanel({ menu, onNavigate, onEverything, controls }: { menu: SimpleMenu; onNavigate: () => void; onEverything: () => void; controls: React.ReactNode }) {
   const here = usePathname();
-  const n = menu.groups.length; const cols = n >= 4 ? "columns-4" : n === 3 ? "columns-3" : n === 2 ? "columns-2" : "columns-1";
   return (
-    <div className={`acc-${menu.accent} mega-enter max-h-[calc(100vh-76px)] overflow-y-auto rounded-2xl border border-line bg-surface shadow-[var(--shadow-lg)]`}>
-      <div className="grid grid-cols-4 gap-3 bg-acc-tint p-4">
-        {menu.featured.map((f) => <FeatureCard key={f.href} f={f} onClick={onNavigate} here={here} />)}
+    <div className={`acc-${menu.accent} mega-enter overflow-hidden rounded-2xl border border-line bg-surface shadow-[var(--shadow-lg)]`}>
+      <div className="grid gap-3 bg-acc-tint p-4" style={{ gridTemplateColumns: `repeat(${cardCols(menu.featured.length)}, minmax(0, 1fr))` }}>
+        {menu.featured.map((f, k) => <div key={f.href} className="sm-card" style={{ animationDelay: `${k * 45}ms` }}><FeatureCard f={f} onClick={onNavigate} here={here} /></div>)}
       </div>
-      {n > 0 && <div className={`${cols} gap-6 px-5 pb-4 pt-3`}>
-        {menu.groups.map((g) => (
-          <div key={g.title} className="break-inside-avoid pb-2">
-            <p className="px-2 pb-1 pt-2 text-[10.5px] font-semibold uppercase tracking-[0.12em] text-[var(--acc)]">{g.title}</p>
-            {g.links.map((a) => { const I = a.icon; return (
-              <Link key={a.href} href={a.href} {...extOf(a.href)} onClick={onNavigate} aria-current={hit(here, a.href) ? "page" : undefined}
-                className={`flex items-center gap-2.5 rounded-lg px-2 py-1.5 text-[13px] transition hover:bg-acc-tint ${hit(here, a.href) ? "bg-acc-soft font-semibold" : "text-ink"}`}>
-                <span className="mega-ic"><I size={15} strokeWidth={1.8} /></span>{a.label}</Link>); })}
-          </div>))}
-      </div>}
+      <div className="flex items-center justify-between gap-3 border-t border-line px-4 py-2.5">
+        <button onClick={onEverything} className="group flex items-center gap-1.5 rounded-full px-2 py-1 text-[13px] font-medium text-[var(--acc)] hover:bg-acc-tint">See everything in {menu.label}<ArrowRight size={14} className="transition group-hover:translate-x-0.5" /></button>
+        {controls}
+      </div>
     </div>
   );
 }
 
-/** Phone, Simple: four big rows; one tap shows the four cards and the pages grouped below. */
-function SimpleMobile({ menus, onClose, open, setOpen }: { menus: SimpleMenu[]; onClose: () => void; open: SimpleMenu | null; setOpen: (m: SimpleMenu | null) => void }) {
+/** Phone, Simple: four rows; one tap shows the main pages as cards, and the way to everything else. */
+function SimpleMobile({ menus, onClose, open, setOpen, onEverything }: { menus: SimpleMenu[]; onClose: () => void; open: SimpleMenu | null; setOpen: (m: SimpleMenu | null) => void; onEverything: (m: SimpleMenu) => void }) {
   const here = usePathname();
   if (!open) return (
     <div className="space-y-2.5">
-      {menus.map((m) => (
-        <button key={m.key} onClick={() => setOpen(m)} className={`acc-${m.accent} flex w-full items-center gap-3.5 rounded-2xl border border-line bg-white p-3 text-left transition active:scale-[.98]`}>
+      {menus.map((m, k) => (
+        <button key={m.key} onClick={() => setOpen(m)} className={`acc-${m.accent} sm-card flex w-full items-center gap-3.5 rounded-2xl border border-line bg-white p-3 text-left transition active:scale-[.98]`} style={{ animationDelay: `${k * 50}ms` }}>
           <SIc it={m} size={24} box="size-12" />
-          <span className="min-w-0 flex-1"><span className="block text-[15px] font-semibold text-ink">{m.label}</span><span className="block truncate text-[12px] text-ink-3">{m.intro}</span></span>
+          <span className="min-w-0 flex-1 text-[15px] font-semibold text-ink">{m.label}</span>
           <ChevronRight size={18} className="shrink-0 text-ink-3" />
         </button>))}
     </div>
   );
   return (
     <div className={`acc-${open.accent}`}>
-      <div className="space-y-2.5">{open.featured.map((f) => <FeatureCard key={f.href} f={f} onClick={onClose} here={here} />)}</div>
-      {open.groups.map((g) => (
-        <div key={g.title} className="mt-4">
-          <p className="px-2 pb-1 text-[10.5px] font-semibold uppercase tracking-[0.12em] text-[var(--acc)]">{g.title}</p>
-          {g.links.map((a) => { const I = a.icon; return (
-            <Link key={a.href} href={a.href} {...extOf(a.href)} onClick={onClose} className={`flex items-center gap-3 rounded-xl px-2 py-2 text-[14px] active:bg-acc-tint ${hit(here, a.href) ? "bg-acc-soft font-semibold" : "text-ink"}`}>
-              <span className="mega-ic"><I size={15} strokeWidth={1.8} /></span>{a.label}</Link>); })}
-        </div>))}
+      <div className="space-y-2.5">{open.featured.map((f, k) => <div key={f.href} className="sm-card" style={{ animationDelay: `${k * 45}ms` }}><FeatureCard f={f} onClick={onClose} here={here} /></div>)}</div>
+      <button onClick={() => onEverything(open)} className="mt-4 flex w-full items-center justify-center gap-1.5 rounded-2xl border border-dashed border-[var(--acc)]/40 px-4 py-3 text-[13.5px] font-medium text-[var(--acc)] active:bg-acc-tint">See everything in {open.label}<ArrowRight size={15} /></button>
     </div>
   );
 }
@@ -248,15 +239,15 @@ function MobileMenu({ onClose, mode, setMode }: { onClose: () => void; mode: Mod
         {mode === "simple" ? (
           <nav className="absolute inset-0 overflow-y-auto px-4 pb-8 pt-4">
             {sOpen ? <div className="mb-3 flex items-center gap-2"><button onClick={() => setSOpen(null)} className="flex items-center gap-1 rounded-full px-1 py-2 text-[13px] text-ink-2"><ChevronLeft size={17} />All menus</button><span className="ml-auto text-[14px] font-semibold text-ink">{sOpen.label}</span></div> : <>
-              <ModeSwitch mode={mode} setMode={setMode} big />
+              <div className="flex items-center gap-2"><div className="min-w-0 flex-1"><ModeSwitch mode={mode} setMode={setMode} big /></div><TextSizeControl /></div>
               <button onClick={() => { onClose(); setSearch(true); }} className="my-3 flex w-full items-center gap-3 rounded-xl border border-line bg-page px-4 py-3 text-left text-[13.5px] text-ink-3">
                 <Search size={17} /> Search lectures, quotes, verses…
               </button></>}
-            <SimpleMobile menus={simpleMenus(MENUS, simpleCfg)} onClose={onClose} open={sOpen} setOpen={setSOpen} />
+            <SimpleMobile menus={simpleMenus(MENUS, simpleCfg)} onClose={onClose} open={sOpen} setOpen={setSOpen} onEverything={(m) => { const adv = MENUS.find((x) => x.key === ADV_KEY[m.key]); setSOpen(null); setMode("advanced"); if (adv) setOpen(adv); }} />
           </nav>
         ) : <>
         <nav className={`absolute inset-0 overflow-y-auto px-4 py-4 transition-transform duration-300 ${open ? "-translate-x-full" : "translate-x-0"}`}>
-          <div className="mb-3"><ModeSwitch mode={mode} setMode={setMode} big /></div>
+          <div className="mb-3 flex items-center gap-2"><div className="min-w-0 flex-1"><ModeSwitch mode={mode} setMode={setMode} big /></div><TextSizeControl /></div>
           <button onClick={() => { onClose(); setSearch(true); }} className="mb-4 flex w-full items-center gap-3 rounded-xl border border-line bg-page px-4 py-3 text-left text-[13px] text-ink-3">
             <Search size={17} /> Search lectures, quotes, verses…
           </button>
@@ -330,16 +321,14 @@ export function Header() {
   const [mounted, setMounted] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [mode, setModeS] = useState<Mode>("simple");
-  const [sOpen, setSOpen] = useState<string | null>(null);
   const SIMPLE = simpleMenus(MENUS, useSimpleCfg());
-  const setMode = (m: Mode) => { setModeS(m); setActive(null); setSOpen(null); try { localStorage.setItem(MODE_KEY, m); } catch {} };
+  const setMode = (m: Mode) => { setModeS(m); setActive(null); try { localStorage.setItem(MODE_KEY, m); } catch {} };
   useEffect(() => { try { if (localStorage.getItem(MODE_KEY) === "advanced") setModeS("advanced"); localStorage.removeItem("tj_nav_hidden"); } catch {} }, []);
-  useEffect(() => { if (!sOpen) return; const c = (e: MouseEvent) => { if (!(e.target as Element).closest?.("[data-simple-nav]")) setSOpen(null); }; const k = (e: KeyboardEvent) => e.key === "Escape" && setSOpen(null); document.addEventListener("mousedown", c); document.addEventListener("keydown", k); return () => { document.removeEventListener("mousedown", c); document.removeEventListener("keydown", k); }; }, [sOpen]);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pinned = useRef(false);
 
   useEffect(() => setMounted(true), []);
-  useEffect(() => { setActive(null); setSOpen(null); setMobile(false); }, [path]);
+  useEffect(() => { setActive(null); setMobile(false); }, [path]);
   useEffect(() => { document.body.style.overflow = mobile ? "hidden" : ""; }, [mobile]);
   useEffect(() => { const f = () => setScrolled(window.scrollY > 8); f(); window.addEventListener("scroll", f, { passive: true }); return () => window.removeEventListener("scroll", f); }, []);
   useEffect(() => {
@@ -351,17 +340,19 @@ export function Header() {
   const show = (k: string) => { if (timer.current) clearTimeout(timer.current); setActive(k); };
   const hide = () => { if (timer.current) clearTimeout(timer.current); timer.current = setTimeout(() => { if (!pinned.current) setActive(null); }, 150); };
   const menu = MENUS.find((m) => m.key === active);
+  const smenu = SIMPLE.find((m) => m.key === active);
+  const controls = <span className="flex items-center gap-2"><ModeSwitch mode={mode} setMode={setMode} /><TextSizeControl /></span>;
   const wide = menu && (menu.layout === "flyout" ? 1080 : menu.layout === "tiles" ? 880 : menu.groups.length >= 4 ? 1240 : menu.groups.length === 3 ? 980 : 780);
 
   return (
     <header className="site-header sticky top-0 z-50">
       <div className={`border-b border-line bg-[var(--header-bg,#ffffff)] transition-shadow ${scrolled ? "shadow-[0_6px_24px_-14px_rgba(60,30,10,0.45)]" : ""}`}>
-        <div className="mx-auto grid h-[52px] max-w-[1320px] sm:h-[58px] grid-cols-[auto_1fr_auto] items-center gap-3 px-4 sm:px-6">
+        <div className="mx-auto grid h-[52px] max-w-[1320px] sm:h-[58px] grid-cols-[auto_1fr_auto] items-center gap-2 px-4 sm:gap-3 sm:px-6">
           <Logo />
           {mode === "simple" ? (
-          <nav data-simple-nav className="hidden items-center justify-center gap-1 lg:flex" aria-label="Main">
-            {SIMPLE.map((m) => { const on = sOpen === m.key; const current = m.featured.concat(m.all).some((a) => hit(path, a.href)); return (
-              <button key={m.key} onClick={() => setSOpen(on ? null : m.key)} aria-expanded={on} aria-haspopup="true"
+          <nav className="hidden items-center justify-center gap-1 lg:flex" aria-label="Main" onMouseLeave={hide}>
+            {SIMPLE.map((m) => { const on = active === m.key; const current = m.featured.concat(m.all).some((a) => hit(path, a.href)); return (
+              <button key={m.key} onMouseEnter={() => show(m.key)} onFocus={() => show(m.key)} onClick={() => setActive(on ? null : m.key)} aria-expanded={on} aria-haspopup="true"
                 className={`acc-${m.accent} relative flex items-center gap-2 whitespace-nowrap rounded-full py-1 pl-1 pr-3 text-[12.5px] font-medium text-ink transition ${on ? "bg-acc-soft" : "hover:bg-acc-tint"}`}>
                 <SIc it={m} size={17} round box={`size-8 ${on ? "!bg-white" : ""}`} />{m.label}<ChevronDown size={13} className={`-ml-0.5 opacity-50 transition-transform ${on ? "rotate-180" : ""}`} />
                 {current && <span className="absolute inset-x-4 -bottom-[5px] h-[2px] rounded-full bg-[var(--acc)]" />}
@@ -388,23 +379,24 @@ export function Header() {
           )}
           <div className="col-start-3 ml-auto flex items-center gap-1.5">
             <button onClick={() => setSearch(true)} aria-label="Search" title="Search (Ctrl K)"
-              className="flex h-8 items-center gap-2 rounded-full border border-line bg-band/60 px-2.5 sm:h-9 sm:px-3 text-ink-2 transition hover:border-saffron hover:bg-white hover:text-saffron xl:w-40">
+              className="max-sm:hidden flex h-8 items-center gap-2 rounded-full border border-line bg-band/60 px-2.5 sm:h-9 sm:px-3 text-ink-2 transition hover:border-saffron hover:bg-white hover:text-saffron xl:w-40">
               <Search size={15} /><span className="hidden flex-1 whitespace-nowrap text-left text-[12px] text-ink-3 xl:inline">Search…</span>
               <kbd className="hidden whitespace-nowrap rounded border border-line bg-surface px-1.5 text-[10px] text-ink-3 xl:inline">Ctrl K</kbd>
             </button>
-            <div className="hidden lg:block"><ModeSwitch mode={mode} setMode={setMode} /></div>
-            <button onClick={() => setMobile(true)} aria-label="Open menu" className="flex h-8 items-center gap-1.5 rounded-full bg-ink px-3 text-[12.5px] font-medium text-white transition hover:bg-ink/85 sm:h-9 lg:hidden"><Menu size={16} />Menu</button>
+            <div className="lg:hidden max-[359px]:hidden"><ModeSwitch mode={mode} setMode={setMode} small /></div>
+            <button onClick={() => setMobile(true)} aria-label="Open menu" className="flex h-8 items-center gap-1.5 rounded-full bg-ink px-2 text-[12.5px] font-medium text-white transition hover:bg-ink/85 min-[420px]:px-3 sm:h-9 lg:hidden"><Menu size={16} /><span className="max-[419px]:hidden">Menu</span></button>
           </div>
         </div>
       </div>
-      {mode === "simple" && sOpen && (() => { const sm = SIMPLE.find((x) => x.key === sOpen); return sm && (
-        <div data-simple-nav className="absolute left-1/2 top-full hidden -translate-x-1/2 pt-1 lg:block" style={{ width: "min(1080px, calc(100vw - 2rem))" }}>
-          <SimplePanel key={sm.key} menu={sm} onNavigate={() => setSOpen(null)} />
-        </div>); })()}
+      {mode === "simple" && smenu && (
+        <div className="absolute left-1/2 top-full hidden -translate-x-1/2 pt-1 lg:block" style={{ width: `min(${smenu.featured.length <= 3 ? 760 : smenu.featured.length === 4 ? 1000 : 900}px, calc(100vw - 2rem))` }}
+          onMouseEnter={() => show(smenu.key)} onMouseLeave={hide}>
+          <SimplePanel key={smenu.key} menu={smenu} onNavigate={() => setActive(null)} controls={controls} onEverything={() => { setMode("advanced"); setActive(ADV_KEY[smenu.key]); }} />
+        </div>)}
       {mode === "advanced" && menu && (
         <div className="absolute left-1/2 top-full hidden -translate-x-1/2 pt-1 lg:block" style={{ width: `min(${wide}px, calc(100vw - 2rem))` }}
           onMouseEnter={() => show(menu.key)} onMouseLeave={hide}>
-          <MegaPanel key={menu.key} menu={menu} onNavigate={() => { pinned.current = false; setActive(null); }} onPin={(b) => { pinned.current = b; }} />
+          <MegaPanel key={menu.key} menu={menu} controls={controls} onNavigate={() => { pinned.current = false; setActive(null); }} onPin={(b) => { pinned.current = b; }} />
         </div>
       )}
       {mounted && mobile && <MobileMenu onClose={() => setMobile(false)} mode={mode} setMode={setMode} />}

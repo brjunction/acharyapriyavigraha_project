@@ -169,6 +169,9 @@ h1, h2, h3, h4 { font-family: var(--font-sans); font-weight: 650; letter-spacing
 
 /* Mega menu */
 .mega-enter { animation: megaIn .22s cubic-bezier(.2,.7,.2,1) both; }
+.sm-card { animation: smCard .32s cubic-bezier(.2,.7,.2,1) both; }
+@keyframes smCard { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .sm-card { animation: none; } }
 @keyframes megaIn { from { opacity: 0; transform: translateY(-6px) scale(.985); } to { opacity: 1; transform: none; } }
 .mega-item { display: flex; gap: .6rem; padding: .45rem .55rem; border-radius: 9px; transition: background-color .15s; align-items: flex-start; }
 .mega-item:hover { background: var(--acc-tint); }

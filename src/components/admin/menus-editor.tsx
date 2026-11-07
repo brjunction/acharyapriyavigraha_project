@@ -108,7 +108,7 @@ export function SimpleMenuEditor({ initial }: { initial: SimpleCfg }) {
   return (
     <div className="mb-10">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-        <div><h2 className="text-[20px] font-bold tracking-[-0.02em]">Simple menu</h2><p className="text-ink-3">What most visitors see first. Click an icon to choose another one, or upload a photo. Every page of the full menu is listed under these four automatically.</p></div>
+        <div><h2 className="text-[20px] font-bold tracking-[-0.02em]">Simple menu</h2><p className="text-ink-3">What most visitors see first. Click an icon to choose another one, or upload a photo. Choose the main pages of each section; “See everything” opens the full menu.</p></div>
         <div className="flex gap-2"><Btn onClick={() => { if (confirm("Put the Simple menu back to the original?")) { setCfg({}); setDirty(true); } }}><RotateCcw size={15} />Original</Btn><Btn kind="primary" busy={busy} disabled={!dirty} onClick={save}>Save Simple menu</Btn></div>
       </div>
       <div className="grid gap-3 lg:grid-cols-2">
@@ -119,7 +119,7 @@ export function SimpleMenuEditor({ initial }: { initial: SimpleCfg }) {
               <input className={`${box} !h-9 text-[14.5px] font-bold`} value={s.label} onChange={(e) => up(d.key, { label: e.target.value })} />
             </div>
             <input className={`${box} mt-1 text-ink-3`} value={s.intro} onChange={(e) => up(d.key, { intro: e.target.value })} placeholder="Short line under the name" />
-            <p className="mb-1 mt-3 px-2 text-[11.5px] font-semibold text-ink-3">The four big buttons</p>
+            <p className="mb-1 mt-3 px-2 text-[11.5px] font-semibold text-ink-3">Main pages shown in this menu (the rest is under “See everything”)</p>
             {s.featured.map((f, i) => { const setF = (p: Partial<SimpleFeaturedJ>) => up(d.key, { featured: s.featured.map((x, j) => (j === i ? { ...x, ...p } : x)) }); return (
               <div key={i} className="flex items-start gap-1.5 rounded-lg p-1 hover:bg-[#faf6f0]">
                 <IconPick value={f.icon || "FileText"} onChange={(v) => setF({ icon: v })} />
@@ -128,7 +128,9 @@ export function SimpleMenuEditor({ initial }: { initial: SimpleCfg }) {
                   <input className={`${box} text-ink-3`} value={f.note || ""} onChange={(e) => setF({ note: e.target.value })} placeholder="Second line (optional)" />
                   <input list="hrefs" className={`${box} !h-7 text-[11.5px] text-[#2a4f9a] sm:col-span-2`} value={f.href} onChange={(e) => setF({ href: e.target.value })} placeholder="/page-address" />
                 </div>
+                <button title="Remove" onClick={() => up(d.key, { featured: s.featured.filter((_, j) => j !== i) })} className="mt-1 p-1 text-ink-3 hover:text-[#a3281e]"><Trash2 size={14} /></button>
               </div>); })}
+            <button onClick={() => up(d.key, { featured: [...s.featured, { href: "/", label: "New item", icon: "FileText" }] })} className="mt-1 flex items-center gap-1 rounded-lg px-2 py-1 text-[12px] font-medium text-ink-3 hover:text-saffron"><Plus size={13} />Add an item</button>
           </div>); })}
       </div>
     </div>

@@ -9,6 +9,7 @@ import { Announcement } from "@/components/announcement";
 import { EditBar } from "@/components/edit-bar";
 import { FooterSwitch } from "@/components/footer-switch";
 import { NavToggle } from "@/components/nav-toggle";
+import { TextScaler } from "@/components/text-scale";
 
 export default async function SiteLayout({ children }: { children: React.ReactNode }) {
   const [saved, theme, simple] = await Promise.all([getSavedMenus(), getTheme(), getSimpleCfg()]);
@@ -24,6 +25,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
         <FooterSwitch><Footer /></FooterSwitch>
       </div>
       <NavToggle />
+      <TextScaler />
       <SearchPalette />
       <AudioPlayer />
       <Announcement />

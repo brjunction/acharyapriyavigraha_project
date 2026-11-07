@@ -20,7 +20,9 @@ export const SIMPLE_DEFAULTS: { key: string; label: string; intro: string; icon:
     { href: "/gurudeva/who-is-srila-gurudeva", label: "Who is Śrīla Gurudeva?", note: "His life and biographies", icon: "/photos/gurudeva-portrait.webp" },
     { href: "/gurudeva/timeline", label: "Life timeline", note: "His life, year by year", icon: "/photos/menu-seated-1.webp" },
     { href: "/gurudeva/gallery", label: "Gallery", note: "Portraits, deities, festivals and travels", icon: "/photos/menu-garland.webp" },
-    { href: "/gurudeva/diaries", label: "His diary", note: "His prayers to Śrī Gopāl Jiu", icon: "/photos/gurudeva-writing.webp" }] },
+    { href: "/gurudeva/diaries", label: "His diary", note: "His prayers to Śrī Gopāl Jiu", icon: "/photos/gurudeva-writing.webp" },
+    { href: "/gurudeva/memories", label: "Memories & pastimes", note: "Disciples remembering him", icon: "HandHeart" },
+    { href: "/gurudeva/srila-prabhupada", label: "Śrīla Prabhupāda", note: "His beloved spiritual master", icon: "Crown" }] },
   { key: "listen", label: "Listen & Watch", intro: "His lectures, videos and kīrtanas", icon: "Headphones", accent: "teal", featured: [
     { href: "/teachings/audio", label: "Audio lectures", note: "Every recorded lecture, remastered", icon: "Headphones" },
     { href: "/teachings/videos", label: "Videos", note: "His lectures and moments on video", icon: "Clapperboard" },
@@ -32,13 +34,16 @@ export const SIMPLE_DEFAULTS: { key: string; label: string; intro: string; icon:
     { href: "/teachings/quotes", label: "Quotes", note: "His words by subject, with source", icon: "Quote" },
     { href: "/tattva", label: "Topics", note: "Guru, bhakti, Kṛṣṇa, the soul…", icon: "Network" }] },
   { key: "about", label: "About", intro: "Archive, contact, resources", icon: "Info", accent: "leaf", featured: [
-    { href: "/about", label: "About the archive", note: "Why and how this archive exists", icon: "Archive" },
+    { href: "/about", label: "About this website", note: "Why and how this archive exists", icon: "Archive" },
+    { href: "/gurudeva/taptajivanam-projects", label: "Taptajīvanam project", note: "The archive and its services", icon: "Library" },
     { href: "/about/founder", label: "Śrīla Guru Mahārāja", note: "Founder of Taptajīvanam", icon: "/photos/haladhara-sm.webp" },
-    { href: "/about/contact", label: "Contact", note: "Write to us or call", icon: "Phone" },
-    { href: "/about/support", label: "Support the archive", note: "Sevā, sponsorship, contributions", icon: "HandHeart" }] },
+    { href: "/thank-list", label: "Our Thank List", note: "Everyone who built this archive", icon: "HeartHandshake" },
+    { href: "/about/contact", label: "Contact", note: "Write to us or call", icon: "Phone" }] },
 ];
 /** Where to centre each photo, so no head is cut. */
 const POS: Record<string, string> = { "/photos/gurudeva-writing.webp": "18% 22%", "/photos/menu-seated-1.webp": "50% 30%", "/photos/menu-garland.webp": "50% 25%", "/photos/gurudeva-portrait.webp": "50% 30%" };
+/** Where “See everything” goes in the Advanced menu. */
+export const ADV_KEY: Record<string, string> = { gurudeva: "gurudeva", listen: "teachings", read: "teachings", about: "about" };
 const FALLBACK: Record<string, LucideIcon> = { gurudeva: Lotus as unknown as LucideIcon, listen: Headphones, read: BookOpen, about: Info };
 const pick = (v: string | undefined, fb: LucideIcon): { icon: LucideIcon; img?: string } => (isImgIcon(v) ? { icon: fb, img: v } : { icon: (v && ICONS[v]) || fb });
 
