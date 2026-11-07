@@ -57,27 +57,34 @@ export function Hero() {
   };
   return (
     <>
-    {/* The first screen: deep red to saffron, a slow moving light, a few rising sparks — and the pink lotus around Śrīla Gurudeva */}
-    <section ref={box} className="hero-dark group/hero relative isolate overflow-hidden" onPointerMove={move}>
-      <div aria-hidden className="hero-warm absolute inset-0 -z-20" />
-      <div aria-hidden className="absolute -bottom-[30%] -left-[18%] -z-10 size-[min(900px,120vw)]"><VMask name="mandala-gold" className="hx-mandala-rev h-full w-full text-[#ffd98a] opacity-[0.07]" /></div>
-      <div aria-hidden className="hero-aurora absolute inset-0 -z-10" />
-      <div aria-hidden className="pointer-events-none absolute left-1/2 top-[-35%] -z-10 size-[900px] -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgba(232,184,114,.16),transparent_62%)]" />
-      <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(60%_50%_at_50%_100%,rgba(0,0,0,.25),transparent_70%)]" />
-      {/* small lights rising slowly, as in the mission band */}
-      <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">{Array.from({ length: 26 }, (_, k) => { const x = (k * 37 + 7) % 100; return <span key={k} className="hero-spark" style={{ left: `${x}%`, animationDuration: `${16 + (k % 7) * 2.5}s`, animationDelay: `${-((k * 13) % 23)}s`, width: k % 4 ? 2 : 3, height: k % 4 ? 2 : 3 }} />; })}</div>
-      <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-[#f3c35e]/50 to-transparent" />
-      <div className="relative mx-auto grid min-h-[calc(100svh-52px)] max-w-[1320px] grid-cols-[minmax(0,1fr)] content-center items-center gap-2 px-5 pb-8 pt-4 sm:min-h-[calc(100svh-58px)] sm:gap-6 sm:px-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)] lg:gap-6 lg:py-8">
-        <div className="order-2 text-center lg:order-1 lg:text-left">
-          <h1 className="hx-in text-[32px] font-semibold leading-[1.1] tracking-[-0.035em] text-[#fff6ea] [text-shadow:0_2px_24px_rgba(70,10,4,.35)] sm:text-[42px] lg:text-[50px]" style={{ animationDelay: ".15s" }}>
-            Śrī Śrīmad Gour Govinda<br /><span className="text-[#fff6ea]">Swāmī </span><span className="text-[#ffd98a]">Gurudeva</span>
+    {/* Indian border standing on a light strip below the navigation, outside the saffron hero, as its top fringe */}
+    <div aria-hidden className="relative z-[1] bg-white pt-4"><div className="h-8 w-full overflow-hidden"><VMask name="border-4" repeat="repeat-x" size="auto 100%" pos="center top" className="h-full w-full text-[#8a3a0a]" /></div></div>
+    <section className="relative isolate -mt-px overflow-hidden" onPointerMove={move}>
+      <Backdrop src="saffron-dark" flip pos="left center" o={0.4} />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(70%_80%_at_80%_40%,rgba(243,179,99,0.28),transparent_65%),linear-gradient(100deg,rgba(70,26,3,0.55),transparent_60%)]" />
+      <VMask name="mandala-saffron" className="hero-spin-rev pointer-events-none absolute -bottom-56 -left-48 h-[620px] w-[620px] text-[#f3b363] opacity-[0.16]" />
+      {/* One Indic pattern only (the lotus lattice above); the paisley belongs to the footer */}
+      <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-[3px] bg-gradient-to-r from-[#c98a2b] via-[#ffc566] to-[#c98a2b]" />
+      {[8, 22, 36, 61, 74, 90].map((x, i) => (
+        <div key={x} className="pointer-events-none absolute bottom-24" style={{ left: `${x}%` }}><div className="hero-petal" style={{ animationDelay: `${i * 1.5}s` }}><Padma className="h-5 w-5 text-[#ffd48a]" layers={2} /></div></div>
+      ))}
+      <div className="relative mx-auto grid max-w-[1240px] grid-cols-[minmax(0,1fr)] content-center items-center gap-5 px-5 py-8 max-lg:min-h-[calc(100svh-132px)] sm:gap-9 sm:px-10 sm:py-12 lg:min-h-[740px] lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:py-28">
+        <div className="rise order-2 text-center lg:order-1 lg:text-left">
+          <span className="hero-pill inline-flex max-w-[330px] items-center gap-2 rounded-full border border-[#f3b363]/70 bg-[#f3b363]/20 py-1 pl-3 pr-3 text-[10.5px] leading-snug sm:max-w-none font-semibold text-[#fff1da] sm:py-1.5 sm:pl-4 sm:pr-4 sm:text-[12px] backdrop-blur">
+            <span role="img" aria-label="ISKCON" className="-my-1 block h-6 w-[30px] shrink-0 text-[#ffd98a] sm:h-7 sm:w-[34px]" style={{ WebkitMaskImage: "url(/iskcon-mask.png)", maskImage: "url(/iskcon-mask.png)", WebkitMaskSize: "contain", maskSize: "contain", WebkitMaskRepeat: "no-repeat", maskRepeat: "no-repeat", WebkitMaskPosition: "center", maskPosition: "center", background: "currentColor" }} /><span className="h-4 w-px shrink-0 bg-[#f3b363]/50" />
+            The Complete Life and Teachings of Śrī Śrīmad Gour Govinda Swāmī Gurudeva
+          </span>
+          <h1 className="mt-4 text-[23px] font-bold leading-[1.15] tracking-[-0.03em] text-[#fff1da] sm:mt-5 sm:text-[32px] lg:mt-6 lg:text-[38.5px]">
+            {["Words", "that", "give", "life"].map((w, i) => <span key={w} className="hero-word mr-[0.28em]" style={{ animationDelay: `${0.15 + i * 0.12}s` }}>{w}</span>)}<br />
+            {["to", "a"].map((w, i) => <span key={w} className="hero-word mr-[0.28em]" style={{ animationDelay: `${0.63 + i * 0.12}s` }}>{w}</span>)}<span className="hero-word hero-gold" style={{ animationDelay: "0.9s" }}>burning heart</span>
           </h1>
-          <p className="hx-in mx-auto mt-5 max-w-[32rem] text-[14px] leading-relaxed text-[#fff1df]/90 sm:text-[15.5px] lg:mx-0" style={{ animationDelay: ".3s" }}>
-            A dear disciple of Śrīla Prabhupāda, born in a family devoted to Śrī Gopāl Jiu, he carried his Guru’s mission across Odisha and the world. Here are his lectures, books, letters, diaries and photographs — in many languages, every word findable.
+          <div className="hero-rule mx-auto mt-5 h-[3px] w-24 rounded-full bg-gradient-to-r from-[#ffc566] to-transparent lg:mx-0" />
+          <p className="mx-auto mt-3 max-w-[34rem] text-[12.5px] leading-relaxed text-[#ffe9cc]/90 sm:mt-4 sm:text-[14.5px] lg:mx-0 lg:mt-5 lg:max-w-xl">
+            Lectures, letters, books, quotes and photographs of Śrīla Gurudeva, gathered in one searchable home and growing in many languages. Listen, read, and find the exact words you were looking for.
           </p>
           {/* a dark glass search with a gold underline */}
           <form onSubmit={(e) => { e.preventDefault(); if (q.trim()) r.push(`/search?q=${encodeURIComponent(q)}`); else setSearch(true); }}
-            className="hx-in group/sr relative mx-auto mt-7 flex max-w-[30rem] items-center gap-3 rounded-2xl border border-white/15 bg-black/20 py-2 pl-4 pr-2 backdrop-blur-md transition focus-within:border-[#f3c35e]/60 focus-within:bg-black/30 lg:mx-0" style={{ animationDelay: ".45s" }}>
+            className="hx-in group/sr relative mx-auto mt-7 flex max-w-xl items-center gap-3 rounded-2xl border border-white/15 bg-black/20 py-2 pl-4 pr-2 backdrop-blur-md transition focus-within:border-[#f3c35e]/60 focus-within:bg-black/30 lg:mx-0" style={{ animationDelay: ".45s" }}>
             <Search size={18} className="shrink-0 text-[#f3c35e]" />
             <div className="relative flex-1">
               <input value={q} onChange={(e) => setQ(e.target.value)} aria-label="Search the teachings" className="h-10 w-full bg-transparent text-[15px] text-[#fff6ea] outline-none" />
@@ -86,12 +93,12 @@ export function Hero() {
             <button aria-label="Search" className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-[linear-gradient(135deg,#f7c556,#e8913c)] text-[#4a0d0b] transition hover:brightness-110"><ArrowRight size={18} /></button>
             <span aria-hidden className="absolute inset-x-4 -bottom-px h-px origin-left scale-x-0 bg-gradient-to-r from-transparent via-[#f3c35e] to-transparent transition duration-500 group-focus-within/sr:scale-x-100" />
           </form>
-          <div className="hx-in mx-auto mt-4 flex max-w-[30rem] flex-wrap justify-center gap-2.5 lg:mx-0 lg:justify-start" style={{ animationDelay: ".55s" }}>
+          <div className="hx-in mx-auto mt-4 flex max-w-xl flex-wrap justify-center gap-2.5 lg:mx-0 lg:justify-start" style={{ animationDelay: ".55s" }}>
             <Link href="/teachings/audio" className="inline-flex h-11 items-center gap-2 rounded-full bg-[linear-gradient(135deg,#f7c556,#e8913c)] pl-1.5 pr-5 text-[13.5px] font-semibold text-[#4a0d0b] shadow-[0_14px_30px_-14px_rgba(247,197,86,.8)] transition hover:-translate-y-0.5"><span className="flex size-8 items-center justify-center rounded-full bg-[#4a0d0b]/15"><Headphones size={15} /></span>Listen to His Lectures</Link>
             <Link href="/teachings/books" className="inline-flex h-11 items-center gap-2 rounded-full border border-white/25 bg-white/[0.08] pl-1.5 pr-5 text-[13.5px] font-semibold text-[#fff6ea] backdrop-blur transition hover:-translate-y-0.5 hover:border-[#f3c35e]/60"><span className="flex size-8 items-center justify-center rounded-full bg-white/15"><BookOpen size={15} /></span>Read His Books</Link>
           </div>
           {/* a dock of quick ways in */}
-          <nav aria-label="Quick links" className="hx-in mx-auto mt-7 grid max-w-[30rem] grid-cols-6 divide-x divide-white/10 overflow-hidden rounded-2xl border border-white/10 bg-white/[0.05] backdrop-blur lg:mx-0" style={{ animationDelay: ".65s" }}>
+          <nav aria-label="Quick links" className="hx-in mx-auto mt-7 grid max-w-xl grid-cols-6 divide-x divide-white/10 overflow-hidden rounded-2xl border border-white/10 bg-white/[0.05] backdrop-blur lg:mx-0" style={{ animationDelay: ".65s" }}>
             {([["/teachings/audio", Headphones, "Audio"], ["/teachings/videos", PlayCircle, "Videos"], ["/teachings/books", BookOpen, "Books"], ["/teachings/quotes", QuoteIcon, "Quotes"], ["/gurudeva/diaries", NotebookPen, "Diary"], ["/gurudeva/gallery", ImageIcon, "Gallery"]] as const).map(([h, I, l]) => (
               <Link key={h} href={h} className="group/d flex flex-col items-center gap-1.5 px-1 py-3 text-[11px] font-medium text-[#ffe9d2]/80 transition hover:bg-white/[0.08] hover:text-[#fff6ea] sm:text-[11.5px]">
                 <I size={19} strokeWidth={1.6} className="text-[#f3c35e] transition duration-300 group-hover/d:-translate-y-0.5 group-hover/d:scale-110" />{l}
@@ -99,11 +106,15 @@ export function Hero() {
           </nav>
         </div>
 
-        <div className="order-1 mx-auto w-full max-w-[min(86vw,40svh)] sm:max-w-[min(520px,46svh)] lg:order-2 lg:max-w-[min(620px,calc(100svh-150px))]">
-          <GurudevaLotus src="/photos/gurudeva-hero.webp" alt="Śrī Śrīmad Gour Govinda Swāmī Gurudeva" />
+        {/* Portrait: a plain circular frame, no animation */}
+        <div className="relative order-1 mx-auto w-full max-w-[min(190px,26svh)] sm:max-w-[min(280px,28svh)] lg:order-2 lg:max-w-[340px]">
+          <div aria-hidden className="pointer-events-none absolute inset-[-42%]"><VMask name="mandala-saffron" className="hero-spin h-full w-full text-[#f3b363] opacity-[0.34]" /></div>
+          <div className="relative"><PortraitFrame photo focus="center 30%" src="/photos/gurudeva-hero.webp" alt="Śrī Śrīmad Gour Govinda Swāmī Gurudeva" className="mx-auto w-full" /></div>
         </div>
       </div>
     </section>
+    {/* Indian border hanging from the hero's lower edge, outside it, like its fringe */}
+    <div aria-hidden className="relative z-[1] -mt-px h-8 w-full overflow-hidden"><VMask name="border-4" repeat="repeat-x" size="auto 100%" pos="center top" className="h-full w-full rotate-180 text-[#8a3a0a]" /></div>
     </>
   );
 }
