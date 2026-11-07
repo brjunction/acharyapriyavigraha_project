@@ -680,3 +680,10 @@ html[data-motion="reduce"] .bless-word, html[data-motion="reduce"] .bless-rise, 
 .hero-aurora { background: radial-gradient(45% 55% at 22% 30%, rgba(232,145,60,.20), transparent 70%), radial-gradient(40% 50% at 80% 65%, rgba(243,195,94,.12), transparent 70%), radial-gradient(35% 40% at 55% 0%, rgba(232,184,114,.14), transparent 70%) !important; background-size: 160% 160% !important; }
 .hero-spark { background: #f3c77a !important; box-shadow: 0 0 9px #e8b872 !important; }
 @keyframes hero-spark { 0% { transform: translate3d(0,0,0); opacity: 0; } 10% { opacity: .8; } 60% { transform: translate3d(10px,-60vh,0); opacity: .5; } 100% { transform: translate3d(-6px,-105vh,0); opacity: 0; } }
+
+/* Hero v4: warm saffron-red in the colours of his photograph, one golden mandala */
+.hero-warm { background: radial-gradient(70% 85% at 74% 45%, #e8913c 0%, #c2621d 28%, #9c2d14 58%, #851813 75%, #5d140c 100%); }
+.hero-dark .hero-aurora { opacity: .7; }
+.hx-mandala { animation: gl-orbit 140s linear infinite; }
+.hx-mandala-rev { animation: gl-orbit 220s linear infinite reverse; }
+@media (prefers-reduced-motion: reduce) { .hx-mandala, .hx-mandala-rev { animation: none !important; } }

@@ -59,7 +59,8 @@ export function Hero() {
     <>
     {/* The first screen: deep red to saffron, a slow moving light, a few rising sparks — and the pink lotus around Śrīla Gurudeva */}
     <section ref={box} className="hero-dark group/hero relative isolate overflow-hidden" onPointerMove={move}>
-      <div aria-hidden className="hero-base absolute inset-0 -z-20" />
+      <div aria-hidden className="hero-warm absolute inset-0 -z-20" />
+      <div aria-hidden className="absolute -bottom-[30%] -left-[18%] -z-10 size-[min(900px,120vw)]"><VMask name="mandala-gold" className="hx-mandala-rev h-full w-full text-[#ffd98a] opacity-[0.07]" /></div>
       <div aria-hidden className="hero-aurora absolute inset-0 -z-10" />
       <div aria-hidden className="pointer-events-none absolute left-1/2 top-[-35%] -z-10 size-[900px] -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgba(232,184,114,.16),transparent_62%)]" />
       <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(60%_50%_at_50%_100%,rgba(0,0,0,.25),transparent_70%)]" />
@@ -68,22 +69,11 @@ export function Hero() {
       <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-[#f3c35e]/50 to-transparent" />
       <div className="relative mx-auto grid min-h-[calc(100svh-52px)] max-w-[1320px] grid-cols-[minmax(0,1fr)] content-center items-center gap-2 px-5 pb-8 pt-4 sm:min-h-[calc(100svh-58px)] sm:gap-6 sm:px-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)] lg:gap-6 lg:py-8">
         <div className="order-2 text-center lg:order-1 lg:text-left">
-          {/* ISKCON · Taptajīvanam */}
-          <div className="hx-in flex items-center justify-center gap-3 lg:justify-start" style={{ animationDelay: ".05s" }}>
-            <span role="img" aria-label="ISKCON" className="block h-8 w-10 shrink-0 text-[#f7c556]" style={{ WebkitMaskImage: "url(/iskcon-mask.png)", maskImage: "url(/iskcon-mask.png)", WebkitMaskSize: "contain", maskSize: "contain", WebkitMaskRepeat: "no-repeat", maskRepeat: "no-repeat", WebkitMaskPosition: "center", maskPosition: "center", background: "currentColor" }} />
-            <span className="h-6 w-px bg-[#f3c35e]/35" />
-            <span className="text-left text-[11px] font-semibold uppercase leading-tight tracking-[0.22em] text-[#f3c35e]">Taptajīvanam<span className="block text-[10px] font-medium normal-case tracking-[0.04em] text-[#ffe2b0]/70">The complete life &amp; teachings</span></span>
-          </div>
-          {/* the tagline between fine gold rules */}
-          <p className="hx-in mt-6 flex items-center justify-center gap-3 text-[13px] font-medium tracking-[0.02em] text-[#f7d27a] sm:text-[15px] lg:justify-start" style={{ animationDelay: ".15s" }}>
-            <span className="h-px w-8 bg-gradient-to-r from-transparent to-[#f3c35e] sm:w-12" />Words That Give Life to a Burning Heart<span className="h-px w-8 bg-gradient-to-l from-transparent to-[#f3c35e] sm:w-12 lg:hidden" />
-          </p>
-          <h1 className="hx-in mt-3 text-[#fff6ea]" style={{ animationDelay: ".25s" }}>
-            <span className="block text-[22px] font-medium leading-tight tracking-[-0.02em] text-[#ffe9d2] sm:text-[30px] lg:text-[34px]">Śrī Śrīmad Gour Govinda Swāmī</span>
-            <span className="hx-gold mt-1 block text-[46px] font-bold leading-[1] tracking-[-0.045em] sm:text-[66px] lg:text-[84px]">Gurudeva</span>
+          <h1 className="hx-in text-[32px] font-semibold leading-[1.1] tracking-[-0.035em] text-[#fff6ea] [text-shadow:0_2px_24px_rgba(70,10,4,.35)] sm:text-[42px] lg:text-[50px]" style={{ animationDelay: ".15s" }}>
+            Śrī Śrīmad Gour Govinda<br /><span className="text-[#fff6ea]">Swāmī </span><span className="text-[#ffd98a]">Gurudeva</span>
           </h1>
-          <p className="hx-in mx-auto mt-5 max-w-[30rem] text-[14px] leading-relaxed text-[#ffe9d2]/80 sm:text-[15.5px] lg:mx-0" style={{ animationDelay: ".35s" }}>
-            His lectures, letters, books, quotes and photographs — gathered in one home, in many languages, with every word findable.
+          <p className="hx-in mx-auto mt-5 max-w-[32rem] text-[14px] leading-relaxed text-[#fff1df]/90 sm:text-[15.5px] lg:mx-0" style={{ animationDelay: ".3s" }}>
+            A dear disciple of Śrīla Prabhupāda, born in a family devoted to Śrī Gopāl Jiu, he carried his Guru’s mission across Odisha and the world. Here are his lectures, books, letters, diaries and photographs — in many languages, every word findable.
           </p>
           {/* a dark glass search with a gold underline */}
           <form onSubmit={(e) => { e.preventDefault(); if (q.trim()) r.push(`/search?q=${encodeURIComponent(q)}`); else setSearch(true); }}
