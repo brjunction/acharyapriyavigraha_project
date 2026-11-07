@@ -2,6 +2,7 @@ import { sql } from "@/lib/db";
 import { guard, json, fail } from "@/lib/api";
 import { revalidatePath } from "next/cache";
 import { clean, searchText, uniqueSlug, slugBase, rememberVocab } from "@/lib/content/audios";
+import { fileTitle, nextCode, validCode } from "@/lib/content/audio-names";
 
 /** Many recordings at once. { ids, set?: {...}, addTopic?, removeTopic?, delete? } or { import: [...] } (up to 500). */
 export async function POST(req: Request) {
@@ -11,7 +12,7 @@ export async function POST(req: Request) {
     let added = 0;
     for (const raw of b.import.slice(0, 500)) {
       const a = clean(raw); if (!a.title) continue; a.kind ||= raw.kind || "lecture";
-      const slug = await uniqueSlug(slugBase(a)); const cols = Object.keys(a);
+      a.file_title ||= fileTitle(a); a.code = validCode(a.code) || (await nextCode(a)); const slug = await uniqueSlug(slugBase(a)); const cols = Object.keys(a);
       await sql.query(`insert into audios (slug, search, ${cols.join(", ")}) values ($1, $2, ${cols.map((_, i) => `$${i + 3}`).join(", ")})`, [slug, searchText(a), ...cols.map((k) => a[k])]);
       await rememberVocab(a); added++;
     }

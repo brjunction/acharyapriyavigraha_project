@@ -10,7 +10,7 @@ export function MediaHeader({ at, title, intro, stats }: { at: string; title: st
         
         <div className="mt-2 flex flex-wrap items-end justify-between gap-3">
           <div><h1 className="text-[24px] leading-tight text-ink sm:text-[26px]">{title}</h1><p className="mt-1 max-w-2xl text-[13.5px] text-ink-2">{intro}</p></div>
-          {stats.length > 0 && <p className="text-[12.5px] text-ink-3">{stats.join(" · ")}</p>}
+          <div className="flex flex-wrap items-center gap-3">{stats.length > 0 && <p className="text-[12.5px] text-ink-3">{stats.join(" · ")}</p>}{at === "/teachings/audio" && <Link href="/teachings/audio/chart" className="rounded-full border border-line px-3 py-1 text-[12.5px] font-medium text-ink-2 hover:border-saffron hover:text-saffron">All Audios — Systematic Chart</Link>}</div>
         </div>
         <div className="mt-4 flex gap-1 overflow-x-auto [scrollbar-width:none]">{TABS.map(([h, l, I]) => <Link key={h} href={h} className={`-mb-px flex shrink-0 items-center gap-1.5 border-b-2 px-3 py-2 text-[13px] transition ${at === h ? "border-ink font-medium text-ink" : "border-transparent text-ink-3 hover:text-ink"}`}><I size={14} />{l}</Link>)}</div>
       </div>

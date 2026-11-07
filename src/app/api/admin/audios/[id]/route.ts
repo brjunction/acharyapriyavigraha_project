@@ -1,6 +1,7 @@
 import { sql } from "@/lib/db";
 import { guard, json, fail } from "@/lib/api";
 import { revalidatePath } from "next/cache";
+import { fileTitle, nextCode, validCode } from "@/lib/content/audio-names";
 import { clean, searchText, rememberVocab } from "@/lib/content/audios";
 import { fold } from "@/lib/content/text";
 import { docText } from "@/components/cms/doc-text";
@@ -14,13 +15,17 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
   const { id } = await params; const b = await req.json();
   const cur = (await sql`select * from audios where id = ${id}`)[0]; if (!cur) return fail("Not found", 404);
   const a = clean(b); if (g.user.role === "contributor") delete a.status;
+  if ("code" in a) a.code = validCode(a.code); if ("file_title" in a && a.file_title) a.file_title = String(a.file_title).replace(/\.mp3$/i, "");
+  if (!cur.file_title && !a.file_title) a.file_title = fileTitle({ ...cur, ...a });
+  if (!cur.code && !a.code) a.code = await nextCode({ ...cur, ...a }, id);
+  if (a.code && (await sql`select 1 from audios where code = ${a.code} and id <> ${id}`).length) return fail(`The address code ${a.code} is already used by another recording.`);
   const merged = { ...cur, ...a };
   const sets: string[] = []; const vals: any[] = [];
   for (const [k, v] of Object.entries(a)) { vals.push(v); sets.push(`${k} = $${vals.length}`); }
   if (Array.isArray(b.transcript)) { vals.push(JSON.stringify(b.transcript)); sets.push(`transcript = $${vals.length}::jsonb`); }
   vals.push(`${searchText(merged)} ${fold(docText(Array.isArray(b.transcript) ? b.transcript : cur.transcript || [], 400000))}`.trim()); sets.push(`search = $${vals.length}`);
   vals.push(id); await sql.query(`update audios set ${sets.join(", ")}, updated_at = now() where id = $${vals.length}`, vals);
-  await rememberVocab(a); revalidatePath("/teachings/audio"); revalidatePath(`/teachings/audio/${cur.slug}`); revalidatePath("/teachings/kirtans");
+  await rememberVocab(a); revalidatePath("/teachings/audio"); revalidatePath(`/teachings/audio/${cur.slug}`); revalidatePath("/teachings/kirtans"); if (merged.code) revalidatePath(`/audios/${merged.code}`);
   return json({ ok: true });
 }
 export async function DELETE(_: Request, { params }: { params: Promise<{ id: string }> }) {

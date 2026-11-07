@@ -1,4 +1,4 @@
-import { Headphones, Music, Clapperboard, Quote, BookOpen, FileText, Newspaper, Languages, BookMarked, CalendarDays, NotebookPen, History, HandHeart, Gift, Image, MapPin, Package, Mail, IdCard, Landmark, GitBranch, Crown, ToggleRight, PanelsTopLeft, Megaphone, Images, Users, Settings, Lotus, Network, type LucideIcon } from "./admin-icons";
+import { Headphones, Music, Clapperboard, Quote, BookOpen, FileText, Newspaper, Languages, BookMarked, CalendarDays, NotebookPen, History, HandHeart, Gift, Image, MapPin, Package, Mail, IdCard, Landmark, GitBranch, Crown, ToggleRight, PanelsTopLeft, Megaphone, Images, Users, Settings, Lotus, Network, MessageCircle, type LucideIcon } from "./admin-icons";
 
 export type AdminLink = { href: string; label: string; icon: LucideIcon; desc: string };
 export type AdminGroup = { key: string; label: string; desc: string; color: string; icon: LucideIcon; links: AdminLink[] };
@@ -22,6 +22,7 @@ export const ADMIN_GROUPS: AdminGroup[] = [
   { key: "teachings", icon: BookOpen, label: "His Teachings", desc: "Audio, video, books and writings", color: "#1a73e8", links: [
     { href: "/admin/audio", label: "Audio lectures", icon: Headphones, desc: "Lectures with transcriptions" },
     { href: "/admin/kirtans", label: "Kīrtanas & bhajanas", icon: Music, desc: "Songs he sang" },
+    { href: "/admin/suggestions", label: "Suggestions", icon: MessageCircle, desc: "Suggestions and information sent by visitors" },
     { href: "/admin/videos", label: "Videos", icon: Clapperboard, desc: "YouTube videos" },
     { href: "/admin/books", label: "Books", icon: BookOpen, desc: "Books to read online" },
     { href: "/admin/articles", label: "Articles", icon: FileText, desc: "Essays and compilations" },

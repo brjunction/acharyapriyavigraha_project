@@ -14,6 +14,8 @@ type P = { id: string; parent_id: string | null; title: string; path: string; st
 export function Shell({ user, children }: { user: { name: string; email: string; role: string }; children: React.ReactNode }) {
   const path = usePathname(); const router = useRouter();
   const [pages, setPages] = useState<P[]>([]); const [menus, setMenus] = useState<MenuJ[]>([]); const [dbs, setDbs] = useState<{ id: string; name: string; slug: string }[]>([]); const [lib, setLib] = useState<{ id: string; slug: string; name: string; icon: string; group: string; rows: number }[]>([]);
+  const [newSug, setNewSug] = useState(0);
+  useEffect(() => { if (!["owner", "admin", "editor"].includes(user.role)) return; const f = () => fetch("/api/admin/suggestions?count=1").then((r) => r.json()).then((j) => setNewSug(j.new || 0)).catch(() => {}); f(); const t = setInterval(f, 120000); window.addEventListener("tj:suggestions", f); return () => { clearInterval(t); window.removeEventListener("tj:suggestions", f); }; }, [user.role]);
   const [open, setOpen] = useState<Record<string, boolean>>({}); const [q, setQ] = useState(""); const [mobile, setMobile] = useState(false);
   const load = useCallback(() => { api<P[]>("/api/admin/pages").then(setPages).catch(() => {}); api<MenuJ[]>("/api/admin/menus").then(setMenus).catch(() => {}); api("/api/admin/library").then(setLib).catch(() => {}); api("/api/admin/dbs").then(setDbs).catch(() => {}); }, []);
   useEffect(() => { load(); const h = () => load(); window.addEventListener("tj:pages-changed", h); return () => window.removeEventListener("tj:pages-changed", h); }, [load]);
@@ -54,7 +56,7 @@ export function Shell({ user, children }: { user: { name: string; email: string;
     );
   };
   const found = q ? pages.filter((p) => p.title.toLowerCase().includes(q.toLowerCase())) : null;
-  const Nav = ({ href, icon: I, label }: { href: string; icon: any; label: string }) => { const on = path === href || (href !== "/admin" && path.startsWith(href)); return <Link href={href} onClick={() => setMobile(false)} className={`flex h-8 items-center gap-2 rounded-md px-2 text-[13px] transition ${on ? "bg-zinc-200/70 font-medium text-zinc-950" : "text-zinc-700 hover:bg-zinc-200/50 hover:text-zinc-950"}`}><I className={`size-4 ${on ? "text-zinc-900" : "text-zinc-500"}`} />{label}</Link>; };
+  const Nav = ({ href, icon: I, label }: { href: string; icon: any; label: string }) => { const on = path === href || (href !== "/admin" && path.startsWith(href)); return <Link href={href} onClick={() => setMobile(false)} className={`flex h-8 items-center gap-2 rounded-md px-2 text-[13px] transition ${on ? "bg-zinc-200/70 font-medium text-zinc-950" : "text-zinc-700 hover:bg-zinc-200/50 hover:text-zinc-950"}`}><I className={`size-4 ${on ? "text-zinc-900" : "text-zinc-500"}`} /><span className="min-w-0 flex-1 truncate">{label}</span>{href === "/admin/suggestions" && newSug > 0 && <span className="rounded-full bg-red-600 px-1.5 text-[10.5px] font-semibold leading-[18px] text-white">{newSug}</span>}</Link>; };
 
   const active = "bg-zinc-200/70 font-medium text-zinc-950";
   const item = "flex h-8 w-full items-center gap-2 rounded-md px-2 text-[13px] text-zinc-700 outline-none transition hover:bg-zinc-200/50 hover:text-zinc-950 [&>svg]:size-4 [&>svg]:shrink-0 [&>svg]:text-zinc-500";

@@ -166,3 +166,9 @@ alter table video_sources add column if not exists section_id uuid references vi
 alter table video_sections add column if not exists kinds text[] not null default '{}';
 alter table video_sections add column if not exists on_tabs boolean not null default true;
 alter table video_sections add column if not exists parent_id uuid references video_sections(id) on delete set null, add column if not exists fold text not null default 'none';
+create table if not exists suggestions (id uuid primary key default gen_random_uuid(), item_kind text not null default 'audio', item_id uuid, item_slug text, item_title text, about text not null default 'transcript', quote text, text text not null, name text, email text, status text not null default 'new', note text, created_at timestamptz not null default now());
+alter table audios add column if not exists file_title text, add column if not exists code text;
+create unique index if not exists audios_code_key on audios(code) where code is not null;
+alter table video_source_items add column if not exists title text, add column if not exists seconds int, add column if not exists published text, add column if not exists gen int not null default 0;
+alter table video_sources add column if not exists sync_state text, add column if not exists sync_error text, add column if not exists sync_gen int not null default 0;
+alter table suggestions add column if not exists reply text, add column if not exists replied_at timestamptz, add column if not exists applied boolean not null default false;

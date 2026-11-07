@@ -9,7 +9,7 @@ const DEF: S = { style: "classic", theme: "light", font: "sans", size: 18, leadi
 const STYLES: [Style, string, string][] = [["classic", "Classic", "A calm column of text"], ["wide", "Wide", "Longer lines, more on the screen"], ["paper", "Paper", "The text on a page"], ["focus", "Focus", "Large text, nothing else"]];
 const load = (): S => { try { return { ...DEF, ...JSON.parse(localStorage.getItem("tj_transcript") || "{}") }; } catch { return DEF; } };
 
-/** The lecture page: a player you can tuck away, details you can fold to the side, and the transcription in the style you like. */
+/** The lecture page: a player you can tuck away, its details just under it (they fold away), and the transcription in the style you like. */
 export function LectureLayout({ head, player, transcript, aside, label }: { head: React.ReactNode; player: React.ReactNode; transcript: React.ReactNode; aside: React.ReactNode; label: string }) {
   const [s, setS] = useState<S>(DEF); const [open, setOpen] = useState(false); const ref = useRef<HTMLDivElement>(null);
   useEffect(() => setS(load()), []);
@@ -19,11 +19,18 @@ export function LectureLayout({ head, player, transcript, aside, label }: { head
   const width = s.style === "wide" ? 900 : s.style === "focus" ? 760 : 700; const size = s.style === "focus" ? s.size + 3 : s.size;
   const btn = "flex h-8 items-center gap-1.5 rounded-md border border-line bg-white px-2.5 text-[12.5px] text-ink-2 hover:bg-band";
   return (
-    <div className={`mt-6 grid gap-10 ${s.aside ? "lg:grid-cols-[minmax(0,1fr)_280px]" : ""}`}>
+    <div className="mt-6">
       <article className="min-w-0">
         {head}
         {s.player ? <div className="mt-5 flex items-start gap-2"><div className="min-w-0 flex-1">{player}</div><button onClick={() => set({ player: false })} title="Hide this player — the player at the bottom keeps playing" className="mt-2.5 flex size-8 shrink-0 items-center justify-center rounded-md text-ink-3 hover:bg-band hover:text-ink"><ChevronUp size={16} /></button></div>
           : <button onClick={() => set({ player: true })} className="mt-4 inline-flex h-7 items-center gap-1 rounded-full border border-line px-3 text-[12px] text-ink-3 hover:text-ink"><ChevronDown size={13} />Show the player here</button>}
+        {/* the details sit just under the player, and fold away */}
+        <section className="mt-5 overflow-hidden rounded-2xl border border-line bg-band/40">
+          <button onClick={() => set({ aside: !s.aside })} aria-expanded={s.aside} className="flex w-full items-center justify-between gap-3 px-4 py-2.5 text-left text-[13px] font-semibold text-ink hover:bg-band/70">
+            Details{s.aside ? <ChevronUp size={16} className="text-ink-3" /> : <ChevronDown size={16} className="text-ink-3" />}
+          </button>
+          {s.aside && <div className="grid gap-5 border-t border-line bg-white p-4 sm:grid-cols-2 lg:grid-cols-3 [&>*:first-child]:sm:col-span-2 [&>*:first-child]:lg:col-span-1">{aside}</div>}
+        </section>
         <div className="mt-8 flex flex-wrap items-center justify-between gap-2 border-b border-line pb-2">
           <h2 className="text-[17px] font-semibold text-ink">{label}</h2>
           <div className="flex items-center gap-1.5">
@@ -42,14 +49,13 @@ export function LectureLayout({ head, player, transcript, aside, label }: { head
                 <button onClick={() => set({ ...DEF, aside: s.aside, player: s.player })} className="mt-3 w-full rounded-md py-1.5 text-[12px] text-ink-3 hover:bg-band">Reset</button>
               </div>}
             </div>
-            <button onClick={() => set({ aside: !s.aside })} className={`${btn} hidden lg:flex`} title={s.aside ? "Hide the details" : "Show the details"}>{s.aside ? <PanelRightClose size={14} /> : <PanelRightOpen size={14} />}{s.aside ? "Hide details" : "Details"}</button>
+
           </div>
         </div>
         <div className={`rd-text ${dark ? "rd-dark" : ""} mt-6 transition-colors ${s.style === "paper" ? "rounded-2xl border px-6 py-8 shadow-[0_20px_50px_-35px_rgba(0,0,0,0.4)] sm:px-12 sm:py-12" : s.theme !== "light" ? "rounded-2xl px-5 py-6 sm:px-8" : ""}`} style={{ background: s.theme === "light" && s.style !== "paper" ? undefined : T.bg, color: T.ink, borderColor: T.line, ["--rd-ink" as any]: T.ink, ["--rd-muted" as any]: T.muted, ["--rd-line" as any]: T.line }}>
           <div className="mx-auto" style={{ maxWidth: width, fontFamily: FONTS[s.font][1], fontSize: size, lineHeight: s.leading }}>{transcript}</div>
         </div>
       </article>
-      {s.aside && <aside className="space-y-6 lg:sticky lg:top-20 lg:self-start">{aside}</aside>}
     </div>
   );
 }

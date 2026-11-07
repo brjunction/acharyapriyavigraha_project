@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Play, Pause, RotateCcw, RotateCw, Volume2, Volume1, VolumeX, X, PictureInPicture2, Maximize2, Minimize2, FileText, Keyboard, Download, Link2, Check, Moon, ChevronDown, SkipBack, SkipForward, Search, PanelBottom, GripHorizontal, ExternalLink, Loader2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, Play, Pause, RotateCcw, RotateCw, Volume2, Volume1, VolumeX, X, PictureInPicture2, Maximize2, Minimize2, FileText, Keyboard, Download, Link2, Check, Moon, ChevronDown, SkipBack, SkipForward, Search, PanelBottom, GripHorizontal, ExternalLink, Loader2 } from "lucide-react";
 import { usePlayer, type Track } from "@/components/providers";
 
 const clock = (s: number) => { s = Math.max(0, Math.floor(s || 0)); const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), x = s % 60; return h ? `${h}:${String(m).padStart(2, "0")}:${String(x).padStart(2, "0")}` : `${m}:${String(x).padStart(2, "0")}`; };
@@ -143,16 +143,30 @@ export function AudioPlayer() {
     const up = () => { drag.current = null; window.removeEventListener("pointermove", mv); setPos((q) => { try { localStorage.setItem("tj-player-pos", JSON.stringify(q)); } catch {} return q; }); };
     window.addEventListener("pointermove", mv); window.addEventListener("pointerup", up, { once: true }); };
 
+  // floating size, remembered; drag the corner to resize
+  const [size, setSize] = useState<{ w: number; h: number }>({ w: 360, h: 340 });
+  useEffect(() => { try { const s = JSON.parse(localStorage.getItem("tj-player-size") || "null"); if (s?.w) setSize(s); } catch {} }, []);
+  const startResize = (e: React.PointerEvent) => { e.preventDefault(); e.stopPropagation(); const sx = e.clientX, sy = e.clientY, s0 = size;
+    const mv = (ev: PointerEvent) => setSize({ w: Math.max(300, Math.min(Math.min(720, window.innerWidth - 16), s0.w + ev.clientX - sx)), h: Math.max(160, Math.min(window.innerHeight - 220, s0.h + ev.clientY - sy)) });
+    const up = () => { window.removeEventListener("pointermove", mv); setSize((q) => { try { localStorage.setItem("tj-player-size", JSON.stringify(q)); } catch {} return q; }); };
+    window.addEventListener("pointermove", mv); window.addEventListener("pointerup", up, { once: true }); };
+  // the side panel sits beside the page (the page makes room for it on wide screens) and can be tucked away
+  const [tucked, setTucked] = useState(false);
+  useEffect(() => { const on = mode === "full" && !tucked; document.documentElement.classList.toggle("player-side", on); return () => document.documentElement.classList.remove("player-side"); }, [mode, tucked]);
+
   if (!track) return null;
   const title = <Link href={track.href || `/teachings/audio/${track.slug}`} className="block truncate text-[13.5px] font-medium text-ink hover:underline">{track.title}</Link>;
   const sub = <p className="truncate text-[12px] text-ink-3">{track.subtitle || "Śrī Śrīmad Gour Govinda Swāmī Gurudeva"}</p>;
   const helpBox = help && <div className="fixed inset-0 z-[90] flex items-center justify-center bg-black/30 p-4" onClick={() => setHelp(false)}><div className="w-full max-w-[420px] rounded-xl border border-line bg-white p-5 shadow-2xl" onClick={(e) => e.stopPropagation()}><div className="mb-3 flex items-center justify-between"><p className="text-[15px] font-semibold">Player shortcuts</p><Btn onClick={() => setHelp(false)} title="Close"><X size={15} /></Btn></div>{SHORTCUTS.map(([k, d]) => <div key={k} className="flex items-center justify-between py-1 text-[13px]"><span className="text-ink-2">{d}</span><kbd className="rounded border border-line bg-band px-1.5 py-0.5 font-sans text-[11.5px]">{k}</kbd></div>)}</div></div>;
 
   /* full player: a side sheet with the transcription */
+  if (mode === "full" && tucked) return (<>
+    <button onClick={() => setTucked(false)} title="Show the player panel" className="fixed right-0 top-1/2 z-[81] flex -translate-y-1/2 flex-col items-center gap-2 rounded-l-xl border border-r-0 border-line bg-white px-2 py-3 text-[11.5px] font-medium text-ink shadow-[0_10px_30px_-12px_rgba(0,0,0,.35)] hover:bg-band"><ChevronLeft size={15} /><PlayPause size={30} /><span className="[writing-mode:vertical-rl]">Now playing</span></button>
+    {helpBox}
+  </>);
   if (mode === "full") return (<>
-    <div className="fixed inset-0 z-[80] bg-black/20 backdrop-blur-[2px]" onClick={() => setMode("dock")} />
-    <aside className="fixed inset-y-0 right-0 z-[81] flex w-full max-w-[520px] flex-col border-l border-line bg-white shadow-2xl">
-      <div className="flex items-center gap-1 border-b border-line px-3 py-2"><p className="flex-1 px-1 text-[12px] font-medium text-ink-3">Now playing</p><Btn onClick={() => setMode("float")} title="Pop out (P)"><PictureInPicture2 size={15} /></Btn><Btn onClick={() => setMode("dock")} title="Back to the bar"><Minimize2 size={15} /></Btn><Btn onClick={() => setHelp(true)} title="Shortcuts (?)"><Keyboard size={15} /></Btn><Btn onClick={p.close} title="Close"><X size={15} /></Btn></div>
+    <aside className="fixed bottom-0 right-0 top-[52px] z-[81] flex w-full max-w-[520px] flex-col border-l border-line bg-white shadow-[-20px_0_50px_-30px_rgba(0,0,0,.35)] sm:top-[58px] lg:max-w-[440px] xl:max-w-[480px]">
+      <div className="flex items-center gap-1 border-b border-line px-3 py-2"><Btn onClick={() => setTucked(true)} title="Tuck the panel away — it keeps playing"><ChevronRight size={15} /></Btn><p className="flex-1 px-1 text-[12px] font-medium text-ink-3">Now playing</p><Btn onClick={() => setMode("float")} title="Pop out (P)"><PictureInPicture2 size={15} /></Btn><Btn onClick={() => setMode("dock")} title="Back to the bar"><Minimize2 size={15} /></Btn><Btn onClick={() => setHelp(true)} title="Shortcuts (?)"><Keyboard size={15} /></Btn><Btn onClick={p.close} title="Close"><X size={15} /></Btn></div>
       <div className="border-b border-line px-6 pb-5 pt-5">
         <p className="text-[18px] font-semibold leading-snug tracking-[-0.01em] text-ink">{track.title}</p>{sub}
         <div className="mt-4"><Scrubber big /></div>
@@ -174,14 +188,16 @@ export function AudioPlayer() {
 
   /* floating, detached card */
   if (mode === "float") return (<>
-    <div data-float className="fixed z-[75] w-[360px] max-w-[calc(100vw-16px)] overflow-hidden rounded-2xl border border-line bg-white/95 shadow-[0_24px_60px_-20px_rgba(0,0,0,0.45)] backdrop-blur-xl" style={pos ? { left: pos.x, top: pos.y } : { right: 16, bottom: 16 }}>
-      <div onPointerDown={startDrag} className="flex cursor-grab items-center gap-1 border-b border-line bg-[#fafafa]/80 px-2 py-1 active:cursor-grabbing"><GripHorizontal size={14} className="mx-1 text-ink-3" /><p className="flex-1 truncate text-[11.5px] text-ink-3">{playing ? "Playing" : "Paused"} · drag to move</p><Btn onClick={() => setMode("full")} title="Full player (F)"><Maximize2 size={14} /></Btn><Btn onClick={() => setMode("dock")} title="Dock to the bottom (P)"><PanelBottom size={14} /></Btn><Btn onClick={p.close} title="Close"><X size={14} /></Btn></div>
+    <div data-float className="fixed z-[75] max-w-[calc(100vw-16px)] overflow-hidden rounded-2xl border border-line bg-white/95 shadow-[0_24px_60px_-20px_rgba(0,0,0,0.45)] backdrop-blur-xl" style={{ width: size.w, ...(pos ? { left: pos.x, top: pos.y } : { right: 16, bottom: 16 }) }}>
+      <div onPointerDown={startDrag} className="flex cursor-grab items-center gap-1 border-b border-line bg-[#fafafa]/80 px-2 py-1 active:cursor-grabbing"><GripHorizontal size={14} className="mx-1 text-ink-3" /><p className="flex-1 truncate text-[11.5px] text-ink-3">{playing ? "Playing" : "Paused"} · drag to move, corner to resize</p><Btn onClick={() => setMode("full")} title="Full player (F)"><Maximize2 size={14} /></Btn><Btn onClick={() => setMode("dock")} title="Dock to the bottom (P)"><PanelBottom size={14} /></Btn><Btn onClick={p.close} title="Close"><X size={14} /></Btn></div>
       <div className="px-4 pt-3">{title}{sub}<div className="mt-2"><Scrubber /></div></div>
       <div className="flex items-center justify-between px-2 pb-2">
         <div className="flex items-center"><Btn onClick={() => p.skip(-10)} title="Back 10 seconds (J)"><RotateCcw size={16} /></Btn><PlayPause size={38} /><Btn onClick={() => p.skip(10)} title="Forward 10 seconds (L)"><RotateCw size={16} /></Btn></div>
         <div className="flex items-center"><Volume /><SpeedMenu /><Btn onClick={() => setText(!text)} title="Transcription (T)" on={text}><FileText size={15} /></Btn><MoreMenu /></div>
       </div>
-      {text && <div className="flex max-h-[340px] flex-col border-t border-line"><Transcript info={info} busy={busy} compact /></div>}
+      {text && <div className="flex flex-col border-t border-line" style={{ maxHeight: size.h }}><Transcript info={info} busy={busy} compact /></div>}
+      {/* drag this corner to resize */}
+      <span onPointerDown={startResize} title="Drag to resize" className="absolute bottom-0 right-0 z-10 size-4 cursor-nwse-resize touch-none bg-[linear-gradient(135deg,transparent_50%,#c9c2b8_50%,#c9c2b8_60%,transparent_60%,transparent_72%,#c9c2b8_72%,#c9c2b8_82%,transparent_82%)]" />
     </div>
     {helpBox}
   </>);

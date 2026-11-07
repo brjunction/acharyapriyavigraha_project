@@ -3,6 +3,7 @@ import dynamic from "next/dynamic";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Headphones, Music, Plus, Search, Upload, Trash2, Eye, EyeOff, Tag, MapPin, Layers, ChevronLeft, ChevronRight, Play, Pause, FileText, ExternalLink, Check, X, ListFilter, Pencil, Merge, FileUp, FileSpreadsheet, Download } from "lucide-react";
 import { AUDIO_KINDS, AUDIO_LANGS, SCRIPTURES, CC_LILA, verseRef, parseRef, durText, parseDur, isSong, fold } from "@/lib/content/text";
+import { fileTitle, placeCode } from "@/lib/content/audio-names-core";
 import { Btn, Badge, Card, Field, Input, Select, Textarea, PageHeader, Sheet, Tabs, Empty, Modal, api, toast, cn } from "../ui";
 
 const NotionEditor = dynamic(() => import("../notion/editor"), { ssr: false });
@@ -153,6 +154,14 @@ function Editor({ id, songs, onClose, onSaved }: { id: string; songs: boolean; o
       actions={<>{id !== "new" && a.status === "published" && <a href={`/teachings/audio/${a.slug}`} target="_blank" className="rounded-md p-1.5 text-zinc-500 hover:bg-zinc-100" title="View on website"><ExternalLink className="size-4" /></a>}<Btn size="sm" kind="primary" busy={busy} onClick={() => save()}>Save</Btn></>}>
       <div className="space-y-5 p-5">
         <Field label="Title"><Input autoFocus={id === "new"} value={a.title || ""} onChange={(e) => set("title", e.target.value)} placeholder={song ? "e.g. Śrī Guru-vandanā" : "e.g. The mercy of Śrīla Prabhupāda"} /></Field>
+        <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_200px]">
+          <Field label="File name" hint="The second title: the name of the MP3 when someone downloads it. Made from the date, place and verse — press Suggest after filling them in.">
+            <div className="flex gap-2"><Input value={a.file_title || ""} onChange={(e) => set("file_title", e.target.value.replace(/\.mp3$/i, ""))} placeholder="1977_10_11_Bhubaneswar_Bhagavatam_10_66" className="font-mono text-[12.5px]" /><Btn onClick={() => set("file_title", fileTitle(a))}>Suggest</Btn></div>
+          </Field>
+          <Field label="Address code" hint={`taptajivanam.com/audios/${a.code || "…"} — filled in by itself when saved (date + place + number).`}>
+            <Input value={a.code || ""} onChange={(e) => set("code", e.target.value.replace(/[^0-9A-Za-z_-]/g, ""))} placeholder={`${(a.date || "").replace(/-/g, "") || "YYYYMMDD"}${placeCode(a.place)}1`} className="font-mono text-[12.5px]" />
+          </Field>
+        </div>
         <Field label="Type" hint="Used to organise the list on the website. Add your own with “Add new…”.">
           <Pick kind={songs ? "stype" : "atype"} base={AUDIO_KINDS.filter(([k]) => isSong(k) === songs && k !== "other").map(([, l]) => l)} value={a.type || ""} onChange={(v) => setA((p: any) => ({ ...p, type: v, kind: typeOf(v) }))} empty="Choose a type" addLabel="type" />
         </Field>
@@ -328,7 +337,7 @@ function Vocab({ kind }: { kind: string }) {
 }
 
 /* ------------------------------------------------------------------ import */
-const COLS: [string, string][] = [["title", "Title"], ["type", "Type"], ["date", "Date"], ["date_note", "Date note"], ["place", "Place"], ["country", "Country"], ["occasion", "Occasion"], ["ref", "Verse (e.g. SB 1.2.6)"], ["language", "Language"], ["series", "Series"], ["topics", "Topics (separated by ;)"], ["duration", "Length (h:mm:ss)"], ["audio_url", "MP3 link"], ["song", "Song"], ["song_author", "Written by"], ["singer", "Sung by"], ["summary", "Summary"]];
+const COLS: [string, string][] = [["title", "Title"], ["file_title", "File name"], ["code", "Address code"], ["type", "Type"], ["date", "Date"], ["date_note", "Date note"], ["place", "Place"], ["country", "Country"], ["occasion", "Occasion"], ["ref", "Verse (e.g. SB 1.2.6)"], ["language", "Language"], ["series", "Series"], ["topics", "Topics (separated by ;)"], ["duration", "Length (h:mm:ss)"], ["audio_url", "MP3 link"], ["song", "Song"], ["song_author", "Written by"], ["singer", "Sung by"], ["summary", "Summary"]];
 function parseCsv(text: string): string[][] {
   const rows: string[][] = []; let row: string[] = [], cell = "", q = false; const first = text.split("\n")[0]; const sep = (first.match(/\t/g)?.length || 0) > (first.match(/,/g)?.length || 0) ? "\t" : ",";
   for (let i = 0; i < text.length; i++) { const c = text[i];

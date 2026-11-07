@@ -1,7 +1,7 @@
 import { sql } from "@/lib/db";
 import { fold, slugify, verseRef } from "./text";
 
-export const AUDIO_COLS = ["kind", "type", "title", "date", "date_note", "place", "country", "occasion", "scripture", "canto", "chapter", "verse", "language", "series", "topics", "duration_sec", "audio_url", "audio_url_alt", "song", "song_author", "singer", "summary", "notes", "transcript_status", "status", "position"] as const;
+export const AUDIO_COLS = ["kind", "type", "title", "date", "date_note", "place", "country", "occasion", "scripture", "canto", "chapter", "verse", "language", "series", "topics", "duration_sec", "audio_url", "audio_url_alt", "song", "song_author", "singer", "summary", "notes", "transcript_status", "status", "position", "file_title", "code"] as const;
 export type Audio = { id: string; slug: string } & Partial<Record<(typeof AUDIO_COLS)[number], any>> & { transcript?: any[] };
 
 export function clean(b: Record<string, any>) {

@@ -23,7 +23,7 @@ export function LecturePlayer({ l }: { l: Lecture }) {
       </div>
       <div className="flex gap-1">
         <button onClick={() => { navigator.clipboard?.writeText(`${location.origin}${location.pathname}${mine && t > 5 ? `?t=${Math.floor(t)}` : ""}`); setCopied(true); setTimeout(() => setCopied(false), 1500); }} title={mine && t > 5 ? "Copy a link to this moment" : "Copy link"} className="flex h-8 w-8 items-center justify-center rounded-lg border border-line text-ink-2 hover:border-line-strong">{copied ? <Check size={14} /> : <Link2 size={14} />}</button>
-        {l.url && <a href={l.url} download title="Download MP3" className="flex h-8 w-8 items-center justify-center rounded-lg border border-line text-ink-2 hover:border-line-strong"><Download size={14} /></a>}
+        {l.url && <a href={`/api/audio/${l.slug}/download`} download title="Download MP3" className="flex h-8 w-8 items-center justify-center rounded-lg border border-line text-ink-2 hover:border-line-strong"><Download size={14} /></a>}
       </div>
     </div>
   );

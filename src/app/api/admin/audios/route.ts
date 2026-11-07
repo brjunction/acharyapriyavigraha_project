@@ -2,6 +2,7 @@ import { sql } from "@/lib/db";
 import { guard, json, fail } from "@/lib/api";
 import { fold } from "@/lib/content/text";
 import { clean, searchText, uniqueSlug, slugBase, rememberVocab } from "@/lib/content/audios";
+import { fileTitle, nextCode, validCode } from "@/lib/content/audio-names";
 
 /** Lists recordings with filters. ?kind=lecture|songs&q=&year=&place=&scripture=&series=&topic=&status=&need=audio|transcript|date|place&sort=new|old|title|updated&page=1 */
 export async function GET(req: Request) {
@@ -27,7 +28,7 @@ export async function POST(req: Request) {
   const g = await guard("contributor"); if ("res" in g) return g.res;
   const b = await req.json(); const a = clean(b); if (!a.title) return fail("Give the recording a title.");
   if (g.user.role === "contributor") a.status = "draft";
-  const slug = await uniqueSlug(slugBase(a));
+  a.file_title ||= fileTitle(a); a.code = validCode(a.code) || (await nextCode(a)); const slug = await uniqueSlug(slugBase(a));
   const cols = Object.keys(a); const r = await sql.query(`insert into audios (slug, search, ${cols.join(", ")}) values ($1, $2, ${cols.map((_, i) => `$${i + 3}`).join(", ")}) returning id, slug`, [slug, searchText(a), ...cols.map((k) => a[k])]);
   await rememberVocab(a); return json(r[0]);
 }
