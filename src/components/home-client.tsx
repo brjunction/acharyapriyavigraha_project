@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { ArrowRight, Search, Play, Pause, SkipForward, ChevronLeft, ChevronRight, Headphones, Quote as QuoteIcon, Copy, Check, PlayCircle, BookOpen, UserRound } from "lucide-react";
+import { ArrowRight, Search, Play, Pause, SkipForward, ChevronLeft, ChevronRight, Headphones, Quote as QuoteIcon, Copy, Check, PlayCircle, BookOpen, UserRound, NotebookPen, Image as ImageIcon } from "lucide-react";
 import { CONVERSATION, LETTER } from "@/lib/prabhupada";
 import { LECTURES, fmtDate, DIARY, IMG, LANGUAGES, QUOTE_OF_DAY, TIMELINE } from "@/lib/data";
 import { Img } from "./img";
@@ -61,41 +61,55 @@ export function Hero() {
     <section ref={box} className="hero-dark group/hero relative isolate overflow-hidden" onPointerMove={move}>
       <div aria-hidden className="hero-base absolute inset-0 -z-20" />
       <div aria-hidden className="hero-aurora absolute inset-0 -z-10" />
-      {/* a soft warm light that follows the pointer */}
-      <div aria-hidden className="hero-follow pointer-events-none absolute inset-0 -z-10 opacity-0 transition-opacity duration-700 group-hover/hero:opacity-100" />
+      <div aria-hidden className="pointer-events-none absolute left-1/2 top-[-35%] -z-10 size-[900px] -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgba(232,184,114,.16),transparent_62%)]" />
       <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(60%_50%_at_50%_100%,rgba(0,0,0,.25),transparent_70%)]" />
-      {[6, 14, 23, 31, 44, 52, 63, 71, 79, 88, 95].map((x, k) => <span key={x} aria-hidden className="hero-spark" style={{ left: `${x}%`, animationDuration: `${14 + (k % 5) * 3}s`, animationDelay: `${-k * 2.1}s`, width: k % 3 ? 2 : 3, height: k % 3 ? 2 : 3 }} />)}
+      {/* small lights rising slowly, as in the mission band */}
+      <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">{Array.from({ length: 26 }, (_, k) => { const x = (k * 37 + 7) % 100; return <span key={k} className="hero-spark" style={{ left: `${x}%`, animationDuration: `${16 + (k % 7) * 2.5}s`, animationDelay: `${-((k * 13) % 23)}s`, width: k % 4 ? 2 : 3, height: k % 4 ? 2 : 3 }} />; })}</div>
       <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-[#f3c35e]/50 to-transparent" />
       <div className="relative mx-auto grid min-h-[calc(100svh-52px)] max-w-[1320px] grid-cols-[minmax(0,1fr)] content-center items-center gap-2 px-5 pb-8 pt-4 sm:min-h-[calc(100svh-58px)] sm:gap-6 sm:px-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)] lg:gap-6 lg:py-8">
-        <div className="rise order-2 text-center lg:order-1 lg:text-left">
-          <div className="inline-flex max-w-full items-center gap-2.5 rounded-full border border-[#f3c35e]/30 bg-white/[0.07] py-1 pl-2 pr-3.5 backdrop-blur sm:gap-3 sm:py-1.5 sm:pr-4">
-            <span role="img" aria-label="ISKCON" className="block h-6 w-[30px] shrink-0 text-[#f7c556] sm:h-7 sm:w-[34px]" style={{ WebkitMaskImage: "url(/iskcon-mask.png)", maskImage: "url(/iskcon-mask.png)", WebkitMaskSize: "contain", maskSize: "contain", WebkitMaskRepeat: "no-repeat", maskRepeat: "no-repeat", WebkitMaskPosition: "center", maskPosition: "center", background: "currentColor" }} />
-            <span className="h-4 w-px shrink-0 bg-[#f3c35e]/30" />
-            <span className="text-left text-[11px] font-medium leading-snug text-[#ffe2b0] sm:text-[12.5px]">The Complete Life &amp; Teachings of Śrī Śrīmad Gour Govinda Swāmī Gurudeva</span>
+        <div className="order-2 text-center lg:order-1 lg:text-left">
+          {/* ISKCON · Taptajīvanam */}
+          <div className="hx-in flex items-center justify-center gap-3 lg:justify-start" style={{ animationDelay: ".05s" }}>
+            <span role="img" aria-label="ISKCON" className="block h-8 w-10 shrink-0 text-[#f7c556]" style={{ WebkitMaskImage: "url(/iskcon-mask.png)", maskImage: "url(/iskcon-mask.png)", WebkitMaskSize: "contain", maskSize: "contain", WebkitMaskRepeat: "no-repeat", maskRepeat: "no-repeat", WebkitMaskPosition: "center", maskPosition: "center", background: "currentColor" }} />
+            <span className="h-6 w-px bg-[#f3c35e]/35" />
+            <span className="text-left text-[11px] font-semibold uppercase leading-tight tracking-[0.22em] text-[#f3c35e]">Taptajīvanam<span className="block text-[10px] font-medium normal-case tracking-[0.04em] text-[#ffe2b0]/70">The complete life &amp; teachings</span></span>
           </div>
-          <h1 className="mt-5 text-[32px] font-bold leading-[1.08] tracking-[-0.04em] text-[#fff6ea] sm:text-[46px] lg:text-[58px]">
-            {["Words", "That", "Give", "Life"].map((w, i) => <span key={w} className="hero-word mr-[0.24em]" style={{ animationDelay: `${0.1 + i * 0.1}s` }}>{w}</span>)}<br />
-            {["to", "a"].map((w, i) => <span key={w} className="hero-word mr-[0.24em]" style={{ animationDelay: `${0.5 + i * 0.1}s` }}>{w}</span>)}<span className="hero-word hero-gold" style={{ animationDelay: "0.7s" }}>Burning Heart</span>
-          </h1>
-          <p className="mx-auto mt-4 max-w-[34rem] text-[14px] leading-relaxed text-[#ffe9d2]/85 sm:text-[16px] lg:mx-0">
-            Lectures, letters, books, quotes and photographs of Śrīla Gurudeva, gathered in one searchable home and growing in many languages. Listen, read, and find the exact words you were looking for.
+          {/* the tagline between fine gold rules */}
+          <p className="hx-in mt-6 flex items-center justify-center gap-3 text-[13px] font-medium tracking-[0.02em] text-[#f7d27a] sm:text-[15px] lg:justify-start" style={{ animationDelay: ".15s" }}>
+            <span className="h-px w-8 bg-gradient-to-r from-transparent to-[#f3c35e] sm:w-12" />Words That Give Life to a Burning Heart<span className="h-px w-8 bg-gradient-to-l from-transparent to-[#f3c35e] sm:w-12 lg:hidden" />
           </p>
+          <h1 className="hx-in mt-3 text-[#fff6ea]" style={{ animationDelay: ".25s" }}>
+            <span className="block text-[22px] font-medium leading-tight tracking-[-0.02em] text-[#ffe9d2] sm:text-[30px] lg:text-[34px]">Śrī Śrīmad Gour Govinda Swāmī</span>
+            <span className="hx-gold mt-1 block text-[46px] font-bold leading-[1] tracking-[-0.045em] sm:text-[66px] lg:text-[84px]">Gurudeva</span>
+          </h1>
+          <p className="hx-in mx-auto mt-5 max-w-[30rem] text-[14px] leading-relaxed text-[#ffe9d2]/80 sm:text-[15.5px] lg:mx-0" style={{ animationDelay: ".35s" }}>
+            His lectures, letters, books, quotes and photographs — gathered in one home, in many languages, with every word findable.
+          </p>
+          {/* a dark glass search with a gold underline */}
           <form onSubmit={(e) => { e.preventDefault(); if (q.trim()) r.push(`/search?q=${encodeURIComponent(q)}`); else setSearch(true); }}
-            className="mx-auto mt-7 flex max-w-xl items-center gap-2 rounded-full bg-white p-1.5 pl-5 shadow-[0_18px_40px_-18px_rgba(0,0,0,.55)] ring-1 ring-white/40 transition focus-within:ring-4 focus-within:ring-[#f3c35e]/40 lg:mx-0">
-            <Search size={18} className="shrink-0 text-[#a8401a]" />
+            className="hx-in group/sr relative mx-auto mt-7 flex max-w-[30rem] items-center gap-3 rounded-2xl border border-white/15 bg-black/20 py-2 pl-4 pr-2 backdrop-blur-md transition focus-within:border-[#f3c35e]/60 focus-within:bg-black/30 lg:mx-0" style={{ animationDelay: ".45s" }}>
+            <Search size={18} className="shrink-0 text-[#f3c35e]" />
             <div className="relative flex-1">
-              <input value={q} onChange={(e) => setQ(e.target.value)} aria-label="Search the teachings" className="h-10 w-full bg-transparent text-[14px] text-zinc-900 outline-none sm:h-11 sm:text-[15px]" />
-              {!q && <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center truncate text-[14px] text-zinc-400 sm:text-[15px]">Search&nbsp;<span className="caret text-zinc-600">{hint}</span></span>}
+              <input value={q} onChange={(e) => setQ(e.target.value)} aria-label="Search the teachings" className="h-10 w-full bg-transparent text-[15px] text-[#fff6ea] outline-none" />
+              {!q && <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center truncate text-[15px] text-[#ffe2b0]/55">Search&nbsp;<span className="caret text-[#ffe9d2]">{hint}</span></span>}
             </div>
-            <button className="h-10 shrink-0 rounded-full bg-[linear-gradient(135deg,#c2621d,#7a1e10)] px-5 text-[13.5px] font-semibold text-white shadow-[0_8px_18px_-8px_rgba(122,30,16,.8)] transition hover:brightness-110 sm:h-11 sm:px-6">Search</button>
+            <button aria-label="Search" className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-[linear-gradient(135deg,#f7c556,#e8913c)] text-[#4a0d0b] transition hover:brightness-110"><ArrowRight size={18} /></button>
+            <span aria-hidden className="absolute inset-x-4 -bottom-px h-px origin-left scale-x-0 bg-gradient-to-r from-transparent via-[#f3c35e] to-transparent transition duration-500 group-focus-within/sr:scale-x-100" />
           </form>
-          <div className="mx-auto mt-5 flex max-w-xl flex-wrap justify-center gap-2 sm:gap-2.5 lg:mx-0 lg:justify-start">
-            <Link href="/teachings/audio" className="hero-cta group inline-flex h-11 items-center gap-2 rounded-full bg-[linear-gradient(135deg,#f7c556,#e8913c)] pl-1.5 pr-5 text-[13.5px] font-semibold text-[#4a0d0b] shadow-[0_14px_30px_-14px_rgba(247,197,86,.8)] transition hover:-translate-y-0.5 hover:shadow-[0_18px_36px_-14px_rgba(247,197,86,.95)]"><span className="flex size-8 items-center justify-center rounded-full bg-[#4a0d0b]/15"><Headphones size={15} /></span>Listen to His Lectures</Link>
-            <Link href="/teachings/books" className="group inline-flex h-11 items-center gap-2 rounded-full border border-white/25 bg-white/[0.08] pl-1.5 pr-5 text-[13.5px] font-semibold text-[#fff6ea] backdrop-blur transition hover:-translate-y-0.5 hover:border-[#f3c35e]/60 hover:bg-white/[0.14]"><span className="flex size-8 items-center justify-center rounded-full bg-white/15"><BookOpen size={15} /></span>Read His Books</Link>
-            <Link href="/gurudeva/who-is-srila-gurudeva" className="group inline-flex h-11 items-center gap-2 rounded-full border border-white/25 bg-white/[0.08] pl-1.5 pr-5 text-[13.5px] font-semibold text-[#fff6ea] backdrop-blur transition hover:-translate-y-0.5 hover:border-[#f3c35e]/60 hover:bg-white/[0.14]"><span className="flex size-8 items-center justify-center rounded-full bg-white/15"><UserRound size={15} /></span>Who Is Śrīla Gurudeva?</Link>
+          <div className="hx-in mx-auto mt-4 flex max-w-[30rem] flex-wrap justify-center gap-2.5 lg:mx-0 lg:justify-start" style={{ animationDelay: ".55s" }}>
+            <Link href="/teachings/audio" className="inline-flex h-11 items-center gap-2 rounded-full bg-[linear-gradient(135deg,#f7c556,#e8913c)] pl-1.5 pr-5 text-[13.5px] font-semibold text-[#4a0d0b] shadow-[0_14px_30px_-14px_rgba(247,197,86,.8)] transition hover:-translate-y-0.5"><span className="flex size-8 items-center justify-center rounded-full bg-[#4a0d0b]/15"><Headphones size={15} /></span>Listen to His Lectures</Link>
+            <Link href="/teachings/books" className="inline-flex h-11 items-center gap-2 rounded-full border border-white/25 bg-white/[0.08] pl-1.5 pr-5 text-[13.5px] font-semibold text-[#fff6ea] backdrop-blur transition hover:-translate-y-0.5 hover:border-[#f3c35e]/60"><span className="flex size-8 items-center justify-center rounded-full bg-white/15"><BookOpen size={15} /></span>Read His Books</Link>
           </div>
+          {/* a dock of quick ways in */}
+          <nav aria-label="Quick links" className="hx-in mx-auto mt-7 grid max-w-[30rem] grid-cols-6 divide-x divide-white/10 overflow-hidden rounded-2xl border border-white/10 bg-white/[0.05] backdrop-blur lg:mx-0" style={{ animationDelay: ".65s" }}>
+            {([["/teachings/audio", Headphones, "Audio"], ["/teachings/videos", PlayCircle, "Videos"], ["/teachings/books", BookOpen, "Books"], ["/teachings/quotes", QuoteIcon, "Quotes"], ["/gurudeva/diaries", NotebookPen, "Diary"], ["/gurudeva/gallery", ImageIcon, "Gallery"]] as const).map(([h, I, l]) => (
+              <Link key={h} href={h} className="group/d flex flex-col items-center gap-1.5 px-1 py-3 text-[11px] font-medium text-[#ffe9d2]/80 transition hover:bg-white/[0.08] hover:text-[#fff6ea] sm:text-[11.5px]">
+                <I size={19} strokeWidth={1.6} className="text-[#f3c35e] transition duration-300 group-hover/d:-translate-y-0.5 group-hover/d:scale-110" />{l}
+              </Link>))}
+          </nav>
         </div>
-        <div className="order-1 mx-auto w-full max-w-[min(94vw,46svh)] sm:max-w-[min(560px,50svh)] lg:order-2 lg:max-w-[min(680px,calc(100svh-120px))]">
+
+        <div className="order-1 mx-auto w-full max-w-[min(86vw,40svh)] sm:max-w-[min(520px,46svh)] lg:order-2 lg:max-w-[min(620px,calc(100svh-150px))]">
           <GurudevaLotus src="/photos/gurudeva-hero.webp" alt="Śrī Śrīmad Gour Govinda Swāmī Gurudeva" />
         </div>
       </div>

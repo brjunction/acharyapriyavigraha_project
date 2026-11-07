@@ -664,3 +664,19 @@ html[data-motion="reduce"] .bless-word, html[data-motion="reduce"] .bless-rise, 
 .lp-shine { animation: lp-shine 8s cubic-bezier(.45,.05,.35,1) 2.5s infinite; }
 @keyframes lp-shine { 0% { transform: translateX(0) skewX(-18deg); } 50%, 100% { transform: translateX(1100px) skewX(-18deg); } }
 @media (prefers-reduced-motion: reduce) { .lp-sway, .lp-open-back, .lp-open-front, .lp-leaf-a, .lp-leaf-b, .lp-leaf-c, .lp-leaf-d, .lp-bud, .lp-water, .lp-shine { animation: none !important; } }
+
+/* Hero v3: the seal turning, the name in gold, everything rising in */
+.sl-spin { animation: gl-orbit 90s linear infinite; }
+.sl-spin-rev { animation: gl-orbit 60s linear infinite reverse; }
+.sl-spin-slow { animation: gl-orbit 200s linear infinite; }
+.sl-orbit { animation: gl-orbit 40s linear infinite; }
+.hx-in { opacity: 0; animation: hx-in .9s cubic-bezier(.2,.7,.2,1) forwards; }
+@keyframes hx-in { from { opacity: 0; transform: translateY(14px); filter: blur(2px); } to { opacity: 1; transform: none; filter: none; } }
+.hx-gold { background: linear-gradient(100deg, #ffe3a0 0%, #f3c35e 30%, #fff1c8 50%, #e8913c 70%, #ffe3a0 100%); background-size: 220% auto; -webkit-background-clip: text; background-clip: text; color: transparent; opacity: 0; animation: hx-in 1s cubic-bezier(.2,.7,.2,1) .3s forwards, hero-gold 7s linear 1.3s infinite; padding-bottom: .06em; }
+@media (prefers-reduced-motion: reduce) { .sl-spin, .sl-spin-rev, .sl-spin-slow, .sl-orbit { animation: none !important; } .hx-in, .hx-gold { animation: none !important; opacity: 1; } }
+
+/* Hero: the darker mission tone, slowly shifting */
+.hero-base { background: linear-gradient(125deg, #2a0906 0%, #3a0f0a 35%, #5a1a0e 60%, #3a0f0a 82%, #2a0906 100%) !important; background-size: 260% 260% !important; }
+.hero-aurora { background: radial-gradient(45% 55% at 22% 30%, rgba(232,145,60,.20), transparent 70%), radial-gradient(40% 50% at 80% 65%, rgba(243,195,94,.12), transparent 70%), radial-gradient(35% 40% at 55% 0%, rgba(232,184,114,.14), transparent 70%) !important; background-size: 160% 160% !important; }
+.hero-spark { background: #f3c77a !important; box-shadow: 0 0 9px #e8b872 !important; }
+@keyframes hero-spark { 0% { transform: translate3d(0,0,0); opacity: 0; } 10% { opacity: .8; } 60% { transform: translate3d(10px,-60vh,0); opacity: .5; } 100% { transform: translate3d(-6px,-105vh,0); opacity: 0; } }
