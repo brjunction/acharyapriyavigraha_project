@@ -767,7 +767,7 @@ html[data-motion="reduce"] .bless-word, html[data-motion="reduce"] .bless-rise, 
 
 /* Verse band: a mandala turning behind, petals of light rising, a gold light travelling round the frame,
    each verse line rising then a light passing over it, the lotus rule drawing itself open. */
-.vb-mandala { animation: lx-turn 160s linear infinite; }
+.vb-mandala { animation: lx-turn 200s linear infinite; }
 .vb-petal { position: absolute; bottom: -12px; width: 7px; height: 11px; border-radius: 50% 50% 50% 50% / 70% 70% 30% 30%; background: linear-gradient(#f6b15f, #e8913c); opacity: 0; animation: vb-petal linear infinite; }
 @keyframes vb-petal { 0% { transform: translate3d(0,0,0) rotate(0deg); opacity: 0; } 12% { opacity: .35; } 70% { opacity: .22; } 100% { transform: translate3d(30px,-520px,0) rotate(220deg); opacity: 0; } }
 .vb-frame::before { content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 1.5px; background: conic-gradient(from var(--hx-a, 0deg), rgba(217,164,108,.35) 0deg, #e8913c 50deg, #f6d39a 80deg, rgba(217,164,108,.35) 140deg, rgba(217,164,108,.35) 360deg); -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; animation: hx-border 9s linear infinite; pointer-events: none; }

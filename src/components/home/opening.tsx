@@ -7,7 +7,7 @@ import { useEffect, useRef, useState } from "react";
 import { ArrowRight, X } from "lucide-react";
 import { CONVERSATION, LETTER } from "@/lib/prabhupada";
 import { FOUNDER_STEPS } from "@/components/home/home-data";
-import { VMask, Padma } from "@/components/motifs";
+import { VMask } from "@/components/motifs";
 
 function useInView<T extends HTMLElement>(margin = "-12%") {
   const ref = useRef<T>(null); const [on, setOn] = useState(false);
@@ -44,32 +44,42 @@ function Reading({ which, onClose }: { which: "c" | "l"; onClose: () => void }) 
   );
 }
 
-/** “Kṛṣṇa sent him.” — Śrīla Prabhupāda and Śrīla Gurudeva side by side, and Śrīla Prabhupāda’s words beside them, plainly set. */
+/** “Kṛṣṇa sent him.” — on white, set apart from the verse above: Śrīla Prabhupāda's words on one side, and on the other
+    Śrīla Prabhupāda and Śrīla Gurudeva in two arched frames, named beneath. The conversation and the letter open in full. */
 export function KrishnaSentOpening() {
   const [ref, on] = useInView<HTMLElement>();
   const [open, setOpen] = useState<"c" | "l" | null>(null);
   return (
-    <section ref={ref} data-on={on ? "1" : "0"} className="op relative isolate overflow-hidden bg-[#fffaf3] py-16 sm:py-24">
-      <div aria-hidden className="absolute inset-0 -z-10 bg-[radial-gradient(55%_60%_at_25%_55%,rgba(243,179,99,.16),transparent_70%)]" />
-      <div className="mx-auto grid max-w-[1120px] grid-cols-1 items-center gap-10 px-5 sm:px-8 lg:grid-cols-2 lg:gap-16">
-        <div className="op-up grid grid-cols-2 items-end gap-2 sm:gap-4 lg:order-2" aria-label="Śrīla Prabhupāda and Śrīla Gurudeva">
-          {([["/legacy/prabhupada.webp", "Śrīla A.C. Bhaktivedanta Swami Prabhupāda"], ["/legacy/gurudeva.webp", "Śrī Śrīmad Gour Govinda Swāmī Gurudeva"]] as const).map(([src, alt]) => (
-            /* eslint-disable-next-line @next/next/no-img-element */
-            <img key={src} src={src} alt={alt} className="block aspect-[4/5] w-full object-contain object-bottom [mask-image:linear-gradient(to_bottom,#000_80%,transparent)]" loading="lazy" />
-          ))}
+    <section ref={ref} data-on={on ? "1" : "0"} className="op relative isolate overflow-hidden bg-[linear-gradient(180deg,#ffffff_0%,#fffaf4_100%)] py-12 sm:py-16">
+      <div aria-hidden className="absolute inset-0 -z-10 bg-[radial-gradient(45%_60%_at_78%_55%,rgba(243,179,99,.14),transparent_70%)]" />
+      <div className="mx-auto grid max-w-[1180px] grid-cols-1 items-center gap-10 px-5 sm:px-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-14">
+        <div className="text-center lg:text-left">
+          <p className="op-up inline-flex items-center gap-2 rounded-full border border-[#ecd3ae] bg-[#fff7ec] px-3 py-1 text-[10.5px] font-semibold uppercase tracking-[0.18em] text-saffron" style={{ transitionDelay: ".05s" }}>Śrīla Prabhupāda on Śrīla Gurudeva</p>
+          <h2 className="op-up mt-4 font-display text-[32px] font-semibold leading-[1.08] tracking-[-0.03em] text-ink sm:text-[42px]" style={{ transitionDelay: ".12s" }}>“Kṛṣṇa sent him.”</h2>
+          <p className="op-up mt-2 text-[12.5px] text-ink-3 sm:text-[13px]" style={{ transitionDelay: ".18s" }}>Room conversation · Bombay, 5 January 1977</p>
+          <figure className="op-up relative mx-auto mt-7 max-w-[500px] rounded-2xl border border-[#f1e2c8] bg-white px-5 py-4 text-left shadow-[0_18px_40px_-30px_rgba(133,53,0,.5)] lg:mx-0" style={{ transitionDelay: ".26s" }}>
+            <span aria-hidden className="absolute -top-3 left-5 flex size-6 items-center justify-center rounded-full bg-[#853500] text-[15px] font-bold leading-none text-[#f6d39a]">“</span>
+            <blockquote className="border-l-2 border-[#e8913c] pl-4 text-[15px] font-medium leading-relaxed text-ink sm:text-[16px]">Krishna is with you and there is no need of disappointment.</blockquote>
+            <figcaption className="mt-2 pl-4 text-[12px] text-ink-3">Śrīla Prabhupāda’s letter to Śrīla Gurudeva · Māyāpur, 12 February 1976</figcaption>
+          </figure>
+          <div className="op-up mt-7 flex flex-wrap justify-center gap-2.5 lg:justify-start" style={{ transitionDelay: ".34s" }}>
+            <button onClick={() => setOpen("c")} className="group inline-flex h-10 items-center gap-2 rounded-full bg-[#853500] px-5 text-[13px] font-semibold text-white transition duration-300 hover:-translate-y-0.5 hover:bg-[#6b2a00] hover:shadow-[0_12px_24px_-10px_rgba(133,53,0,.7)]">Read the conversation<ArrowRight size={15} className="transition group-hover:translate-x-0.5" /></button>
+            <button onClick={() => setOpen("l")} className="group inline-flex h-10 items-center gap-2 rounded-full border border-[#e3cfae] bg-white px-5 text-[13px] font-semibold text-[#853500] transition duration-300 hover:-translate-y-0.5 hover:border-[#853500]">Read the letter<ArrowRight size={15} className="transition group-hover:translate-x-0.5" /></button>
+          </div>
         </div>
-        <div className="text-center lg:order-1 lg:text-left">
-          <p className="op-up text-[10.5px] font-semibold uppercase tracking-[0.2em] text-saffron sm:text-[11px]" style={{ transitionDelay: ".1s" }}>Śrīla Prabhupāda on Śrīla Gurudeva</p>
-          <h2 className="op-up mt-4 font-display text-[34px] font-semibold leading-[1.1] tracking-[-0.03em] text-ink sm:text-[46px]" style={{ transitionDelay: ".18s" }}>“Kṛṣṇa sent him.”</h2>
-          <p className="op-up mt-3 text-[12.5px] text-ink-3 sm:text-[13.5px]" style={{ transitionDelay: ".24s" }}>Room conversation · Bombay, 5 January 1977</p>
-          <div className="op-up group mx-auto mt-8 max-w-[480px] border-t border-[#efe2cb] pt-7 lg:mx-0" style={{ transitionDelay: ".32s" }}>
-            <p className="text-[16px] font-medium leading-relaxed text-ink transition duration-500 group-hover:text-[#853500] sm:text-[18px]">“Krishna is with you and there is no need of disappointment.”</p>
-            <p className="mt-2 text-[12.5px] text-ink-3 sm:text-[13.5px]">Śrīla Prabhupāda’s letter to Śrīla Gurudeva · Māyāpur, 12 February 1976</p>
-          </div>
-          <div className="op-up mt-8 flex flex-wrap justify-center gap-3 lg:justify-start" style={{ transitionDelay: ".4s" }}>
-            <button onClick={() => setOpen("c")} className="group inline-flex h-11 items-center gap-2 rounded-full bg-[#853500] px-5 text-[13px] font-semibold text-white transition duration-300 hover:-translate-y-0.5 hover:bg-[#6b2a00] hover:shadow-[0_12px_24px_-10px_rgba(133,53,0,.7)]">Read the conversation<ArrowRight size={15} /></button>
-            <button onClick={() => setOpen("l")} className="group inline-flex h-11 items-center gap-2 rounded-full border border-[#e3cfae] bg-white px-5 text-[13px] font-semibold text-[#853500] transition duration-300 hover:-translate-y-0.5 hover:border-[#853500] hover:shadow-[0_12px_24px_-12px_rgba(133,53,0,.45)]">Read the letter<ArrowRight size={15} /></button>
-          </div>
+        {/* two arched frames, the second set a little lower */}
+        <div className="op-up mx-auto grid w-full max-w-[320px] grid-cols-2 items-start gap-3 sm:max-w-[460px] sm:gap-5" style={{ transitionDelay: ".15s" }} aria-label="Śrīla Prabhupāda and Śrīla Gurudeva">
+          {([["/legacy/prabhupada.webp", "Śrīla A.C. Bhaktivedanta Swami Prabhupāda", "Śrīla Prabhupāda", ""], ["/legacy/gurudeva.webp", "Śrī Śrīmad Gour Govinda Swāmī Gurudeva", "Śrīla Gurudeva", "mt-8 sm:mt-10"]] as const).map(([src, alt, name, off]) => (
+            <figure key={src} className={off}>
+              <div style={{ borderRadius: "50% 50% 20px 20px / 40% 40% 20px 20px" }} className="relative overflow-hidden bg-[linear-gradient(180deg,#fdf0dc_0%,#f6d7a9_100%)] p-1.5 shadow-[0_22px_44px_-26px_rgba(133,53,0,.6)] ring-1 ring-[#ecd3ae]">
+                <div style={{ borderRadius: "50% 50% 15px 15px / 40% 40% 15px 15px" }} className="overflow-hidden bg-[radial-gradient(circle_at_50%_30%,#fff8ec,#f3cf98_75%)]">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={src} alt={alt} className="block aspect-[4/5] w-full object-contain object-bottom" loading="lazy" />
+                </div>
+              </div>
+              <figcaption className="mt-2.5 text-center text-[12.5px] font-semibold text-ink sm:text-[13px]">{name}</figcaption>
+            </figure>
+          ))}
         </div>
       </div>
       {open && <Reading which={open} onClose={() => setOpen(null)} />}
@@ -80,39 +90,39 @@ export function KrishnaSentOpening() {
 const VERSE = ["yair īdṛśī bhagavato gatir ātma-vāda", "ekāntato nigamibhiḥ pratipāditā naḥ", "tuṣyantv adabhra-karuṇāḥ sva-kṛtena nityaṁ", "ko nāma tat pratikaroti vinoda-pātram"];
 const VERSE_TR = "How can such persons, who have rendered unlimited service by explaining the path of self-realization in relation to the Supreme Personality of Godhead, and whose explanations are given for our enlightenment with complete conviction and Vedic evidence, be repaid except by folded palms containing water for their satisfaction? Such great personalities can be satisfied only by their own activities, which are distributed amongst human society out of their unlimited mercy.";
 
-/** A small second hero: Śrīmad-Bhāgavatam 4.22.47. On one side a whole mandala turns round a seal with the verse number
-    (always shown complete); on the other, inside a frame whose gold light travels round, the verse rises line by line
-    with a light passing over it, a lotus rule draws itself open, then the translation appears. */
+/** A small second hero: Śrīmad-Bhāgavatam 4.22.47 — calm. A whole mandala turns very slowly round a seal with the verse
+    number; beside it, the verse and its translation side by side on one quiet card. Only a gentle fade-in. */
 export function VerseBand() {
   const [ref, on] = useInView<HTMLElement>("-8%");
   return (
-    <section ref={ref} data-on={on ? "1" : "0"} aria-label="Śrīmad-Bhāgavatam 4.22.47" className="op vb relative isolate overflow-hidden bg-[linear-gradient(180deg,#fff4e4_0%,#fffaf3_55%,#fdf1e2_100%)] py-10 sm:py-12">
-      <div aria-hidden className="absolute inset-0 -z-10 bg-[radial-gradient(45%_70%_at_22%_50%,rgba(232,145,60,.16),transparent_70%),radial-gradient(40%_60%_at_85%_30%,rgba(243,199,122,.18),transparent_70%)]" />
-      <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">{Array.from({ length: 12 }, (_, k) => <span key={k} className="vb-petal" style={{ left: `${(k * 41 + 9) % 100}%`, animationDuration: `${14 + (k % 5) * 3}s`, animationDelay: `${-((k * 7) % 17)}s` }} />)}</div>
-      <div className="mx-auto grid max-w-[1360px] items-center gap-7 px-4 sm:px-8 lg:grid-cols-[260px_minmax(0,1fr)] lg:gap-10 xl:px-10">
-        {/* the seal: a whole mandala turning, two fine rings turning the other way, the verse number at its heart */}
-        <div className="op-up relative mx-auto aspect-square w-[min(210px,56vw)] sm:w-[240px] lg:w-[260px]" style={{ transitionDelay: ".05s" }} aria-hidden>
-          <span className="absolute inset-0 rounded-full bg-[radial-gradient(closest-side,rgba(255,255,255,.95),rgba(255,240,218,.6)_60%,transparent)]" />
-          <VMask name="mandala-saffron" className="vb-mandala absolute inset-[2%] text-[#e8913c] opacity-[0.55]" />
-          <span className="vb-ring absolute inset-[16%] rounded-full border border-dashed border-[#c2621d]/35" />
-          <span className="vb-ring vb-ring-2 absolute inset-[22%] rounded-full border border-[#d9a46c]/50" />
-          <span className="absolute inset-[27%] flex flex-col items-center justify-center rounded-full bg-[radial-gradient(circle_at_35%_30%,#a3470a,#6b2c03_70%)] text-center shadow-[0_18px_40px_-16px_rgba(107,44,3,.8),inset_0_1px_0_rgba(255,255,255,.25)] ring-2 ring-[#f3c77a]/70">
-            <Padma className="vb-lotus mb-1 size-5 text-[#f3c77a]" layers={2} />
-            <span className="whitespace-nowrap text-[7.5px] font-semibold uppercase tracking-[0.08em] text-[#f6d39a] sm:text-[8.5px] sm:tracking-[0.12em]">Śrīmad-Bhāgavatam</span>
-            <span className="mt-0.5 text-[17px] font-bold tabular-nums tracking-[-0.02em] text-[#fff4dc] sm:text-[19px]">4.22.47</span>
+    <section ref={ref} data-on={on ? "1" : "0"} aria-label="Śrīmad-Bhāgavatam 4.22.47" className="op relative isolate overflow-hidden bg-[linear-gradient(160deg,#6e2d04_0%,#5c2401_55%,#4a1c00_100%)] py-10 sm:py-12">
+      <div aria-hidden className="absolute inset-0 -z-10 bg-[radial-gradient(40%_80%_at_14%_50%,rgba(214,120,40,.35),transparent_70%)]" />
+      <div className="mx-auto grid max-w-[1360px] items-center gap-7 px-4 sm:px-8 lg:grid-cols-[220px_minmax(0,1fr)] lg:gap-10 xl:px-10">
+        {/* the seal: a whole mandala turning slowly, ŚB 4.22.47 at its heart */}
+        <div className="op-up relative mx-auto aspect-square w-[min(190px,52vw)] lg:w-[220px]" aria-hidden>
+          <span className="absolute inset-0 rounded-full bg-[radial-gradient(closest-side,rgba(255,200,130,.22),transparent)]" />
+          <VMask name="mandala-saffron" className="vb-mandala absolute inset-[2%] text-[#e8b872] opacity-[0.55]" />
+          <span className="absolute inset-[24%] flex flex-col items-center justify-center rounded-full bg-[radial-gradient(circle_at_35%_30%,#ffe7b8,#e8a95a_75%)] text-center shadow-[0_16px_34px_-14px_rgba(0,0,0,.6),inset_0_1px_0_rgba(255,255,255,.6)] ring-2 ring-[#fff1d6]/60">
+            <span className="text-[20px] font-bold leading-none tracking-[0.04em] text-[#5c2401] lg:text-[22px]">ŚB</span>
+            <span className="mt-1 text-[13px] font-semibold tabular-nums text-[#7a3206] lg:text-[14px]">4.22.47</span>
           </span>
         </div>
-        <div className="vb-frame op-up relative rounded-[28px] bg-white/65 px-5 py-7 text-center shadow-[0_30px_70px_-40px_rgba(133,53,0,.45)] backdrop-blur-sm sm:px-9 sm:py-8 lg:text-left" style={{ transitionDelay: ".15s" }}>
-          <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-saffron">Canto 4 · Chapter 22 · Verse 47</p>
-          <div className="mt-3.5 space-y-0.5 border-[#ecd3ae] lg:border-l-2 lg:pl-4">
-            {VERSE.map((l, i) => <p key={l} className="vb-line text-[13px] font-semibold leading-snug sm:text-[15.5px]" style={{ transitionDelay: `${0.3 + i * 0.18}s`, animationDelay: `${1.7 + i * 0.35}s` }}>{l}</p>)}
+        {/* the verse and its translation, side by side */}
+        <div className="op-up overflow-hidden rounded-[24px] border border-white/15 bg-white/[0.06] shadow-[0_24px_60px_-36px_rgba(0,0,0,.6)] backdrop-blur-sm" style={{ transitionDelay: ".12s" }}>
+          <div className="flex items-center justify-between gap-3 border-b border-white/10 bg-white/[0.05] px-5 py-2.5 sm:px-7">
+            <p className="text-[10.5px] font-semibold uppercase tracking-[0.18em] text-[#f3c77a]">ŚB 4.22.47</p>
+            <p className="text-[10.5px] font-medium tracking-[0.06em] text-[#f0dfd1]/60">Canto 4 · Chapter 22 · Verse 47</p>
           </div>
-          <div className="my-4 flex items-center justify-center gap-3 lg:justify-start" aria-hidden>
-            <span className="vb-rule h-px w-14 origin-right bg-gradient-to-r from-transparent to-[#d9a46c] sm:w-24 lg:hidden" />
-            <Padma className="vb-lotus size-5 text-[#c2621d]" />
-            <span className="vb-rule h-px w-14 origin-left bg-gradient-to-l from-transparent to-[#d9a46c] sm:w-24 lg:w-40 lg:bg-gradient-to-r lg:from-[#d9a46c] lg:to-transparent" />
+          <div className="grid divide-y divide-white/10 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.4fr)] lg:divide-x lg:divide-y-0">
+            <div className="px-5 py-5 text-center sm:px-7 lg:py-6 lg:text-left">
+              <p className="mb-2.5 flex items-center justify-center gap-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-[#f3c77a] lg:justify-start"><span className="size-1.5 rotate-45 bg-[#e8b872]" />Verse</p>
+              {VERSE.map((l) => <p key={l} className="text-[13.5px] font-semibold leading-[1.7] text-[#ffe0a8] sm:text-[14.5px]">{l}</p>)}
+            </div>
+            <div className="px-5 py-5 sm:px-7 lg:py-6">
+              <p className="mb-2.5 flex items-center justify-center gap-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-[#f3c77a] lg:justify-start"><span className="size-1.5 rotate-45 bg-[#e8b872]" />Translation</p>
+              <p className="text-center text-[13px] leading-[1.75] text-[#f3e2d2]/90 sm:text-[13.5px] lg:text-left">{VERSE_TR}</p>
+            </div>
           </div>
-          <p className="op-up text-[12.5px] leading-[1.7] text-ink-2 sm:text-[13.5px]" style={{ transitionDelay: "1.2s" }}>“{VERSE_TR}”</p>
         </div>
       </div>
     </section>
