@@ -172,20 +172,32 @@ function VideoCard({ l }: { l: MediaItem }) {
 type View = "basic" | "advanced";
 const VIEW_KEY = "tj_audio_view";
 
-/** Audio lectures: Basic (default) or Advanced, remembered on this device. Other media use the advanced library. */
+const ZOOM_KEY = "tj_audio_zoom";
+const ZOOMS = [1, 1.15, 1.3, 1.45];
+
+/** Audio lectures: Basic (default) or Advanced, remembered on this device, with a text-size control. Other media use the advanced library. */
 export function MediaLibrary({ items, mode }: { items: MediaItem[]; mode: Mode }) {
   const [view, setViewS] = useState<View>("basic");
-  useEffect(() => { try { const u = new URLSearchParams(location.search); const any = [...u.keys()].some((k) => k !== "q"); if (localStorage.getItem(VIEW_KEY) === "advanced" || any) setViewS("advanced"); } catch {} }, []);
+  const [z, setZS] = useState(0);
+  useEffect(() => { try { const u = new URLSearchParams(location.search); const any = [...u.keys()].some((k) => k !== "q"); if (localStorage.getItem(VIEW_KEY) === "advanced" || any) setViewS("advanced"); const n = Number(localStorage.getItem(ZOOM_KEY)); if (n > 0 && n < ZOOMS.length) setZS(n); } catch {} }, []);
   const setView = (v: View) => { setViewS(v); try { localStorage.setItem(VIEW_KEY, v); } catch {} if (v === "basic") history.replaceState(null, "", location.pathname); };
+  const setZ = (n: number) => { const k = Math.max(0, Math.min(ZOOMS.length - 1, n)); setZS(k); try { localStorage.setItem(ZOOM_KEY, String(k)); } catch {} };
   if (mode !== "audio") return <AdvancedLibrary items={items} mode={mode} />;
   return (
     <>
-      <div className={`mx-auto flex justify-center px-4 pt-6 sm:justify-start sm:px-6 ${view === "basic" ? "max-w-[980px]" : "max-w-[1240px]"}`}>
-        <div role="radiogroup" aria-label="Search style" className="flex rounded-full border border-line bg-band/60 p-1">
-          {(["basic", "advanced"] as View[]).map((v) => <button key={v} role="radio" aria-checked={view === v} onClick={() => setView(v)} className={`rounded-full px-5 py-2 text-[15px] font-medium transition ${view === v ? "bg-white text-ink shadow-[0_1px_3px_rgba(0,0,0,.12)]" : "text-ink-3 hover:text-ink"}`}>{v === "basic" ? "Basic search" : "Advanced search"}</button>)}
+      <div className="mx-auto flex max-w-[1240px] items-center justify-between gap-2 px-4 pt-5 sm:px-6">
+        <div role="radiogroup" aria-label="Search style" className="flex rounded-full border border-line bg-band/60 p-0.5">
+          {(["basic", "advanced"] as View[]).map((v) => <button key={v} role="radio" aria-checked={view === v} onClick={() => setView(v)} className={`rounded-full px-3 py-1.5 text-[12.5px] font-medium transition sm:px-3.5 sm:text-[13px] ${view === v ? "bg-white text-ink shadow-[0_1px_3px_rgba(0,0,0,.12)]" : "text-ink-3 hover:text-ink"}`}>{v === "basic" ? "Basic" : "Advanced"}<span className="max-sm:hidden"> search</span></button>)}
+        </div>
+        <div className="flex items-center gap-1 rounded-full border border-line bg-white p-0.5" aria-label="Text size">
+          <button onClick={() => setZ(z - 1)} disabled={z === 0} aria-label="Smaller text" title="Smaller text" className="flex h-8 w-8 items-center justify-center rounded-full text-[13px] font-semibold text-ink-2 hover:bg-band disabled:opacity-30">A−</button>
+          <span className="px-1 text-[12px] tabular-nums text-ink-3 max-sm:hidden">{Math.round(ZOOMS[z] * 100)}%</span>
+          <button onClick={() => setZ(z + 1)} disabled={z === ZOOMS.length - 1} aria-label="Bigger text" title="Bigger text" className="flex h-8 w-8 items-center justify-center rounded-full text-[16px] font-semibold text-ink-2 hover:bg-band disabled:opacity-30">A+</button>
         </div>
       </div>
-      {view === "basic" ? <BasicAudio items={items} /> : <AdvancedLibrary items={items} mode={mode} />}
+      <div style={ZOOMS[z] !== 1 ? { zoom: ZOOMS[z] } : undefined}>
+        {view === "basic" ? <BasicAudio items={items} /> : <AdvancedLibrary items={items} mode={mode} />}
+      </div>
     </>
   );
 }
@@ -220,55 +232,55 @@ function BasicAudio({ items }: { items: MediaItem[] }) {
   const choose = (k: BKey, v: string) => { setPick((p) => ({ ...p, [k]: v })); setOpen(null); setTimeout(() => results.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 50); };
 
   return (
-    <div className="mx-auto max-w-[980px] px-4 pb-20 pt-6 sm:px-6">
-      <form onSubmit={(e) => { e.preventDefault(); setQ(typed.trim()); setOpen(null); }} className="flex items-center gap-2 rounded-full border-2 border-line-strong bg-white p-1.5 pl-5 focus-within:border-saffron">
-        <Search size={24} className="shrink-0 text-ink-3" />
-        <input value={typed} onChange={(e) => { setTyped(e.target.value); if (!e.target.value) setQ(""); }} placeholder="Type a word" aria-label="Search lectures" className="h-12 min-w-0 flex-1 bg-transparent text-[18px] text-ink outline-none placeholder:text-ink-3 sm:text-[19px]" />
-        {typed && <button type="button" onClick={() => { setTyped(""); setQ(""); }} aria-label="Clear" className="p-2 text-ink-3"><X size={22} /></button>}
-        <button className="h-12 shrink-0 rounded-full bg-saffron px-6 text-[17px] font-semibold text-white hover:brightness-110">Search</button>
+    <div className="mx-auto max-w-[1240px] px-4 pb-16 pt-4 sm:px-6">
+      <form onSubmit={(e) => { e.preventDefault(); setQ(typed.trim()); setOpen(null); }} className="flex items-center gap-2 rounded-full border border-line-strong bg-white p-1 pl-4 shadow-[0_1px_2px_rgba(0,0,0,0.04)] focus-within:border-saffron">
+        <Search size={17} className="shrink-0 text-ink-3" />
+        <input value={typed} onChange={(e) => { setTyped(e.target.value); if (!e.target.value) setQ(""); }} placeholder="Search lectures — type a word" aria-label="Search lectures" className="h-10 min-w-0 flex-1 bg-transparent text-[14px] text-ink outline-none placeholder:text-ink-3" />
+        {typed && <button type="button" onClick={() => { setTyped(""); setQ(""); }} aria-label="Clear" className="p-2 text-ink-3"><X size={16} /></button>}
+        <button className="h-10 shrink-0 rounded-full bg-saffron px-5 text-[13.5px] font-semibold text-white hover:brightness-110">Search</button>
       </form>
 
-      <p className="mb-3 mt-7 text-center text-[17px] font-medium text-ink-2 sm:text-left">Or find lectures by</p>
+      <p className="mb-2.5 mt-5 text-center text-[13px] font-medium text-ink-3 sm:text-left">Or find lectures by</p>
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
         {BASIC.map((b) => { const I = b.icon; const on = open === b.k; const v = pick[b.k]; return (
           <button key={b.k} onClick={() => setOpen(on ? null : b.k)} aria-expanded={on}
-            className={`flex items-center gap-3 rounded-2xl px-4 py-4 text-left transition last:max-sm:col-span-2 sm:flex-col sm:gap-2 sm:py-5 sm:text-center ${on ? "bg-ink text-white" : v ? "bg-saffron-soft text-ink ring-2 ring-saffron" : "bg-band text-ink hover:bg-saffron-soft"}`}>
-            <span className={`flex size-11 shrink-0 items-center justify-center rounded-full ${on ? "bg-white/15" : "bg-white text-saffron"}`}><I size={21} /></span>
-            <span className="min-w-0"><span className="block text-[18px] font-semibold">{b.title}</span>{v && <span className="block truncate text-[14px] opacity-80">{v}</span>}</span>
+            className={`flex items-center gap-3 rounded-2xl px-3.5 py-3 text-left transition last:max-sm:col-span-2 ${on ? "bg-ink text-white" : v ? "bg-saffron-soft text-ink ring-2 ring-saffron" : "bg-band text-ink hover:bg-saffron-soft"}`}>
+            <span className={`flex size-10 shrink-0 items-center justify-center rounded-full ${on ? "bg-white/15" : "bg-white text-saffron"}`}><I size={19} /></span>
+            <span className="min-w-0"><span className="block text-[14px] font-semibold">{b.title}</span>{v && <span className="block truncate text-[12px] opacity-80">{v}</span>}</span>
           </button>); })}
       </div>
 
       {open && (
-        <div className="mt-4 rounded-3xl border border-line bg-white p-4 sm:p-5">
-          <div className="mb-3 flex items-center justify-between"><p className="text-[18px] font-semibold text-ink">Choose a {BASIC.find((b) => b.k === open)!.title.toLowerCase()}</p><button onClick={() => setOpen(null)} className="flex items-center gap-1 rounded-full px-3 py-1.5 text-[15px] text-ink-2 hover:bg-band"><X size={18} />Close</button></div>
-          <div className={`grid max-h-[420px] gap-2 overflow-y-auto ${open === "year" ? "grid-cols-3 sm:grid-cols-6" : "sm:grid-cols-2 lg:grid-cols-3"}`}>
+        <div className="mt-3 rounded-2xl border border-line bg-white p-3 sm:p-4">
+          <div className="mb-3 flex items-center justify-between"><p className="text-[14.5px] font-semibold text-ink">Choose a {BASIC.find((b) => b.k === open)!.title.toLowerCase()}</p><button onClick={() => setOpen(null)} className="flex items-center gap-1 rounded-full px-3 py-1 text-[13px] text-ink-2 hover:bg-band"><X size={15} />Close</button></div>
+          <div className={`grid max-h-[420px] gap-2 overflow-y-auto ${open === "year" ? "grid-cols-3 sm:grid-cols-6 lg:grid-cols-8" : "sm:grid-cols-2 lg:grid-cols-4"}`}>
             {choices.map(([v, n]) => (
-              <button key={v} onClick={() => choose(open, v)} className={`flex items-center justify-between gap-3 rounded-xl px-4 py-3 text-left text-[16.5px] transition hover:bg-saffron-soft ${pick[open] === v ? "bg-saffron-soft font-semibold" : "bg-band/60"}`}>
-                <span className="min-w-0 truncate text-ink">{v}</span><span className="shrink-0 text-[14px] tabular-nums text-ink-3">{n}</span>
+              <button key={v} onClick={() => choose(open, v)} className={`flex items-center justify-between gap-3 rounded-xl px-3.5 py-2.5 text-left text-[13.5px] transition hover:bg-saffron-soft ${pick[open] === v ? "bg-saffron-soft font-semibold" : "bg-band/60"}`}>
+                <span className="min-w-0 truncate text-ink">{v}</span><span className="shrink-0 text-[12px] tabular-nums text-ink-3">{n}</span>
               </button>))}
           </div>
         </div>)}
 
       <div ref={results} className="scroll-mt-24">
-        <div className="mb-2 mt-8 flex flex-wrap items-center gap-2">
-          <h2 className="mr-auto text-[20px] font-semibold text-ink">{any ? `${list.length.toLocaleString()} lectures found` : "Newest lectures"}</h2>
-          {q && <button onClick={() => { setQ(""); setTyped(""); }} className="flex items-center gap-1.5 rounded-full bg-band px-4 py-2 text-[15px] text-ink">“{q}”<X size={17} /></button>}
-          {BASIC.filter((b) => pick[b.k]).map((b) => <button key={b.k} onClick={() => setPick((p) => ({ ...p, [b.k]: undefined }))} className="flex items-center gap-1.5 rounded-full bg-band px-4 py-2 text-[15px] text-ink">{pick[b.k]}<X size={17} /></button>)}
-          {any && <button onClick={() => { setPick({}); setQ(""); setTyped(""); }} className="rounded-full px-4 py-2 text-[15px] font-medium text-saffron hover:bg-saffron-soft">Start again</button>}
+        <div className="mb-1 mt-6 flex flex-wrap items-center gap-2">
+          <h2 className="mr-auto text-[15px] font-semibold text-ink">{any ? `${list.length.toLocaleString()} lectures found` : "Newest lectures"}</h2>
+          {q && <button onClick={() => { setQ(""); setTyped(""); }} className="flex items-center gap-1.5 rounded-full bg-band px-3 py-1.5 text-[13px] text-ink">“{q}”<X size={14} /></button>}
+          {BASIC.filter((b) => pick[b.k]).map((b) => <button key={b.k} onClick={() => setPick((p) => ({ ...p, [b.k]: undefined }))} className="flex items-center gap-1.5 rounded-full bg-band px-3 py-1.5 text-[13px] text-ink">{pick[b.k]}<X size={14} /></button>)}
+          {any && <button onClick={() => { setPick({}); setQ(""); setTyped(""); }} className="rounded-full px-3 py-1.5 text-[13px] font-medium text-saffron hover:bg-saffron-soft">Start again</button>}
         </div>
-        {!list.length ? <p className="py-16 text-center text-[17px] text-ink-3">No lectures found. Press “Start again”.</p> : (
+        {!list.length ? <p className="py-16 text-center text-[14px] text-ink-3">No lectures found. Press “Start again”.</p> : (
           <ul className="divide-y divide-line">
             {list.slice(0, limit).map((l) => { const where = [l.place, l.country && l.country !== "India" ? l.country : ""].filter(Boolean).join(", "); return (
-              <li key={l.slug} className="flex items-center gap-4 py-4">
-                <PlayButton l={l} size={52} />
+              <li key={l.slug} className="flex items-center gap-3.5 py-3">
+                <PlayButton l={l} size={40} />
                 <div className="min-w-0 flex-1">
-                  <Link href={l.href || `/teachings/audio/${l.slug}`} className="line-clamp-2 text-[17px] font-medium leading-snug text-ink hover:text-saffron sm:text-[18px]">{l.title}</Link>
-                  <p className="mt-1 text-[15px] text-ink-3">{[date(l.date), where, l.scripture].filter(Boolean).join(" · ")}</p>
+                  <Link href={l.href || `/teachings/audio/${l.slug}`} className="line-clamp-2 text-[14.5px] font-medium leading-snug text-ink hover:text-saffron">{l.title}</Link>
+                  <p className="mt-0.5 text-[12.5px] text-ink-3">{[date(l.date), where, l.scripture].filter(Boolean).join(" · ")}</p>
                 </div>
-                {l.duration > 0 && <span className="hidden shrink-0 text-[15px] tabular-nums text-ink-3 sm:block">{dur(l.duration)}</span>}
+                {l.duration > 0 && <span className="hidden shrink-0 text-[12.5px] tabular-nums text-ink-3 sm:block">{dur(l.duration)}</span>}
               </li>); })}
           </ul>)}
-        {list.length > limit && <div className="pt-6 text-center"><button onClick={() => setLimit((n) => n + 30)} className="h-14 rounded-full border-2 border-line-strong px-8 text-[17px] font-semibold text-ink hover:bg-band">Show more lectures</button></div>}
+        {list.length > limit && <div className="pt-6 text-center"><button onClick={() => setLimit((n) => n + 30)} className="h-10 rounded-full border border-line-strong px-6 text-[13.5px] font-medium text-ink hover:bg-band">Show more lectures</button></div>}
       </div>
     </div>
   );
