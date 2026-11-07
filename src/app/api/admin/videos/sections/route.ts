@@ -38,7 +38,7 @@ export async function POST(req: Request) {
     for (const x of P.sections || []) {
       const cur = (await sql`select kinds from video_sections where id = ${x.id}`)[0] as any; if (!cur) continue;
       const kinds = Array.isArray(x.kinds) ? x.kinds.map(String) : cur.kinds;
-      await sql`update video_sections set name = ${String(x.name || "").trim() || "Section"}, intro = ${x.intro || null}, layout = ${LAY.includes(x.layout) ? x.layout : "row"}, color = ${COL.includes(x.color) ? x.color : "saffron"}, on_home = ${!!x.on_home}, hidden = ${!!x.hidden}, kinds = ${kinds}, position = ${Number(x.position) || 0} where id = ${x.id}`;
+      await sql`update video_sections set name = ${String(x.name || "").trim() || "Section"}, intro = ${x.intro || null}, layout = ${LAY.includes(x.layout) ? x.layout : "row"}, color = ${COL.includes(x.color) ? x.color : "saffron"}, on_home = ${!!x.on_home}, on_tabs = ${x.on_tabs !== false}, hidden = ${!!x.hidden}, kinds = ${kinds}, position = ${Number(x.position) || 0} where id = ${x.id}`;
       if (JSON.stringify([...(cur.kinds || [])].sort()) !== JSON.stringify([...kinds].sort())) fed.push(x.id);
     }
     for (const [id, yts] of Object.entries(P.items || {})) {
@@ -59,7 +59,7 @@ export async function POST(req: Request) {
   if (b.update) {
     const u = b.update; const cur = (await sql`select * from video_sections where id = ${u.id}`)[0] as any; if (!cur) return fail("Not found.");
     await sql`update video_sections set name = ${String(u.name ?? cur.name).trim() || cur.name}, intro = ${"intro" in u ? u.intro || null : cur.intro}, layout = ${LAY.includes(u.layout) ? u.layout : cur.layout}, color = ${COL.includes(u.color) ? u.color : cur.color},
-      on_home = ${"on_home" in u ? !!u.on_home : cur.on_home}, hidden = ${"hidden" in u ? !!u.hidden : cur.hidden}, kinds = ${Array.isArray(u.kinds) ? u.kinds.map(String) : cur.kinds} where id = ${u.id}`;
+      on_home = ${"on_home" in u ? !!u.on_home : cur.on_home}, on_tabs = ${"on_tabs" in u ? !!u.on_tabs : cur.on_tabs}, hidden = ${"hidden" in u ? !!u.hidden : cur.hidden}, kinds = ${Array.isArray(u.kinds) ? u.kinds.map(String) : cur.kinds} where id = ${u.id}`;
     if (Array.isArray(u.kinds)) await feedKinds(u.id);
     fresh(); return json({ ok: true });
   }

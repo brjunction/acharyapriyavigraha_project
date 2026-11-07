@@ -6,6 +6,9 @@ export const LAYOUTS = [
   ["grid", "Grid — neat tiles"],
   ["shorts", "Shorts — tall cards that play one after another"],
   ["playlists", "Playlists — one card for each playlist"],
+  ["carousel", "Carousel — big slides that change by themselves"],
+  ["list", "List — a neat numbered list"],
+  ["channels", "Channels — channel cards with their pictures"],
 ] as const;
 export type Layout = (typeof LAYOUTS)[number][0];
 export const COLORS = ["saffron", "rose", "teal", "indigo", "leaf", "gold", "plum"] as const;

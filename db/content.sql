@@ -164,3 +164,4 @@ create table if not exists video_sections (id uuid primary key default gen_rando
 create table if not exists video_section_items (section_id uuid not null references video_sections(id) on delete cascade, youtube_id text not null, position int not null default 0, removed boolean not null default false, primary key (section_id, youtube_id));
 alter table video_sources add column if not exists section_id uuid references video_sections(id) on delete set null, add column if not exists new_on_top boolean not null default false;
 alter table video_sections add column if not exists kinds text[] not null default '{}';
+alter table video_sections add column if not exists on_tabs boolean not null default true;

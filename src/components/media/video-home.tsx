@@ -45,7 +45,7 @@ export function VideoHomeView({ sections, latest, channels }: { sections: VSecti
     <div className="mx-auto max-w-[1240px] space-y-5 px-4 pb-16 pt-6 sm:space-y-7 sm:px-6">
       {!sections.length && (latest.length ? <Block title="Newest videos" color="saffron"><Row items={latest} /></Block> : <p className="py-20 text-center text-[14px] text-ink-3">Videos are being added.</p>)}
       {sections.map((s) => (
-        <Block key={s.id} title={s.name} intro={s.intro} color={s.color} more={{ href: `/teachings/videos/s/${s.slug}`, label: s.layout === "playlists" ? `All ${s.playlists.length} playlists` : `All ${s.count}` }}>
+        <Block key={s.id} title={s.name} intro={s.intro} color={s.color} more={{ href: `/teachings/videos/s/${s.slug}`, label: s.layout === "playlists" ? `All ${s.playlists.length} playlists` : s.layout === "channels" ? `All ${s.playlists.length} channels` : `All ${s.count}` }}>
           <SectionBody s={s} home onShorts={(i) => setShorts({ list: s.items, i })} />
         </Block>))}
       {channels.length > 0 && (
@@ -81,7 +81,12 @@ export function SectionBody({ s, home = false, onShorts }: { s: VSection; home?:
   if (s.layout === "playlists") return home
     ? <div className="-mx-4 flex snap-x scroll-px-4 gap-4 overflow-x-auto px-4 pb-1 [scrollbar-width:none] sm:mx-0 sm:grid sm:grid-cols-3 sm:px-0 lg:grid-cols-4">{s.playlists.slice(0, 8).map((p) => <PlaylistCard key={p.id} s={p} className="w-[72vw] shrink-0 snap-start sm:w-auto" />)}</div>
     : <div className="grid gap-x-4 gap-y-7 sm:grid-cols-2 lg:grid-cols-4">{s.playlists.map((p) => <PlaylistCard key={p.id} s={p} />)}</div>;
+  if (s.layout === "channels") return home
+    ? <div className="-mx-4 flex snap-x scroll-px-4 gap-4 overflow-x-auto px-4 pb-1 [scrollbar-width:none] sm:mx-0 sm:grid sm:grid-cols-4 sm:px-0 lg:grid-cols-8">{s.playlists.slice(0, 16).map((c) => <ChannelChip key={c.id} c={c} />)}</div>
+    : <div className="grid grid-cols-3 gap-x-3 gap-y-7 sm:grid-cols-4 lg:grid-cols-6">{s.playlists.map((c) => <ChannelChip key={c.id} c={c} />)}</div>;
   if (!it.length) return <p className="py-8 text-center text-[13.5px] text-ink-3">Videos are being added.</p>;
+  if (s.layout === "carousel") return <><Carousel items={home ? it.slice(0, 6) : it.slice(0, 8)} q={q} />{!home && it.length > 8 && <div className="mt-8"><Grid items={it.slice(8)} q={q} /></div>}</>;
+  if (s.layout === "list") return <NumberedList items={home ? it.slice(0, 6) : it} q={q} />;
   if (s.layout === "shorts") return home
     ? <ShortsRow items={it} onOpen={(i) => onShorts?.(i)} />
     : <ShortsGrid items={it} />;
@@ -209,6 +214,47 @@ export function ChannelChip({ c }: { c: Shelf }) {
   );
 }
 
+/** Big slides that change by themselves; arrows and dots to choose. */
+function Carousel({ items, q }: { items: VCard[]; q: string }) {
+  const [i, setI] = useState(0); const [hold, setHold] = useState(false);
+  useEffect(() => { if (hold || items.length < 2) return; const t = setInterval(() => setI((x) => (x + 1) % items.length), 6000); return () => clearInterval(t); }, [hold, items.length]);
+  return (
+    <div className="relative overflow-hidden rounded-3xl bg-black" onMouseEnter={() => setHold(true)} onMouseLeave={() => setHold(false)}>
+      <div className="flex transition-transform duration-700 ease-out" style={{ transform: `translateX(-${i * 100}%)` }}>
+        {items.map((v) => (
+          <Link key={v.slug} href={watchHref(v, q)} className="group relative block w-full shrink-0">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={thumb(v.yt, "hq")} alt="" loading="lazy" className="aspect-video w-full object-cover opacity-90 transition duration-700 group-hover:scale-[1.02] lg:aspect-[21/8]" />
+            <span className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/15 to-transparent" />
+            <span className="absolute inset-x-0 bottom-0 flex items-end gap-4 p-4 pb-10 sm:p-7 sm:pb-12"><span className="flex size-12 shrink-0 items-center justify-center rounded-full bg-white text-[var(--acc)] shadow-lg sm:size-14"><Play size={22} fill="currentColor" className="ml-0.5" /></span><span className="min-w-0"><span className="line-clamp-2 text-[17px] font-semibold leading-snug text-white sm:text-[24px]">{v.title}</span>{v.date && <span className="mt-1 block text-[12.5px] text-white/75">{when(v.date)}</span>}</span></span>
+          </Link>))}
+      </div>
+      {items.length > 1 && <>
+        <button onClick={() => setI((x) => (x - 1 + items.length) % items.length)} aria-label="Previous" className="absolute left-3 top-1/2 hidden size-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/85 text-ink shadow sm:flex"><ChevronLeft size={20} /></button>
+        <button onClick={() => setI((x) => (x + 1) % items.length)} aria-label="Next" className="absolute right-3 top-1/2 hidden size-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/85 text-ink shadow sm:flex"><ChevronRight size={20} /></button>
+        <div className="absolute inset-x-0 bottom-3 flex justify-center gap-1.5">{items.map((_, k) => <button key={k} onClick={() => setI(k)} aria-label={`Slide ${k + 1}`} className={`h-1.5 rounded-full transition-all ${k === i ? "w-6 bg-white" : "w-1.5 bg-white/50"}`} />)}</div>
+      </>}
+    </div>
+  );
+}
+/** A neat numbered list, like a playlist. */
+function NumberedList({ items, q }: { items: VCard[]; q: string }) {
+  const [n, setN] = useState(30);
+  return (
+    <>
+      <ol className="grid gap-2 lg:grid-cols-2">
+        {items.slice(0, n).map((v, k) => (
+          <li key={v.slug}><Link href={watchHref(v, q)} className="group flex items-center gap-3 rounded-2xl bg-white p-2 pr-3 shadow-[0_1px_3px_rgba(0,0,0,.06)] transition hover:shadow-[0_12px_28px_-16px_rgba(0,0,0,.3)]">
+            <span className="w-7 shrink-0 text-center text-[15px] font-semibold tabular-nums text-[var(--acc)]">{k + 1}</span>
+            <Thumb v={v} className="w-32 shrink-0 !rounded-xl sm:w-40" />
+            <span className="min-w-0"><span className="line-clamp-2 text-[13.5px] font-medium leading-snug text-ink group-hover:text-[var(--acc)]">{v.title}</span>{v.date && <span className="mt-0.5 block text-[12px] text-ink-3">{when(v.date)}</span>}</span>
+          </Link></li>))}
+      </ol>
+      {items.length > n && <div className="pt-5 text-center"><button onClick={() => setN((x) => x + 30)} className="rounded-full bg-white px-6 py-2.5 text-[13.5px] font-medium text-ink shadow-[0_1px_3px_rgba(0,0,0,.1)]">Show more</button></div>}
+    </>
+  );
+}
+
 /* ---------- Shorts ---------- */
 function ShortCard({ v, onClick }: { v: VCard; onClick: () => void }) {
   return (
@@ -259,11 +305,11 @@ export function SectionView({ s }: { s: VSection }) {
         <div className="min-w-0">
           <h1 className="flex items-center gap-3 text-[24px] font-semibold tracking-[-0.02em] text-ink sm:text-[30px]"><span className="h-8 w-1.5 rounded-full bg-[var(--acc)]" />{s.name}</h1>
           {s.intro && <p className="mt-1.5 max-w-2xl pl-[18px] text-[14px] text-ink-2">{s.intro}</p>}
-          <p className="mt-1 pl-[18px] text-[13px] text-ink-3">{s.layout === "playlists" ? `${s.playlists.length} playlists` : `${s.count} videos`}</p>
+          <p className="mt-1 pl-[18px] text-[13px] text-ink-3">{s.layout === "playlists" ? `${s.playlists.length} playlists` : s.layout === "channels" ? `${s.playlists.length} channels` : `${s.count} videos`}</p>
         </div>
         <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto">
-          {s.layout !== "playlists" && s.items.length > 12 && <label className="relative min-w-0 flex-1 sm:w-64 sm:flex-none"><Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-3" /><input value={f} onChange={(e) => setF(e.target.value)} placeholder={`Find in ${s.name}`} className="h-10 w-full rounded-full border border-line bg-white pl-9 pr-3 text-[13.5px] outline-none focus:border-[var(--acc)]" /></label>}
-          {s.layout !== "playlists" && s.layout !== "shorts" && s.items[0] && <Link href={watchHref(s.items[0], `sec=${s.slug}`)} className="inline-flex h-10 items-center gap-2 rounded-full bg-[var(--acc)] px-5 text-[13.5px] font-semibold text-white hover:brightness-110"><Play size={15} fill="currentColor" />Play all</Link>}
+          {s.layout !== "playlists" && s.layout !== "channels" && s.items.length > 12 && <label className="relative min-w-0 flex-1 sm:w-64 sm:flex-none"><Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-3" /><input value={f} onChange={(e) => setF(e.target.value)} placeholder={`Find in ${s.name}`} className="h-10 w-full rounded-full border border-line bg-white pl-9 pr-3 text-[13.5px] outline-none focus:border-[var(--acc)]" /></label>}
+          {!["playlists", "channels", "shorts"].includes(s.layout) && s.items[0] && <Link href={watchHref(s.items[0], `sec=${s.slug}`)} className="inline-flex h-10 items-center gap-2 rounded-full bg-[var(--acc)] px-5 text-[13.5px] font-semibold text-white hover:brightness-110"><Play size={15} fill="currentColor" />Play all</Link>}
         </div>
       </header>
       {f && !items.length ? <p className="py-16 text-center text-[14px] text-ink-3">Nothing found in {s.name}.</p> : <SectionBody s={view} />}

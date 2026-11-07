@@ -11,7 +11,7 @@ export type VNav = { sections: { name: string; slug: string; color: string; layo
 const day = (d: any) => (d ? String(d instanceof Date ? d.toISOString() : d).slice(0, 10) : "");
 const card = (r: any): VCard => ({ slug: r.slug, title: r.title, yt: r.youtube_id, seconds: r.duration_sec || 0, date: day(r.date) || (r.year ? String(r.year) : ""), ...(r.description ? { description: String(r.description).slice(0, 400) } : {}) });
 /** How many videos each design shows on the Home tab. */
-const HOME_N: Record<string, number> = { featured: 5, spotlight: 7, row: 12, grid: 8, shorts: 12, playlists: 0 };
+const HOME_N: Record<string, number> = { featured: 5, spotlight: 7, row: 12, grid: 8, shorts: 12, playlists: 0, carousel: 6, list: 6, channels: 0 };
 
 async function shelvesOf(sectionIds: string[]): Promise<(Shelf & { section_id: string })[]> {
   if (!sectionIds.length) return [];
@@ -41,7 +41,7 @@ async function sections(where: "home" | "all", slug?: string, limit?: number): P
 export async function getVideoNav(): Promise<VNav> {
   if (!hasDb()) return { sections: [], channels: 0 };
   try {
-    const [s, c] = await Promise.all([sql`select name, slug, color, layout from video_sections where not hidden order by position, created_at`, sql`select count(*)::int as c from video_sources where kind = 'channel' and not hidden`]);
+    const [s, c] = await Promise.all([sql`select name, slug, color, layout from video_sections where not hidden and on_tabs order by position, created_at`, sql`select count(*)::int as c from video_sources where kind = 'channel' and not hidden`]);
     return { sections: s as any[], channels: (c as any[])[0]?.c || 0 };
   } catch { return { sections: [], channels: 0 }; }
 }
