@@ -803,3 +803,6 @@ html[data-motion="reduce"] .bless-word, html[data-motion="reduce"] .bless-rise, 
 .dj-ruled { background-image: repeating-linear-gradient(to bottom, transparent 0, transparent calc(var(--lh) - 1px), var(--rule, rgba(120,80,30,.16)) calc(var(--lh) - 1px), var(--rule, rgba(120,80,30,.16)) var(--lh)); background-position: 0 -0.15em; }
 .dj-ruled p { margin-top: 0; }
 .dj-ribbon { background: linear-gradient(90deg, #b8461a, #e07b26 45%, #c2621d); clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 84%, 0 100%); box-shadow: 0 6px 10px rgba(0,0,0,.2); }
+/* Full-screen readers (His Diary): the website's own menu, footer and editing bar step aside */
+html.tj-immersive .site-header, html.tj-immersive footer, html.tj-immersive .home-foot { display: none !important; }
+html.tj-immersive body { overflow: hidden; }
