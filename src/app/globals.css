@@ -729,18 +729,19 @@ html[data-motion="reduce"] .bless-word, html[data-motion="reduce"] .bless-rise, 
 @keyframes lx-turn { to { transform: rotate(360deg); } }
 .lx-spin { animation: lx-turn 140s linear infinite; }
 .lx-spin.lx-ccw { animation-direction: reverse; }
-.lx-spin.lx-s1 { animation-duration: 180s; } .lx-spin.lx-s2 { animation-duration: 130s; } .lx-spin.lx-s3 { animation-duration: 100s; } .lx-spin.lx-s4 { animation-duration: 80s; }
-.lx-breathe { animation: lx-breathe 7s cubic-bezier(.45,0,.55,1) infinite; }
-@keyframes lx-breathe { 0%, 100% { transform: scale(1); } 50% { transform: scale(.86); } }
-.lx-bloom { animation: lx-bloom 14s cubic-bezier(.45,0,.55,1) infinite; transform-origin: 50% 50%; }
+.lx-spin.lx-s1 { animation-duration: 420s; } .lx-spin.lx-s2, .lx-spin.lx-s3, .lx-spin.lx-s4 { animation: none; }
+.lx-flower { animation: lx-turn 360s linear infinite; transform-origin: 50% 50%; }
+.lx-breathe { animation: lx-breathe 14s cubic-bezier(.37,0,.63,1) infinite; }
+@keyframes lx-breathe { 0%, 100% { transform: scale(1); } 50% { transform: scale(.955); } }
+.lx-bloom { }
 @keyframes lx-bloom { 0%, 100% { transform: scale(1) rotate(0deg); } 50% { transform: scale(.94) rotate(6deg); } }
-.lx-open { animation: lx-open 1.8s cubic-bezier(.2,.8,.2,1) both; }
-@keyframes lx-open { from { opacity: 0; transform: scale(.7) rotate(-18deg); } to { opacity: 1; transform: none; } }
-.lx-aura { background: radial-gradient(closest-side, rgba(255,226,170,.5), rgba(255,190,110,.18) 55%, transparent); animation: lx-aura 6s ease-in-out infinite alternate; }
+.lx-open { animation: lx-open 2.6s cubic-bezier(.2,.8,.2,1) both; }
+@keyframes lx-open { from { opacity: 0; transform: scale(.8) rotate(-8deg); } to { opacity: 1; transform: none; } }
+.lx-aura { background: radial-gradient(closest-side, rgba(255,226,170,.5), rgba(255,190,110,.18) 55%, transparent); animation: lx-aura 10s ease-in-out infinite alternate; }
 @keyframes lx-aura { from { opacity: .65; transform: scale(.94); } to { opacity: 1; transform: scale(1.04); } }
 .lx-portrait { animation: lx-portrait 1.4s cubic-bezier(.2,.8,.2,1) .3s both; }
 @keyframes lx-portrait { from { opacity: 0; transform: scale(.9); } to { opacity: 1; transform: none; } }
-@media (prefers-reduced-motion: reduce) { .lx-spin, .lx-breathe, .lx-open, .lx-aura, .lx-portrait, .lx-bloom { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .lx-spin, .lx-breathe, .lx-open, .lx-aura, .lx-portrait, .lx-flower { animation: none; } }
 
 /* Hero, saffron: a warm saffron ground printed with small Indic flowers (block-print buti) that drift very slowly; the print is fainter behind the words. */
 .hero-saffron { background: radial-gradient(60% 75% at 74% 46%, rgba(214,120,40,.55) 0%, transparent 62%), radial-gradient(80% 80% at 15% 15%, rgba(140,62,10,.6) 0%, transparent 70%), linear-gradient(160deg, #6b2c03 0%, #592300 50%, #461b00 100%); }
@@ -755,3 +756,29 @@ html[data-motion="reduce"] .bless-word, html[data-motion="reduce"] .bless-rise, 
 .hero-cream { background: linear-gradient(100deg, #fff6dc 0%, #ffe39a 45%, #fff6dc 70%) 0 0 / 220% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; animation: hero-cream 7s ease-in-out 1.5s infinite; filter: drop-shadow(0 2px 10px rgba(110,30,4,.25)); }
 @keyframes hero-cream { 50% { background-position: 100% 0; } }
 @media (prefers-reduced-motion: reduce) { .hero-cream { animation: none; } }
+/* The verse band: two fine rings turning slowly behind the verse */
+.vb-ring { animation: lx-turn 120s linear infinite; }
+.vb-ring-2 { animation-duration: 90s; animation-direction: reverse; }
+@media (prefers-reduced-motion: reduce) { .vb-ring { animation: none; } }
+.hx-name { background: linear-gradient(100deg, #f6d39a 0%, #fff4dc 45%, #f6d39a 70%) 0 0 / 220% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; animation: hero-cream 9s ease-in-out 2s infinite; }
+@media (prefers-reduced-motion: reduce) { .hx-name { animation: none; } }
+
+/* Verse band: a mandala turning behind, petals of light rising, a gold light travelling round the frame,
+   each verse line rising then a light passing over it, the lotus rule drawing itself open. */
+.vb-mandala { animation: lx-turn 160s linear infinite; }
+.vb-petal { position: absolute; bottom: -12px; width: 7px; height: 11px; border-radius: 50% 50% 50% 50% / 70% 70% 30% 30%; background: linear-gradient(#f6b15f, #e8913c); opacity: 0; animation: vb-petal linear infinite; }
+@keyframes vb-petal { 0% { transform: translate3d(0,0,0) rotate(0deg); opacity: 0; } 12% { opacity: .35; } 70% { opacity: .22; } 100% { transform: translate3d(30px,-520px,0) rotate(220deg); opacity: 0; } }
+.vb-frame::before { content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 1.5px; background: conic-gradient(from var(--hx-a, 0deg), rgba(217,164,108,.35) 0deg, #e8913c 50deg, #f6d39a 80deg, rgba(217,164,108,.35) 140deg, rgba(217,164,108,.35) 360deg); -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; animation: hx-border 9s linear infinite; pointer-events: none; }
+.vb .vb-line { opacity: 0; transform: translateY(14px); filter: blur(4px); transition: opacity 1s cubic-bezier(.2,.7,.2,1), transform 1s cubic-bezier(.2,.7,.2,1), filter 1s ease; background: linear-gradient(100deg, #853500 0%, #853500 40%, #e8913c 50%, #853500 60%, #853500 100%) 0 0 / 250% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; }
+.vb[data-on="1"] .vb-line { opacity: 1; transform: none; filter: none; animation: vb-shine 7s ease-in-out infinite; }
+@keyframes vb-shine { 0% { background-position: 100% 0; } 45%, 100% { background-position: 0 0; } }
+.vb .vb-rule { transform: scaleX(0); transition: transform 1.2s cubic-bezier(.2,.7,.2,1) 1s; }
+.vb[data-on="1"] .vb-rule { transform: none; }
+.vb .vb-lotus { opacity: 0; transform: scale(.4) rotate(-60deg); transition: opacity .8s ease .9s, transform 1.2s cubic-bezier(.2,.8,.2,1) .9s; }
+.vb[data-on="1"] .vb-lotus { opacity: 1; transform: none; animation: lx-turn 40s linear 2.2s infinite; }
+@media (prefers-reduced-motion: reduce) { .vb-mandala, .vb-petal, .vb-frame::before, .vb[data-on="1"] .vb-line, .vb[data-on="1"] .vb-lotus { animation: none !important; } .vb .vb-line, .vb .vb-rule, .vb .vb-lotus { opacity: 1 !important; transform: none !important; filter: none !important; transition: none !important; } .vb-petal { display: none; } }
+.hx-bloom { opacity: 0; transform: translate(-50%,-50%) scale(.5) rotate(0deg); animation: hx-bloom ease-in-out infinite; filter: drop-shadow(0 0 6px rgba(255,200,120,.45)); }
+@keyframes hx-bloom { 0%, 100% { opacity: 0; transform: translate(-50%,-50%) scale(.5) rotate(0deg); } 45% { opacity: .38; transform: translate(-50%,-50%) scale(1) rotate(60deg); } 60% { opacity: .3; transform: translate(-50%,-50%) scale(1.04) rotate(75deg); } }
+.hero-buti { animation-name: hero-buti, hero-buti-glow; animation-duration: 90s, 8s; animation-timing-function: linear, ease-in-out; animation-iteration-count: infinite; animation-direction: normal, alternate; }
+@keyframes hero-buti-glow { from { opacity: .055; } to { opacity: .1; } }
+@media (prefers-reduced-motion: reduce) { .hx-bloom { animation: none; opacity: .25; } .hero-buti { animation: none; } }

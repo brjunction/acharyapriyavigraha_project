@@ -3,7 +3,7 @@ import { Hero } from "@/components/home-client";
 import { Blessing } from "@/components/home/blessing";
 import { ThreeThings, OnPrabhupada } from "@/components/gurudeva-instructions";
 import { NumbersSection, WebFolioSection, type HomeLecture, type HomeBook } from "@/components/home/sections";
-import { KrishnaSentOpening, FounderJourney } from "@/components/home/opening";
+import { KrishnaSentOpening, FounderJourney, VerseBand } from "@/components/home/opening";
 import { ListenNew, BooksNew, TattvaNew, EverythingNew, ThanksNew } from "@/components/home/new-sections";
 import { sql, hasDb } from "@/lib/db";
 import { STATS } from "@/lib/data";
@@ -30,6 +30,7 @@ export async function HomePage({ blessing }: { blessing?: string }) {
   return (
     <>
       <Hero />
+      <VerseBand />
       {/* “Kṛṣṇa sent him”: the new design here; /home-new?blessing=… still shows the four older ones */}
       {blessing ? <Blessing v={blessing} /> : <KrishnaSentOpening />}
       <FounderJourney />

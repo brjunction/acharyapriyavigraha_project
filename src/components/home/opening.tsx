@@ -7,6 +7,7 @@ import { useEffect, useRef, useState } from "react";
 import { ArrowRight, X } from "lucide-react";
 import { CONVERSATION, LETTER } from "@/lib/prabhupada";
 import { FOUNDER_STEPS } from "@/components/home/home-data";
+import { VMask, Padma } from "@/components/motifs";
 
 function useInView<T extends HTMLElement>(margin = "-12%") {
   const ref = useRef<T>(null); const [on, setOn] = useState(false);
@@ -76,64 +77,94 @@ export function KrishnaSentOpening() {
   );
 }
 
-/** One golden line through the years; it draws itself, and each year appears as the line reaches it. */
+const VERSE = ["yair īdṛśī bhagavato gatir ātma-vāda", "ekāntato nigamibhiḥ pratipāditā naḥ", "tuṣyantv adabhra-karuṇāḥ sva-kṛtena nityaṁ", "ko nāma tat pratikaroti vinoda-pātram"];
+const VERSE_TR = "How can such persons, who have rendered unlimited service by explaining the path of self-realization in relation to the Supreme Personality of Godhead, and whose explanations are given for our enlightenment with complete conviction and Vedic evidence, be repaid except by folded palms containing water for their satisfaction? Such great personalities can be satisfied only by their own activities, which are distributed amongst human society out of their unlimited mercy.";
+
+/** A small second hero: Śrīmad-Bhāgavatam 4.22.47. A soft mandala turns behind; inside a frame whose gold light travels round,
+    the verse rises line by line with a light passing over it, a lotus rule draws itself open, then the translation appears. */
+export function VerseBand() {
+  const [ref, on] = useInView<HTMLElement>("-8%");
+  return (
+    <section ref={ref} data-on={on ? "1" : "0"} aria-label="Śrīmad-Bhāgavatam 4.22.47" className="op vb relative isolate overflow-hidden bg-[linear-gradient(180deg,#fff4e4_0%,#fffaf3_55%,#fdf1e2_100%)] py-12 sm:py-16">
+      <VMask name="mandala-saffron" className="vb-mandala pointer-events-none absolute left-1/2 top-1/2 -z-10 size-[560px] -translate-x-1/2 -translate-y-1/2 text-[#e8913c] opacity-[0.07] sm:size-[820px]" />
+      <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">{Array.from({ length: 12 }, (_, k) => <span key={k} className="vb-petal" style={{ left: `${(k * 41 + 9) % 100}%`, animationDuration: `${14 + (k % 5) * 3}s`, animationDelay: `${-((k * 7) % 17)}s` }} />)}</div>
+      <div className="mx-auto max-w-[900px] px-4 sm:px-8">
+        <div className="vb-frame op-up relative rounded-[28px] bg-white/55 px-5 py-8 text-center shadow-[0_30px_70px_-40px_rgba(133,53,0,.45)] backdrop-blur-sm sm:px-12 sm:py-11" style={{ transitionDelay: ".05s" }}>
+          <span className="inline-flex items-center gap-2 rounded-full bg-[#853500] px-3.5 py-1 text-[10.5px] font-semibold uppercase tracking-[0.2em] text-[#fff1df] shadow-[0_8px_20px_-10px_rgba(133,53,0,.8)] sm:text-[11px]"><Padma className="size-3.5 text-[#f3c77a]" layers={2} />Śrīmad-Bhāgavatam 4.22.47</span>
+          <div className="mt-6 space-y-1 sm:mt-7">
+            {VERSE.map((l, i) => <p key={l} className="vb-line text-[13.5px] font-semibold leading-snug min-[400px]:text-[14.5px] sm:text-[20px]" style={{ transitionDelay: `${0.25 + i * 0.18}s`, animationDelay: `${1.6 + i * 0.35}s` }}>{l}</p>)}
+          </div>
+          <div className="my-6 flex items-center justify-center gap-3 sm:my-7" aria-hidden>
+            <span className="vb-rule h-px w-16 origin-right bg-gradient-to-r from-transparent to-[#d9a46c] sm:w-28" />
+            <Padma className="vb-lotus size-6 text-[#c2621d]" />
+            <span className="vb-rule h-px w-16 origin-left bg-gradient-to-l from-transparent to-[#d9a46c] sm:w-28" />
+          </div>
+          <p className="op-up mx-auto max-w-[700px] text-[13.5px] leading-[1.75] text-ink-2 sm:text-[15.5px]" style={{ transitionDelay: "1.15s" }}>“{VERSE_TR}”</p>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/** How Taptajīvanam began — Śrīla Guru Mahārāja in a round frame beside the heading, then one golden line that draws itself
+    through the years on a translucent card. Kept short: the years sit above and below the curve. */
 export function FounderJourney() {
   const [ref, on] = useInView<HTMLElement>();
-  const n = FOUNDER_STEPS.length; const W = 1200; const xs = FOUNDER_STEPS.map((_, i) => ((i + 0.5) / n) * W); const ys = FOUNDER_STEPS.map((_, i) => (i % 2 ? 150 : 90));
-  const d = xs.reduce((p, x, i) => (i === 0 ? `M0,${ys[0] + 30} C${x / 2},${ys[0] + 30} ${x / 2},${ys[0]} ${x},${ys[0]}` : `${p} C${(xs[i - 1] + x) / 2},${ys[i - 1]} ${(xs[i - 1] + x) / 2},${ys[i]} ${x},${ys[i]}`), "") + ` C${(xs[n - 1] + W) / 2},${ys[n - 1]} ${(xs[n - 1] + W) / 2},${ys[n - 1] - 30} ${W},${ys[n - 1] - 30}`;
+  const n = FOUNDER_STEPS.length; const W = 1200; const xs = FOUNDER_STEPS.map((_, i) => ((i + 0.5) / n) * W); const ys = FOUNDER_STEPS.map((_, i) => (i % 2 ? 110 : 60));
+  const d = xs.reduce((p, x, i) => (i === 0 ? `M0,${ys[0] + 25} C${x / 2},${ys[0] + 25} ${x / 2},${ys[0]} ${x},${ys[0]}` : `${p} C${(xs[i - 1] + x) / 2},${ys[i - 1]} ${(xs[i - 1] + x) / 2},${ys[i]} ${x},${ys[i]}`), "") + ` C${(xs[n - 1] + W) / 2},${ys[n - 1]} ${(xs[n - 1] + W) / 2},${ys[n - 1] - 25} ${W},${ys[n - 1] - 25}`;
   return (
-    <section ref={ref} data-on={on ? "1" : "0"} className="op relative isolate overflow-hidden bg-[linear-gradient(180deg,#fdf1e2_0%,#fbe6cc_100%)] py-16 sm:py-24">
+    <section ref={ref} data-on={on ? "1" : "0"} className="op relative isolate overflow-hidden bg-[linear-gradient(180deg,#fdf1e2_0%,#fbe6cc_100%)] py-12 sm:py-16">
       <div aria-hidden className="absolute inset-0 -z-10 bg-[radial-gradient(60%_50%_at_15%_10%,rgba(255,255,255,.7),transparent_70%)]" />
       <div className="mx-auto max-w-[1180px] px-5 sm:px-8">
-        {/* Śrīla Guru Mahārāja in a round frame at the centre, the biography link beneath, then the heading */}
-        <div className="flex flex-col items-center text-center">
-          <Link href="/about/founder" className="op-up group flex flex-col items-center" style={{ transitionDelay: ".05s" }}>
-            <span className="block size-36 overflow-hidden rounded-full ring-4 ring-white shadow-[0_18px_36px_-18px_rgba(90,40,5,.6)] sm:size-44">
+        {/* Śrīla Guru Mahārāja beside the heading */}
+        <div className="flex flex-col items-center gap-5 text-center sm:flex-row sm:items-center sm:gap-7 sm:text-left">
+          <Link href="/about/founder" className="op-up group shrink-0" style={{ transitionDelay: ".05s" }} aria-label="Śrīla Haladhara Swāmī Guru Mahārāja — read his biography">
+            <span className="block size-28 overflow-hidden rounded-full ring-4 ring-white shadow-[0_18px_36px_-18px_rgba(90,40,5,.6)] sm:size-32">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/photos/haladhara.webp" alt="Śrīla Haladhara Swāmī Guru Mahārāja" className="h-full w-full object-cover object-[50%_20%] transition duration-700 group-hover:scale-[1.04]" />
+              <img src="/photos/haladhara.webp" alt="Śrīla Haladhara Swāmī Guru Mahārāja" className="h-full w-full object-cover object-[50%_20%] transition duration-700 group-hover:scale-[1.04]" loading="lazy" />
             </span>
-            <span className="mt-4 block text-[14px] font-semibold text-ink">Śrīla Haladhara Swāmī Guru Mahārāja</span>
-            <span className="mt-1 inline-flex items-center gap-1 text-[13px] font-medium text-saffron">Read his biography<ArrowRight size={13} className="transition group-hover:translate-x-0.5" /></span>
           </Link>
-          <h2 className="op-up mt-10 font-display text-[28px] font-bold leading-[1.1] tracking-[-0.03em] text-[#2b1a10] sm:text-[40px]" style={{ transitionDelay: ".12s" }}>How Taptajīvanam began</h2>
-          <p className="op-up mt-3 max-w-[640px] text-[13.5px] leading-relaxed text-ink-2 sm:text-[15px]" style={{ transitionDelay: ".2s" }}>Śrīla Haladhara Swāmī Guru Mahārāja, ISKCON Guru and Sannyāsī, travels and preaches Kṛṣṇa consciousness all around the world, sharing the teachings of Śrīla Prabhupāda and Śrī Śrīmad Gour Govinda Swāmī Gurudeva.</p>
+          <div className="min-w-0">
+            <h2 className="op-up font-display text-[26px] font-bold leading-[1.1] tracking-[-0.03em] text-[#2b1a10] sm:text-[34px]" style={{ transitionDelay: ".12s" }}>How Taptajīvanam began</h2>
+            <p className="op-up mt-2 max-w-[680px] text-[13px] leading-relaxed text-ink-2 sm:text-[14.5px]" style={{ transitionDelay: ".2s" }}>Śrīla Haladhara Swāmī Guru Mahārāja, ISKCON Guru and Sannyāsī, travels and preaches Kṛṣṇa consciousness all around the world, sharing the teachings of Śrīla Prabhupāda and Śrī Śrīmad Gour Govinda Swāmī Gurudeva.</p>
+            <Link href="/about/founder" className="op-up group mt-2 inline-flex items-center gap-1 text-[13px] font-medium text-saffron" style={{ transitionDelay: ".26s" }}>Read his biography<ArrowRight size={13} className="transition group-hover:translate-x-0.5" /></Link>
+          </div>
         </div>
 
-        {/* desktop: the line across, years above and below it */}
-        <div className="relative mt-14 hidden h-[560px] lg:block">
-          <svg viewBox={`0 0 ${W} 240`} preserveAspectRatio="none" className="absolute inset-x-0 top-[170px] h-[240px] w-full" aria-hidden>
+        {/* desktop: the golden curve across a translucent card, years above and below it */}
+        <div className="op-up relative mt-8 hidden h-[400px] rounded-[28px] border border-white/70 bg-white/35 shadow-[0_24px_60px_-36px_rgba(90,40,5,.5)] backdrop-blur-sm lg:block" style={{ transitionDelay: ".2s" }}>
+          <svg viewBox={`0 0 ${W} 170`} preserveAspectRatio="none" className="absolute inset-x-0 top-[115px] h-[170px] w-full" aria-hidden>
             <path d={d} fill="none" stroke="#efd3ad" strokeWidth="1.5" />
             <path d={d} fill="none" stroke="url(#fj-g)" strokeWidth="2.5" strokeLinecap="round" pathLength={100} className="op-draw op-draw-slow" />
             <defs><linearGradient id="fj-g" x1="0" x2="1"><stop offset="0" stopColor="#f3c77a" /><stop offset=".55" stopColor="#c2621d" /><stop offset="1" stopColor="#853500" /></linearGradient></defs>
           </svg>
           {FOUNDER_STEPS.map(([y, t, desc], i) => {
-            const hi = i === 3; const up = i % 2 === 0; const top = 170 + ys[i];
+            const hi = i === 3; const up = i % 2 === 0; const top = 115 + ys[i];
             return (
               <div key={y} className="group absolute" style={{ left: `${(xs[i] / W) * 100}%`, top }}>
-                <span className={`op-node absolute left-0 top-0 block -translate-x-1/2 -translate-y-1/2 rounded-full transition-[scale,box-shadow] duration-300 group-hover:scale-150 ${hi ? "size-6 bg-[radial-gradient(circle_at_35%_30%,#f3c77a,#c2621d)] shadow-[0_0_0_6px_rgba(232,145,60,.18),0_0_30px_rgba(232,145,60,.7)]" : "size-3.5 border-[3px] border-white bg-[#c2621d] shadow-[0_0_0_4px_rgba(194,98,29,.12)]"}`} style={{ transitionDelay: `${0.6 + i * 0.32}s` }} />
-                {hi && <span aria-hidden className="op-pulse absolute left-0 top-0 block size-6 rounded-full border border-[#e8913c]" />}
-                <div className={`op-step absolute left-0 w-[196px] -translate-x-1/2 text-center ${up ? "bottom-6" : "top-6"}`} style={{ transitionDelay: `${0.7 + i * 0.32}s` }}>
-                  <div className="cursor-default rounded-2xl px-3 py-3 transition duration-300 ease-out group-hover:-translate-y-1.5 group-hover:bg-white/85 group-hover:shadow-[0_18px_36px_-22px_rgba(90,40,5,.55)]">
-                    <p className={`font-display text-[22px] font-bold tabular-nums leading-none transition-colors duration-300 group-hover:text-[#c2621d] ${hi ? "text-[#c2621d]" : "text-[#d9a46c]"}`}>{y}</p>
-                    <p className={`mt-2 text-[14px] font-semibold leading-snug ${hi ? "text-[#853500]" : "text-ink"}`}>{t}</p>
-                    <p className="mt-1.5 text-[12px] leading-relaxed text-ink-2">{desc}</p>
+                <span className={`op-node absolute left-0 top-0 block -translate-x-1/2 -translate-y-1/2 rounded-full transition-[scale,box-shadow] duration-300 group-hover:scale-150 ${hi ? "size-5 bg-[radial-gradient(circle_at_35%_30%,#f3c77a,#c2621d)] shadow-[0_0_0_6px_rgba(232,145,60,.18),0_0_26px_rgba(232,145,60,.7)]" : "size-3 border-[3px] border-white bg-[#c2621d] shadow-[0_0_0_4px_rgba(194,98,29,.12)]"}`} style={{ transitionDelay: `${0.6 + i * 0.32}s` }} />
+                {hi && <span aria-hidden className="op-pulse absolute left-0 top-0 block size-5 rounded-full border border-[#e8913c]" />}
+                <div className={`op-step absolute left-0 w-[180px] -translate-x-1/2 text-center ${up ? "bottom-4" : "top-4"}`} style={{ transitionDelay: `${0.7 + i * 0.32}s` }}>
+                  <div className="cursor-default rounded-2xl px-2.5 py-2 transition duration-300 ease-out group-hover:-translate-y-1 group-hover:bg-white/90 group-hover:shadow-[0_18px_36px_-22px_rgba(90,40,5,.55)]">
+                    <p className={`font-display text-[18px] font-bold tabular-nums leading-none transition-colors duration-300 group-hover:text-[#c2621d] ${hi ? "text-[#c2621d]" : "text-[#d9a46c]"}`}>{y}</p>
+                    <p className={`mt-1.5 text-[13px] font-semibold leading-snug ${hi ? "text-[#853500]" : "text-ink"}`}>{t}</p>
+                    <p className="mt-1 line-clamp-2 text-[11.5px] leading-relaxed text-ink-2 group-hover:line-clamp-none">{desc}</p>
                   </div>
                 </div>
               </div>);
           })}
         </div>
 
-        {/* phone and tablet: the line runs down */}
-        <ol className="relative mt-10 space-y-7 pl-8 lg:hidden">
-          <span aria-hidden className="op-vline absolute bottom-2 left-[7px] top-2 w-[2px] origin-top rounded-full bg-gradient-to-b from-[#f3c77a] via-[#c2621d] to-[#853500]" />
+        {/* phone and tablet: the line runs down, on a translucent card */}
+        <ol className="op-up relative mt-7 space-y-5 rounded-[24px] border border-white/70 bg-white/40 p-5 pl-11 backdrop-blur-sm lg:hidden" style={{ transitionDelay: ".2s" }}>
+          <span aria-hidden className="op-vline absolute bottom-7 left-[23px] top-7 w-[2px] origin-top rounded-full bg-gradient-to-b from-[#f3c77a] via-[#c2621d] to-[#853500]" />
           {FOUNDER_STEPS.map(([y, t, desc], i) => {
             const hi = i === 3;
             return (
               <li key={y} className="op-step relative" style={{ transitionDelay: `${0.3 + i * 0.15}s` }}>
-                <span className={`absolute top-1 -translate-x-1/2 rounded-full ${hi ? "-left-[25px] size-5 bg-[radial-gradient(circle_at_35%_30%,#f3c77a,#c2621d)] shadow-[0_0_20px_rgba(232,145,60,.7)]" : "-left-[25px] size-3.5 translate-y-0.5 border-[3px] border-[#fdf1e2] bg-[#c2621d]"}`} />
-                <p className={`font-display text-[18px] font-bold tabular-nums leading-none ${hi ? "text-[#c2621d]" : "text-[#d9a46c]"}`}>{y}</p>
-                <p className={`mt-1.5 text-[14.5px] font-semibold ${hi ? "text-[#853500]" : "text-ink"}`}>{t}</p>
-                <p className="mt-1 text-[12.5px] leading-relaxed text-ink-2">{desc}</p>
+                <span className={`absolute top-0.5 rounded-full ${hi ? "-left-[27px] size-4 bg-[radial-gradient(circle_at_35%_30%,#f3c77a,#c2621d)] shadow-[0_0_16px_rgba(232,145,60,.7)]" : "-left-[25px] size-3 border-2 border-[#fdf1e2] bg-[#c2621d]"}`} />
+                <p className="flex items-baseline gap-2"><span className={`font-display text-[15px] font-bold tabular-nums leading-none ${hi ? "text-[#c2621d]" : "text-[#d9a46c]"}`}>{y}</span><span className={`text-[13.5px] font-semibold ${hi ? "text-[#853500]" : "text-ink"}`}>{t}</span></p>
+                <p className="mt-1 line-clamp-2 text-[12px] leading-relaxed text-ink-2">{desc}</p>
               </li>);
           })}
         </ol>
