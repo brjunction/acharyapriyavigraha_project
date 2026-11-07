@@ -54,7 +54,7 @@ export function KrishnaSentOpening() {
         <div className="op-up grid grid-cols-2 items-end gap-2 sm:gap-4 lg:order-2" aria-label="Śrīla Prabhupāda and Śrīla Gurudeva">
           {([["/legacy/prabhupada.webp", "Śrīla A.C. Bhaktivedanta Swami Prabhupāda"], ["/legacy/gurudeva.webp", "Śrī Śrīmad Gour Govinda Swāmī Gurudeva"]] as const).map(([src, alt]) => (
             /* eslint-disable-next-line @next/next/no-img-element */
-            <img key={src} src={src} alt={alt} className="block aspect-[4/5] w-full cursor-pointer object-contain object-bottom transition duration-700 ease-out [mask-image:linear-gradient(to_bottom,#000_80%,transparent)] hover:-translate-y-2 hover:scale-[1.04] hover:drop-shadow-[0_22px_28px_rgba(120,60,10,.22)]" loading="lazy" />
+            <img key={src} src={src} alt={alt} className="block aspect-[4/5] w-full object-contain object-bottom [mask-image:linear-gradient(to_bottom,#000_80%,transparent)]" loading="lazy" />
           ))}
         </div>
         <div className="text-center lg:order-1 lg:text-left">

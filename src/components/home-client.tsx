@@ -56,53 +56,47 @@ export function Hero() {
   };
   return (
     <>
-    {/* Indian border standing on a light strip below the navigation, outside the saffron hero, as its top fringe */}
-    <div aria-hidden className="relative z-[1] bg-white pt-4"><div className="h-8 w-full overflow-hidden"><VMask name="border-4" repeat="repeat-x" size="auto 100%" pos="center top" className="h-full w-full text-[#8a3a0a]" /></div></div>
-    <section className="relative isolate -mt-px overflow-hidden" onPointerMove={move}>
-      <Backdrop src="saffron-dark" flip pos="left center" o={0.4} />
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(70%_80%_at_80%_40%,rgba(243,179,99,0.28),transparent_65%),linear-gradient(100deg,rgba(70,26,3,0.55),transparent_60%)]" />
-      <VMask name="mandala-saffron" className="hero-spin-rev pointer-events-none absolute -bottom-56 -left-48 h-[620px] w-[620px] text-[#f3b363] opacity-[0.16]" />
-      {/* One Indic pattern only (the lotus lattice above); the paisley belongs to the footer */}
-      <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-[3px] bg-gradient-to-r from-[#c98a2b] via-[#ffc566] to-[#c98a2b]" />
-      {[8, 22, 36, 61, 74, 90].map((x, i) => (
-        <div key={x} className="pointer-events-none absolute bottom-24" style={{ left: `${x}%` }}><div className="hero-petal" style={{ animationDelay: `${i * 1.5}s` }}><Padma className="h-5 w-5 text-[#ffd48a]" layers={2} /></div></div>
-      ))}
-      <div className="relative mx-auto grid max-w-[1240px] grid-cols-[minmax(0,1fr)] content-center items-center gap-5 px-5 py-8 max-lg:min-h-[calc(100svh-132px)] sm:gap-9 sm:px-10 sm:py-12 lg:min-h-[740px] lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:py-28">
+    {/* A clean, light hero: one soft gradient and two warm glows — no patterns */}
+    <section className="hero-light relative isolate overflow-hidden bg-[linear-gradient(180deg,#fff6ee_0%,#fffaf6_55%,#ffffff_100%)]" onPointerMove={move}>
+      <div aria-hidden className="hs-blob absolute -left-48 -top-24 -z-10 size-[560px] rounded-full bg-[radial-gradient(closest-side,rgba(246,168,104,.32),transparent)]" />
+      <div aria-hidden className="hs-blob absolute -right-40 top-24 -z-10 size-[620px] rounded-full bg-[radial-gradient(closest-side,rgba(239,138,60,.22),transparent)]" style={{ animationDelay: "-6s" }} />
+      <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-[#c25a1c]/25 to-transparent" />
+      <div className="relative mx-auto grid max-w-[1240px] grid-cols-[minmax(0,1fr)] content-center items-center gap-6 px-5 py-10 max-lg:min-h-[calc(100svh-120px)] sm:gap-10 sm:px-10 sm:py-14 lg:min-h-[640px] lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:py-20">
         <div className="rise order-2 text-center lg:order-1 lg:text-left">
-          <span className="hero-pill inline-flex max-w-[330px] items-center gap-2 rounded-full border border-[#f3b363]/70 bg-[#f3b363]/20 py-1 pl-3 pr-3 text-[10.5px] leading-snug sm:max-w-none font-semibold text-[#fff1da] sm:py-1.5 sm:pl-4 sm:pr-4 sm:text-[12px] backdrop-blur">
-            The Complete Life and Teachings of Śrī Śrīmad Gour Govinda Swāmī Gurudeva
+          <span className="inline-flex max-w-[340px] items-center gap-2 rounded-full bg-[#fdebdc] px-3.5 py-1 text-[11px] font-semibold leading-snug text-[#a14812] sm:max-w-none sm:text-[12px]">
+            <span className="size-1.5 shrink-0 rounded-full bg-[#c25a1c] max-sm:hidden" />The Complete Life and Teachings of Śrī Śrīmad Gour Govinda Swāmī Gurudeva
           </span>
-          <h1 className="mt-4 text-[23px] font-bold leading-[1.15] tracking-[-0.03em] text-[#fff1da] sm:mt-5 sm:text-[32px] lg:mt-6 lg:text-[38.5px]">
-            {["Words", "that", "give", "life"].map((w, i) => <span key={w} className="hero-word mr-[0.28em]" style={{ animationDelay: `${0.15 + i * 0.12}s` }}>{w}</span>)}<br />
-            {["to", "a"].map((w, i) => <span key={w} className="hero-word mr-[0.28em]" style={{ animationDelay: `${0.63 + i * 0.12}s` }}>{w}</span>)}<span className="hero-word hero-gold" style={{ animationDelay: "0.9s" }}>burning heart</span>
+          <h1 className="mt-5 text-[28px] font-semibold leading-[1.12] tracking-[-0.035em] text-zinc-900 sm:text-[38px] lg:text-[46px]">
+            {["Words", "that", "give", "life"].map((w, i) => <span key={w} className="hero-word mr-[0.26em]" style={{ animationDelay: `${0.1 + i * 0.1}s` }}>{w}</span>)}<br />
+            {["to", "a"].map((w, i) => <span key={w} className="hero-word mr-[0.26em]" style={{ animationDelay: `${0.5 + i * 0.1}s` }}>{w}</span>)}<span className="hero-word hero-gold" style={{ animationDelay: "0.7s" }}>burning heart</span>
           </h1>
-          <div className="hero-rule mx-auto mt-5 h-[3px] w-24 rounded-full bg-gradient-to-r from-[#ffc566] to-transparent lg:mx-0" />
-          <p className="mx-auto mt-3 max-w-[34rem] text-[12.5px] leading-relaxed text-[#ffe9cc]/90 sm:mt-4 sm:text-[14.5px] lg:mx-0 lg:mt-5 lg:max-w-xl">
+          <p className="mx-auto mt-4 max-w-[34rem] text-[14px] leading-relaxed text-zinc-600 sm:text-[16px] lg:mx-0">
             Lectures, letters, books, quotes and photographs of Śrīla Gurudeva, gathered in one searchable home and growing in many languages. Listen, read, and find the exact words you were looking for.
           </p>
           <form onSubmit={(e) => { e.preventDefault(); if (q.trim()) r.push(`/search?q=${encodeURIComponent(q)}`); else setSearch(true); }}
-            className="mx-auto mt-5 flex max-w-xl items-center gap-2 sm:mt-7 lg:mx-0 rounded-2xl border border-line bg-surface p-1.5 pl-4 shadow-[var(--shadow-md)] transition focus-within:border-saffron focus-within:shadow-[0_0_0_4px_color-mix(in_srgb,var(--saffron)_14%,transparent)]">
-            <Search size={19} className="shrink-0 text-saffron" />
+            className="mx-auto mt-7 flex max-w-xl items-center gap-2 rounded-full border border-zinc-200 bg-white p-1.5 pl-5 shadow-[0_10px_30px_-18px_rgba(120,50,10,.45)] transition focus-within:border-[#c25a1c] focus-within:shadow-[0_0_0_4px_rgba(194,90,28,.12)] lg:mx-0">
+            <Search size={18} className="shrink-0 text-[#c25a1c]" />
             <div className="relative flex-1">
-              <input value={q} onChange={(e) => setQ(e.target.value)} aria-label="Search the teachings" className="h-9 w-full bg-transparent text-[13px] text-ink outline-none sm:h-11 sm:text-[14px]" />
-              {!q && <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center truncate text-[13px] text-ink-3 sm:text-[14px]">Search&nbsp;<span className="caret text-ink-2">{hint}</span></span>}
+              <input value={q} onChange={(e) => setQ(e.target.value)} aria-label="Search the teachings" className="h-10 w-full bg-transparent text-[14px] text-zinc-900 outline-none sm:h-11 sm:text-[15px]" />
+              {!q && <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center truncate text-[14px] text-zinc-400 sm:text-[15px]">Search&nbsp;<span className="caret text-zinc-600">{hint}</span></span>}
             </div>
-            <button className="btn btn-primary !h-8 !px-4 !text-[12.5px] sm:!h-10 sm:!px-5 sm:!text-[13px]">Search</button>
+            <button className="h-10 shrink-0 rounded-full bg-[#c25a1c] px-5 text-[13.5px] font-semibold text-white transition hover:bg-[#a14812] sm:h-11 sm:px-6">Search</button>
           </form>
           <div className="mx-auto mt-4 flex max-w-xl flex-wrap justify-center gap-1.5 lg:mx-0 lg:justify-start">
-            {CHIPS.map(([l, k], ci) => <Link key={k} href={`/search?q=${k}`} className={`hero-chip ${ci > 2 ? "max-sm:hidden" : ""} rounded-full border border-[#f3b363]/45 bg-white/10 px-2.5 py-0.5 text-[11.5px] sm:px-3 sm:py-1 sm:text-[12px] text-[#ffe2b8] backdrop-blur`}>{l}</Link>)}
+            {CHIPS.map(([l, k], ci) => <Link key={k} href={`/search?q=${k}`} className={`${ci > 2 ? "max-sm:hidden" : ""} rounded-full border border-zinc-200 bg-white/80 px-3 py-1 text-[12.5px] text-zinc-700 transition hover:-translate-y-0.5 hover:border-[#c25a1c]/40 hover:text-[#a14812] hover:shadow-[0_8px_18px_-12px_rgba(120,50,10,.5)]`}>{l}</Link>)}
           </div>
         </div>
 
-        {/* Portrait: a plain circular frame, no animation */}
-        <div className="relative order-1 mx-auto w-full max-w-[min(190px,26svh)] sm:max-w-[min(280px,28svh)] lg:order-2 lg:max-w-[340px]">
-          <div aria-hidden className="pointer-events-none absolute inset-[-42%]"><VMask name="mandala-saffron" className="hero-spin h-full w-full text-[#f3b363] opacity-[0.34]" /></div>
-          <div className="relative"><PortraitFrame photo focus="center 30%" src="/photos/gurudeva-hero.webp" alt="Śrī Śrīmad Gour Govinda Swāmī Gurudeva" className="mx-auto w-full" /></div>
+        {/* Portrait: a clean round photograph with a soft glow */}
+        <div className="relative order-1 mx-auto w-full max-w-[min(200px,26svh)] sm:max-w-[min(300px,30svh)] lg:order-2 lg:max-w-[380px]">
+          <div aria-hidden className="absolute inset-[-14%] -z-10 rounded-full bg-[radial-gradient(closest-side,rgba(246,168,104,.45),transparent)]" />
+          <div className="relative overflow-hidden rounded-full bg-[#fdebdc] shadow-[0_30px_60px_-30px_rgba(120,50,10,.55)] ring-[6px] ring-white">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/photos/gurudeva-hero.webp" alt="Śrī Śrīmad Gour Govinda Swāmī Gurudeva" className="aspect-square w-full object-cover" style={{ objectPosition: "center 22%" }} />
+          </div>
         </div>
       </div>
     </section>
-    {/* Indian border hanging from the hero's lower edge, outside it, like its fringe */}
-    <div aria-hidden className="relative z-[1] -mt-px h-8 w-full overflow-hidden"><VMask name="border-4" repeat="repeat-x" size="auto 100%" pos="center top" className="h-full w-full rotate-180 text-[#8a3a0a]" /></div>
     </>
   );
 }

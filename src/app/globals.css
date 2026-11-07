@@ -594,3 +594,10 @@ html[data-motion="reduce"] .bless-word, html[data-motion="reduce"] .bless-rise, 
 .op-fade { animation: op-fade .3s ease both; } .op-rise { animation: tv-rise .45s cubic-bezier(.2,.8,.2,1) both; }
 @keyframes op-fade { from { opacity: 0; } }
 @media (prefers-reduced-motion: reduce) { .op .op-up, .op .op-step, .op .op-node, .op .op-vline { opacity: 1 !important; transform: none !important; scale: 1 !important; transition: none !important; } .op .op-draw { stroke-dashoffset: 0; transition: none; } .op-pulse { animation: none; } }
+
+/* Light hero (home): words lift softly; the gold phrase in saffron */
+.hero-light .hero-word:hover { color: inherit; text-shadow: 0 8px 24px rgba(194,90,28,.22); }
+.hero-light .hero-gold { background: linear-gradient(100deg, #c25a1c 0%, #e8913c 30%, #a14812 60%, #c25a1c 100%); background-size: 200% auto; -webkit-background-clip: text; background-clip: text; color: transparent !important; }
+.hs-blob { animation: hsBlob 16s ease-in-out infinite; }
+@keyframes hsBlob { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(30px,20px) scale(1.06); } }
+@media (prefers-reduced-motion: reduce) { .hs-blob { animation: none; } }
