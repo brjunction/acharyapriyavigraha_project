@@ -106,16 +106,16 @@ export function VerseBand() {
         <div className="op-up overflow-hidden rounded-[24px] border border-white/15 bg-white/[0.06] shadow-[0_24px_60px_-36px_rgba(0,0,0,.6)] backdrop-blur-sm" style={{ transitionDelay: ".12s" }}>
           <div className="flex items-center justify-between gap-3 border-b border-white/10 bg-white/[0.05] px-5 py-2.5 sm:px-7">
             <p className="text-[10.5px] font-semibold uppercase tracking-[0.18em] text-[#f3c77a]">ŚB 4.22.47</p>
-            <p className="text-[10.5px] font-medium tracking-[0.06em] text-[#f0dfd1]/60">Canto 4 · Chapter 22 · Verse 47</p>
+            <p className="text-[10.5px] font-medium tracking-[0.06em] text-[#f6e6d6]">Canto 4 · Chapter 22 · Verse 47</p>
           </div>
           <div className="grid divide-y divide-white/10 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.4fr)] lg:divide-x lg:divide-y-0">
             <div className="px-5 py-5 text-center sm:px-7 lg:py-6 lg:text-left">
-              <p className="mb-2.5 flex items-center justify-center gap-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-[#f3c77a] lg:justify-start"><span className="size-1.5 rotate-45 bg-[#e8b872]" />Verse</p>
-              {VERSE.map((l) => <p key={l} className="text-[13.5px] font-semibold leading-[1.7] text-[#ffe0a8] sm:text-[14.5px]">{l}</p>)}
+              <p className="mb-2.5 flex items-center justify-center gap-2 text-[10.5px] font-semibold uppercase tracking-[0.2em] text-[#ffd98a] lg:justify-start"><span className="size-1.5 rotate-45 bg-[#ffd98a]" />Verse</p>
+              {VERSE.map((l) => <p key={l} className="text-[13.5px] font-semibold leading-[1.7] text-[#ffe9c2] sm:text-[14.5px]">{l}</p>)}
             </div>
             <div className="px-5 py-5 sm:px-7 lg:py-6">
-              <p className="mb-2.5 flex items-center justify-center gap-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-[#f3c77a] lg:justify-start"><span className="size-1.5 rotate-45 bg-[#e8b872]" />Translation</p>
-              <p className="text-center text-[13px] leading-[1.75] text-[#f3e2d2]/90 sm:text-[13.5px] lg:text-left">{VERSE_TR}</p>
+              <p className="mb-2.5 flex items-center justify-center gap-2 text-[10.5px] font-semibold uppercase tracking-[0.2em] text-[#ffd98a] lg:justify-start"><span className="size-1.5 rotate-45 bg-[#ffd98a]" />Translation</p>
+              <p className="text-center text-[13.5px] leading-[1.75] text-white sm:text-[14px] lg:text-left">{VERSE_TR}</p>
             </div>
           </div>
         </div>
