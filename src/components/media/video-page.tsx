@@ -5,7 +5,8 @@ import { getShelf, getQueue, getVideoNav, getSection, getChannels, searchVideos 
 import { QueuePlayer, VideoCard, watchHref, VideoTabsBar, SectionView, ChannelChip, AdvancedVideos } from "./video-home";
 import { advancedVideos, type AdvFilter } from "@/lib/video-advanced";
 import { sql } from "@/lib/db";
-import { getVideo } from "@/lib/cms/library";
+import { getVideo, findMovedVideo } from "@/lib/cms/library";
+import { redirect } from "next/navigation";
 
 const MON = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 const when = (v: any) => (v.day ? (([y, m, d]) => `${d} ${MON[m - 1]} ${y}`)(v.day.split("-").map(Number)) : v.year ? String(v.year) : "");
@@ -19,8 +20,10 @@ export async function VideosShell({ active, children }: { active: string; childr
 }
 
 export async function VideoPage({ slug, list, sec }: { slug: string; list?: string; sec?: string }) {
-  const v = await getVideo(slug); if (!v) notFound();
-  const shelf = await getQueue({ list, sec }); const at = shelf ? shelf.items.findIndex((x) => x.slug === v.slug) : -1; const next = shelf && at >= 0 ? shelf.items[at + 1] : undefined;
+  const v = await getVideo(slug);
+  if (!v) { const moved = await findMovedVideo(slug); if (moved) redirect(`/teachings/videos/${moved}${list ? `?list=${list}` : sec ? `?sec=${sec}` : ""}`); notFound(); }
+  const shelf = await getQueue({ list, sec });
+  const shelfRef = list ? ((await sql`select ref, kind from video_sources where id::text = ${list}`.catch(() => [])) as any[]).filter((r) => r.kind === "playlist")[0]?.ref || null : null; const at = shelf ? shelf.items.findIndex((x) => x.slug === v.slug) : -1; const next = shelf && at >= 0 ? shelf.items[at + 1] : undefined;
   const more = (await sql`select slug, title, youtube_id, date, year from videos where status = 'published' and id <> ${v.id} and ((${v.year}::int is not null and coalesce(year, extract(year from date)::int) = ${v.year}) or (place is not null and place = ${v.place}) or (series is not null and series = ${v.series})) order by date desc nulls last limit 8`.catch(() => [])) as any[];
   const facts: [string, string | null, string | null][] = [["Date", when(v) || null, null], ["Place", [v.place, v.country].filter(Boolean).join(", ") || null, v.place ? `/teachings/videos/search?q=${encodeURIComponent(v.place)}` : null], ["Type", v.type || null, null], ["Verse", v.scripture || null, null], ["Channel", v.series || v.channel || null, null], ["Length", dur(v.duration_sec) || null, null]];
   return (
@@ -41,7 +44,7 @@ export async function VideoPage({ slug, list, sec }: { slug: string; list?: stri
               {next && <p className="border-t border-line px-3 py-2 text-[12px] text-ink-3">Next plays by itself: <span className="text-ink-2">{next.title}</span></p>}
             </div>}
             <dl className="divide-y divide-line rounded-xl border border-line text-[13px]">{facts.filter(([, x]) => x).map(([k, x, h]) => <div key={k} className="flex justify-between gap-4 px-4 py-2"><dt className="text-ink-3">{k}</dt><dd className="text-right text-ink">{h ? <Link href={h} className="hover:text-saffron">{x}</Link> : x}</dd></div>)}</dl>
-            {v.youtube_id && <a href={`https://www.youtube.com/watch?v=${v.youtube_id}`} target="_blank" rel="noreferrer" className="flex items-center justify-between rounded-lg border border-line px-3 py-2 text-[13px] text-ink hover:border-saffron">Watch on YouTube<ExternalLink size={13} className="text-ink-3" /></a>}
+            {v.youtube_id && <a href={`https://www.youtube.com/watch?v=${v.youtube_id}${list && shelfRef ? `&list=${shelfRef}` : ""}`} target="_blank" rel="noreferrer" className="flex items-center justify-between rounded-lg border border-line px-3 py-2 text-[13px] text-ink hover:border-saffron">{list && shelfRef ? "Watch this playlist on YouTube" : "Watch on YouTube"}<ExternalLink size={13} className="text-ink-3" /></a>}
             {more.length > 0 && <div><p className="mb-2 text-[12px] font-medium text-ink-3">More from this time and place</p><div className="space-y-3">{more.map((m) => <Link key={m.slug} href={`/teachings/videos/${m.slug}`} className="group flex gap-3">{m.youtube_id && /* eslint-disable-next-line @next/next/no-img-element */ <img src={`https://i.ytimg.com/vi/${m.youtube_id}/mqdefault.jpg`} alt="" className="aspect-video w-28 shrink-0 rounded-md object-cover" />}<span className="line-clamp-3 text-[12.5px] leading-snug text-ink-2 group-hover:text-saffron">{m.title}</span></Link>)}</div></div>}
           </aside>
         </div>
@@ -65,7 +68,10 @@ export async function ShelfPage({ id }: { id: string }) {
             <p className="mt-1 text-[13px] text-ink-3">{s.count.toLocaleString()} videos</p>
             {s.description && <p className="mt-2 line-clamp-3 max-w-3xl whitespace-pre-line text-[13.5px] leading-relaxed text-ink-2">{s.description}</p>}
           </div>
-          {s.items[0] && <Link href={watchHref(s.items[0], `list=${s.id}`)} className="inline-flex h-11 items-center gap-2 rounded-full bg-saffron px-6 text-[14px] font-semibold text-white hover:brightness-110"><Play size={16} fill="currentColor" />Play all</Link>}
+          <div className="flex flex-wrap gap-2">
+            {s.items[0] && <Link href={watchHref(s.items[0], `list=${s.id}`)} className="inline-flex h-11 items-center gap-2 rounded-full bg-saffron px-6 text-[14px] font-semibold text-white hover:brightness-110"><Play size={16} fill="currentColor" />Play all</Link>}
+            <a href={s.kind === "channel" ? `https://www.youtube.com/channel/${s.ref}` : `https://www.youtube.com/playlist?list=${s.ref}`} target="_blank" rel="noreferrer" className="inline-flex h-11 items-center gap-2 rounded-full border border-line-strong bg-white px-5 text-[14px] font-semibold text-ink hover:border-[#ff0000] hover:text-[#cc0000]"><ExternalLink size={15} />Open on YouTube</a>
+          </div>
         </header>
         {!s.items.length ? <p className="py-16 text-center text-[14px] text-ink-3">The videos are being fetched.</p> :
           <div className="grid grid-cols-1 gap-x-4 gap-y-7 pt-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">{s.items.map((v) => <VideoCard key={v.slug} v={v} q={`list=${s.id}`} />)}</div>}

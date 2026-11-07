@@ -70,7 +70,8 @@ export async function getVideoHome(): Promise<{ sections: VSection[]; latest: VC
 /** One section's own tab: all its videos (or all its playlists). */
 export async function getSection(slug: string): Promise<VSection | null> {
   if (!hasDb()) return null;
-  try { return (await sectionTree(slug)).bySlug.get(slug) || null; } catch { return null; }
+  for (let k = 0; k < 2; k++) { try { return (await sectionTree(slug)).bySlug.get(slug) || null; } catch { await new Promise((r) => setTimeout(r, 400)); } }
+  return null;
 }
 
 export async function getChannels(limit = 200): Promise<Shelf[]> {
@@ -84,11 +85,15 @@ export async function getChannels(limit = 200): Promise<Shelf[]> {
 /** One channel or playlist with all its videos, in order. */
 export async function getShelf(id: string): Promise<Shelf | null> {
   if (!hasDb() || !/^[0-9a-f-]{36}$/.test(id)) return null;
+  for (let k = 0; k < 2; k++) { const r = await shelfOnce(id); if (r !== undefined) return r; await new Promise((res) => setTimeout(res, 400)); }
+  return null;
+}
+async function shelfOnce(id: string): Promise<Shelf | null | undefined> {
   try {
     const s = (await sql`select * from video_sources where id = ${id}`)[0] as any; if (!s) return null;
     const rows = (await sql`select v.slug, v.title, v.youtube_id, v.duration_sec, v.date, v.year from video_source_items i join videos v on v.youtube_id = i.youtube_id and v.status = 'published' where i.source_id = ${id} order by i.position limit 5000`) as any[];
     return { id: s.id, name: s.name || s.url, avatar: s.avatar, description: s.description, showAs: s.show_as || "row", kind: s.kind, ref: s.ref, count: rows.length, items: rows.map(card) };
-  } catch { return null; }
+  } catch { return undefined; }
 }
 
 /** The queue a watch page follows: a section (sec=) or a channel/playlist (list=). */

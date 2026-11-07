@@ -54,5 +54,18 @@ export async function getVideos() {
 
 export async function getVideo(slug: string) {
   if (!hasDb()) return null;
-  try { return ((await sql`select v.*, to_char(v.date, 'YYYY-MM-DD') as day, a.slug as audio_slug, a.title as audio_title from videos v left join audios a on a.id = v.audio_id where v.slug = ${slug} and v.status = 'published'`)[0] as any) || null; } catch { return null; }
+  const one = (q: Promise<any[]>) => q.then((r) => (r[0] as any) || null);
+  const bySlug = (x: string) => one(sql`select v.*, to_char(v.date, 'YYYY-MM-DD') as day, a.slug as audio_slug, a.title as audio_title from videos v left join audios a on a.id = v.audio_id where v.slug = ${x} and v.status = 'published'`);
+  // a database hiccup is retried once rather than shown as “not found”
+  for (let k = 0; k < 2; k++) { try { return await bySlug(slug); } catch { await new Promise((r) => setTimeout(r, 400)); } }
+  return null;
+}
+/** When a video's address has changed (it was brought in again, or renamed): find it by its YouTube id or by its address without a trailing number. */
+export async function findMovedVideo(slug: string): Promise<string | null> {
+  if (!hasDb()) return null;
+  try {
+    const yt = /^[\w-]{11}$/.test(slug) ? slug : null; const base = slug.replace(/-\d+$/, "");
+    const r = (await sql`select slug from videos where status = 'published' and (youtube_id = ${yt} or slug = ${base} or slug like ${base + "-%"}) order by (youtube_id = ${yt}) desc nulls last, length(slug) limit 1`)[0] as any;
+    return r?.slug && r.slug !== slug ? r.slug : null;
+  } catch { return null; }
 }
