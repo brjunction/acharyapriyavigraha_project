@@ -49,13 +49,10 @@ export function Hero() {
     <section className="hero-red relative isolate overflow-hidden" onPointerMove={move}>
       {/* a warm saffron ground printed with small Indic flowers, drifting very slowly; a soft light behind Śrīla Gurudeva */}
       <div aria-hidden className="hero-saffron absolute inset-0 -z-10" />
-      <PaisleyField className="hero-paisley -z-10 text-[#a8400c]" scale={1.05} />
       <div aria-hidden className="hero-buti pointer-events-none absolute inset-0 -z-10" />
-      <Orn src="mandala-gold" className="spin-slow pointer-events-none absolute left-1/2 top-[30%] -z-10 h-[620px] w-[620px] max-w-none -translate-x-1/2 -translate-y-1/2 opacity-[0.16] lg:left-[72%] lg:top-1/2 lg:h-[900px] lg:w-[900px]" />
       <div aria-hidden className="hero-vig pointer-events-none absolute inset-0 -z-10" />
       <div aria-hidden className="pointer-events-none absolute inset-0 z-0 overflow-hidden">{Array.from({ length: 14 }, (_, k) => <span key={k} className="hero-spark" style={{ left: `${(k * 37 + 7) % 100}%`, animationDuration: `${16 + (k % 6) * 2.5}s`, animationDelay: `${-((k * 13) % 21)}s`, width: k % 4 ? 2 : 3, height: k % 4 ? 2 : 3 }} />)}</div>
-      <Toran className="hero-toran pointer-events-none absolute inset-x-0 top-0 z-[1] text-[#8f300a]" />
-      <VMask name="mandala-saffron" className="hero-spin-rev pointer-events-none absolute -bottom-24 -left-24 size-[240px] text-[#fff1d6] opacity-[0.16] sm:-bottom-32 sm:-left-32 sm:size-[360px]" />
+      <VMask name="mandala-saffron" className="hero-spin-rev pointer-events-none absolute -bottom-24 -left-24 size-[240px] text-[#e8b872] opacity-[0.12] sm:-bottom-32 sm:-left-32 sm:size-[360px]" />
             <div className="relative mx-auto grid max-w-[1240px] grid-cols-[minmax(0,1fr)] content-center items-center gap-5 px-5 py-8 min-h-[calc(100svh-52px)] sm:min-h-[calc(100svh-58px)] sm:gap-9 sm:px-10 sm:py-12 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:py-28">
         <div className="rise order-2 text-center lg:order-1 lg:text-left">
           <span className="hero-pill hx-sweep relative inline-flex items-center gap-2.5 overflow-hidden rounded-full bg-[#5d140c]/45 py-1 pl-2 pr-4 text-[11px] font-medium leading-snug text-[#fff1df] shadow-[0_12px_30px_-16px_rgba(40,5,2,.7),inset_0_1px_0_rgba(255,255,255,.18)] ring-1 ring-white/25 backdrop-blur-md sm:gap-3 sm:py-1.5 sm:pr-5 sm:text-[12px]">
