@@ -153,3 +153,8 @@ alter table videos add column if not exists published_at timestamptz;
 alter table videos add column if not exists source_id uuid;
 alter table video_sources add column if not exists default_kind text;
 alter table video_sources add column if not exists position int not null default 0;
+
+-- Videos home (sections, how each source is shown, icons) and playlist order
+alter table video_sources add column if not exists section text, add column if not exists show_as text not null default 'row', add column if not exists avatar text, add column if not exists description text, add column if not exists hidden boolean not null default false;
+create table if not exists video_source_items (source_id uuid not null references video_sources(id) on delete cascade, youtube_id text not null, position int not null default 0, primary key (source_id, youtube_id));
+create index if not exists video_source_items_yt on video_source_items (youtube_id);

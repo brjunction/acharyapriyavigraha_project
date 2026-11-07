@@ -3,7 +3,7 @@ import { sql } from "@/lib/db";
 import { fold } from "@/lib/content/text";
 import { VIDEO, insertRow } from "@/lib/content/generic";
 
-export type Source = { id: string; url: string; name: string | null; kind: string; ref: string | null; default_kind?: string | null };
+export type Source = { id: string; url: string; name: string | null; kind: string; ref: string | null; default_kind?: string | null; show_as?: string | null; avatar?: string | null; description?: string | null };
 export type YtVideo = { id: string; title: string; seconds: number; published?: string; description?: string };
 const UA = { "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130 Safari/537.36", "accept-language": "en" };
 
@@ -121,14 +121,35 @@ export async function knownPlaces(): Promise<[string, string, string][]> {
   try { return ((await sql`select distinct place, country from audios where place is not null`) as any[]).map((r) => [fold(r.place), r.place, r.country || ""]); } catch { return []; }
 }
 
-/** Fetch one source and add the videos not yet in the archive. Existing ones are left as edited. */
+const unesc = (x: string) => x.replace(/&amp;/g, "&").replace(/&#39;/g, "'").replace(/&quot;/g, '"').replace(/&lt;/g, "<").replace(/&gt;/g, ">");
+/** The icon (channel picture or playlist cover) and description of a channel or playlist. */
+export async function sourceMeta(src: { kind: string; ref: string }, key?: string | null): Promise<{ avatar: string | null; description: string | null }> {
+  try {
+    if (key) {
+      const u = src.kind === "channel" ? `https://www.googleapis.com/youtube/v3/channels?part=snippet&id=${src.ref}&key=${key}` : `https://www.googleapis.com/youtube/v3/playlists?part=snippet&id=${src.ref}&key=${key}`;
+      const sn = (await (await fetch(u)).json()).items?.[0]?.snippet; const t = sn?.thumbnails;
+      if (sn) return { avatar: (t?.high || t?.medium || t?.default)?.url || null, description: sn.description || null };
+    }
+    const html = await page(src.kind === "channel" ? `https://www.youtube.com/channel/${src.ref}?hl=en` : `https://www.youtube.com/playlist?list=${src.ref}&hl=en`);
+    const img = /<meta property="og:image" content="([^"]+)"/.exec(html)?.[1]; const d = /<meta property="og:description" content="([^"]*)"/.exec(html)?.[1];
+    return { avatar: img ? unesc(img) : null, description: d ? unesc(d) : null };
+  } catch { return { avatar: null, description: null }; }
+}
+
+/** Fetch one source: remember its videos in order (so playlists play in order), and add the videos not yet in the archive. Existing ones are left as edited. */
 export async function syncSource(s: Source, key?: string | null) {
   const vids = await listVideos({ kind: s.kind, ref: s.ref! }, key);
+  if (!s.avatar || !s.description) { const m = await sourceMeta({ kind: s.kind, ref: s.ref! }, key); await sql`update video_sources set avatar = coalesce(avatar, ${m.avatar}), description = coalesce(description, ${m.description}) where id = ${s.id}`; }
+  if (vids.length) {
+    const ids = vids.map((v) => v.id); const pos = vids.map((_, i) => i);
+    await sql`insert into video_source_items (source_id, youtube_id, position) select ${s.id}::uuid, y, p from unnest(${ids}::text[], ${pos}::int[]) as t(y, p) on conflict (source_id, youtube_id) do update set position = excluded.position`;
+    await sql`delete from video_source_items where source_id = ${s.id} and not (youtube_id = any(${ids}::text[]))`;
+  }
   const have = new Set(((await sql`select youtube_id from videos where youtube_id = any(${vids.map((v) => v.id)})`) as any[]).map((x) => x.youtube_id));
   const known = await knownPlaces(); let added = 0; const todo = vids.filter((v) => !have.has(v.id));
   for (const v of todo.slice(0, 150)) {
     const c = classify(v.title, v.description, known);
-    await insertRow(VIDEO, { youtube_id: v.id, title: v.title, description: v.description || null, duration_sec: v.seconds || null, published_at: v.published || null, channel: s.name, series: s.name, source_id: s.id, kind: s.default_kind || (c.type === "Kīrtana" ? "kirtan" : c.type === "Festival" ? "festival" : c.type === "Memories" ? "memory" : (v.seconds && v.seconds <= 60 ? "short" : "lecture")), ...c });
+    await insertRow(VIDEO, { youtube_id: v.id, title: v.title, description: v.description || null, duration_sec: v.seconds || null, published_at: v.published || null, channel: s.name, series: s.name, source_id: s.id, kind: s.default_kind || (s.show_as === "shorts" ? "short" : null) || (c.type === "Kīrtana" ? "kirtan" : c.type === "Festival" ? "festival" : c.type === "Memories" ? "memory" : (v.seconds && v.seconds <= 60 ? "short" : "lecture")), ...c });
     added++;
   }
   await sql`update video_sources set last_synced_at = now(), last_count = ${vids.length} where id = ${s.id}`;

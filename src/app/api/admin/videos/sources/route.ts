@@ -1,7 +1,7 @@
 import { sql } from "@/lib/db";
 import { guard, json, fail } from "@/lib/api";
 import { revalidatePath } from "next/cache";
-import { resolve, syncSource, apiKey, classify, knownPlaces, addVideo, videoId, type Source } from "@/lib/youtube-sync";
+import { resolve, syncSource, apiKey, classify, knownPlaces, addVideo, videoId, sourceMeta, type Source } from "@/lib/youtube-sync";
 import { VIDEO } from "@/lib/content/generic";
 
 export const maxDuration = 300;
@@ -21,14 +21,25 @@ export async function POST(req: Request) {
     for (const raw of b.urls.map((x: string) => String(x).trim()).filter(Boolean).slice(0, 200)) {
       try {
         if (videoId(raw) && !/[?&]list=/.test(raw)) { const added = await addVideo(raw, b.kind); out.push({ url: raw, ok: true, note: added ? "Video added" : "Video already here" }); continue; }
-        const r = await resolve(raw);
-        await sql`insert into video_sources (url, name, kind, ref, default_kind) values (${raw}, ${r.name}, ${r.kind}, ${r.ref}, ${b.kind || null}) on conflict (url) do update set ref = excluded.ref, name = coalesce(video_sources.name, excluded.name)`;
+        const r = await resolve(raw); const m = await sourceMeta({ kind: r.kind, ref: r.ref }, await apiKey());
+        const show = ["row", "playlist", "shorts", "channel"].includes(b.show_as) ? b.show_as : r.kind === "channel" ? "channel" : "row";
+        await sql`insert into video_sources (url, name, kind, ref, default_kind, section, show_as, avatar, description, position) values (${raw}, ${r.name}, ${r.kind}, ${r.ref}, ${b.kind || null}, ${String(b.section || "").trim() || null}, ${show}, ${m.avatar}, ${m.description}, (select coalesce(max(position), 0) + 1 from video_sources)) on conflict (url) do update set ref = excluded.ref, name = coalesce(video_sources.name, excluded.name), avatar = coalesce(video_sources.avatar, excluded.avatar)`;
         out.push({ url: raw, ok: true, note: `${r.kind === "playlist" ? "Playlist" : "Channel"} added${r.name ? `: ${r.name}` : ""}` });
       } catch (e: any) { out.push({ url: raw, ok: false, note: e.message }); }
     }
     revalidatePath("/teachings/videos"); return json({ results: out });
   }
-  if (b.update) { const u = b.update; await sql`update video_sources set name = coalesce(${u.name ?? null}, name), default_kind = ${u.default_kind || null} where id = ${u.id}`; return json({ ok: true }); }
+  if (b.update) {
+    const u = b.update; const cur = (await sql`select * from video_sources where id = ${u.id}`)[0]; if (!cur) return fail("Not found.");
+    const v = { name: u.name ?? cur.name, default_kind: "default_kind" in u ? u.default_kind || null : cur.default_kind, section: "section" in u ? String(u.section || "").trim() || null : cur.section,
+      show_as: ["row", "playlist", "shorts", "channel"].includes(u.show_as) ? u.show_as : cur.show_as, hidden: "hidden" in u ? !!u.hidden : cur.hidden, avatar: "avatar" in u ? u.avatar || null : cur.avatar, description: "description" in u ? u.description || null : cur.description };
+    await sql`update video_sources set name = ${v.name}, default_kind = ${v.default_kind}, section = ${v.section}, show_as = ${v.show_as}, hidden = ${v.hidden}, avatar = ${v.avatar}, description = ${v.description} where id = ${u.id}`;
+    revalidatePath("/teachings/videos"); return json({ ok: true });
+  }
+  /** { order: [ids] } saves the order of sections and sources on the Videos page. */
+  if (Array.isArray(b.order)) { for (const [i, id] of b.order.entries()) await sql`update video_sources set position = ${i} where id = ${id}`; revalidatePath("/teachings/videos"); return json({ ok: true }); }
+  /** { refreshMeta: id } fetches the icon and description again from YouTube. */
+  if (b.refreshMeta) { const s = (await sql`select * from video_sources where id = ${b.refreshMeta}`)[0] as Source; if (!s) return fail("Not found."); const m = await sourceMeta({ kind: s.kind, ref: s.ref! }, await apiKey()); await sql`update video_sources set avatar = coalesce(${m.avatar}, avatar), description = coalesce(${m.description}, description) where id = ${s.id}`; revalidatePath("/teachings/videos"); return json(m); }
   if (b.url) {
     try { const r = await resolve(String(b.url)); const row = (await sql`insert into video_sources (url, name, kind, ref) values (${String(b.url).trim()}, ${b.name || r.name}, ${r.kind}, ${r.ref}) on conflict (url) do update set ref = excluded.ref returning *`)[0]; return json(row); }
     catch (e: any) { return fail(e.message); }
