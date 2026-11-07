@@ -417,8 +417,8 @@ export function Header() {
           <nav className="hidden items-center justify-center gap-1 lg:flex" aria-label="Main" onMouseLeave={hide}>
             {SIMPLE.map((m) => { const on = active === m.key; const current = m.featured.concat(m.all).some((a) => hit(path, a.href)); return (
               <button key={m.key} onMouseEnter={() => show(m.key)} onFocus={() => show(m.key)} onClick={() => setActive(on ? null : m.key)} aria-expanded={on} aria-haspopup="true"
-                className={`acc-${m.accent} relative flex items-center gap-1.5 whitespace-nowrap rounded-full px-3 py-1.5 text-[13px] font-medium text-ink transition ${on ? "bg-acc-soft" : "hover:bg-acc-tint"}`}>
-                <m.icon size={15} strokeWidth={1.9} className="text-[var(--acc)]" />{m.label}<ChevronDown size={13} className={`-ml-0.5 opacity-50 transition-transform ${on ? "rotate-180" : ""}`} />
+                className={`acc-${m.accent} relative flex items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-1.5 text-[12px] font-medium text-ink transition ${on ? "bg-acc-soft" : "hover:bg-acc-tint"}`}>
+                <m.icon size={14} strokeWidth={1.9} className="text-[var(--acc)]" />{m.label}<ChevronDown size={13} className={`-ml-0.5 opacity-50 transition-transform ${on ? "rotate-180" : ""}`} />
                 {current && <span className="absolute inset-x-4 -bottom-[5px] h-[2px] rounded-full bg-[var(--acc)]" />}
               </button>); })}
           </nav>

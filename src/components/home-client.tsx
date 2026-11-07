@@ -58,61 +58,53 @@ export function Hero() {
   return (
     <>
     <section className="hero-red relative isolate overflow-hidden" onPointerMove={move}>
-      {/* the red-saffron gradient, with the same Indic lattice over it */}
+      {/* a calm red-saffron gradient, slowly drifting; one mandala turning behind Śrīla Gurudeva */}
       <div aria-hidden className="hero-warm hero-warm-move absolute inset-0 -z-10" />
       <div aria-hidden className="hero-aurora pointer-events-none absolute inset-0 -z-10 opacity-60" />
       <div aria-hidden className="pointer-events-none absolute inset-0 z-0 overflow-hidden">{Array.from({ length: 18 }, (_, k) => <span key={k} className="hero-spark" style={{ left: `${(k * 37 + 7) % 100}%`, animationDuration: `${15 + (k % 6) * 2.5}s`, animationDelay: `${-((k * 13) % 21)}s`, width: k % 4 ? 2 : 3, height: k % 4 ? 2 : 3 }} />)}</div>
-      <div aria-hidden className="hero-lotus-field pointer-events-none absolute inset-0 -z-10" />
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_70%_at_78%_42%,rgba(255,214,150,0.22),transparent_65%),linear-gradient(100deg,rgba(60,8,4,0.35),transparent_60%)]" />
       <VMask name="mandala-saffron" className="hero-spin-rev pointer-events-none absolute -bottom-28 -left-28 size-[300px] text-[#f3b363] opacity-[0.14] sm:-bottom-32 sm:-left-32 sm:size-[380px]" />
-      {/* One Indic pattern only (the lotus lattice above); the paisley belongs to the footer */}
-      <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-[3px] bg-gradient-to-r from-[#c98a2b] via-[#ffc566] to-[#c98a2b]" />
-      {[8, 22, 36, 61, 74, 90].map((x, i) => (
-        <div key={x} className="pointer-events-none absolute bottom-24" style={{ left: `${x}%` }}><div className="hero-petal" style={{ animationDelay: `${i * 1.5}s` }}><Padma className="h-5 w-5 text-[#ffd48a]" layers={2} /></div></div>
-      ))}
-      <div className="relative mx-auto grid max-w-[1240px] grid-cols-[minmax(0,1fr)] content-center items-center gap-5 px-5 py-8 min-h-[calc(100svh-52px)] sm:min-h-[calc(100svh-58px)] sm:gap-9 sm:px-10 sm:py-12 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:py-28">
+            <div className="relative mx-auto grid max-w-[1240px] grid-cols-[minmax(0,1fr)] content-center items-center gap-5 px-5 py-8 min-h-[calc(100svh-52px)] sm:min-h-[calc(100svh-58px)] sm:gap-9 sm:px-10 sm:py-12 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:py-28">
         <div className="rise order-2 text-center lg:order-1 lg:text-left">
-          <span className="hero-pill hx-sweep relative inline-flex items-center gap-2.5 overflow-hidden rounded-full bg-[linear-gradient(135deg,#ffe3a0,#f7c556_45%,#e8a548)] py-1 pl-2 pr-4 text-[11.5px] font-semibold leading-snug text-[#5d140c] shadow-[0_12px_30px_-14px_rgba(40,5,2,.7)] ring-1 ring-[#fff1cf]/60 sm:gap-3 sm:py-1.5 sm:pr-5 sm:text-[13px]">
-            <span role="img" aria-label="ISKCON" className="block h-6 w-[30px] shrink-0 text-[#851813] sm:h-7 sm:w-[34px]" style={{ WebkitMaskImage: "url(/iskcon-mask.png)", maskImage: "url(/iskcon-mask.png)", WebkitMaskSize: "contain", maskSize: "contain", WebkitMaskRepeat: "no-repeat", maskRepeat: "no-repeat", WebkitMaskPosition: "center", maskPosition: "center", background: "currentColor" }} />
-            <span className="h-4 w-px shrink-0 bg-[#851813]/30" />
+          <span className="hero-pill hx-sweep relative inline-flex items-center gap-2.5 overflow-hidden rounded-full bg-[#5d140c]/45 py-1 pl-2 pr-4 text-[11px] font-medium leading-snug text-[#fff1df] shadow-[0_12px_30px_-16px_rgba(40,5,2,.7),inset_0_1px_0_rgba(255,255,255,.18)] ring-1 ring-white/25 backdrop-blur-md sm:gap-3 sm:py-1.5 sm:pr-5 sm:text-[12px]">
+            <span role="img" aria-label="ISKCON" className="block h-6 w-[30px] shrink-0 text-[#ffd98a] sm:h-7 sm:w-[34px]" style={{ WebkitMaskImage: "url(/iskcon-mask.png)", maskImage: "url(/iskcon-mask.png)", WebkitMaskSize: "contain", maskSize: "contain", WebkitMaskRepeat: "no-repeat", maskRepeat: "no-repeat", WebkitMaskPosition: "center", maskPosition: "center", background: "currentColor" }} />
+            <span className="h-4 w-px shrink-0 bg-white/30" />
             The Complete Life &amp; Teachings of Śrīla Gurudeva
           </span>
-          <h1 className="hx-title mt-4 text-[30px] font-semibold leading-[1.1] tracking-[-0.035em] [text-shadow:0_2px_24px_rgba(70,10,4,.35)] sm:mt-5 sm:text-[42px] lg:mt-6 lg:text-[52px]">
+          <h1 className="hx-title mt-4 text-[25px] font-semibold leading-[1.15] tracking-[-0.03em] sm:mt-5 sm:text-[34px] lg:mt-5 lg:text-[42px]">
             {["Words", "That", "Give", "Life"].map((w, i) => <span key={w} className="hero-word hx-shine mr-[0.24em]" style={{ animationDelay: `${0.15 + i * 0.12}s, ${2 + i * 0.12}s` }}>{w}</span>)}<br />
             {["to", "a"].map((w, i) => <span key={w} className="hero-word hx-shine mr-[0.24em]" style={{ animationDelay: `${0.63 + i * 0.12}s, ${2.5 + i * 0.12}s` }}>{w}</span>)}<span className="hero-word hero-gold" style={{ animationDelay: "0.9s" }}>Burning Heart</span>
           </h1>
-          <div aria-hidden className="hx-line relative mx-auto mt-5 h-px w-48 overflow-hidden bg-gradient-to-r from-transparent via-[#f3c35e]/70 to-transparent sm:w-64 lg:mx-0 lg:bg-gradient-to-r lg:from-[#f3c35e]/80 lg:via-[#f3c35e]/40 lg:to-transparent"><span className="hx-line-run absolute inset-y-0 w-16 bg-gradient-to-r from-transparent via-[#fff3c8] to-transparent" /></div>
           <p className="mx-auto mt-3 max-w-[34rem] text-[12.5px] leading-relaxed text-[#ffe9cc]/90 sm:mt-4 sm:text-[14.5px] lg:mx-0 lg:mt-5 lg:max-w-xl">
             Lectures, letters, books, quotes and photographs of Śrīla Gurudeva, gathered in one searchable home and growing in many languages. Listen, read, and find the exact words you were looking for.
           </p>
           {/* a dark glass search with a gold underline */}
           <form onSubmit={(e) => { e.preventDefault(); if (q.trim()) r.push(`/search?q=${encodeURIComponent(q)}`); else setSearch(true); }}
-            className="hx-in group/sr relative mx-auto mt-7 flex max-w-xl items-center gap-3 rounded-2xl border border-white/15 bg-black/20 py-2 pl-4 pr-2 backdrop-blur-md transition focus-within:border-[#f3c35e]/60 focus-within:bg-black/30 lg:mx-0" style={{ animationDelay: ".45s" }}>
+            className="hx-in group/sr relative mx-auto mt-7 flex max-w-xl items-center gap-3 rounded-2xl border border-white/35 bg-white/[0.16] py-2 pl-4 pr-2 shadow-[0_18px_40px_-24px_rgba(40,5,2,.6),inset_0_1px_0_rgba(255,255,255,.35)] backdrop-blur-xl transition focus-within:border-white/70 focus-within:bg-white/[0.24] lg:mx-0" style={{ animationDelay: ".45s" }}>
             <Search size={18} className="shrink-0 text-[#f3c35e]" />
             <div className="relative flex-1">
               <input value={q} onChange={(e) => setQ(e.target.value)} aria-label="Search the teachings" className="h-10 w-full bg-transparent text-[15px] text-[#fff6ea] outline-none" />
-              {!q && <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center truncate text-[15px] text-[#ffe2b0]/55">Search&nbsp;<span className="caret text-[#ffe9d2]">{hint}</span></span>}
+              {!q && <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center truncate text-[15px] text-white/70">Search&nbsp;<span className="caret text-[#ffe9d2]">{hint}</span></span>}
             </div>
             <button aria-label="Search" className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-[linear-gradient(135deg,#f7c556,#e8913c)] text-[#4a0d0b] transition hover:brightness-110"><ArrowRight size={18} /></button>
             <span aria-hidden className="absolute inset-x-4 -bottom-px h-px origin-left scale-x-0 bg-gradient-to-r from-transparent via-[#f3c35e] to-transparent transition duration-500 group-focus-within/sr:scale-x-100" />
           </form>
-          <div className="hx-in mx-auto mt-4 flex max-w-xl flex-wrap justify-center gap-2.5 lg:mx-0 lg:justify-start" style={{ animationDelay: ".55s" }}>
-            <Link href="/teachings/audio" className="hx-sweep hx-pulse relative inline-flex h-11 items-center overflow-hidden gap-2 rounded-full bg-[linear-gradient(135deg,#f7c556,#e8913c)] pl-1.5 pr-5 text-[13.5px] font-semibold text-[#4a0d0b] shadow-[0_14px_30px_-14px_rgba(247,197,86,.8)] transition hover:-translate-y-0.5"><span className="flex size-8 items-center justify-center rounded-full bg-[#4a0d0b]/15"><Headphones size={15} /></span>Listen to His Lectures</Link>
-            <Link href="/teachings/books" className="hx-border relative inline-flex h-11 items-center gap-2 rounded-full border border-white/25 bg-white/[0.08] pl-1.5 pr-5 text-[13.5px] font-semibold text-[#fff6ea] backdrop-blur transition hover:-translate-y-0.5 hover:border-[#f3c35e]/60"><span className="flex size-8 items-center justify-center rounded-full bg-white/15"><BookOpen size={15} /></span>Read His Books</Link>
+          <div className="hx-in mx-auto mt-4 grid max-w-xl grid-cols-2 gap-2.5 sm:flex sm:flex-wrap sm:justify-center lg:mx-0 lg:justify-start" style={{ animationDelay: ".55s" }}>
+            <Link href="/teachings/audio" className="hx-sweep relative inline-flex h-10 items-center justify-center overflow-hidden gap-2 sm:justify-start rounded-full bg-[linear-gradient(135deg,#f7c556,#e8913c)] pl-1.5 pr-5 text-[12.5px] font-semibold text-[#4a0d0b] shadow-[0_14px_30px_-14px_rgba(247,197,86,.8)] transition hover:-translate-y-0.5"><span className="flex size-8 items-center justify-center rounded-full bg-[#4a0d0b]/15"><Headphones size={15} /></span><span className="sm:hidden">Listen</span><span className="max-sm:hidden">Listen to His Lectures</span></Link>
+            <Link href="/teachings/books" className="hx-border relative inline-flex h-10 items-center justify-center sm:justify-start gap-2 rounded-full border border-white/25 bg-white/[0.08] pl-1.5 pr-5 text-[12.5px] font-semibold text-[#fff6ea] backdrop-blur transition hover:-translate-y-0.5 hover:border-[#f3c35e]/60"><span className="flex size-8 items-center justify-center rounded-full bg-white/15"><BookOpen size={15} /></span><span className="sm:hidden">Read</span><span className="max-sm:hidden">Read His Books</span></Link>
           </div>
           {/* a dock of quick ways in */}
-          <nav aria-label="Quick links" className="hx-in mx-auto mt-7 grid max-w-xl grid-cols-6 divide-x divide-white/10 overflow-hidden rounded-2xl border border-white/10 bg-white/[0.05] backdrop-blur lg:mx-0" style={{ animationDelay: ".65s" }}>
+          <nav aria-label="Quick links" className="hx-in mx-auto mt-7 grid max-w-xl grid-cols-6 divide-x divide-white/20 overflow-hidden rounded-2xl border border-white/35 bg-white/[0.14] shadow-[0_18px_40px_-24px_rgba(40,5,2,.6),inset_0_1px_0_rgba(255,255,255,.35)] backdrop-blur-xl lg:mx-0" style={{ animationDelay: ".65s" }}>
             {([["/teachings/audio", Headphones, "Audio"], ["/teachings/videos", PlayCircle, "Videos"], ["/teachings/books", BookOpen, "Books"], ["/teachings/quotes", QuoteIcon, "Quotes"], ["/gurudeva/diaries", NotebookPen, "Diary"], ["/gurudeva/gallery", ImageIcon, "Gallery"]] as const).map(([h, I, l]) => (
-              <Link key={h} href={h} className="group/d flex flex-col items-center gap-1.5 px-1 py-3 text-[11px] font-medium text-[#ffe9d2]/80 transition hover:bg-white/[0.08] hover:text-[#fff6ea] sm:text-[11.5px]">
-                <span className="hx-float" style={{ animationDelay: `${-["/teachings/audio", "/teachings/videos", "/teachings/books", "/teachings/quotes", "/gurudeva/diaries", "/gurudeva/gallery"].indexOf(h) * 0.5}s` }}><I size={19} strokeWidth={1.6} className="text-[#f3c35e] transition duration-300 group-hover/d:-translate-y-0.5 group-hover/d:scale-110" /></span>{l}
+              <Link key={h} href={h} className="group/d flex flex-col items-center gap-1.5 px-1 py-3 text-[11px] font-medium text-white/90 transition hover:bg-white/[0.18] hover:text-white sm:text-[11.5px]">
+                <span className="hx-float" style={{ animationDelay: `${-["/teachings/audio", "/teachings/videos", "/teachings/books", "/teachings/quotes", "/gurudeva/diaries", "/gurudeva/gallery"].indexOf(h) * 0.5}s` }}><I size={19} strokeWidth={1.6} className="text-[#ffe3a0] transition duration-300 group-hover/d:-translate-y-0.5 group-hover/d:scale-110" /></span>{l}
               </Link>))}
           </nav>
         </div>
 
-        {/* Portrait: a plain circular frame, no animation */}
-        <div className="relative order-1 mx-auto w-full max-w-[min(190px,26svh)] sm:max-w-[min(280px,28svh)] lg:order-2 lg:max-w-[340px]">
-          <div aria-hidden className="pointer-events-none absolute inset-[-42%]"><VMask name="mandala-saffron" className="hero-spin h-full w-full text-[#f3b363] opacity-[0.34]" /></div>
-          <div className="hx-glow relative"><PortraitFrame photo focus="center 30%" src="/photos/gurudeva-hero.webp" alt="Śrī Śrīmad Gour Govinda Swāmī Gurudeva" className="mx-auto w-full" /></div>
+        {/* Portrait at the heart of a turning gold-and-ivory lotus; sized so the whole lotus always fits */}
+        <div className="relative order-1 mx-auto w-full max-w-[min(340px,86vw,44svh)] sm:max-w-[min(440px,48svh)] lg:order-2 lg:max-w-[min(540px,72svh)]">
+          <GurudevaLotus src="/photos/gurudeva-hero.webp" alt="Śrī Śrīmad Gour Govinda Swāmī Gurudeva" focus="center 30%" />
         </div>
       </div>
     </section>

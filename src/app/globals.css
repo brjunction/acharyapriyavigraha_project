@@ -718,3 +718,24 @@ html[data-motion="reduce"] .bless-word, html[data-motion="reduce"] .bless-rise, 
 @keyframes hero-field { to { background-position: 180px -180px; } }
 @media (max-width: 640px) { .hero-lotus-field { opacity: .09; background-size: 150px 150px; } }
 @media (prefers-reduced-motion: reduce) { .hero-lotus-field { animation: none; } }
+
+/* Hero halo: soft rays and rings of light */
+.hx-rays { background: repeating-conic-gradient(from 0deg, rgba(255,236,200,.16) 0deg 4deg, transparent 4deg 14deg); -webkit-mask-image: radial-gradient(closest-side, #000 18%, transparent 72%); mask-image: radial-gradient(closest-side, #000 18%, transparent 72%); filter: blur(6px); animation: gl-orbit 120s linear infinite; }
+.hx-ring { animation: gl-orbit 24s linear infinite; }
+.hx-ring-rev { animation: gl-orbit 40s linear infinite reverse; }
+@media (prefers-reduced-motion: reduce) { .hx-rays, .hx-ring, .hx-ring-rev { animation: none !important; } }
+
+/* The hero lotus: each ring turns very slowly its own way, breathes, and unfolds once on arrival; a warm light pulses behind. */
+@keyframes lx-turn { to { transform: rotate(360deg); } }
+.lx-spin { animation: lx-turn 140s linear infinite; }
+.lx-spin.lx-ccw { animation-direction: reverse; }
+.lx-spin.lx-s1 { animation-duration: 180s; } .lx-spin.lx-s2 { animation-duration: 130s; } .lx-spin.lx-s3 { animation-duration: 100s; } .lx-spin.lx-s4 { animation-duration: 80s; }
+.lx-breathe { animation: lx-breathe 8s ease-in-out infinite alternate; }
+@keyframes lx-breathe { from { transform: scale(.955); } to { transform: scale(1); } }
+.lx-open { animation: lx-open 1.8s cubic-bezier(.2,.8,.2,1) both; }
+@keyframes lx-open { from { opacity: 0; transform: scale(.7) rotate(-18deg); } to { opacity: 1; transform: none; } }
+.lx-aura { background: radial-gradient(closest-side, rgba(255,226,170,.5), rgba(255,190,110,.18) 55%, transparent); animation: lx-aura 6s ease-in-out infinite alternate; }
+@keyframes lx-aura { from { opacity: .65; transform: scale(.94); } to { opacity: 1; transform: scale(1.04); } }
+.lx-portrait { animation: lx-portrait 1.4s cubic-bezier(.2,.8,.2,1) .3s both; }
+@keyframes lx-portrait { from { opacity: 0; transform: scale(.9); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .lx-spin, .lx-breathe, .lx-open, .lx-aura, .lx-portrait { animation: none; } }
