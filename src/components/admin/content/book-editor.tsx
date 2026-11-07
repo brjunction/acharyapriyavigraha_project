@@ -6,6 +6,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { ArrowLeft, ArrowUp, ArrowDown, ChevronLeft, ChevronRight, Plus, Trash2, ExternalLink, FileUp, Image as ImageIcon, IndentIncrease, IndentDecrease, X, Check, Upload, Link2 } from "lucide-react";
 import { LAYOUTS } from "@/lib/content/book-layouts";
 import { BOOK_LANGS, langName } from "@/lib/content/book-langs";
+import { AiAssist } from "../ai-assist";
 import { Btn, Badge, Field, Input, Select, Textarea, Modal, api, toast, cn } from "../ui";
 import { MediaPicker } from "../media-picker";
 
@@ -120,7 +121,7 @@ function WordImport({ bookId, onClose, onDone }: { bookId: string; onClose: () =
 
 /* ------------------------------------------------------------------ Writing one chapter, full screen */
 function Writer({ bookTitle, id, order, num, onGo, onClose }: { bookTitle: string; id: string; order: N[]; num: Record<string, string>; onGo: (id: string) => void; onClose: () => void }) {
-  const [n, setN] = useState<any>(null); const blocks = useRef<any[]>([]); const [title, setTitle] = useState(""); const [state, setState] = useState("Saved"); const t = useRef<any>(null);
+  const [n, setN] = useState<any>(null); const blocks = useRef<any[]>([]); const [aiRev, setAiRev] = useState(0); const [title, setTitle] = useState(""); const [state, setState] = useState("Saved"); const t = useRef<any>(null);
   useEffect(() => { setN(null); api(`/api/admin/nodes/${id}`).then((r) => { setN(r); setTitle(r.title); blocks.current = r.blocks || []; }).catch((e) => toast(e.message, true)); }, [id]);
   const save = useCallback(async (extra: any = {}) => { setState("Saving…"); try { await api(`/api/admin/nodes/${id}`, "PATCH", { title, blocks: blocks.current, ...extra }); setState("Saved"); } catch (e: any) { toast(e.message, true); setState("Not saved"); } }, [id, title]);
   const later = () => { setState("Unsaved"); clearTimeout(t.current); t.current = setTimeout(() => save(), 1500); };
@@ -141,7 +142,8 @@ function Writer({ bookTitle, id, order, num, onGo, onClose }: { bookTitle: strin
           <p className="text-[12.5px] text-zinc-500">Chapter {num[id]}</p>
           <input value={title} onChange={(e) => { setTitle(e.target.value); later(); }} className="mt-1 w-full bg-transparent text-[28px] font-semibold tracking-tight outline-none" placeholder="Chapter title" />
           <p className="mt-1 text-[12px] text-zinc-400">Type “/” for headings, verses, pictures and more. Paste from Word or Google Docs keeps bold, italics and headings.</p>
-          <div className="-mx-[54px] mt-4"><NotionEditor key={id} initial={blocks.current} pageId="" onChange={(b) => { blocks.current = b; later(); }} /></div>
+          <details className="mt-3 rounded-lg border border-zinc-200 bg-white p-3"><summary className="cursor-pointer text-[12.5px] font-medium text-zinc-600">AI assistant for this chapter</summary><div className="mt-2 max-w-sm"><AiAssist blocks={() => blocks.current} context={title} onReplace={(bl) => { blocks.current = bl; later(); setAiRev((r) => r + 1); }} /></div></details>
+          <div className="-mx-[54px] mt-4"><NotionEditor key={`${id}-${aiRev}`} initial={blocks.current} pageId="" onChange={(b) => { blocks.current = b; later(); }} /></div>
         </div> : <p className="p-8 text-zinc-500">Opening…</p>}</div>
       </div>
     </div>

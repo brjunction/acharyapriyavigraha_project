@@ -1,4 +1,5 @@
 "use client";
+import { AiSettings } from "./ai-settings";
 import { isProtected } from "@/lib/protected";
 import { BLESSINGS } from "@/components/home/blessing";
 import { useEffect, useRef, useState } from "react";
@@ -96,6 +97,7 @@ export function SettingsAdmin() {
         <Field label="Website address" hint="Used in the sitemap. For example https://taptajivanam.com"><Input value={s.site_url || ""} onChange={(e) => set("site_url", e.target.value)} placeholder="https://taptajivanam.com" /></Field>
         <Field label="Contact email"><Input value={s.contact_email || ""} onChange={(e) => set("contact_email", e.target.value)} /></Field>
       </div>
+      <AiSettings />
       <div className="card mt-6 max-w-2xl p-6">
         <p className="text-[15px] font-semibold text-ink">Home page · “Kṛṣṇa sent him”</p>
         <p className="mt-1 text-[13px] text-ink-3">Choose the design of the Śrīla Prabhupāda and Śrīla Gurudeva section. Preview each, then press Save settings.</p>

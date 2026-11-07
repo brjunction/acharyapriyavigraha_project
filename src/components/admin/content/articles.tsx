@@ -2,6 +2,7 @@
 import dynamic from "next/dynamic";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { FileText, Plus, Search, Trash2, ExternalLink, ArrowLeft, Image as ImageIcon, UserRound, Layers, FolderOpen, X } from "lucide-react";
+import { AiAssist } from "../ai-assist";
 import { Btn, Badge, Card, Field, Input, Select, Textarea, PageHeader, Empty, Modal, api, toast, cn } from "../ui";
 import { MediaPicker } from "../media-picker";
 
@@ -92,7 +93,7 @@ function DL({ id, value, onChange, opts, placeholder }: { id: string; value: str
 function ArticleEditor({ id, lists, onClose, issue }: { id: string; lists: Data | null; onClose: () => void; issue?: string | null }) {
   const [a, setA] = useState<any>(id === "new" ? { status: "published", topics: [], body: [], issue_id: issue || null } : null);
   const [issues, setIssues] = useState<any[]>([]); useEffect(() => { api<any[]>("/api/admin/issues").then(setIssues).catch(() => {}); }, []); const [cur, setCur] = useState(id);
-  const [busy, setBusy] = useState(false); const [pic, setPic] = useState(false); const [dirty, setDirty] = useState(false); const body = useRef<any[] | null>(null);
+  const [busy, setBusy] = useState(false); const [pic, setPic] = useState(false); const [dirty, setDirty] = useState(false); const body = useRef<any[] | null>(null); const [rev, setRev] = useState(0);
   useEffect(() => { if (id !== "new") api(`/api/admin/articles/${id}`).then((r) => setA({ ...r, date: r.date?.slice(0, 10) || "" })).catch((e) => toast(e.message, true)); }, [id]);
   const set = (k: string, v: any) => { setA((p: any) => ({ ...p, [k]: v })); setDirty(true); };
   const save = async () => {
@@ -117,9 +118,10 @@ function ArticleEditor({ id, lists, onClose, issue }: { id: string; lists: Data 
           {a.cover && /* eslint-disable-next-line @next/next/no-img-element */ <img src={a.cover} alt="" className="mb-6 aspect-[3/1] w-full rounded-xl object-cover" />}
           <textarea value={a.title || ""} onChange={(e) => set("title", e.target.value)} rows={1} placeholder="Title" className="w-full resize-none bg-transparent text-[30px] font-bold leading-tight tracking-tight outline-none [field-sizing:content] placeholder:text-zinc-300" />
           <input value={a.subtitle || ""} onChange={(e) => set("subtitle", e.target.value)} placeholder="Subtitle (optional)" className="mt-1 w-full bg-transparent text-[16px] text-zinc-500 outline-none placeholder:text-zinc-300" />
-          <div className="site-canvas -mx-[54px] mt-6 min-h-[50vh]"><NotionEditor initial={a.body || []} pageId="" onChange={(b) => { body.current = b; setDirty(true); }} /></div>
+          <div className="site-canvas -mx-[54px] mt-6 min-h-[50vh]"><NotionEditor key={rev} initial={body.current || a.body || []} pageId="" onChange={(b) => { body.current = b; setDirty(true); }} /></div>
         </div>
         <aside className="space-y-4 lg:sticky lg:top-16 lg:self-start">
+          <Card className="p-4"><AiAssist blocks={() => body.current || a.body || []} context={[a.title, a.author].filter(Boolean).join(" · ")} onReplace={(bl) => { body.current = bl; setDirty(true); setRev((r) => r + 1); }} /></Card>
           <Card className="space-y-4 p-4">
             <Field label="Author"><DL id="dl-author" value={a.author} onChange={(v) => set("author", v)} opts={lists?.authors || []} placeholder="Who wrote it" /></Field>
             <div className="grid grid-cols-[1fr_72px] gap-2"><Field label="Series"><DL id="dl-series" value={a.series} onChange={(v) => set("series", v)} opts={lists?.series || []} placeholder="If part of a series" /></Field><Field label="Part"><Input type="number" min={1} value={a.series_part ?? ""} onChange={(e) => set("series_part", e.target.value)} /></Field></div>

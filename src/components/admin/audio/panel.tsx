@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Headphones, Music, Plus, Search, Upload, Trash2, Eye, EyeOff, Tag, MapPin, Layers, ChevronLeft, ChevronRight, Play, Pause, FileText, ExternalLink, Check, X, ListFilter, Pencil, Merge, FileUp, FileSpreadsheet, Download } from "lucide-react";
 import { AUDIO_KINDS, AUDIO_LANGS, SCRIPTURES, CC_LILA, verseRef, parseRef, durText, parseDur, isSong, fold } from "@/lib/content/text";
 import { fileTitle, placeCode } from "@/lib/content/audio-names-core";
+import { AiAssist } from "../ai-assist";
 import { Btn, Badge, Card, Field, Input, Select, Textarea, PageHeader, Sheet, Tabs, Empty, Modal, api, toast, cn } from "../ui";
 
 const NotionEditor = dynamic(() => import("../notion/editor"), { ssr: false });
@@ -231,15 +232,16 @@ function Editor({ id, songs, onClose, onSaved }: { id: string; songs: boolean; o
       </div>
       {text && <TranscriptionStudio a={a} song={song} initial={transcript.current || a.transcript || []} rev={rev} busy={busy}
         onChange={(bl) => { transcript.current = bl; }} onStatus={(v) => set("transcript_status", v)} onWord={word}
-        onSave={async () => { await save(false); }} onClose={() => setText(false)} />}
+        onSave={async () => { await save(false); }} onClose={() => setText(false)}
+        onReplace={(bl) => { transcript.current = bl; setA((p: any) => ({ ...p, transcript: bl })); setRev((r) => r + 1); }} onSummary={(t) => set("summary", t)} />}
     </Sheet>
   );
 }
 
 /** A quiet, full-screen place to transcribe: the recording and its details on the left, the text on the right. */
-function TranscriptionStudio({ a, song, initial, rev, busy, onChange, onStatus, onWord, onSave, onClose }: { a: any; song: boolean; initial: any[]; rev: number; busy: boolean; onChange: (b: any[]) => void; onStatus: (v: string) => void; onWord: (f: File) => void; onSave: () => Promise<void>; onClose: () => void }) {
+function TranscriptionStudio({ a, song, initial, rev, busy, onChange, onStatus, onWord, onSave, onClose, onReplace, onSummary }: { a: any; song: boolean; initial: any[]; rev: number; busy: boolean; onChange: (b: any[]) => void; onStatus: (v: string) => void; onWord: (f: File) => void; onSave: () => Promise<void>; onClose: () => void; onReplace: (b: any[]) => void; onSummary: (s: string) => void }) {
   const el = useRef<HTMLAudioElement>(null); const [t, setT] = useState(0); const [dur, setDur] = useState(a.duration_sec || 0); const [on, setOn] = useState(false); const [rate, setRate] = useState(1);
-  const [dirty, setDirty] = useState(false); const [saved, setSaved] = useState<Date | null>(null); const [words, setWords] = useState(0);
+  const [dirty, setDirty] = useState(false); const [saved, setSaved] = useState<Date | null>(null); const [words, setWords] = useState(0); const current = useRef<any[]>(initial);
   const count = (bl: any[]) => { let n = 0; const walk = (x: any) => { if (Array.isArray(x)) x.forEach(walk); else if (x && typeof x === "object") { if (typeof x.text === "string") n += x.text.split(/\s+/).filter(Boolean).length; walk(x.content); walk(x.children); } }; walk(bl); return n; };
   useEffect(() => { setWords(count(initial)); }, []); // eslint-disable-line
   const play = () => { const x = el.current; if (!x) return; if (x.paused) x.play().catch(() => toast("This MP3 link does not play.", true)); else x.pause(); };
@@ -274,13 +276,14 @@ function TranscriptionStudio({ a, song, initial, rev, busy, onChange, onStatus, 
             </> : <p className="mt-1 text-[12.5px] text-zinc-500">No MP3 link yet — add it in Details to listen while typing.</p>}
           </div>
           {!song && <Field label="Progress"><Select value={a.transcript_status} onChange={(e) => { onStatus(e.target.value); setDirty(true); }}><option value="none">Not started</option><option value="draft">In progress</option><option value="done">Finished (shown on site)</option></Select></Field>}
+          <AiAssist blocks={() => current.current} context={[a.title, a.date || a.date_note, a.place, verseRef(a)].filter(Boolean).join(" · ")} onReplace={(bl) => { current.current = bl; onReplace(bl); setDirty(true); setWords(count(bl)); }} onSummary={onSummary} />
           <div><p className="text-[12px] font-medium text-zinc-500">Bring in text</p>
             <label className="mt-2 flex h-9 cursor-pointer items-center justify-center gap-1.5 rounded-md border border-zinc-200 bg-white text-[13px] font-medium hover:bg-zinc-50"><FileUp className="size-4" />Import from Word<input type="file" accept=".docx" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) onWord(f); e.target.value = ""; }} /></label>
             <p className="mt-1.5 text-[11.5px] leading-relaxed text-zinc-500">Headings, bold, italics and lists are kept. Pasting from Google Docs keeps them too.</p></div>
           <div className="text-[12px] leading-relaxed text-zinc-600"><p className="font-medium text-zinc-500">In the text</p><p className="mt-1">Type “/” for a heading, a verse quote, a picture or a divider. Use headings for the parts of the lecture — they become the contents list on the website.</p></div>
           <dl className="space-y-1 text-[12px] text-zinc-600">{[["Date", a.date || a.date_note], ["Place", a.place], ["Verse", verseRef(a)]].filter(([, v]) => v).map(([k, v]) => <div key={k} className="flex justify-between gap-3"><dt className="text-zinc-400">{k}</dt><dd className="text-right">{v}</dd></div>)}</dl>
         </aside>
-        <div className="site-canvas min-w-0 flex-1 overflow-y-auto"><div className="mx-auto max-w-[820px] py-10"><NotionEditor key={rev} initial={initial} pageId="" onChange={(bl) => { onChange(bl); setDirty(true); setWords(count(bl)); }} /></div></div>
+        <div className="site-canvas min-w-0 flex-1 overflow-y-auto"><div className="mx-auto max-w-[820px] py-10"><NotionEditor key={rev} initial={initial} pageId="" onChange={(bl) => { current.current = bl; onChange(bl); setDirty(true); setWords(count(bl)); }} /></div></div>
       </div>
     </div>
   );
