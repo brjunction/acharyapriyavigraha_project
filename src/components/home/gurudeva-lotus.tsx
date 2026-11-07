@@ -24,7 +24,7 @@ export function GurudevaLotus({ src, alt, focus = "center 28%" }: { src: string;
   return (
     <div className="relative aspect-square w-full">
       <span aria-hidden className="lx-aura pointer-events-none absolute inset-[4%] rounded-full" />
-      <svg viewBox="0 0 600 600" className="absolute inset-0 h-full w-full" aria-hidden>
+      <svg viewBox="0 0 600 600" className="lx-bloom absolute inset-0 h-full w-full" aria-hidden>
         <defs>
           <linearGradient id="lx-a" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stopColor="#ffe9c2" stopOpacity=".05" /><stop offset=".6" stopColor="#ffd98a" stopOpacity=".22" /><stop offset="1" stopColor="#ffd27a" stopOpacity=".42" /></linearGradient>
           <linearGradient id="lx-b" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stopColor="#fffaf2" /><stop offset=".6" stopColor="#ffedd2" /><stop offset="1" stopColor="#ffd08e" /></linearGradient>
@@ -37,7 +37,7 @@ export function GurudevaLotus({ src, alt, focus = "center 28%" }: { src: string;
         {RINGS.map((r, ri) => (
           /* one movement per nested group: the slow turn, the breathing, the first unfolding */
           <g key={ri} className={`lx-spin ${r.spin}`} style={{ transformOrigin: `${C}px ${C}px` }}>
-            <g className="lx-breathe" style={{ transformOrigin: `${C}px ${C}px`, animationDelay: `${-ri * 1.8}s` }}>
+            <g className="lx-breathe" style={{ transformOrigin: `${C}px ${C}px`, animationDelay: `${-ri * 1.2}s` }}>
               <g className="lx-open" style={{ transformOrigin: `${C}px ${C}px`, animationDelay: `${r.delay}s` }} filter={r.glow ? "url(#lx-sh)" : undefined}>
                 {Array.from({ length: r.n }, (_, i) => {
                   const a = f((360 / r.n) * i + r.off);
