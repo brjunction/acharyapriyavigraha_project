@@ -37,7 +37,7 @@ export function Stat({ n, label, suffix = "" }: { n: number; label: string; suff
 }
 
 /** The printed flowers of the hero: each small flower turns slowly in place, the little corner flowers the other way,
-    and a soft wave of light passes across the print now and then. */
+    and the print breathes softly. */
 function ButiTile({ id, light = false }: { id: string; light?: boolean }) {
   const c = light ? "#fff6e0" : "#fff3dc";
   return (
@@ -60,7 +60,6 @@ function HeroButi() {
   return (
     <>
       <svg aria-hidden className="hero-buti2 pointer-events-none absolute inset-0 -z-10 h-full w-full"><defs><ButiTile id="hb-a" /></defs><rect width="100%" height="100%" fill="url(#hb-a)" /></svg>
-      <div aria-hidden className="hero-buti-wave pointer-events-none absolute inset-0 -z-10"><svg className="h-full w-full"><defs><ButiTile id="hb-b" light /></defs><rect width="100%" height="100%" fill="url(#hb-b)" /></svg></div>
     </>
   );
 }

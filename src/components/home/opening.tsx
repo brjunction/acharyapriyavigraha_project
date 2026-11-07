@@ -80,26 +80,39 @@ export function KrishnaSentOpening() {
 const VERSE = ["yair īdṛśī bhagavato gatir ātma-vāda", "ekāntato nigamibhiḥ pratipāditā naḥ", "tuṣyantv adabhra-karuṇāḥ sva-kṛtena nityaṁ", "ko nāma tat pratikaroti vinoda-pātram"];
 const VERSE_TR = "How can such persons, who have rendered unlimited service by explaining the path of self-realization in relation to the Supreme Personality of Godhead, and whose explanations are given for our enlightenment with complete conviction and Vedic evidence, be repaid except by folded palms containing water for their satisfaction? Such great personalities can be satisfied only by their own activities, which are distributed amongst human society out of their unlimited mercy.";
 
-/** A small second hero: Śrīmad-Bhāgavatam 4.22.47. A soft mandala turns behind; inside a frame whose gold light travels round,
-    the verse rises line by line with a light passing over it, a lotus rule draws itself open, then the translation appears. */
+/** A small second hero: Śrīmad-Bhāgavatam 4.22.47. On one side a whole mandala turns round a seal with the verse number
+    (always shown complete); on the other, inside a frame whose gold light travels round, the verse rises line by line
+    with a light passing over it, a lotus rule draws itself open, then the translation appears. */
 export function VerseBand() {
   const [ref, on] = useInView<HTMLElement>("-8%");
   return (
-    <section ref={ref} data-on={on ? "1" : "0"} aria-label="Śrīmad-Bhāgavatam 4.22.47" className="op vb relative isolate overflow-hidden bg-[linear-gradient(180deg,#fff4e4_0%,#fffaf3_55%,#fdf1e2_100%)] py-12 sm:py-16">
-      <VMask name="mandala-saffron" className="vb-mandala pointer-events-none absolute left-1/2 top-1/2 -z-10 size-[560px] -translate-x-1/2 -translate-y-1/2 text-[#e8913c] opacity-[0.07] sm:size-[820px]" />
+    <section ref={ref} data-on={on ? "1" : "0"} aria-label="Śrīmad-Bhāgavatam 4.22.47" className="op vb relative isolate overflow-hidden bg-[linear-gradient(180deg,#fff4e4_0%,#fffaf3_55%,#fdf1e2_100%)] py-10 sm:py-12">
+      <div aria-hidden className="absolute inset-0 -z-10 bg-[radial-gradient(45%_70%_at_22%_50%,rgba(232,145,60,.16),transparent_70%),radial-gradient(40%_60%_at_85%_30%,rgba(243,199,122,.18),transparent_70%)]" />
       <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">{Array.from({ length: 12 }, (_, k) => <span key={k} className="vb-petal" style={{ left: `${(k * 41 + 9) % 100}%`, animationDuration: `${14 + (k % 5) * 3}s`, animationDelay: `${-((k * 7) % 17)}s` }} />)}</div>
-      <div className="mx-auto max-w-[900px] px-4 sm:px-8">
-        <div className="vb-frame op-up relative rounded-[28px] bg-white/55 px-5 py-8 text-center shadow-[0_30px_70px_-40px_rgba(133,53,0,.45)] backdrop-blur-sm sm:px-12 sm:py-11" style={{ transitionDelay: ".05s" }}>
-          <span className="inline-flex items-center gap-2 rounded-full bg-[#853500] px-3.5 py-1 text-[10.5px] font-semibold uppercase tracking-[0.2em] text-[#fff1df] shadow-[0_8px_20px_-10px_rgba(133,53,0,.8)] sm:text-[11px]"><Padma className="size-3.5 text-[#f3c77a]" layers={2} />Śrīmad-Bhāgavatam 4.22.47</span>
-          <div className="mt-6 space-y-1 sm:mt-7">
-            {VERSE.map((l, i) => <p key={l} className="vb-line text-[13.5px] font-semibold leading-snug min-[400px]:text-[14.5px] sm:text-[20px]" style={{ transitionDelay: `${0.25 + i * 0.18}s`, animationDelay: `${1.6 + i * 0.35}s` }}>{l}</p>)}
+      <div className="mx-auto grid max-w-[1360px] items-center gap-7 px-4 sm:px-8 lg:grid-cols-[260px_minmax(0,1fr)] lg:gap-10 xl:px-10">
+        {/* the seal: a whole mandala turning, two fine rings turning the other way, the verse number at its heart */}
+        <div className="op-up relative mx-auto aspect-square w-[min(210px,56vw)] sm:w-[240px] lg:w-[260px]" style={{ transitionDelay: ".05s" }} aria-hidden>
+          <span className="absolute inset-0 rounded-full bg-[radial-gradient(closest-side,rgba(255,255,255,.95),rgba(255,240,218,.6)_60%,transparent)]" />
+          <VMask name="mandala-saffron" className="vb-mandala absolute inset-[2%] text-[#e8913c] opacity-[0.55]" />
+          <span className="vb-ring absolute inset-[16%] rounded-full border border-dashed border-[#c2621d]/35" />
+          <span className="vb-ring vb-ring-2 absolute inset-[22%] rounded-full border border-[#d9a46c]/50" />
+          <span className="absolute inset-[27%] flex flex-col items-center justify-center rounded-full bg-[radial-gradient(circle_at_35%_30%,#a3470a,#6b2c03_70%)] text-center shadow-[0_18px_40px_-16px_rgba(107,44,3,.8),inset_0_1px_0_rgba(255,255,255,.25)] ring-2 ring-[#f3c77a]/70">
+            <Padma className="vb-lotus mb-1 size-5 text-[#f3c77a]" layers={2} />
+            <span className="whitespace-nowrap text-[7.5px] font-semibold uppercase tracking-[0.08em] text-[#f6d39a] sm:text-[8.5px] sm:tracking-[0.12em]">Śrīmad-Bhāgavatam</span>
+            <span className="mt-0.5 text-[17px] font-bold tabular-nums tracking-[-0.02em] text-[#fff4dc] sm:text-[19px]">4.22.47</span>
+          </span>
+        </div>
+        <div className="vb-frame op-up relative rounded-[28px] bg-white/65 px-5 py-7 text-center shadow-[0_30px_70px_-40px_rgba(133,53,0,.45)] backdrop-blur-sm sm:px-9 sm:py-8 lg:text-left" style={{ transitionDelay: ".15s" }}>
+          <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-saffron">Canto 4 · Chapter 22 · Verse 47</p>
+          <div className="mt-3.5 space-y-0.5 border-[#ecd3ae] lg:border-l-2 lg:pl-4">
+            {VERSE.map((l, i) => <p key={l} className="vb-line text-[13px] font-semibold leading-snug sm:text-[15.5px]" style={{ transitionDelay: `${0.3 + i * 0.18}s`, animationDelay: `${1.7 + i * 0.35}s` }}>{l}</p>)}
           </div>
-          <div className="my-6 flex items-center justify-center gap-3 sm:my-7" aria-hidden>
-            <span className="vb-rule h-px w-16 origin-right bg-gradient-to-r from-transparent to-[#d9a46c] sm:w-28" />
-            <Padma className="vb-lotus size-6 text-[#c2621d]" />
-            <span className="vb-rule h-px w-16 origin-left bg-gradient-to-l from-transparent to-[#d9a46c] sm:w-28" />
+          <div className="my-4 flex items-center justify-center gap-3 lg:justify-start" aria-hidden>
+            <span className="vb-rule h-px w-14 origin-right bg-gradient-to-r from-transparent to-[#d9a46c] sm:w-24 lg:hidden" />
+            <Padma className="vb-lotus size-5 text-[#c2621d]" />
+            <span className="vb-rule h-px w-14 origin-left bg-gradient-to-l from-transparent to-[#d9a46c] sm:w-24 lg:w-40 lg:bg-gradient-to-r lg:from-[#d9a46c] lg:to-transparent" />
           </div>
-          <p className="op-up mx-auto max-w-[700px] text-[13.5px] leading-[1.75] text-ink-2 sm:text-[15.5px]" style={{ transitionDelay: "1.15s" }}>“{VERSE_TR}”</p>
+          <p className="op-up text-[12.5px] leading-[1.7] text-ink-2 sm:text-[13.5px]" style={{ transitionDelay: "1.2s" }}>“{VERSE_TR}”</p>
         </div>
       </div>
     </section>
