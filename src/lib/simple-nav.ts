@@ -6,33 +6,43 @@ import type { NavLink, NavMenu } from "./nav";
 
 /** The Simple menu: four plain sections for elderly visitors. Built from the full (Advanced) menus,
  *  so every page stays reachable — nothing is left out, only arranged more simply. */
-export type SimpleLink = { href: string; label: string; icon: LucideIcon; img?: string; pos?: string; note?: string };
+export type SimpleLink = { href: string; label: string; icon: LucideIcon; img?: string; pos?: string; note?: string; group?: string };
 export type SimpleGroup = { title: string; links: SimpleLink[] };
 export type SimpleMenu = { key: string; label: string; intro: string; href: string; accent: string; icon: LucideIcon; img?: string; featured: SimpleLink[]; groups: SimpleGroup[]; all: SimpleLink[] };
 
 /** What editors can change in the Studio (Website menus → Simple menu). Icons are an icon name or a picture address. */
-export type SimpleFeaturedJ = { href: string; label: string; note?: string; icon?: string };
+export type SimpleFeaturedJ = { href: string; label: string; note?: string; icon?: string; group?: string };
 export type SimpleSectionJ = { label?: string; intro?: string; icon?: string; featured?: SimpleFeaturedJ[] };
 export type SimpleCfg = Record<string, SimpleSectionJ>;
 
 export const SIMPLE_DEFAULTS: { key: string; label: string; intro: string; icon: string; accent: string; featured: SimpleFeaturedJ[] }[] = [
   { key: "gurudeva", label: "Śrīla Gurudeva", intro: "His life, his diary, his photos", icon: "Lotus", accent: "saffron", featured: [
-    { href: "/gurudeva/who-is-srila-gurudeva", label: "Who is Śrīla Gurudeva?", note: "His life and biographies", icon: "/photos/gurudeva-portrait.webp" },
-    { href: "/gurudeva/timeline", label: "Life timeline", note: "His life, year by year", icon: "/photos/menu-seated-1.webp" },
-    { href: "/gurudeva/gallery", label: "Gallery", note: "Portraits, deities, festivals and travels", icon: "/photos/menu-garland.webp" },
-    { href: "/gurudeva/diaries", label: "His diary", note: "His prayers to Śrī Gopāl Jiu", icon: "/photos/gurudeva-writing.webp" },
-    { href: "/gurudeva/memories", label: "Memories & pastimes", note: "Disciples remembering him", icon: "HandHeart" },
-    { href: "/gurudeva/srila-prabhupada", label: "Śrīla Prabhupāda", note: "His beloved spiritual master", icon: "Crown" }] },
+    { group: "His life", href: "/gurudeva/who-is-srila-gurudeva", label: "Who is Śrīla Gurudeva?", note: "His life and biographies", icon: "/photos/gurudeva-portrait.webp" },
+    { group: "His life", href: "/gurudeva/timeline", label: "Life timeline", note: "His life, year by year", icon: "/photos/menu-seated-1.webp" },
+    { group: "His life", href: "/gurudeva/diaries", label: "His diary", note: "His prayers to Śrī Gopāl Jiu", icon: "/photos/gurudeva-writing.webp" },
+    { group: "His life", href: "/gurudeva/radha-gopal-jiu", label: "Śrī Gopāl Jiu", note: "His beloved Deity", icon: "Sparkles" },
+    { group: "Remembrance", href: "/gurudeva/gallery", label: "Gallery", note: "Portraits, festivals, travels", icon: "/photos/menu-garland.webp" },
+    { group: "Remembrance", href: "/gurudeva/places-of-remembrance", label: "Smṛti Bhavan", note: "Everything related to him", icon: "Landmark" },
+    { group: "Remembrance", href: "/gurudeva/memories", label: "Memories & pastimes", note: "Disciples remembering him", icon: "HandHeart" },
+    { group: "Remembrance", href: "/gurudeva/glorifications", label: "Glorifications", note: "Vyāsa-pūjā offerings", icon: "Gift" },
+    { group: "His mission", href: "/gurudeva/projects", label: "Projects", note: "Bhubaneswar, temples, initiatives", icon: "Building2" },
+    { group: "His mission", href: "/gurudeva/srila-prabhupada", label: "Śrīla Prabhupāda", note: "His beloved spiritual master", icon: "Crown" },
+    { group: "His mission", href: "/gurudeva/disciples", label: "His disciples", note: "Every initiated disciple", icon: "IdCard" },
+    { group: "His mission", href: "/gurudeva/letters", label: "Letters", note: "With Śrīla Prabhupāda and others", icon: "Mail" }] },
   { key: "listen", label: "Listen & Watch", intro: "His lectures, videos and kīrtanas", icon: "Headphones", accent: "teal", featured: [
     { href: "/teachings/audio", label: "Audio lectures", note: "Every recorded lecture, remastered", icon: "Headphones" },
     { href: "/teachings/videos", label: "Videos", note: "His lectures and moments on video", icon: "Clapperboard" },
     { href: "/teachings/kirtans", label: "Kīrtanas & bhajanas", note: "Songs he sang and led", icon: "Music" },
     { href: "/resources/taptajivanam-youtube", label: "Taptajīvanam YouTube", note: "Lectures and shorts", icon: "Youtube" }] },
-  { key: "read", label: "Read", intro: "Books, quotes and topics", icon: "BookOpen", accent: "indigo", featured: [
-    { href: "/teachings/books", label: "Books", note: "Publications on his teachings", icon: "BookOpen" },
-    { href: "/teachings/articles", label: "Articles", note: "Essays by author and series", icon: "FileText" },
-    { href: "/teachings/quotes", label: "Quotes", note: "His words by subject, with source", icon: "Quote" },
-    { href: "/tattva", label: "Topics", note: "Guru, bhakti, Kṛṣṇa, the soul…", icon: "Network" }] },
+  { key: "read", label: "Read", intro: "Books, quotes and tattva", icon: "BookOpen", accent: "indigo", featured: [
+    { group: "Read", href: "/teachings/books", label: "Books", note: "Publications on his teachings", icon: "BookOpen" },
+    { group: "Read", href: "/teachings/magazines", label: "Magazines", note: "Gopāl Jiu magazine and more", icon: "Newspaper" },
+    { group: "Read", href: "/teachings/articles", label: "Articles", note: "Essays by author and series", icon: "FileText" },
+    { group: "Read", href: "/teachings/transcriptions", label: "Transcriptions", note: "His lectures, word for word", icon: "ScrollText" },
+    { group: "His words", href: "/teachings/quotes", label: "Quotes", note: "By subject, with source", icon: "Quote" },
+    { group: "His words", href: "/teachings/instructions", label: "Instructions", note: "Guidance for sādhana and life", icon: "ListChecks" },
+    { group: "His words", href: "/teachings/stories", label: "Stories", note: "Stories he told", icon: "BookHeart" },
+    { group: "His words", href: "/tattva", label: "Tattva", note: "The topics of his teachings", icon: "Network" }] },
   { key: "about", label: "About", intro: "Archive, contact, resources", icon: "Info", accent: "leaf", featured: [
     { href: "/about", label: "About this website", note: "Why and how this archive exists", icon: "Archive" },
     { href: "/gurudeva/taptajivanam-projects", label: "Taptajīvanam project", note: "The archive and its services", icon: "Library" },
@@ -42,6 +52,13 @@ export const SIMPLE_DEFAULTS: { key: string; label: string; intro: string; icon:
 ];
 /** Where to centre each photo, so no head is cut. */
 const POS: Record<string, string> = { "/photos/gurudeva-writing.webp": "18% 22%", "/photos/menu-seated-1.webp": "50% 30%", "/photos/menu-garland.webp": "50% 25%", "/photos/gurudeva-portrait.webp": "50% 30%" };
+/** Colours for the groups inside a Simple menu, in order. */
+export const GROUP_ACC = ["saffron", "rose", "teal", "indigo", "leaf", "gold", "plum"];
+export function groupsOf(m: SimpleMenu): { title: string; acc: string; items: SimpleLink[] }[] {
+  const out: { title: string; acc: string; items: SimpleLink[] }[] = [];
+  for (const f of m.featured) { const t = f.group || ""; let g = out.find((x) => x.title === t); if (!g) { g = { title: t, acc: out.length === 0 ? m.accent : GROUP_ACC.filter((a) => a !== m.accent)[(out.length - 1) % 6], items: [] }; out.push(g); } g.items.push(f); }
+  return out;
+}
 /** Where “See everything” goes in the Advanced menu. */
 export const ADV_KEY: Record<string, string> = { gurudeva: "gurudeva", listen: "teachings", read: "teachings", about: "about" };
 const FALLBACK: Record<string, LucideIcon> = { gurudeva: Lotus as unknown as LucideIcon, listen: Headphones, read: BookOpen, about: Info };
@@ -67,7 +84,7 @@ export function simpleMenus(menus: NavMenu[], cfg?: SimpleCfg | null): SimpleMen
     const c = cfg?.[d.key] || {};
     const iconOf = (href: string) => GROUPS[d.key].flatMap((g) => g.links).find((a) => a.href === href)?.icon;
     const feat = (c.featured?.length ? c.featured : d.featured).filter((f) => f.href && f.label);
-    const featured: SimpleLink[] = feat.map((f) => { const ic = pick(f.icon, iconOf(f.href) ?? (f.href === "/tattva" ? Network : f.href === "/translations" ? Languages : LayoutGrid)); return { href: f.href, label: f.label, note: f.note || undefined, ...ic, pos: ic.img ? POS[ic.img] : undefined }; });
+    const featured: SimpleLink[] = feat.map((f) => { const ic = pick(f.icon, iconOf(f.href) ?? (f.href === "/tattva" ? Network : f.href === "/translations" ? Languages : LayoutGrid)); return { href: f.href, label: f.label, note: f.note || undefined, group: f.group || undefined, ...ic, pos: ic.img ? POS[ic.img] : undefined }; });
     const fh = new Set(featured.map((f) => f.href)); const seen = new Set<string>(fh);
     const groups: SimpleGroup[] = GROUPS[d.key].map((g) => ({ title: g.title, links: g.links.filter((l) => !seen.has(l.href) && seen.add(l.href)).map((l) => ({ href: l.href, label: l.label, icon: l.icon })) })).filter((g) => g.links.length);
     const href = d.key === "gurudeva" ? m("gurudeva")?.href || "/gurudeva" : d.key === "about" ? "/about" : "/teachings";

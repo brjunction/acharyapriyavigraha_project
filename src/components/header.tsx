@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { ChevronDown, ChevronRight, ChevronLeft, Search, Menu, X, ArrowRight } from "lucide-react";
 import { ACCENT, type NavMenu } from "@/lib/nav";
-import { simpleMenus, ADV_KEY, type SimpleMenu } from "@/lib/simple-nav";
+import { simpleMenus, groupsOf, ADV_KEY, type SimpleMenu } from "@/lib/simple-nav";
 import { TextSizeControl } from "./text-scale";
 import { useMenus, useSimpleCfg } from "./menus-context";
 import { LogoMark, Rosette } from "./motifs";
@@ -168,15 +168,15 @@ function SIc({ it, size, box, round = false }: { it: { icon: SimpleMenu["icon"];
 const extOf = (h: string) => (h.startsWith("http") ? { target: "_blank", rel: "noreferrer" } : {});
 
 /** A big rounded card: photo or icon on the left, the name and a line about it beside. */
-function FeatureCard({ f, onClick, here }: { f: SimpleMenu["featured"][number]; onClick: () => void; here: string }) {
+function FeatureCard({ f, onClick, here, compact = false }: { f: SimpleMenu["featured"][number]; onClick: () => void; here: string; compact?: boolean }) {
   const on = hit(here, f.href);
   return (
     <Link href={f.href} {...extOf(f.href)} onClick={onClick} aria-current={on ? "page" : undefined}
-      className={`group flex items-center gap-3.5 rounded-2xl border bg-white p-3 transition duration-200 hover:-translate-y-0.5 hover:border-[var(--acc)]/50 hover:shadow-[0_10px_24px_-14px_rgba(0,0,0,.3)] ${on ? "border-[var(--acc)]" : "border-line"}`}>
-      <SIc it={f} size={26} box="size-14 transition duration-300 group-hover:scale-105" />
+      className={`group flex h-full items-center rounded-2xl border bg-white transition duration-200 ${compact ? "gap-2.5 p-2" : "gap-3.5 p-3"} hover:-translate-y-0.5 hover:border-[var(--acc)]/50 hover:shadow-[0_10px_24px_-14px_rgba(0,0,0,.3)] ${on ? "border-[var(--acc)]" : "border-line"}`}>
+      <SIc it={f} size={compact ? 22 : 26} box={`${compact ? "size-11" : "size-14"} transition duration-300 group-hover:scale-105`} />
       <span className="min-w-0">
-        <span className="block text-[14px] font-semibold leading-snug text-ink group-hover:text-[var(--acc)]">{f.label}</span>
-        {f.note && <span className="mt-0.5 block text-[12px] leading-snug text-ink-3">{f.note}</span>}
+        <span className={`block font-semibold leading-snug text-ink group-hover:text-[var(--acc)] ${compact ? "text-[13px]" : "text-[14px]"}`}>{f.label}</span>
+        {f.note && <span className={`mt-0.5 block text-[12px] leading-snug text-ink-3 ${compact ? "max-sm:hidden" : ""}`}>{f.note}</span>}
       </span>
     </Link>
   );
@@ -189,9 +189,22 @@ function SimplePanel({ menu, onNavigate, onEverything, controls }: { menu: Simpl
   const here = usePathname();
   return (
     <div className={`acc-${menu.accent} mega-enter overflow-hidden rounded-2xl border border-line bg-surface shadow-[var(--shadow-lg)]`}>
-      <div className="grid gap-3 bg-acc-tint p-4" style={{ gridTemplateColumns: `repeat(${cardCols(menu.featured.length)}, minmax(0, 1fr))` }}>
-        {menu.featured.map((f, k) => <div key={f.href} className="sm-card" style={{ animationDelay: `${k * 45}ms` }}><FeatureCard f={f} onClick={onNavigate} here={here} /></div>)}
-      </div>
+      {(() => { const gs = groupsOf(menu); let n = 0;
+        if (gs.length === 1) return (
+          <div className="grid gap-3 bg-acc-tint p-4" style={{ gridTemplateColumns: `repeat(${cardCols(menu.featured.length)}, minmax(0, 1fr))` }}>
+            {menu.featured.map((f, k) => <div key={f.href} className="sm-card" style={{ animationDelay: `${k * 45}ms` }}><FeatureCard f={f} onClick={onNavigate} here={here} /></div>)}
+          </div>);
+        const cols = Math.max(...gs.map((g) => g.items.length));
+        return (
+          <div className="space-y-2 p-3">
+            {gs.map((g) => (
+              <div key={g.title} className={`acc-${g.acc} grid grid-cols-[120px_minmax(0,1fr)] items-stretch gap-3 rounded-2xl bg-acc-tint p-2.5`}>
+                <p className="flex items-center gap-2 pl-2 text-[12px] font-semibold uppercase tracking-[0.1em] text-[var(--acc)]"><span className="h-6 w-1 rounded-full bg-[var(--acc)]" />{g.title}</p>
+                <div className="grid gap-2.5" style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }}>
+                  {g.items.map((f) => <div key={f.href} className="sm-card" style={{ animationDelay: `${n++ * 35}ms` }}><FeatureCard f={f} onClick={onNavigate} here={here} compact /></div>)}
+                </div>
+              </div>))}
+          </div>); })()}
       <div className="flex items-center justify-between gap-3 border-t border-line px-4 py-2.5">
         <button onClick={onEverything} className="group flex items-center gap-1.5 rounded-full px-2 py-1 text-[13px] font-medium text-[var(--acc)] hover:bg-acc-tint">See everything in {menu.label}<ArrowRight size={14} className="transition group-hover:translate-x-0.5" /></button>
         {controls}
@@ -215,7 +228,13 @@ function SimpleMobile({ menus, onClose, open, setOpen, onEverything }: { menus: 
   );
   return (
     <div className={`acc-${open.accent}`}>
-      <div className="space-y-2.5">{open.featured.map((f, k) => <div key={f.href} className="sm-card" style={{ animationDelay: `${k * 45}ms` }}><FeatureCard f={f} onClick={onClose} here={here} /></div>)}</div>
+      {(() => { const gs = groupsOf(open); let n = 0;
+        if (gs.length === 1) return <div className="space-y-2.5">{open.featured.map((f, k) => <div key={f.href} className="sm-card" style={{ animationDelay: `${k * 45}ms` }}><FeatureCard f={f} onClick={onClose} here={here} /></div>)}</div>;
+        return <div className="space-y-3">{gs.map((g) => (
+          <div key={g.title} className={`acc-${g.acc} rounded-2xl bg-acc-tint p-2.5`}>
+            <p className="mb-2 flex items-center gap-2 px-1 text-[11.5px] font-semibold uppercase tracking-[0.1em] text-[var(--acc)]"><span className="h-4 w-1 rounded-full bg-[var(--acc)]" />{g.title}</p>
+            <div className="grid grid-cols-2 gap-2">{g.items.map((f) => <div key={f.href} className="sm-card" style={{ animationDelay: `${n++ * 35}ms` }}><FeatureCard f={f} onClick={onClose} here={here} compact /></div>)}</div>
+          </div>))}</div>; })()}
       <button onClick={() => onEverything(open)} className="mt-4 flex w-full items-center justify-center gap-1.5 rounded-2xl border border-dashed border-[var(--acc)]/40 px-4 py-3 text-[13.5px] font-medium text-[var(--acc)] active:bg-acc-tint">See everything in {open.label}<ArrowRight size={15} /></button>
     </div>
   );
@@ -389,7 +408,7 @@ export function Header() {
         </div>
       </div>
       {mode === "simple" && smenu && (
-        <div className="absolute left-1/2 top-full hidden -translate-x-1/2 pt-1 lg:block" style={{ width: `min(${smenu.featured.length <= 3 ? 760 : smenu.featured.length === 4 ? 1000 : 900}px, calc(100vw - 2rem))` }}
+        <div className="absolute left-1/2 top-full hidden -translate-x-1/2 pt-1 lg:block" style={{ width: `min(${groupsOf(smenu).length > 1 ? 1120 : smenu.featured.length <= 3 ? 760 : smenu.featured.length === 4 ? 1000 : 900}px, calc(100vw - 2rem))` }}
           onMouseEnter={() => show(smenu.key)} onMouseLeave={hide}>
           <SimplePanel key={smenu.key} menu={smenu} onNavigate={() => setActive(null)} controls={controls} onEverything={() => { setMode("advanced"); setActive(ADV_KEY[smenu.key]); }} />
         </div>)}

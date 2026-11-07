@@ -125,6 +125,7 @@ export function SimpleMenuEditor({ initial }: { initial: SimpleCfg }) {
                 <IconPick value={f.icon || "FileText"} onChange={(v) => setF({ icon: v })} />
                 <div className="grid min-w-0 flex-1 gap-0.5 sm:grid-cols-2">
                   <input className={`${box} font-semibold`} value={f.label} onChange={(e) => setF({ label: e.target.value })} placeholder="Name" />
+                  <input className={`${box} text-[11.5px] uppercase tracking-[0.08em] text-saffron sm:col-span-2`} value={f.group || ""} onChange={(e) => setF({ group: e.target.value })} placeholder="Group (items with the same group sit together in one coloured row)" />
                   <input className={`${box} text-ink-3`} value={f.note || ""} onChange={(e) => setF({ note: e.target.value })} placeholder="Second line (optional)" />
                   <input list="hrefs" className={`${box} !h-7 text-[11.5px] text-[#2a4f9a] sm:col-span-2`} value={f.href} onChange={(e) => setF({ href: e.target.value })} placeholder="/page-address" />
                 </div>
