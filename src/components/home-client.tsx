@@ -57,26 +57,24 @@ export function Hero() {
   };
   return (
     <>
-    {/* Indian border standing on a light strip below the navigation, outside the saffron hero, as its top fringe */}
-    <div aria-hidden className="relative z-[1] bg-white pt-4"><div className="h-8 w-full overflow-hidden"><VMask name="border-4" repeat="repeat-x" size="auto 100%" pos="center top" className="h-full w-full text-[#8a3a0a]" /></div></div>
-    <section className="hero-red relative isolate -mt-px overflow-hidden" onPointerMove={move}>
+    <section className="hero-red relative isolate overflow-hidden" onPointerMove={move}>
       {/* the red-saffron gradient, with the same Indic lattice over it */}
       <div aria-hidden className="hero-warm hero-warm-move absolute inset-0 -z-10" />
       <div aria-hidden className="hero-aurora pointer-events-none absolute inset-0 -z-10 opacity-60" />
       <div aria-hidden className="pointer-events-none absolute inset-0 z-0 overflow-hidden">{Array.from({ length: 18 }, (_, k) => <span key={k} className="hero-spark" style={{ left: `${(k * 37 + 7) % 100}%`, animationDuration: `${15 + (k % 6) * 2.5}s`, animationDelay: `${-((k * 13) % 21)}s`, width: k % 4 ? 2 : 3, height: k % 4 ? 2 : 3 }} />)}</div>
-      <Backdrop src="saffron-dark" flip pos="left center" o={0.4} />
+      <div aria-hidden className="hero-lotus-field pointer-events-none absolute inset-0 -z-10" />
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_70%_at_78%_42%,rgba(255,214,150,0.22),transparent_65%),linear-gradient(100deg,rgba(60,8,4,0.35),transparent_60%)]" />
-      <VMask name="mandala-saffron" className="hero-spin-rev pointer-events-none absolute -bottom-56 -left-48 h-[620px] w-[620px] text-[#f3b363] opacity-[0.16]" />
+      <VMask name="mandala-saffron" className="hero-spin-rev pointer-events-none absolute -bottom-28 -left-28 size-[300px] text-[#f3b363] opacity-[0.14] sm:-bottom-32 sm:-left-32 sm:size-[380px]" />
       {/* One Indic pattern only (the lotus lattice above); the paisley belongs to the footer */}
       <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-[3px] bg-gradient-to-r from-[#c98a2b] via-[#ffc566] to-[#c98a2b]" />
       {[8, 22, 36, 61, 74, 90].map((x, i) => (
         <div key={x} className="pointer-events-none absolute bottom-24" style={{ left: `${x}%` }}><div className="hero-petal" style={{ animationDelay: `${i * 1.5}s` }}><Padma className="h-5 w-5 text-[#ffd48a]" layers={2} /></div></div>
       ))}
-      <div className="relative mx-auto grid max-w-[1240px] grid-cols-[minmax(0,1fr)] content-center items-center gap-5 px-5 py-8 max-lg:min-h-[calc(100svh-132px)] sm:gap-9 sm:px-10 sm:py-12 lg:min-h-[740px] lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:py-28">
+      <div className="relative mx-auto grid max-w-[1240px] grid-cols-[minmax(0,1fr)] content-center items-center gap-5 px-5 py-8 min-h-[calc(100svh-52px)] sm:min-h-[calc(100svh-58px)] sm:gap-9 sm:px-10 sm:py-12 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:py-28">
         <div className="rise order-2 text-center lg:order-1 lg:text-left">
-          <span className="hero-pill hx-sweep relative inline-flex items-center gap-2.5 overflow-hidden rounded-full bg-white py-1 pl-2 pr-4 text-[11.5px] font-semibold leading-snug text-[#851813] shadow-[0_12px_30px_-14px_rgba(40,5,2,.6)] sm:gap-3 sm:py-1.5 sm:pr-5 sm:text-[13px]">
-            <span role="img" aria-label="ISKCON" className="block h-6 w-[30px] shrink-0 text-[#c2621d] sm:h-7 sm:w-[34px]" style={{ WebkitMaskImage: "url(/iskcon-mask.png)", maskImage: "url(/iskcon-mask.png)", WebkitMaskSize: "contain", maskSize: "contain", WebkitMaskRepeat: "no-repeat", maskRepeat: "no-repeat", WebkitMaskPosition: "center", maskPosition: "center", background: "currentColor" }} />
-            <span className="h-4 w-px shrink-0 bg-[#c2621d]/30" />
+          <span className="hero-pill hx-sweep relative inline-flex items-center gap-2.5 overflow-hidden rounded-full bg-[linear-gradient(135deg,#ffe3a0,#f7c556_45%,#e8a548)] py-1 pl-2 pr-4 text-[11.5px] font-semibold leading-snug text-[#5d140c] shadow-[0_12px_30px_-14px_rgba(40,5,2,.7)] ring-1 ring-[#fff1cf]/60 sm:gap-3 sm:py-1.5 sm:pr-5 sm:text-[13px]">
+            <span role="img" aria-label="ISKCON" className="block h-6 w-[30px] shrink-0 text-[#851813] sm:h-7 sm:w-[34px]" style={{ WebkitMaskImage: "url(/iskcon-mask.png)", maskImage: "url(/iskcon-mask.png)", WebkitMaskSize: "contain", maskSize: "contain", WebkitMaskRepeat: "no-repeat", maskRepeat: "no-repeat", WebkitMaskPosition: "center", maskPosition: "center", background: "currentColor" }} />
+            <span className="h-4 w-px shrink-0 bg-[#851813]/30" />
             The Complete Life &amp; Teachings of Śrīla Gurudeva
           </span>
           <h1 className="hx-title mt-4 text-[30px] font-semibold leading-[1.1] tracking-[-0.035em] [text-shadow:0_2px_24px_rgba(70,10,4,.35)] sm:mt-5 sm:text-[42px] lg:mt-6 lg:text-[52px]">
@@ -118,8 +116,6 @@ export function Hero() {
         </div>
       </div>
     </section>
-    {/* Indian border hanging from the hero's lower edge, outside it, like its fringe */}
-    <div aria-hidden className="relative z-[1] -mt-px h-8 w-full overflow-hidden"><VMask name="border-4" repeat="repeat-x" size="auto 100%" pos="center top" className="h-full w-full rotate-180 text-[#8a3a0a]" /></div>
     </>
   );
 }

@@ -5,7 +5,8 @@ import { addToSection, LAYOUTS, COLORS, ensureDefaultSections, feedKinds, KIND_S
 import { resolve, addVideo, videoId, sourceMeta, syncSource, apiKey, type Source } from "@/lib/youtube-sync";
 
 export const maxDuration = 300;
-const fresh = () => revalidatePath("/teachings/videos", "layout");
+/** Publishing shows at once: the Videos pages and the home page are rebuilt on the next visit. */
+const fresh = () => { revalidatePath("/teachings/videos", "layout"); revalidatePath("/teachings/[slug]", "page"); revalidatePath("/teachings/[slug]/[...rest]", "page"); revalidatePath("/"); };
 const slugify = (s: string) => s.normalize("NFKD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "section";
 const LAY = LAYOUTS.map(([k]) => k as string); const COL = COLORS as readonly string[];
 
