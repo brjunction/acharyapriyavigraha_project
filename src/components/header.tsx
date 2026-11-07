@@ -443,12 +443,12 @@ export function Header() {
           )}
           <div className="col-start-3 ml-auto flex items-center gap-1.5">
             <button onClick={() => setSearch(true)} aria-label="Search" title="Search (Ctrl K)"
-              className="max-sm:hidden flex h-8 items-center gap-2 rounded-full border border-line bg-band/60 px-2.5 sm:h-9 sm:px-3 text-ink-2 transition hover:border-saffron hover:bg-white hover:text-saffron xl:w-40">
+              className="flex h-8 items-center gap-2 rounded-full border border-line bg-band/60 px-2.5 sm:h-9 sm:px-3 text-ink-2 transition hover:border-saffron hover:bg-white hover:text-saffron xl:w-40">
               <Search size={15} /><span className="hidden flex-1 whitespace-nowrap text-left text-[12px] text-ink-3 xl:inline">Search…</span>
               <kbd className="hidden whitespace-nowrap rounded border border-line bg-surface px-1.5 text-[10px] text-ink-3 xl:inline">Ctrl K</kbd>
             </button>
-            <div className="max-[359px]:hidden"><ModeSwitch mode={mode} setMode={setMode} small /></div>
-            <button onClick={() => setMobile(true)} aria-label="Open menu" className="flex h-8 items-center gap-1.5 rounded-full bg-ink px-2 text-[12.5px] font-medium text-white transition hover:bg-ink/85 min-[420px]:px-3 sm:h-9 lg:hidden"><Menu size={16} /><span className="max-[419px]:hidden">Menu</span></button>
+            <div className="hidden lg:block"><ModeSwitch mode={mode} setMode={setMode} small /></div>
+            <button onClick={() => setMobile(true)} aria-label="Open menu" className="flex h-8 items-center gap-1.5 rounded-full bg-ink px-3 text-[12.5px] font-medium text-white transition hover:bg-ink/85 sm:h-9 lg:hidden"><Menu size={16} />Menu</button>
           </div>
         </div>
       </div>
