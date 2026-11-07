@@ -9,6 +9,7 @@ import { Img } from "./img";
 import { CutOut, PortraitFrame, Orn, Padma, PaisleyField, Petals, Rosette, LogoMark, VMask } from "./motifs";
 import { usePrefs, usePlayer } from "./providers";
 import { Backdrop } from "./backdrop";
+import { GurudevaLotus } from "./home/gurudeva-lotus";
 
 /* ------------------------------------------------------------------ Hero */
 
@@ -38,7 +39,7 @@ export function Stat({ n, label, suffix = "" }: { n: number; label: string; suff
 export function Hero() {
   const [q, setQ] = useState(""); const [hint, setHint] = useState("");
   const r = useRouter(); const { setSearch } = usePrefs();
-  const box = useRef<HTMLDivElement>(null);
+  const box = useRef<HTMLElement>(null);
   useEffect(() => {
     let i = 0, c = 0, del = false;
     const t = setInterval(() => {
@@ -56,44 +57,42 @@ export function Hero() {
   };
   return (
     <>
-    {/* A clean, light hero: one soft gradient and two warm glows — no patterns */}
-    <section className="hero-light relative isolate overflow-hidden bg-[linear-gradient(180deg,#fff6ee_0%,#fffaf6_55%,#ffffff_100%)]" onPointerMove={move}>
-      <div aria-hidden className="hs-blob absolute -left-48 -top-24 -z-10 size-[560px] rounded-full bg-[radial-gradient(closest-side,rgba(246,168,104,.32),transparent)]" />
-      <div aria-hidden className="hs-blob absolute -right-40 top-24 -z-10 size-[620px] rounded-full bg-[radial-gradient(closest-side,rgba(239,138,60,.22),transparent)]" style={{ animationDelay: "-6s" }} />
-      <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-[#c25a1c]/25 to-transparent" />
-      <div className="relative mx-auto grid max-w-[1240px] grid-cols-[minmax(0,1fr)] content-center items-center gap-6 px-5 py-10 max-lg:min-h-[calc(100svh-120px)] sm:gap-10 sm:px-10 sm:py-14 lg:min-h-[640px] lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:py-20">
+    {/* The first screen: deep red to saffron, a slow moving light, a few rising sparks — and the pink lotus around Śrīla Gurudeva */}
+    <section ref={box} className="hero-dark group/hero relative isolate overflow-hidden" onPointerMove={move}>
+      <div aria-hidden className="hero-base absolute inset-0 -z-20" />
+      <div aria-hidden className="hero-aurora absolute inset-0 -z-10" />
+      {/* a soft warm light that follows the pointer */}
+      <div aria-hidden className="hero-follow pointer-events-none absolute inset-0 -z-10 opacity-0 transition-opacity duration-700 group-hover/hero:opacity-100" />
+      <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(60%_50%_at_50%_100%,rgba(0,0,0,.25),transparent_70%)]" />
+      {[6, 14, 23, 31, 44, 52, 63, 71, 79, 88, 95].map((x, k) => <span key={x} aria-hidden className="hero-spark" style={{ left: `${x}%`, animationDuration: `${14 + (k % 5) * 3}s`, animationDelay: `${-k * 2.1}s`, width: k % 3 ? 2 : 3, height: k % 3 ? 2 : 3 }} />)}
+      <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-[#f3c35e]/50 to-transparent" />
+      <div className="relative mx-auto grid max-w-[1240px] grid-cols-[minmax(0,1fr)] content-center items-center gap-4 px-5 pb-10 pt-6 max-lg:min-h-[calc(100svh-52px)] sm:gap-8 sm:px-10 sm:pt-10 lg:min-h-[680px] lg:grid-cols-[minmax(0,1fr)_minmax(0,540px)] lg:gap-12 lg:py-14">
         <div className="rise order-2 text-center lg:order-1 lg:text-left">
-          <span className="inline-flex max-w-[340px] items-center gap-2 rounded-full bg-[#fdebdc] px-3.5 py-1 text-[11px] font-semibold leading-snug text-[#a14812] sm:max-w-none sm:text-[12px]">
-            <span className="size-1.5 shrink-0 rounded-full bg-[#c25a1c] max-sm:hidden" />The Complete Life and Teachings of Śrī Śrīmad Gour Govinda Swāmī Gurudeva
+          <span className="inline-flex max-w-[340px] items-center gap-2 rounded-full border border-[#f3c35e]/35 bg-white/[0.08] px-3.5 py-1 text-[9.5px] font-semibold uppercase leading-snug tracking-[0.14em] text-[#ffe2b0] backdrop-blur sm:max-w-none sm:text-[11px]">
+            <span className="size-1.5 shrink-0 rounded-full bg-[#f3c35e] max-sm:hidden" />The Complete Life and Teachings of Śrī Śrīmad Gour Govinda Swāmī Gurudeva
           </span>
-          <h1 className="mt-5 text-[28px] font-semibold leading-[1.12] tracking-[-0.035em] text-zinc-900 sm:text-[38px] lg:text-[46px]">
+          <h1 className="mt-5 text-[30px] font-semibold leading-[1.1] tracking-[-0.035em] text-[#fff6ea] sm:text-[42px] lg:text-[52px]">
             {["Words", "that", "give", "life"].map((w, i) => <span key={w} className="hero-word mr-[0.26em]" style={{ animationDelay: `${0.1 + i * 0.1}s` }}>{w}</span>)}<br />
             {["to", "a"].map((w, i) => <span key={w} className="hero-word mr-[0.26em]" style={{ animationDelay: `${0.5 + i * 0.1}s` }}>{w}</span>)}<span className="hero-word hero-gold" style={{ animationDelay: "0.7s" }}>burning heart</span>
           </h1>
-          <p className="mx-auto mt-4 max-w-[34rem] text-[14px] leading-relaxed text-zinc-600 sm:text-[16px] lg:mx-0">
+          <p className="mx-auto mt-4 max-w-[34rem] text-[14px] leading-relaxed text-[#ffe9d2]/85 sm:text-[16px] lg:mx-0">
             Lectures, letters, books, quotes and photographs of Śrīla Gurudeva, gathered in one searchable home and growing in many languages. Listen, read, and find the exact words you were looking for.
           </p>
           <form onSubmit={(e) => { e.preventDefault(); if (q.trim()) r.push(`/search?q=${encodeURIComponent(q)}`); else setSearch(true); }}
-            className="mx-auto mt-7 flex max-w-xl items-center gap-2 rounded-full border border-zinc-200 bg-white p-1.5 pl-5 shadow-[0_10px_30px_-18px_rgba(120,50,10,.45)] transition focus-within:border-[#c25a1c] focus-within:shadow-[0_0_0_4px_rgba(194,90,28,.12)] lg:mx-0">
-            <Search size={18} className="shrink-0 text-[#c25a1c]" />
+            className="mx-auto mt-7 flex max-w-xl items-center gap-2 rounded-full bg-white p-1.5 pl-5 shadow-[0_18px_40px_-18px_rgba(0,0,0,.55)] ring-1 ring-white/40 transition focus-within:ring-4 focus-within:ring-[#f3c35e]/40 lg:mx-0">
+            <Search size={18} className="shrink-0 text-[#a8401a]" />
             <div className="relative flex-1">
               <input value={q} onChange={(e) => setQ(e.target.value)} aria-label="Search the teachings" className="h-10 w-full bg-transparent text-[14px] text-zinc-900 outline-none sm:h-11 sm:text-[15px]" />
               {!q && <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center truncate text-[14px] text-zinc-400 sm:text-[15px]">Search&nbsp;<span className="caret text-zinc-600">{hint}</span></span>}
             </div>
-            <button className="h-10 shrink-0 rounded-full bg-[#c25a1c] px-5 text-[13.5px] font-semibold text-white transition hover:bg-[#a14812] sm:h-11 sm:px-6">Search</button>
+            <button className="h-10 shrink-0 rounded-full bg-[linear-gradient(135deg,#c2621d,#7a1e10)] px-5 text-[13.5px] font-semibold text-white shadow-[0_8px_18px_-8px_rgba(122,30,16,.8)] transition hover:brightness-110 sm:h-11 sm:px-6">Search</button>
           </form>
           <div className="mx-auto mt-4 flex max-w-xl flex-wrap justify-center gap-1.5 lg:mx-0 lg:justify-start">
-            {CHIPS.map(([l, k], ci) => <Link key={k} href={`/search?q=${k}`} className={`${ci > 2 ? "max-sm:hidden" : ""} rounded-full border border-zinc-200 bg-white/80 px-3 py-1 text-[12.5px] text-zinc-700 transition hover:-translate-y-0.5 hover:border-[#c25a1c]/40 hover:text-[#a14812] hover:shadow-[0_8px_18px_-12px_rgba(120,50,10,.5)]`}>{l}</Link>)}
+            {CHIPS.map(([l, k], ci) => <Link key={k} href={`/search?q=${k}`} className={`${ci > 2 ? "max-sm:hidden" : ""} rounded-full border border-white/20 bg-white/[0.07] px-3 py-1 text-[12.5px] text-[#ffe9d2] backdrop-blur transition hover:-translate-y-0.5 hover:border-[#f3c35e]/50 hover:bg-white/[0.14]`}>{l}</Link>)}
           </div>
         </div>
-
-        {/* Portrait: a clean round photograph with a soft glow */}
-        <div className="relative order-1 mx-auto w-full max-w-[min(200px,26svh)] sm:max-w-[min(300px,30svh)] lg:order-2 lg:max-w-[380px]">
-          <div aria-hidden className="absolute inset-[-14%] -z-10 rounded-full bg-[radial-gradient(closest-side,rgba(246,168,104,.45),transparent)]" />
-          <div className="relative overflow-hidden rounded-full bg-[#fdebdc] shadow-[0_30px_60px_-30px_rgba(120,50,10,.55)] ring-[6px] ring-white">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/photos/gurudeva-hero.webp" alt="Śrī Śrīmad Gour Govinda Swāmī Gurudeva" className="aspect-square w-full object-cover" style={{ objectPosition: "center 22%" }} />
-          </div>
+        <div className="order-1 mx-auto w-full max-w-[min(300px,40svh)] sm:max-w-[min(420px,44svh)] lg:order-2 lg:max-w-[540px]">
+          <GurudevaLotus src="/photos/gurudeva-hero.webp" alt="Śrī Śrīmad Gour Govinda Swāmī Gurudeva" />
         </div>
       </div>
     </section>
