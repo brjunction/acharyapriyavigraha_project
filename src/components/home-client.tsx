@@ -37,18 +37,7 @@ export function Stat({ n, label, suffix = "" }: { n: number; label: string; suff
 }
 
 export function Hero() {
-  const [q, setQ] = useState(""); const [hint, setHint] = useState("");
-  const r = useRouter(); const { setSearch } = usePrefs();
   const box = useRef<HTMLElement>(null);
-  useEffect(() => {
-    let i = 0, c = 0, del = false;
-    const t = setInterval(() => {
-      const w = HINTS[i];
-      if (!del) { c++; if (c > w.length + 14) del = true; } else { c -= 2; if (c <= 0) { del = false; c = 0; i = (i + 1) % HINTS.length; } }
-      setHint(w.slice(0, Math.min(c, w.length)));
-    }, 70);
-    return () => clearInterval(t);
-  }, []);
   // gentle pointer parallax on the portrait stage
   const move = (e: React.PointerEvent) => {
     const el = box.current; if (!el) return; const b = el.getBoundingClientRect();
@@ -58,12 +47,12 @@ export function Hero() {
   return (
     <>
     <section className="hero-red relative isolate overflow-hidden" onPointerMove={move}>
-      {/* a calm red-saffron gradient, slowly drifting; one mandala turning behind Śrīla Gurudeva */}
-      <div aria-hidden className="hero-warm hero-warm-move absolute inset-0 -z-10" />
-      <div aria-hidden className="hero-aurora pointer-events-none absolute inset-0 -z-10 opacity-60" />
-      <div aria-hidden className="pointer-events-none absolute inset-0 z-0 overflow-hidden">{Array.from({ length: 18 }, (_, k) => <span key={k} className="hero-spark" style={{ left: `${(k * 37 + 7) % 100}%`, animationDuration: `${15 + (k % 6) * 2.5}s`, animationDelay: `${-((k * 13) % 21)}s`, width: k % 4 ? 2 : 3, height: k % 4 ? 2 : 3 }} />)}</div>
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_70%_at_78%_42%,rgba(255,214,150,0.22),transparent_65%),linear-gradient(100deg,rgba(60,8,4,0.35),transparent_60%)]" />
-      <VMask name="mandala-saffron" className="hero-spin-rev pointer-events-none absolute -bottom-28 -left-28 size-[300px] text-[#f3b363] opacity-[0.14] sm:-bottom-32 sm:-left-32 sm:size-[380px]" />
+      {/* a warm saffron ground printed with small Indic flowers, drifting very slowly; a soft light behind Śrīla Gurudeva */}
+      <div aria-hidden className="hero-saffron absolute inset-0 -z-10" />
+      <div aria-hidden className="hero-buti pointer-events-none absolute inset-0 -z-10" />
+      <div aria-hidden className="hero-vig pointer-events-none absolute inset-0 -z-10" />
+      <div aria-hidden className="pointer-events-none absolute inset-0 z-0 overflow-hidden">{Array.from({ length: 14 }, (_, k) => <span key={k} className="hero-spark" style={{ left: `${(k * 37 + 7) % 100}%`, animationDuration: `${16 + (k % 6) * 2.5}s`, animationDelay: `${-((k * 13) % 21)}s`, width: k % 4 ? 2 : 3, height: k % 4 ? 2 : 3 }} />)}</div>
+      <VMask name="mandala-saffron" className="hero-spin-rev pointer-events-none absolute -bottom-24 -left-24 size-[240px] text-[#fff1d6] opacity-[0.16] sm:-bottom-32 sm:-left-32 sm:size-[360px]" />
             <div className="relative mx-auto grid max-w-[1240px] grid-cols-[minmax(0,1fr)] content-center items-center gap-5 px-5 py-8 min-h-[calc(100svh-52px)] sm:min-h-[calc(100svh-58px)] sm:gap-9 sm:px-10 sm:py-12 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:py-28">
         <div className="rise order-2 text-center lg:order-1 lg:text-left">
           <span className="hero-pill hx-sweep relative inline-flex items-center gap-2.5 overflow-hidden rounded-full bg-[#5d140c]/45 py-1 pl-2 pr-4 text-[11px] font-medium leading-snug text-[#fff1df] shadow-[0_12px_30px_-16px_rgba(40,5,2,.7),inset_0_1px_0_rgba(255,255,255,.18)] ring-1 ring-white/25 backdrop-blur-md sm:gap-3 sm:py-1.5 sm:pr-5 sm:text-[12px]">
@@ -73,33 +62,22 @@ export function Hero() {
           </span>
           <h1 className="hx-title mt-4 text-[25px] font-semibold leading-[1.15] tracking-[-0.03em] sm:mt-5 sm:text-[34px] lg:mt-5 lg:text-[42px]">
             {["Words", "That", "Give", "Life"].map((w, i) => <span key={w} className="hero-word hx-shine mr-[0.24em]" style={{ animationDelay: `${0.15 + i * 0.12}s, ${2 + i * 0.12}s` }}>{w}</span>)}<br />
-            {["to", "a"].map((w, i) => <span key={w} className="hero-word hx-shine mr-[0.24em]" style={{ animationDelay: `${0.63 + i * 0.12}s, ${2.5 + i * 0.12}s` }}>{w}</span>)}<span className="hero-word hero-gold" style={{ animationDelay: "0.9s" }}>Burning Heart</span>
+            {["to", "a"].map((w, i) => <span key={w} className="hero-word hx-shine mr-[0.24em]" style={{ animationDelay: `${0.63 + i * 0.12}s, ${2.5 + i * 0.12}s` }}>{w}</span>)}<span className="hero-word" style={{ animationDelay: "0.9s" }}><span className="hero-cream">Burning Heart</span></span>
           </h1>
-          <p className="mx-auto mt-3 max-w-[34rem] text-[12.5px] leading-relaxed text-[#ffe9cc]/90 sm:mt-4 sm:text-[14.5px] lg:mx-0 lg:mt-5 lg:max-w-xl">
+          <p className="mx-auto mt-3 max-w-[34rem] text-[12.5px] leading-relaxed text-white/90 sm:mt-4 sm:text-[14.5px] lg:mx-0 lg:mt-5 lg:max-w-xl">
             Lectures, letters, books, quotes and photographs of Śrīla Gurudeva, gathered in one searchable home and growing in many languages. Listen, read, and find the exact words you were looking for.
           </p>
-          {/* a dark glass search with a gold underline */}
-          <form onSubmit={(e) => { e.preventDefault(); if (q.trim()) r.push(`/search?q=${encodeURIComponent(q)}`); else setSearch(true); }}
-            className="hx-in group/sr relative mx-auto mt-7 flex max-w-xl items-center gap-3 rounded-2xl border border-white/35 bg-white/[0.16] py-2 pl-4 pr-2 shadow-[0_18px_40px_-24px_rgba(40,5,2,.6),inset_0_1px_0_rgba(255,255,255,.35)] backdrop-blur-xl transition focus-within:border-white/70 focus-within:bg-white/[0.24] lg:mx-0" style={{ animationDelay: ".45s" }}>
-            <Search size={18} className="shrink-0 text-[#f3c35e]" />
-            <div className="relative flex-1">
-              <input value={q} onChange={(e) => setQ(e.target.value)} aria-label="Search the teachings" className="h-10 w-full bg-transparent text-[15px] text-[#fff6ea] outline-none" />
-              {!q && <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center truncate text-[15px] text-white/70">Search&nbsp;<span className="caret text-[#ffe9d2]">{hint}</span></span>}
-            </div>
-            <button aria-label="Search" className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-[linear-gradient(135deg,#f7c556,#e8913c)] text-[#4a0d0b] transition hover:brightness-110"><ArrowRight size={18} /></button>
-            <span aria-hidden className="absolute inset-x-4 -bottom-px h-px origin-left scale-x-0 bg-gradient-to-r from-transparent via-[#f3c35e] to-transparent transition duration-500 group-focus-within/sr:scale-x-100" />
-          </form>
-          <div className="hx-in mx-auto mt-4 grid max-w-xl grid-cols-2 gap-2.5 sm:flex sm:flex-wrap sm:justify-center lg:mx-0 lg:justify-start" style={{ animationDelay: ".55s" }}>
-            <Link href="/teachings/audio" className="hx-sweep relative inline-flex h-10 items-center justify-center overflow-hidden gap-2 sm:justify-start rounded-full bg-[linear-gradient(135deg,#f7c556,#e8913c)] pl-1.5 pr-5 text-[12.5px] font-semibold text-[#4a0d0b] shadow-[0_14px_30px_-14px_rgba(247,197,86,.8)] transition hover:-translate-y-0.5"><span className="flex size-8 items-center justify-center rounded-full bg-[#4a0d0b]/15"><Headphones size={15} /></span><span className="sm:hidden">Listen</span><span className="max-sm:hidden">Listen to His Lectures</span></Link>
-            <Link href="/teachings/books" className="hx-border relative inline-flex h-10 items-center justify-center sm:justify-start gap-2 rounded-full border border-white/25 bg-white/[0.08] pl-1.5 pr-5 text-[12.5px] font-semibold text-[#fff6ea] backdrop-blur transition hover:-translate-y-0.5 hover:border-[#f3c35e]/60"><span className="flex size-8 items-center justify-center rounded-full bg-white/15"><BookOpen size={15} /></span><span className="sm:hidden">Read</span><span className="max-sm:hidden">Read His Books</span></Link>
-          </div>
           {/* a dock of quick ways in */}
-          <nav aria-label="Quick links" className="hx-in mx-auto mt-7 grid max-w-xl grid-cols-6 divide-x divide-white/20 overflow-hidden rounded-2xl border border-white/35 bg-white/[0.14] shadow-[0_18px_40px_-24px_rgba(40,5,2,.6),inset_0_1px_0_rgba(255,255,255,.35)] backdrop-blur-xl lg:mx-0" style={{ animationDelay: ".65s" }}>
+          <nav aria-label="Quick links" className="hx-in mx-auto mt-6 grid max-w-xl grid-cols-6 divide-x divide-white/20 overflow-hidden rounded-2xl border border-white/35 bg-white/[0.14] shadow-[0_18px_40px_-24px_rgba(40,5,2,.6),inset_0_1px_0_rgba(255,255,255,.35)] backdrop-blur-xl lg:mx-0" style={{ animationDelay: ".5s" }}>
             {([["/teachings/audio", Headphones, "Audio"], ["/teachings/videos", PlayCircle, "Videos"], ["/teachings/books", BookOpen, "Books"], ["/teachings/quotes", QuoteIcon, "Quotes"], ["/gurudeva/diaries", NotebookPen, "Diary"], ["/gurudeva/gallery", ImageIcon, "Gallery"]] as const).map(([h, I, l]) => (
               <Link key={h} href={h} className="group/d flex flex-col items-center gap-1.5 px-1 py-3 text-[11px] font-medium text-white/90 transition hover:bg-white/[0.18] hover:text-white sm:text-[11.5px]">
                 <span className="hx-float" style={{ animationDelay: `${-["/teachings/audio", "/teachings/videos", "/teachings/books", "/teachings/quotes", "/gurudeva/diaries", "/gurudeva/gallery"].indexOf(h) * 0.5}s` }}><I size={19} strokeWidth={1.6} className="text-[#ffe3a0] transition duration-300 group-hover/d:-translate-y-0.5 group-hover/d:scale-110" /></span>{l}
               </Link>))}
           </nav>
+          <div className="hx-in mx-auto mt-5 grid max-w-xl grid-cols-2 gap-2.5 sm:flex sm:flex-wrap sm:justify-center lg:mx-0 lg:justify-start" style={{ animationDelay: ".7s" }}>
+            <Link href="/teachings/audio" className="hx-sweep relative inline-flex h-10 items-center justify-center overflow-hidden gap-2 sm:justify-start rounded-full bg-[#fffaf2] pl-1.5 pr-5 text-[12.5px] font-semibold text-[#8a2a0c] shadow-[0_14px_30px_-14px_rgba(90,20,4,.55)] transition hover:-translate-y-0.5"><span className="flex size-8 items-center justify-center rounded-full bg-[#f3a24a]/25"><Headphones size={15} /></span><span className="sm:hidden">Listen</span><span className="max-sm:hidden">Listen to His Lectures</span></Link>
+            <Link href="/teachings/books" className="hx-border relative inline-flex h-10 items-center justify-center sm:justify-start gap-2 rounded-full border border-white/25 bg-white/[0.08] pl-1.5 pr-5 text-[12.5px] font-semibold text-[#fff6ea] backdrop-blur transition hover:-translate-y-0.5 hover:border-[#f3c35e]/60"><span className="flex size-8 items-center justify-center rounded-full bg-white/15"><BookOpen size={15} /></span><span className="sm:hidden">Read</span><span className="max-sm:hidden">Read His Books</span></Link>
+          </div>
         </div>
 
         {/* Portrait at the heart of a turning gold-and-ivory lotus; sized so the whole lotus always fits */}

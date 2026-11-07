@@ -14,10 +14,10 @@ const inner = (L: number, W: number) => petal(L * 0.82, W * 0.5);
 
 type Ring = { n: number; L: number; W: number; r0: number; off: number; fill: string; stroke: string; spin: string; delay: number; glow?: boolean };
 const RINGS: Ring[] = [
-  { n: 24, L: 294, W: 34, r0: 120, off: 7.5, fill: "lx-a", stroke: "#ffe2a6", spin: "lx-cw lx-s1", delay: 0 },
-  { n: 16, L: 268, W: 50, r0: 112, off: 0, fill: "lx-b", stroke: "#f6c27a", spin: "lx-ccw lx-s2", delay: 0.15, glow: true },
-  { n: 16, L: 230, W: 46, r0: 104, off: 11.25, fill: "lx-c", stroke: "#eaa257", spin: "lx-cw lx-s3", delay: 0.3, glow: true },
-  { n: 12, L: 194, W: 44, r0: 96, off: 0, fill: "lx-d", stroke: "#e58f3e", spin: "lx-ccw lx-s4", delay: 0.45, glow: true },
+  { n: 24, L: 294, W: 34, r0: 120, off: 7.5, fill: "lx-a", stroke: "#fff1d0", spin: "lx-cw lx-s1", delay: 0 },
+  { n: 16, L: 268, W: 50, r0: 112, off: 0, fill: "lx-b", stroke: "#d77a2e", spin: "lx-ccw lx-s2", delay: 0.15, glow: true },
+  { n: 16, L: 230, W: 46, r0: 104, off: 11.25, fill: "lx-c", stroke: "#cf6d24", spin: "lx-cw lx-s3", delay: 0.3, glow: true },
+  { n: 12, L: 194, W: 44, r0: 96, off: 0, fill: "lx-d", stroke: "#c4611c", spin: "lx-ccw lx-s4", delay: 0.45, glow: true },
 ];
 
 export function GurudevaLotus({ src, alt, focus = "center 28%" }: { src: string; alt: string; focus?: string }) {
@@ -27,12 +27,12 @@ export function GurudevaLotus({ src, alt, focus = "center 28%" }: { src: string;
       <svg viewBox="0 0 600 600" className="absolute inset-0 h-full w-full" aria-hidden>
         <defs>
           <linearGradient id="lx-a" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stopColor="#ffe9c2" stopOpacity=".05" /><stop offset=".6" stopColor="#ffd98a" stopOpacity=".22" /><stop offset="1" stopColor="#ffd27a" stopOpacity=".42" /></linearGradient>
-          <linearGradient id="lx-b" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stopColor="#fff6e6" /><stop offset=".55" stopColor="#ffe3b8" /><stop offset="1" stopColor="#f5b45e" /></linearGradient>
-          <linearGradient id="lx-c" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stopColor="#fffaf1" /><stop offset=".5" stopColor="#ffe6c2" /><stop offset="1" stopColor="#ee9c48" /></linearGradient>
-          <linearGradient id="lx-d" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stopColor="#ffffff" /><stop offset=".5" stopColor="#ffeed6" /><stop offset="1" stopColor="#f2a656" /></linearGradient>
+          <linearGradient id="lx-b" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stopColor="#fffaf2" /><stop offset=".6" stopColor="#ffedd2" /><stop offset="1" stopColor="#ffd08e" /></linearGradient>
+          <linearGradient id="lx-c" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stopColor="#fffdf8" /><stop offset=".55" stopColor="#fff0da" /><stop offset="1" stopColor="#ffc277" /></linearGradient>
+          <linearGradient id="lx-d" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stopColor="#ffffff" /><stop offset=".55" stopColor="#fff3e2" /><stop offset="1" stopColor="#ffb85f" /></linearGradient>
           <linearGradient id="lx-in" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stopColor="#fff" stopOpacity="0" /><stop offset=".55" stopColor="#fff" stopOpacity=".55" /><stop offset="1" stopColor="#fff" stopOpacity="0" /></linearGradient>
           <radialGradient id="lx-heart"><stop offset=".86" stopColor="#ffe7b0" /><stop offset="1" stopColor="#d98a32" /></radialGradient>
-          <filter id="lx-sh" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="2" stdDeviation="3" floodColor="#5a0f06" floodOpacity=".32" /></filter>
+          <filter id="lx-sh" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="2" stdDeviation="3" floodColor="#7a2606" floodOpacity=".4" /></filter>
         </defs>
         {RINGS.map((r, ri) => (
           /* one movement per nested group: the slow turn, the breathing, the first unfolding */
