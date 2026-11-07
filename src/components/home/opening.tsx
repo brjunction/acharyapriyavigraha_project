@@ -50,7 +50,7 @@ export function KrishnaSentOpening() {
   const [ref, on] = useInView<HTMLElement>();
   const [open, setOpen] = useState<"c" | "l" | null>(null);
   return (
-    <section ref={ref} data-on={on ? "1" : "0"} className="op relative isolate overflow-hidden bg-[linear-gradient(180deg,#ffffff_0%,#fffaf4_100%)] py-12 sm:py-16">
+    <section ref={ref} data-on={on ? "1" : "0"} className="op relative isolate overflow-hidden bg-[linear-gradient(180deg,#ffffff_0%,#fffaf4_100%)] pb-12 pt-4 sm:pb-16 sm:pt-6">
       <div aria-hidden className="absolute inset-0 -z-10 bg-[radial-gradient(45%_60%_at_78%_55%,rgba(243,179,99,.14),transparent_70%)]" />
       <div className="mx-auto grid max-w-[1180px] grid-cols-1 items-center gap-10 px-5 sm:px-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-14">
         <div className="text-center lg:text-left">
@@ -67,18 +67,11 @@ export function KrishnaSentOpening() {
             <button onClick={() => setOpen("l")} className="group inline-flex h-10 items-center gap-2 rounded-full border border-[#e3cfae] bg-white px-5 text-[13px] font-semibold text-[#853500] transition duration-300 hover:-translate-y-0.5 hover:border-[#853500]">Read the letter<ArrowRight size={15} className="transition group-hover:translate-x-0.5" /></button>
           </div>
         </div>
-        {/* two arched frames, the second set a little lower */}
-        <div className="op-up mx-auto grid w-full max-w-[320px] grid-cols-2 items-start gap-3 sm:max-w-[460px] sm:gap-5" style={{ transitionDelay: ".15s" }} aria-label="Śrīla Prabhupāda and Śrīla Gurudeva">
-          {([["/legacy/prabhupada.webp", "Śrīla A.C. Bhaktivedanta Swami Prabhupāda", "Śrīla Prabhupāda", ""], ["/legacy/gurudeva.webp", "Śrī Śrīmad Gour Govinda Swāmī Gurudeva", "Śrīla Gurudeva", "mt-8 sm:mt-10"]] as const).map(([src, alt, name, off]) => (
-            <figure key={src} className={off}>
-              <div style={{ borderRadius: "50% 50% 20px 20px / 40% 40% 20px 20px" }} className="relative overflow-hidden bg-[linear-gradient(180deg,#fdf0dc_0%,#f6d7a9_100%)] p-1.5 shadow-[0_22px_44px_-26px_rgba(133,53,0,.6)] ring-1 ring-[#ecd3ae]">
-                <div style={{ borderRadius: "50% 50% 15px 15px / 40% 40% 15px 15px" }} className="overflow-hidden bg-[radial-gradient(circle_at_50%_30%,#fff8ec,#f3cf98_75%)]">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={src} alt={alt} className="block aspect-[4/5] w-full object-contain object-bottom" loading="lazy" />
-                </div>
-              </div>
-              <figcaption className="mt-2.5 text-center text-[12.5px] font-semibold text-ink sm:text-[13px]">{name}</figcaption>
-            </figure>
+        {/* Śrīla Prabhupāda and Śrīla Gurudeva, side by side, plain */}
+        <div className="op-up mx-auto grid w-full max-w-[340px] grid-cols-2 items-end gap-2 sm:max-w-[480px] sm:gap-4" style={{ transitionDelay: ".15s" }} aria-label="Śrīla Prabhupāda and Śrīla Gurudeva">
+          {([["/legacy/prabhupada.webp", "Śrīla A.C. Bhaktivedanta Swami Prabhupāda"], ["/legacy/gurudeva.webp", "Śrī Śrīmad Gour Govinda Swāmī Gurudeva"]] as const).map(([src, alt]) => (
+            /* eslint-disable-next-line @next/next/no-img-element */
+            <img key={src} src={src} alt={alt} className="block aspect-[4/5] w-full object-contain object-bottom [mask-image:linear-gradient(to_bottom,#000_82%,transparent)]" loading="lazy" />
           ))}
         </div>
       </div>
@@ -95,9 +88,11 @@ const VERSE_TR = "How can such persons, who have rendered unlimited service by e
 export function VerseBand() {
   const [ref, on] = useInView<HTMLElement>("-8%");
   return (
-    <section ref={ref} data-on={on ? "1" : "0"} aria-label="Śrīmad-Bhāgavatam 4.22.47" className="op relative isolate overflow-hidden bg-[linear-gradient(160deg,#6e2d04_0%,#5c2401_55%,#4a1c00_100%)] py-10 sm:py-12">
-      <div aria-hidden className="absolute inset-0 -z-10 bg-[radial-gradient(40%_80%_at_14%_50%,rgba(214,120,40,.35),transparent_70%)]" />
-      <div className="mx-auto grid max-w-[1360px] items-center gap-7 px-4 sm:px-8 lg:grid-cols-[220px_minmax(0,1fr)] lg:gap-10 xl:px-10">
+    <section ref={ref} data-on={on ? "1" : "0"} aria-label="Śrīmad-Bhāgavatam 4.22.47" className="op bg-white px-3 py-8 sm:px-6 sm:py-12">
+      {/* a card in the hero's own colours and flower print, set in white space so the hero ends cleanly before it */}
+      <div className="hero-saffron relative isolate mx-auto max-w-[1360px] overflow-hidden rounded-[26px] shadow-[0_30px_70px_-40px_rgba(70,25,0,.7)] sm:rounded-[32px]">
+      <svg aria-hidden className="hero-buti2 pointer-events-none absolute inset-0 -z-10 h-full w-full"><defs><pattern id="vb-buti" width="64" height="64" patternUnits="userSpaceOnUse"><g fill="#fff3dc">{[0, 45, 90, 135, 180, 225, 270, 315].map((a) => <ellipse key={a} cx="32" cy="24.5" rx="2.6" ry="6" transform={`rotate(${a} 32 32)`} />)}</g><circle cx="32" cy="32" r="2.6" fill="#ffd27a" /></pattern></defs><rect width="100%" height="100%" fill="url(#vb-buti)" /></svg>
+      <div className="grid items-center gap-7 px-4 py-8 sm:px-8 sm:py-10 lg:grid-cols-[220px_minmax(0,1fr)] lg:gap-10 xl:px-10">
         {/* the seal: a whole mandala turning slowly, ŚB 4.22.47 at its heart */}
         <div className="op-up relative mx-auto aspect-square w-[min(190px,52vw)] lg:w-[220px]" aria-hidden>
           <span className="absolute inset-0 rounded-full bg-[radial-gradient(closest-side,rgba(255,200,130,.22),transparent)]" />
@@ -124,6 +119,7 @@ export function VerseBand() {
             </div>
           </div>
         </div>
+      </div>
       </div>
     </section>
   );

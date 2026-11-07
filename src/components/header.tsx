@@ -412,7 +412,7 @@ export function Header() {
     <header className="site-header sticky top-0 z-50">
       <div className={`relative isolate border-b border-line/70 transition-shadow ${scrolled ? "shadow-[0_6px_24px_-14px_rgba(60,30,10,0.45)]" : ""}`}>
         {/* a translucent glass bar: the page shows softly through it (the blur sits on its own layer, so menus inside are not affected) */}
-        <span aria-hidden className="pointer-events-none absolute inset-0 -z-10 bg-[var(--header-bg,#ffffff)]/75 backdrop-blur-xl backdrop-saturate-150" />
+        <span aria-hidden className="pointer-events-none absolute inset-0 -z-10 bg-[var(--header-bg,#ffffff)]/[0.94] backdrop-blur-xl backdrop-saturate-150" />
         <div className="mx-auto grid h-[52px] max-w-[1320px] sm:h-[58px] grid-cols-[auto_1fr_auto] items-center gap-2 px-4 sm:gap-3 sm:px-6">
           <Logo />
           {mode === "simple" ? (
