@@ -4,20 +4,20 @@ import { Clapperboard, Plus, Search, Youtube, Trash2, Eye, EyeOff, ExternalLink,
 import { durText, parseDur } from "@/lib/content/text";
 import { Btn, Badge, Card, Field, Input, Select, Textarea, PageHeader, Sheet, Empty, Modal, Tabs, api, toast, cn } from "../ui";
 import { LecturePicker, TopicsInput } from "./shared";
+import { VideoSections } from "./video-sections";
 
-export const SHOW_AS: [string, string][] = [["row", "A row of videos"], ["playlist", "A playlist card"], ["shorts", "Shorts (tall cards)"], ["channel", "Channel list at the bottom only"]];
 export const VIDEO_KINDS: [string, string][] = [["lecture", "Lecture"], ["short", "Short"], ["kirtan", "Kīrtana"], ["daily-diary", "Daily diary (shorts)"], ["festival", "Festival"], ["documentary", "Documentary"], ["memory", "Memories"], ["other", "Other"]];
 const yid = (u: string) => /(?:youtu\.be\/|v=|embed\/|shorts\/|live\/)([\w-]{11})/.exec(u || "")?.[1] || (/^[\w-]{11}$/.test(u || "") ? u : "");
 type R = { id: string; slug: string; kind: string; title: string; date: string | null; youtube_id: string | null; place: string | null; series: string | null; topics: string[]; duration_sec: number | null; channel: string | null; status: string };
 
 export function VideosPanel() {
-  const [tab, setTab] = useState<"videos" | "sources">("videos");
+  const [tab, setTab] = useState<"sections" | "videos" | "sources">("sections");
   return (
     <div>
       <PageHeader icon={Clapperboard} title="Videos" description="Bring in whole YouTube channels and playlists, or single videos. Each video is sorted by date, place, scripture and type from its title; you can correct any of it.">
-        <div className="flex items-center gap-1 rounded-lg bg-zinc-100 p-0.5 text-[12.5px]">{([["videos", "Videos"], ["sources", "Channels & playlists"]] as const).map(([k, l]) => <button key={k} onClick={() => setTab(k)} className={cn("rounded-md px-3 py-1.5", tab === k ? "bg-white font-medium shadow-xs" : "text-zinc-600")}>{l}</button>)}</div>
+        <div className="flex items-center gap-1 rounded-lg bg-zinc-100 p-0.5 text-[12.5px]">{([["sections", "Page sections"], ["videos", "All videos"], ["sources", "Channels & playlists"]] as const).map(([k, l]) => <button key={k} onClick={() => setTab(k)} className={cn("rounded-md px-3 py-1.5", tab === k ? "bg-white font-medium shadow-xs" : "text-zinc-600")}>{l}</button>)}</div>
       </PageHeader>
-      {tab === "videos" ? <VideoList onSources={() => setTab("sources")} /> : <Sources />}
+      {tab === "sections" ? <VideoSections onSources={() => setTab("sources")} /> : tab === "videos" ? <VideoList onSources={() => setTab("sources")} /> : <Sources />}
     </div>
   );
 }
@@ -84,11 +84,12 @@ function VideoEditor({ id, onClose, onSaved }: { id: string; onClose: () => void
 
 /** All the places videos come from: as many channels and playlists as needed, plus single links. */
 function Sources() {
-  const [d, setD] = useState<{ sources: any[]; hasKey: boolean; envKey: boolean } | null>(null); const [text, setText] = useState(""); const [kind, setKind] = useState(""); const [section, setSection] = useState(""); const [showAs, setShowAs] = useState(""); const [busy, setBusy] = useState(""); const [key, setKey] = useState("");
+  const [d, setD] = useState<{ sources: any[]; hasKey: boolean; envKey: boolean } | null>(null); const [text, setText] = useState(""); const [kind, setKind] = useState(""); const [busy, setBusy] = useState(""); const [key, setKey] = useState("");
   const [log, setLog] = useState<{ url?: string; ok: boolean; note: string }[]>([]);
-  const load = () => api("/api/admin/videos/sources").then(setD).catch((e) => toast(e.message, true)); useEffect(() => { load(); }, []);
+  const [secs, setSecs] = useState<{ id: string; name: string }[]>([]);
+  const load = () => { api("/api/admin/videos/sources").then(setD).catch((e) => toast(e.message, true)); api<{ sections: { id: string; name: string }[] }>("/api/admin/videos/sections").then((r) => setSecs(r.sections)).catch(() => {}); }; useEffect(() => { load(); }, []);
   const lines = text.split(/[\n\s,]+/).map((x) => x.trim()).filter(Boolean);
-  const add = async () => { setBusy("add"); try { const r = await api<{ results: { url: string; ok: boolean; note: string }[] }>("/api/admin/videos/sources", "POST", { urls: lines, kind: kind || null, section, show_as: showAs || null }); setLog(r.results); setText(""); load(); } catch (e: any) { toast(e.message, true); } finally { setBusy(""); } };
+  const add = async () => { setBusy("add"); try { const r = await api<{ results: { url: string; ok: boolean; note: string }[] }>("/api/admin/videos/sources", "POST", { urls: lines, kind: kind || null }); setLog(r.results); setText(""); load(); } catch (e: any) { toast(e.message, true); } finally { setBusy(""); } };
   // One source at a time, and again while a big channel still has videos to bring in, so no request runs too long.
   const sync = async (id: string) => {
     setBusy(id); const ids = id === "all" ? (d?.sources || []).map((s) => s.id) : [id]; const out: { ok: boolean; note: string }[] = [];
@@ -104,8 +105,6 @@ function Sources() {
           <p className="mt-0.5 text-[12.5px] text-zinc-500">Paste as many as you like, one per line: channel links, @handles, playlist links, or single video links.</p>
           <Textarea rows={5} value={text} onChange={(e) => setText(e.target.value)} placeholder={"https://www.youtube.com/@HaladharaSwami\nhttps://www.youtube.com/playlist?list=PL…\nhttps://youtu.be/…"} className="mt-3 font-mono text-[12.5px]" />
           <div className="mt-3 flex flex-wrap items-center gap-2">
-            <Input list="video-sections" value={section} onChange={(e) => setSection(e.target.value)} placeholder="Section on the page, e.g. SG Diary" className="!h-8 !w-56" />
-            <Select value={showAs} onChange={(e) => setShowAs(e.target.value)} className="!h-8 !w-auto"><option value="">Show as: decide (channel → bottom list)</option>{SHOW_AS.map(([k, l]) => <option key={k} value={k}>Show as: {l}</option>)}</Select>
             <Select value={kind} onChange={(e) => setKind(e.target.value)} className="!h-8 !w-auto"><option value="">Kind: decide from each title</option>{VIDEO_KINDS.map(([k, l]) => <option key={k} value={k}>All are: {l}</option>)}</Select>
             <Btn kind="primary" busy={busy === "add"} disabled={!lines.length} onClick={add}><Plus />Add {lines.length > 1 ? `${lines.length} links` : "link"}</Btn>
           </div>
@@ -113,15 +112,13 @@ function Sources() {
         </Card>
         <Card>
           <div className="flex items-center justify-between border-b border-zinc-100 px-4 py-3"><p className="text-[13.5px] font-semibold">Channels & playlists <span className="font-normal text-zinc-400">{d?.sources.length || 0} · {total.toLocaleString()} videos</span></p>{d && d.sources.length > 0 && <Btn size="sm" busy={busy === "all"} onClick={() => sync("all")}>Fetch all</Btn>}</div>
-          <datalist id="video-sections">{[...new Set((d?.sources || []).map((x) => x.section).filter(Boolean))].map((x) => <option key={x} value={x} />)}</datalist>
           {d?.sources.length ? <div className="divide-y divide-zinc-100">{d.sources.map((s, si) => { const up = (u: Record<string, any>) => api("/api/admin/videos/sources", "POST", { update: { id: s.id, ...u } }).then(load); const move = (dir: number) => { const ids = d.sources.map((x) => x.id); const j = si + dir; if (j < 0 || j >= ids.length) return; [ids[si], ids[j]] = [ids[j], ids[si]]; api("/api/admin/videos/sources", "POST", { order: ids }).then(load); }; return (
             <div key={s.id} className={cn("flex flex-wrap items-center gap-3 px-4 py-3", s.hidden && "opacity-50")}>
               {s.avatar ? /* eslint-disable-next-line @next/next/no-img-element */ <img src={s.avatar} alt="" className={cn("size-10 shrink-0 object-cover", s.kind === "channel" ? "rounded-full" : "aspect-video w-16 rounded-md")} /> : <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-red-50"><Youtube className="size-4 text-red-600" /></span>}
               <div className="min-w-0 flex-1"><input defaultValue={s.name || ""} placeholder={s.url} onBlur={(e) => e.target.value !== (s.name || "") && up({ name: e.target.value })} className="w-full truncate rounded px-1 text-[13px] font-medium outline-none hover:bg-zinc-50 focus:bg-zinc-50" title="Click to rename" />
                 <p className="truncate px-1 text-[11.5px] text-zinc-500">{s.kind === "playlist" ? "Playlist" : "Channel"} · {s.videos} videos{s.last_synced_at ? ` · fetched ${new Date(s.last_synced_at).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}` : " · not fetched yet"} · <a href={s.kind === "playlist" ? `https://www.youtube.com/playlist?list=${s.ref}` : `https://www.youtube.com/channel/${s.ref}`} target="_blank" className="underline">open</a></p>
                 <div className="mt-1.5 flex flex-wrap gap-1.5">
-                  <Input list="video-sections" defaultValue={s.section || ""} placeholder="Section on the page" onBlur={(e) => e.target.value !== (s.section || "") && up({ section: e.target.value })} className="!h-7 !w-48 text-[12px]" title="Sources with the same section are shown together under one heading" />
-                  <Select value={s.show_as || "row"} onChange={(e) => up({ show_as: e.target.value })} className="!h-7 !w-auto text-[12px]">{SHOW_AS.map(([k, l]) => <option key={k} value={k}>{l}</option>)}</Select>
+                  <Select value={s.section_id || ""} onChange={(e) => api("/api/admin/videos/sections", "POST", e.target.value ? { attach: { id: e.target.value, source: s.id } } : { detach: { source: s.id } }).then(load)} className="!h-7 !w-48 text-[12px]" title="The page section this playlist or channel feeds"><option value="">Not in a section</option>{secs.map((x) => <option key={x.id} value={x.id}>{x.name}</option>)}</Select>
                   <Select value={s.default_kind || ""} onChange={(e) => up({ default_kind: e.target.value })} className="!h-7 !w-36 text-[12px]"><option value="">Kind from title</option>{VIDEO_KINDS.map(([k, l]) => <option key={k} value={k}>{l}</option>)}</Select>
                 </div></div>
               <span className="flex items-center"><button title="Move up" onClick={() => move(-1)} className="p-1 text-zinc-400 hover:text-zinc-900"><ArrowUp className="size-4" /></button><button title="Move down" onClick={() => move(1)} className="p-1 text-zinc-400 hover:text-zinc-900"><ArrowDown className="size-4" /></button></span>
@@ -134,7 +131,7 @@ function Sources() {
       </div>
       <aside className="space-y-4">
         <Card className="p-4 text-[12.5px] leading-relaxed text-zinc-600"><p className="text-[13px] font-semibold text-zinc-900">How it works</p>
-          <ul className="mt-2 list-disc space-y-1 pl-4"><li><b>Section</b> groups channels and playlists under one heading on the Videos page (e.g. “SG Diary”, “GGS Enhanced”). Arrange them with the arrows.</li><li><b>Show as</b>: a row of videos, one playlist card that plays in order, tall Shorts, or only in the channel list at the bottom.</li><li><b>Fetch</b> brings in every video of that channel or playlist that is not here yet.</li><li>New videos are fetched by themselves every night.</li><li>A video in two playlists is kept once.</li><li>Your corrections to a video are never overwritten.</li><li>Choose a kind for a whole playlist (e.g. all Kīrtanas) with the menu beside it.</li></ul></Card>
+          <ul className="mt-2 list-disc space-y-1 pl-4"><li>Choose the <b>page section</b> each playlist or channel feeds (sections are made in <b>Page sections</b>). Channels are also listed on the Channels tab.</li><li><b>Fetch</b> brings in every video of that channel or playlist that is not here yet.</li><li>New videos are fetched by themselves every night.</li><li>A video in two playlists is kept once.</li><li>Your corrections to a video are never overwritten.</li><li>Choose a kind for a whole playlist (e.g. all Kīrtanas) with the menu beside it.</li></ul></Card>
         <Card className="p-4"><p className="flex items-center justify-between text-[13px] font-semibold">YouTube API key {d?.hasKey ? <Badge tone="green">Saved</Badge> : <Badge tone="outline">Optional</Badge>}</p>
           <p className="mt-1 text-[12px] leading-relaxed text-zinc-500">With a free key (Google Cloud → YouTube Data API v3), every video also gets its upload date, description and exact length, and very large channels fetch reliably.</p>
           {d?.envKey ? <p className="mt-2 text-[12px]">A key is set on the server.</p> : <div className="mt-2 flex gap-2"><Input type="password" value={key} onChange={(e) => setKey(e.target.value)} placeholder={d?.hasKey ? "•••••••• (saved)" : "Paste the key"} /><Btn size="sm" onClick={async () => { await api("/api/admin/videos/sources", "POST", { key }); setKey(""); toast(key ? "Key saved." : "Key removed."); load(); }}>{key ? "Save" : "Remove"}</Btn></div>}

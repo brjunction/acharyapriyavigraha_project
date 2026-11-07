@@ -158,3 +158,8 @@ alter table video_sources add column if not exists position int not null default
 alter table video_sources add column if not exists section text, add column if not exists show_as text not null default 'row', add column if not exists avatar text, add column if not exists description text, add column if not exists hidden boolean not null default false;
 create table if not exists video_source_items (source_id uuid not null references video_sources(id) on delete cascade, youtube_id text not null, position int not null default 0, primary key (source_id, youtube_id));
 create index if not exists video_source_items_yt on video_source_items (youtube_id);
+
+-- Videos page sections: each with a design and colour; their videos in order (removed ones stay removed)
+create table if not exists video_sections (id uuid primary key default gen_random_uuid(), name text not null, slug text not null unique, intro text, layout text not null default 'row', color text not null default 'saffron', position int not null default 0, on_home boolean not null default true, hidden boolean not null default false, created_at timestamptz not null default now());
+create table if not exists video_section_items (section_id uuid not null references video_sections(id) on delete cascade, youtube_id text not null, position int not null default 0, removed boolean not null default false, primary key (section_id, youtube_id));
+alter table video_sources add column if not exists section_id uuid references video_sections(id) on delete set null, add column if not exists new_on_top boolean not null default false;

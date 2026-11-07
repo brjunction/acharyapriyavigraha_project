@@ -8,7 +8,8 @@ import { getVideos } from "@/lib/cms/library";
 import { MediaLibrary, type MediaItem } from "@/components/media/library";
 import { MediaHeader } from "@/components/media/header";
 import { getVideoHome } from "@/lib/video-home";
-import { VideoTabs, VideoHomeView } from "@/components/media/video-home";
+import { VideoHomeView } from "@/components/media/video-home";
+import { VideosShell } from "@/components/media/video-page";
 export const revalidate = 300;
 
 export function generateStaticParams() {
@@ -25,9 +26,9 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
   if (slug === "books") { const b = await BooksShelf(); if (b) return b; }
   if (slug === "kirtans") { const songs = ((await getLectures(true)) ?? []) as MediaItem[]; return <><MediaHeader at="/teachings/kirtans" title="Kīrtanas & bhajanas" intro="Songs he sang and led. Find them by song, author, place or year." stats={[`${songs.length.toLocaleString()} recordings`]} /><MediaLibrary items={songs} mode="kirtan" /></>; }
   if (slug === "videos") {
-    const [vs, home] = await Promise.all([getVideos() as Promise<MediaItem[]>, getVideoHome()]);
-    return <><MediaHeader at="/teachings/videos" title="Videos" intro="Every video of Śrīla Gurudeva in one place — Shorts, lectures, kīrtanas, festivals and every channel and playlist — to watch right here." stats={[`${vs.length.toLocaleString()} videos`, ...(home.channels.length ? [`${home.channels.length} channels`] : [])]} />
-      <VideoTabs total={vs.length} home={<VideoHomeView data={home} />} all={<MediaLibrary items={vs} mode="video" />} /></>;
+    const home = await getVideoHome();
+    return <><MediaHeader at="/teachings/videos" title="Videos" intro="Every video of Śrīla Gurudeva in one place, organised in sections — watch right here." stats={[]} />
+      <VideosShell active="home"><VideoHomeView sections={home.sections} latest={home.latest} channels={home.channels} /></VideosShell></>;
   }
   const col = await CollectionPage({ route: `/teachings/${slug}`, crumbs }); if (col) return col;
   return <SectionPage href={`/teachings/${slug}`} />;

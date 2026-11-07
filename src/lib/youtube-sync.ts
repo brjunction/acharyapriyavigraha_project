@@ -3,7 +3,7 @@ import { sql } from "@/lib/db";
 import { fold } from "@/lib/content/text";
 import { VIDEO, insertRow } from "@/lib/content/generic";
 
-export type Source = { id: string; url: string; name: string | null; kind: string; ref: string | null; default_kind?: string | null; show_as?: string | null; avatar?: string | null; description?: string | null };
+export type Source = { id: string; url: string; name: string | null; kind: string; ref: string | null; default_kind?: string | null; show_as?: string | null; avatar?: string | null; description?: string | null; section_id?: string | null; new_on_top?: boolean | null };
 export type YtVideo = { id: string; title: string; seconds: number; published?: string; description?: string };
 const UA = { "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130 Safari/537.36", "accept-language": "en" };
 
@@ -145,6 +145,8 @@ export async function syncSource(s: Source, key?: string | null) {
     await sql`insert into video_source_items (source_id, youtube_id, position) select ${s.id}::uuid, y, p from unnest(${ids}::text[], ${pos}::int[]) as t(y, p) on conflict (source_id, youtube_id) do update set position = excluded.position`;
     await sql`delete from video_source_items where source_id = ${s.id} and not (youtube_id = any(${ids}::text[]))`;
   }
+  // The section this playlist or channel feeds: new videos join it (at the end, or at the top for channels), never twice, and never one you removed.
+  const feed = async () => { if (!s.section_id || !vids.length) return; const sec = (await sql`select layout from video_sections where id = ${s.section_id}`)[0] as any; if (!sec || sec.layout === "playlists") return; const { addToSection } = await import("./video-home"); await addToSection(s.section_id, vids.map((v) => v.id), s.new_on_top ?? s.kind === "channel"); };
   const have = new Set(((await sql`select youtube_id from videos where youtube_id = any(${vids.map((v) => v.id)})`) as any[]).map((x) => x.youtube_id));
   const known = await knownPlaces(); let added = 0; const todo = vids.filter((v) => !have.has(v.id));
   for (const v of todo.slice(0, 150)) {
@@ -153,6 +155,7 @@ export async function syncSource(s: Source, key?: string | null) {
     added++;
   }
   await sql`update video_sources set last_synced_at = now(), last_count = ${vids.length} where id = ${s.id}`;
+  await feed();
   return { seen: vids.length, added, left: Math.max(0, todo.length - 150) };
 }
 export async function apiKey(): Promise<string | null> { if (process.env.YOUTUBE_API_KEY) return process.env.YOUTUBE_API_KEY; try { return ((await sql`select value from settings where key = 'youtube_api_key'`)[0]?.value as string) || null; } catch { return null; } }
