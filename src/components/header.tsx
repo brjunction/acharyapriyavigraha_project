@@ -3,9 +3,10 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { ChevronDown, ChevronRight, ChevronLeft, ChevronUp, Search, Menu, X, ArrowRight } from "lucide-react";
+import { ChevronDown, ChevronRight, ChevronLeft, Search, Menu, X, ArrowRight } from "lucide-react";
 import { ACCENT, type NavMenu } from "@/lib/nav";
-import { useMenus } from "./menus-context";
+import { simpleMenus, type SimpleMenu } from "@/lib/simple-nav";
+import { useMenus, useSimpleCfg } from "./menus-context";
 import { LogoMark, Rosette } from "./motifs";
 import { usePrefs } from "./providers";
 import { Img } from "./img";
@@ -137,11 +138,110 @@ function MegaPanel({ menu, onNavigate, onPin }: { menu: NavMenu; onNavigate: () 
   );
 }
 
-function MobileMenu({ onClose }: { onClose: () => void }) {
+type Mode = "simple" | "advanced";
+const MODE_KEY = "tj_menu_mode";
+
+/** Simple | Advanced — remembered on this device. */
+function ModeSwitch({ mode, setMode, big = false }: { mode: Mode; setMode: (m: Mode) => void; big?: boolean }) {
+  return (
+    <div role="radiogroup" aria-label="Menu style" className={`flex shrink-0 items-center rounded-full border border-line bg-band/60 p-0.5 ${big ? "w-full" : ""}`}>
+      {(["simple", "advanced"] as Mode[]).map((m) => (
+        <button key={m} role="radio" aria-checked={mode === m} onClick={() => setMode(m)}
+          className={`rounded-full font-medium transition ${big ? "flex-1 py-2.5 text-[15px]" : "px-3 py-1 text-[12.5px]"} ${mode === m ? "bg-white text-ink shadow-[0_1px_3px_rgba(0,0,0,.12)]" : "text-ink-3 hover:text-ink"}`}>
+          {m === "simple" ? "Simple" : "Advanced"}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+/** A Simple-menu icon: a chosen icon, or an uploaded picture shown round. */
+function SIc({ it, size, box }: { it: { icon: SimpleMenu["icon"]; img?: string }; size: number; box: string }) {
+  const I = it.icon;
+  return (
+    <span className={`flex shrink-0 items-center justify-center overflow-hidden rounded-full bg-acc-soft text-[var(--acc)] ${box}`}>
+      {it.img ? /* eslint-disable-next-line @next/next/no-img-element */ <img src={it.img} alt="" className="h-full w-full object-cover" /> : <I size={size} strokeWidth={1.6} />}
+    </span>
+  );
+}
+const extOf = (h: string) => (h.startsWith("http") ? { target: "_blank", rel: "noreferrer" } : {});
+
+function SimplePanel({ menu, onNavigate }: { menu: SimpleMenu; onNavigate: () => void }) {
+  const here = usePathname();
+  const [more, setMore] = useState(false);
+  const long = menu.all.length > 15;
+  const list = long && !more ? menu.all.slice(0, 12) : menu.all;
+  return (
+    <div className={`acc-${menu.accent} mega-enter max-h-[calc(100vh-76px)] overflow-y-auto rounded-3xl border border-line bg-surface shadow-[0_24px_60px_-24px_rgba(60,30,10,.35)]`}>
+      <div className="flex items-center gap-4 px-7 pb-4 pt-6">
+        <SIc it={menu} size={26} box="size-14" />
+        <div className="min-w-0 flex-1">
+          <p className="text-[21px] font-semibold tracking-[-0.01em] text-ink">{menu.label}</p>
+          <p className="text-[14.5px] text-ink-3">{menu.intro}</p>
+        </div>
+      </div>
+      <div className="grid grid-cols-4 gap-3 px-7">
+        {menu.featured.map((f) => (
+          <Link key={f.href} href={f.href} {...extOf(f.href)} onClick={onNavigate} aria-current={hit(here, f.href) ? "page" : undefined}
+            className={`group flex flex-col items-center gap-3 rounded-2xl px-3 pb-5 pt-6 text-center ring-1 transition duration-200 hover:-translate-y-1 hover:bg-white hover:shadow-[0_12px_28px_-14px_rgba(0,0,0,.28)] hover:ring-[var(--acc)]/40 ${hit(here, f.href) ? "bg-white ring-[var(--acc)]" : "bg-acc-tint ring-transparent"}`}>
+            <span className="transition duration-300 group-hover:scale-110"><SIc it={f} size={28} box="size-16 bg-white shadow-[0_2px_8px_-2px_rgba(0,0,0,.12)]" /></span>
+            <span className="text-[16px] font-semibold leading-snug text-ink">{f.label}</span>
+            {f.note && <span className="-mt-2 text-[13px] leading-snug text-ink-3">{f.note}</span>}
+          </Link>))}
+      </div>
+      <div className="mx-7 mt-6 border-t border-line pb-6 pt-4">
+        <ul className="grid grid-cols-3 gap-x-6">
+          {list.map((a) => (
+            <li key={a.href}><Link href={a.href} {...extOf(a.href)} onClick={onNavigate} aria-current={hit(here, a.href) ? "page" : undefined}
+              className={`group flex items-center gap-2.5 rounded-lg px-2 py-2 text-[15px] leading-snug transition hover:bg-acc-tint ${hit(here, a.href) ? "font-semibold text-[var(--acc)]" : "text-ink-2 hover:text-ink"}`}>
+              <span className="size-1.5 shrink-0 rounded-full bg-[var(--acc)] opacity-40 transition group-hover:opacity-100" />{a.label}</Link></li>))}
+        </ul>
+        {long && <button onClick={() => setMore(!more)} className="mt-2 flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[14.5px] font-medium text-[var(--acc)] hover:bg-acc-tint">{more ? "Show fewer" : `Show all ${menu.all.length} pages`}<ChevronDown size={16} className={`transition ${more ? "rotate-180" : ""}`} /></button>}
+      </div>
+    </div>
+  );
+}
+
+/** Phone, Simple: four big rows; one tap shows the four big buttons and a plain list. */
+function SimpleMobile({ menus, onClose, open, setOpen }: { menus: SimpleMenu[]; onClose: () => void; open: SimpleMenu | null; setOpen: (m: SimpleMenu | null) => void }) {
+  if (!open) return (
+    <div className="space-y-3">
+      {menus.map((m) => (
+        <button key={m.key} onClick={() => setOpen(m)} className={`acc-${m.accent} flex w-full items-center gap-4 rounded-3xl bg-acc-tint px-4 py-4 text-left transition active:scale-[.98]`}>
+          <SIc it={m} size={26} box="size-14 bg-white shadow-[0_2px_8px_-2px_rgba(0,0,0,.12)]" />
+          <span className="min-w-0 flex-1"><span className="block text-[19px] font-semibold text-ink">{m.label}</span><span className="block truncate text-[14px] text-ink-3">{m.intro}</span></span>
+          <ChevronRight size={22} className="shrink-0 text-ink-3" />
+        </button>))}
+    </div>
+  );
+  return (
+    <div className={`acc-${open.accent}`}>
+      <div className="mb-4 flex items-center gap-3.5">
+        <SIc it={open} size={24} box="size-12" />
+        <p className="text-[21px] font-semibold text-ink">{open.label}</p>
+      </div>
+      <div className="grid grid-cols-2 gap-3">
+        {open.featured.map((f) => (
+          <Link key={f.href} href={f.href} {...extOf(f.href)} onClick={onClose} className="flex flex-col items-center gap-2.5 rounded-3xl bg-acc-tint px-2 pb-4 pt-5 text-center active:scale-[.98]">
+            <SIc it={f} size={26} box="size-14 bg-white shadow-[0_2px_8px_-2px_rgba(0,0,0,.12)]" />
+            <span className="text-[16px] font-semibold leading-snug text-ink">{f.label}</span>
+            {f.note && <span className="-mt-1.5 text-[13px] leading-snug text-ink-3">{f.note}</span>}
+          </Link>))}
+      </div>
+      <ul className="mt-5 divide-y divide-line border-t border-line">
+        {open.all.map((a) => <li key={a.href}><Link href={a.href} {...extOf(a.href)} onClick={onClose} className="flex items-center justify-between gap-3 px-1 py-3.5 text-[17px] text-ink active:bg-acc-tint">{a.label}<ChevronRight size={18} className="shrink-0 text-ink-3" /></Link></li>)}
+      </ul>
+    </div>
+  );
+}
+
+function MobileMenu({ onClose, mode, setMode }: { onClose: () => void; mode: Mode; setMode: (m: Mode) => void }) {
   const path = usePathname();
   const MENUS = useMenus();
   const [open, setOpen] = useState<NavMenu | null>(null);
   const [og, setOg] = useState<string | null>(null);
+  const [sOpen, setSOpen] = useState<SimpleMenu | null>(null);
+  const simpleCfg = useSimpleCfg();
   const { setSearch } = usePrefs();
   return createPortal(
     <div className="fixed inset-0 z-[100] flex flex-col bg-surface lg:hidden">
@@ -150,7 +250,18 @@ function MobileMenu({ onClose }: { onClose: () => void }) {
         <button onClick={onClose} aria-label="Close menu" className="relative rounded-full p-2 text-ink hover:bg-band"><X size={22} strokeWidth={1.8} /></button>
       </div>
       <div className="relative flex-1 overflow-hidden">
+        {mode === "simple" ? (
+          <nav className="absolute inset-0 overflow-y-auto px-4 pb-8 pt-4">
+            {sOpen ? <button onClick={() => setSOpen(null)} className="mb-4 flex items-center gap-1.5 rounded-full bg-band px-4 py-2.5 text-[16px] font-medium text-ink-2"><ChevronLeft size={20} />All menus</button> : <>
+              <ModeSwitch mode={mode} setMode={setMode} big />
+              <button onClick={() => { onClose(); setSearch(true); }} className="my-4 flex w-full items-center gap-3 rounded-full border border-line bg-page px-5 py-4 text-left text-[17px] text-ink-3">
+                <Search size={21} /> Search
+              </button></>}
+            <SimpleMobile menus={simpleMenus(MENUS, simpleCfg)} onClose={onClose} open={sOpen} setOpen={setSOpen} />
+          </nav>
+        ) : <>
         <nav className={`absolute inset-0 overflow-y-auto px-4 py-4 transition-transform duration-300 ${open ? "-translate-x-full" : "translate-x-0"}`}>
+          <div className="mb-3"><ModeSwitch mode={mode} setMode={setMode} big /></div>
           <button onClick={() => { onClose(); setSearch(true); }} className="mb-4 flex w-full items-center gap-3 rounded-xl border border-line bg-page px-4 py-3 text-left text-[13px] text-ink-3">
             <Search size={17} /> Search lectures, quotes, verses…
           </button>
@@ -208,6 +319,7 @@ function MobileMenu({ onClose }: { onClose: () => void }) {
             </div>
           )}
         </nav>
+        </>}
       </div>
     </div>,
     document.body,
@@ -222,11 +334,17 @@ export function Header() {
   const [mobile, setMobile] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [mode, setModeS] = useState<Mode>("simple");
+  const [sOpen, setSOpen] = useState<string | null>(null);
+  const SIMPLE = simpleMenus(MENUS, useSimpleCfg());
+  const setMode = (m: Mode) => { setModeS(m); setActive(null); setSOpen(null); try { localStorage.setItem(MODE_KEY, m); } catch {} };
+  useEffect(() => { try { if (localStorage.getItem(MODE_KEY) === "advanced") setModeS("advanced"); localStorage.removeItem("tj_nav_hidden"); } catch {} }, []);
+  useEffect(() => { if (!sOpen) return; const c = (e: MouseEvent) => { if (!(e.target as Element).closest?.("[data-simple-nav]")) setSOpen(null); }; const k = (e: KeyboardEvent) => e.key === "Escape" && setSOpen(null); document.addEventListener("mousedown", c); document.addEventListener("keydown", k); return () => { document.removeEventListener("mousedown", c); document.removeEventListener("keydown", k); }; }, [sOpen]);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pinned = useRef(false);
 
   useEffect(() => setMounted(true), []);
-  useEffect(() => { setActive(null); setMobile(false); }, [path]);
+  useEffect(() => { setActive(null); setSOpen(null); setMobile(false); }, [path]);
   useEffect(() => { document.body.style.overflow = mobile ? "hidden" : ""; }, [mobile]);
   useEffect(() => { const f = () => setScrolled(window.scrollY > 8); f(); window.addEventListener("scroll", f, { passive: true }); return () => window.removeEventListener("scroll", f); }, []);
   useEffect(() => {
@@ -245,6 +363,16 @@ export function Header() {
       <div className={`border-b border-line bg-[var(--header-bg,#ffffff)] transition-shadow ${scrolled ? "shadow-[0_6px_24px_-14px_rgba(60,30,10,0.45)]" : ""}`}>
         <div className="mx-auto grid h-[52px] max-w-[1320px] sm:h-[58px] grid-cols-[auto_1fr_auto] items-center gap-3 px-4 sm:px-6">
           <Logo />
+          {mode === "simple" ? (
+          <nav data-simple-nav className="hidden items-center justify-center gap-1 lg:flex" aria-label="Main">
+            {SIMPLE.map((m) => { const on = sOpen === m.key; const current = m.featured.concat(m.all).some((a) => hit(path, a.href)); return (
+              <button key={m.key} onClick={() => setSOpen(on ? null : m.key)} aria-expanded={on} aria-haspopup="true"
+                className={`acc-${m.accent} relative flex items-center gap-2 whitespace-nowrap rounded-full py-1 pl-1 pr-3.5 text-[15px] font-medium text-ink transition ${on ? "bg-acc-soft" : "hover:bg-acc-tint"}`}>
+                <SIc it={m} size={17} box={`size-8 ${on ? "bg-white" : ""}`} />{m.label}<ChevronDown size={15} className={`-ml-0.5 opacity-50 transition-transform ${on ? "rotate-180" : ""}`} />
+                {current && <span className="absolute inset-x-4 -bottom-[5px] h-[2px] rounded-full bg-[var(--acc)]" />}
+              </button>); })}
+          </nav>
+          ) : (
           <nav className="hidden items-center justify-center gap-0.5 lg:flex" aria-label="Main" onMouseLeave={hide}>
             {MENUS.map((m) => {
               const I = m.icon;
@@ -262,25 +390,29 @@ export function Header() {
               );
             })}
           </nav>
+          )}
           <div className="col-start-3 ml-auto flex items-center gap-1.5">
             <button onClick={() => setSearch(true)} aria-label="Search" title="Search (Ctrl K)"
               className="flex h-8 items-center gap-2 rounded-full border border-line bg-band/60 px-2.5 sm:h-9 sm:px-3 text-ink-2 transition hover:border-saffron hover:bg-white hover:text-saffron xl:w-40">
               <Search size={15} /><span className="hidden flex-1 whitespace-nowrap text-left text-[12px] text-ink-3 xl:inline">Search…</span>
               <kbd className="hidden whitespace-nowrap rounded border border-line bg-surface px-1.5 text-[10px] text-ink-3 xl:inline">Ctrl K</kbd>
             </button>
-            <button onClick={() => { document.documentElement.classList.add("nav-hidden"); try { localStorage.setItem("tj_nav_hidden", "1"); } catch {} window.dispatchEvent(new Event("tj:nav")); }} aria-label="Hide the top bar" title="Hide the top bar"
-              className="hidden h-8 w-8 items-center justify-center rounded-full border border-line bg-band/60 text-ink-2 transition hover:border-saffron hover:bg-white hover:text-saffron sm:flex sm:h-9 sm:w-9"><ChevronUp size={16} /></button>
-            <button onClick={() => setMobile(true)} aria-label="Open menu" className="flex h-8 w-8 items-center justify-center rounded-full bg-ink text-white transition hover:bg-ink/85 sm:h-9 sm:w-9 lg:hidden"><Menu size={17} /></button>
+            <div className="hidden lg:block"><ModeSwitch mode={mode} setMode={setMode} /></div>
+            <button onClick={() => setMobile(true)} aria-label="Open menu" className="flex h-9 items-center gap-1.5 rounded-full bg-ink px-3.5 text-[14px] font-medium text-white transition hover:bg-ink/85 lg:hidden"><Menu size={18} />Menu</button>
           </div>
         </div>
       </div>
-      {menu && (
+      {mode === "simple" && sOpen && (() => { const sm = SIMPLE.find((x) => x.key === sOpen); return sm && (
+        <div data-simple-nav className="absolute left-1/2 top-full hidden -translate-x-1/2 pt-1 lg:block" style={{ width: "min(1000px, calc(100vw - 2rem))" }}>
+          <SimplePanel key={sm.key} menu={sm} onNavigate={() => setSOpen(null)} />
+        </div>); })()}
+      {mode === "advanced" && menu && (
         <div className="absolute left-1/2 top-full hidden -translate-x-1/2 pt-1 lg:block" style={{ width: `min(${wide}px, calc(100vw - 2rem))` }}
           onMouseEnter={() => show(menu.key)} onMouseLeave={hide}>
           <MegaPanel key={menu.key} menu={menu} onNavigate={() => { pinned.current = false; setActive(null); }} onPin={(b) => { pinned.current = b; }} />
         </div>
       )}
-      {mounted && mobile && <MobileMenu onClose={() => setMobile(false)} />}
+      {mounted && mobile && <MobileMenu onClose={() => setMobile(false)} mode={mode} setMode={setMode} />}
     </header>
   );
 }

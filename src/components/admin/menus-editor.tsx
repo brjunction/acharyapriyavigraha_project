@@ -4,11 +4,12 @@ import { ArrowUp, ArrowDown, Plus, Trash2, Eye, EyeOff, RotateCcw, ChevronDown }
 import { ICONS, isImgIcon, type MenuJ, type MenuLinkJ } from "@/lib/menus";
 import { MediaPicker } from "./media-picker";
 import { Btn, api, toast } from "./ui";
+import { SIMPLE_DEFAULTS, type SimpleCfg, type SimpleSectionJ, type SimpleFeaturedJ } from "@/lib/simple-nav";
 
 const box = "h-8 w-full rounded-lg border border-transparent bg-transparent px-2 text-[13px] outline-none hover:border-line focus:border-saffron focus:bg-white";
 function mv<T>(a: T[], i: number, d: number) { const j = i + d; if (j < 0 || j >= a.length) return a; const c = [...a]; [c[i], c[j]] = [c[j], c[i]]; return c; }
 
-function IconPick({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+export function IconPick({ value, onChange }: { value: string; onChange: (v: string) => void }) {
   const [open, setOpen] = useState(false); const [media, setMedia] = useState(false); const I = ICONS[value] || ICONS.FileText;
   return (
     <div className="relative">
@@ -32,7 +33,7 @@ export function MenusEditor({ initial, defaults }: { initial: MenuJ[]; defaults:
   return (
     <div>
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
-        <div><h1 className="text-[26px] font-bold tracking-[-0.03em]">Website menus</h1><p className="text-ink-3">The menus at the top of the website. Change names, descriptions, icons and links; add or hide items.</p></div>
+        <div><h2 className="text-[20px] font-bold tracking-[-0.02em]">Advanced menu</h2><p className="text-ink-3">The full menu. Change names, descriptions, icons and links; add or hide items. The Simple menu is built from this one.</p></div>
         <div className="flex gap-2"><Btn onClick={() => { if (confirm("Put every menu back to the original?")) { setMenus(defaults); setDirty(true); } }}><RotateCcw size={15} />Original</Btn><Btn kind="primary" busy={busy} disabled={!dirty} onClick={save}>Save menus</Btn></div>
       </div>
       <datalist id="hrefs">{allHrefs.map((h) => <option key={h} value={h} />)}</datalist>
@@ -93,6 +94,42 @@ export function MenusEditor({ initial, defaults }: { initial: MenuJ[]; defaults:
             </div>}
           </div>
         ))}
+      </div>
+    </div>
+  );
+}
+
+/** Simple menu (for elderly visitors): the icon or photo of each of the four sections and their four big buttons. */
+export function SimpleMenuEditor({ initial }: { initial: SimpleCfg }) {
+  const [cfg, setCfg] = useState<SimpleCfg>(initial); const [dirty, setDirty] = useState(false); const [busy, setBusy] = useState(false);
+  const sec = (k: string) => { const d = SIMPLE_DEFAULTS.find((x) => x.key === k)!; const c = cfg[k] || {}; return { label: c.label || d.label, intro: c.intro || d.intro, icon: c.icon || d.icon, featured: c.featured?.length ? c.featured : d.featured }; };
+  const up = (k: string, p: Partial<SimpleSectionJ>) => { setCfg((x) => ({ ...x, [k]: { ...sec(k), ...p } })); setDirty(true); };
+  const save = async () => { setBusy(true); try { await api("/api/admin/settings", "PUT", { simple_menu: cfg }); setDirty(false); toast("Simple menu saved. The website shows it now."); } catch (e: any) { toast(e.message, true); } finally { setBusy(false); } };
+  return (
+    <div className="mb-10">
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+        <div><h2 className="text-[20px] font-bold tracking-[-0.02em]">Simple menu</h2><p className="text-ink-3">What most visitors see first. Click an icon to choose another one, or upload a photo. Every page of the full menu is listed under these four automatically.</p></div>
+        <div className="flex gap-2"><Btn onClick={() => { if (confirm("Put the Simple menu back to the original?")) { setCfg({}); setDirty(true); } }}><RotateCcw size={15} />Original</Btn><Btn kind="primary" busy={busy} disabled={!dirty} onClick={save}>Save Simple menu</Btn></div>
+      </div>
+      <div className="grid gap-3 lg:grid-cols-2">
+        {SIMPLE_DEFAULTS.map((d) => { const s = sec(d.key); return (
+          <div key={d.key} className="rounded-2xl border border-line bg-white p-3">
+            <div className="flex items-center gap-2">
+              <IconPick value={s.icon} onChange={(v) => up(d.key, { icon: v })} />
+              <input className={`${box} !h-9 text-[14.5px] font-bold`} value={s.label} onChange={(e) => up(d.key, { label: e.target.value })} />
+            </div>
+            <input className={`${box} mt-1 text-ink-3`} value={s.intro} onChange={(e) => up(d.key, { intro: e.target.value })} placeholder="Short line under the name" />
+            <p className="mb-1 mt-3 px-2 text-[11.5px] font-semibold text-ink-3">The four big buttons</p>
+            {s.featured.map((f, i) => { const setF = (p: Partial<SimpleFeaturedJ>) => up(d.key, { featured: s.featured.map((x, j) => (j === i ? { ...x, ...p } : x)) }); return (
+              <div key={i} className="flex items-start gap-1.5 rounded-lg p-1 hover:bg-[#faf6f0]">
+                <IconPick value={f.icon || "FileText"} onChange={(v) => setF({ icon: v })} />
+                <div className="grid min-w-0 flex-1 gap-0.5 sm:grid-cols-2">
+                  <input className={`${box} font-semibold`} value={f.label} onChange={(e) => setF({ label: e.target.value })} placeholder="Name" />
+                  <input className={`${box} text-ink-3`} value={f.note || ""} onChange={(e) => setF({ note: e.target.value })} placeholder="Second line (optional)" />
+                  <input list="hrefs" className={`${box} !h-7 text-[11.5px] text-[#2a4f9a] sm:col-span-2`} value={f.href} onChange={(e) => setF({ href: e.target.value })} placeholder="/page-address" />
+                </div>
+              </div>); })}
+          </div>); })}
       </div>
     </div>
   );

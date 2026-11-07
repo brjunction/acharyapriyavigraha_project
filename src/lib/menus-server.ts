@@ -6,6 +6,10 @@ export const getSavedMenus = cache(async (): Promise<MenuJ[] | null> => {
   if (!hasDb()) return null;
   try { const r = await sql`select value from settings where key = 'menus'`; return (r[0]?.value as MenuJ[]) || null; } catch { return null; }
 });
+export const getSimpleCfg = cache(async (): Promise<import("./simple-nav").SimpleCfg | null> => {
+  if (!hasDb()) return null;
+  try { const r = await sql`select value from settings where key = 'simple_menu'`; return (r[0]?.value as import("./simple-nav").SimpleCfg) || null; } catch { return null; }
+});
 export const getMenus = async () => hydrate(await getSavedMenus());
 
 import type { Theme } from "./theme";
