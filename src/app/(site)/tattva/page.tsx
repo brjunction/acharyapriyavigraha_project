@@ -2,7 +2,7 @@ import Link from "next/link";
 import { topics, childrenOf } from "@/lib/content/topics";
 import { fold } from "@/lib/content/text";
 
-export const metadata = { title: "Tattva", description: "The teachings of Śrī Śrīmad Gour Govinda Swāmī Gurudeva by subject: quotes, lectures, videos and articles on each tattva." };
+export const metadata = { title: "Tattva — the teachings of Śrī Śrīmad Gour Govinda Swāmī by subject", description: "Guru-tattva, Kṛṣṇa-tattva, Gaura-tattva, Jīva-tattva and every other subject Śrī Śrīmad Gour Govinda Swāmī Gurudeva spoke on: his quotes, lectures, videos and articles, topic by topic, with their sources.", alternates: { canonical: "/tattva" } };
 export const revalidate = 300;
 
 export default async function Page() {
@@ -15,7 +15,7 @@ export default async function Page() {
       {!all.length && <p className="mt-10 text-[13.5px] text-ink-3">Topics will appear here once they are added in the Studio.</p>}
       {top.length > 0 && <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">{top.map((t) => { const ch = childrenOf(all, t.name); return (
         <div key={t.name} className="rounded-lg border border-line p-4 transition hover:border-line-strong">
-          <Link href={`/tattva/${t.slug}`} className="flex items-baseline justify-between gap-2"><span className="text-[14.5px] font-medium text-ink hover:underline">{t.name}</span>{t.total > 0 && <span className="text-[11.5px] text-ink-3">{t.total}</span>}</Link>
+          <Link href={`/tattva/${t.slug}`} className="flex items-baseline justify-between gap-2"><span className="text-[14.5px] font-medium text-ink hover:underline">{t.name}</span>{t.deep > 0 && <span className="text-[11.5px] text-ink-3">{t.deep.toLocaleString()}</span>}</Link>
           {t.description && <p className="mt-1 line-clamp-2 text-[12.5px] text-ink-3">{t.description}</p>}
           {ch.length > 0 && <div className="mt-2.5 flex flex-wrap gap-1">{ch.slice(0, 8).map((c) => <Link key={c.name} href={`/tattva/${c.slug}`} className="rounded bg-band px-1.5 py-0.5 text-[11.5px] text-ink-2 hover:bg-line">{c.name}</Link>)}{ch.length > 8 && <span className="px-1 text-[11.5px] text-ink-3">+{ch.length - 8}</span>}</div>}
         </div>); })}</div>}
