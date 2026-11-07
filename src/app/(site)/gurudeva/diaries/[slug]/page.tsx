@@ -37,7 +37,7 @@ export default async function Entry({ params, searchParams }: { params: Promise<
         toc={toc} prev={prev ? { href: `/gurudeva/diaries/${prev.slug}`, title: when(prev) } : null} next={next ? { href: `/gurudeva/diaries/${next.slug}`, title: when(next) } : null}
         translations={translations} parallel={w === "original" && orig.length ? { title: e.title || when(e), slug: "original", language: "Original", native: ol, node: text(orig) } : null}
         searchApi="/api/diary?reader=1&q="
-        extra={<>{e.notes && <p className="mt-8 border-t pt-4 font-sans text-[13px] opacity-70">{e.notes}</p>}{e.scan_url && /* eslint-disable-next-line @next/next/no-img-element */ <figure className="mt-10"><img src={e.scan_url} alt="The page in his handwriting" className="w-full rounded-md border" loading="lazy" /><figcaption className="mt-2 text-center font-sans text-[12px] opacity-60">The page in his own hand</figcaption></figure>}</>}
+        extra={<><a href={`/gurudeva/diaries/${slug}`} className="mb-6 inline-flex items-center gap-1.5 rounded-full border px-3 py-1 font-sans text-[12.5px] opacity-80 hover:opacity-100">← Back to the diary view</a>{e.notes && <p className="mt-8 border-t pt-4 font-sans text-[13px] opacity-70">{e.notes}</p>}{e.scan_url && /* eslint-disable-next-line @next/next/no-img-element */ <figure className="mt-10"><img src={e.scan_url} alt="The page in his handwriting" className="w-full rounded-md border" loading="lazy" /><figcaption className="mt-2 text-center font-sans text-[12px] opacity-60">The page in his own hand</figcaption></figure>}</>}
       >
         {text(paras(e.translation))}
       </Reader>

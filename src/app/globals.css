@@ -792,3 +792,14 @@ html[data-motion="reduce"] .bless-word, html[data-motion="reduce"] .bless-rise, 
 /* When the player's side panel is open on a wide screen, the page makes room for it instead of being covered or blurred. */
 @media (min-width: 1024px) { html.player-side body { padding-right: 440px; transition: padding-right .3s ease; } }
 @media (min-width: 1280px) { html.player-side body { padding-right: 480px; } }
+
+/* His Diary: a desk, a bound cover with gold tooling, pages with a stitched spine, ruled lines and a ribbon */
+.dj-desk { background: radial-gradient(80% 60% at 50% 0%, #fdf3e3 0%, transparent 70%), linear-gradient(180deg, #f6ead6, #efdcbf); }
+.dj-cover { background: radial-gradient(120% 120% at 30% 0%, #7a3206 0%, #592300 55%, #3f1800 100%); }
+.dj-cover::after { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .18 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); mix-blend-mode: multiply; }
+.dj-page { box-shadow: inset 0 0 0 1px rgba(0,0,0,.03); }
+.dj-spine-l { background: linear-gradient(to left, rgba(60,30,5,.22), rgba(60,30,5,.06) 40%, transparent); }
+.dj-spine-r { background: linear-gradient(to right, rgba(60,30,5,.22), rgba(60,30,5,.06) 40%, transparent); }
+.dj-ruled { background-image: repeating-linear-gradient(to bottom, transparent 0, transparent calc(var(--lh) - 1px), var(--rule, rgba(120,80,30,.16)) calc(var(--lh) - 1px), var(--rule, rgba(120,80,30,.16)) var(--lh)); background-position: 0 -0.15em; }
+.dj-ruled p { margin-top: 0; }
+.dj-ribbon { background: linear-gradient(90deg, #b8461a, #e07b26 45%, #c2621d); clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 84%, 0 100%); box-shadow: 0 6px 10px rgba(0,0,0,.2); }

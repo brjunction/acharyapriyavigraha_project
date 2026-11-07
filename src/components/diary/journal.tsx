@@ -14,11 +14,11 @@ const WD = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "S
 const when = (e: JEntry) => (e.date ? (([y, m, d]) => `${d} ${MON[m - 1]} ${y}`)(e.date.split("-").map(Number)) : e.date_note || "Undated");
 const weekday = (e: JEntry) => (e.date ? WD[new Date(`${e.date}T12:00:00Z`).getUTCDay()] : "");
 const paras = (t: string | null) => String(t || "").split(/\n{2,}/).map((p) => p.trim()).filter(Boolean);
-const NOISE = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .45 0 0 0 0 .32 0 0 0 0 .18 0 0 0 .09 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`;
+const NOISE = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .55 0 0 0 0 .38 0 0 0 0 .16 0 0 0 .035 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`;
 
 type Theme = { label: string; page: React.CSSProperties; ink: string; soft: string; around: string; dark?: boolean };
 const THEMES: Record<string, Theme> = {
-  paper: { label: "Paper", page: { backgroundColor: "#fbf6ea", backgroundImage: NOISE }, ink: "#2b2118", soft: "#8a7560", around: "#efe6d3" },
+  paper: { label: "Paper", page: { backgroundColor: "#fdf7e8", backgroundImage: `${NOISE}, linear-gradient(180deg, #fffaf0, #fbf1dc)` }, ink: "#2b2118", soft: "#8a7560", around: "#efe6d3" },
   aged: { label: "Aged paper", page: { backgroundColor: "#f3e5c4", backgroundImage: `${NOISE}, radial-gradient(120% 90% at 50% 40%, transparent 55%, rgba(120,80,30,.22))` }, ink: "#3a2a17", soft: "#8b6a43", around: "#e2d0a8" },
   saffron: { label: "Saffron", page: { backgroundImage: `${NOISE}, linear-gradient(160deg, #fff4e0, #fde3bd 55%, #f8cf98)` }, ink: "#3d1f05", soft: "#9a5a1c", around: "#f6dcb5" },
   dawn: { label: "Dawn", page: { backgroundImage: `${NOISE}, linear-gradient(170deg, #fff6f0, #fde4dc 50%, #f6d9e8)` }, ink: "#35202a", soft: "#9b6475", around: "#f3dde3" },
@@ -45,10 +45,14 @@ export function DiaryJournal({ e, list }: { e: JPage; list: JEntry[] }) {
   // contents: volume (or year) → month → day, every volume
   const tree = useMemo(() => { const vols = new Map<string, Map<string, JEntry[]>>(); list.forEach((x) => { const v = x.volume ? `Volume ${x.volume}` : x.date ? x.date.slice(0, 4) : "Undated"; const m = x.date ? x.date.slice(0, 7) : "undated"; if (!vols.has(v)) vols.set(v, new Map()); const mm = vols.get(v)!; mm.set(m, [...(mm.get(m) || []), x]); }); return [...vols.entries()]; }, [list]);
   const curVol = e.volume ? `Volume ${e.volume}` : e.date ? e.date.slice(0, 4) : "Undated";
+  const [progress, setProgress] = useState(0);
+  useEffect(() => { const f = () => { const h = document.documentElement; setProgress(Math.min(100, Math.max(0, (h.scrollTop / Math.max(1, h.scrollHeight - h.clientHeight)) * 100))); }; f(); window.addEventListener("scroll", f, { passive: true }); return () => window.removeEventListener("scroll", f); }, [e.slug]);
+  const monthList = e.date ? list.filter((x) => x.date?.slice(0, 7) === e.date!.slice(0, 7)) : []; const monthCount = monthList.length;
+  const cal = e.date ? (() => { const y = Number(e.date!.slice(0, 4)), m = Number(e.date!.slice(5, 7)); const lead = new Date(Date.UTC(y, m - 1, 1)).getUTCDay(); const days = new Date(Date.UTC(y, m, 0)).getUTCDate(); const map = new Map<number, JEntry>(); monthList.forEach((x) => { const d = Number(x.date!.slice(8, 10)); if (!map.has(d)) map.set(d, x); }); return { lead, days, map }; })() : null;
   const T = THEMES[s.theme] || THEMES.paper; const width = s.width === "narrow" ? 600 : s.width === "wide" ? 900 : 720;
   const orig = paras(e.original); const tr = paras(e.translation); const showOrig = s.orig !== "off" && orig.length > 0;
   // even edges only where lines are long enough (phones keep a calm left edge)
-  const body = (ps: string[], lang?: string | null) => <div lang={lang || undefined} className={s.align === "justify" ? "text-left sm:text-justify" : "text-left"} style={{ hyphens: "auto" }}>{ps.map((p, k) => <p key={k} className="mb-[1em] whitespace-pre-line">{p}</p>)}</div>;
+  const body = (ps: string[], lang?: string | null) => <div lang={lang || undefined} className={s.align === "justify" ? "text-left sm:text-justify" : "text-left"} style={{ hyphens: "auto" }}>{ps.map((p, k) => <p key={k} className="mb-[0.9em] whitespace-pre-line">{p}</p>)}</div>;
   const found = q.trim().length > 1 ? list.filter((x) => when(x).toLowerCase().includes(q.toLowerCase()) || (x.date || "").includes(q)).slice(0, 40) : null;
   const btn = `flex h-9 items-center gap-1.5 rounded-full px-3 text-[13px] font-medium transition ${T.dark ? "text-white/80 hover:bg-white/10" : "text-black/70 hover:bg-black/5"}`;
   const toc = (
@@ -80,46 +84,68 @@ export function DiaryJournal({ e, list }: { e: JPage; list: JEntry[] }) {
       <button onClick={() => set(DEF)} className="w-full rounded-md py-1.5 text-[12px] text-zinc-500 hover:bg-zinc-100">Reset</button>
     </div>);
   return (
-    <div className="min-h-[calc(100vh-58px)] transition-colors duration-300" style={{ background: T.around }}>
+    <div className="dj-desk min-h-[calc(100vh-58px)] transition-colors duration-300" style={{ background: T.dark ? T.around : undefined }}>
       <link rel="stylesheet" href={FONT_LINK} precedence="default" />
-      <div className="sticky top-[52px] z-30 border-b border-black/5 backdrop-blur sm:top-[58px]" style={{ background: `${T.around}e6` }}>
+      <div className="sticky top-[52px] z-30 border-b border-black/5 backdrop-blur sm:top-[58px]" style={{ background: T.dark ? `${T.around}e6` : "rgba(253,246,236,.9)" }}>
         <div className="mx-auto flex max-w-[1240px] items-center gap-1 px-3 py-1.5 sm:px-6">
           <button onClick={() => setPanel(panel === "toc" ? "" : "toc")} className={btn}><List size={16} /><span className="max-sm:hidden">Contents</span></button>
           <Link href="/gurudeva/diaries" className={`${btn} min-w-0`}><span className="truncate">His Diary</span></Link>
           <span className="ml-auto" />
           {orig.length > 0 && <button onClick={() => set({ orig: s.orig === "off" ? "side" : "off" })} className={btn} title="The original beside the translation"><Languages size={16} /><span className="max-sm:hidden">{s.orig === "off" ? "Original" : "Hide original"}</span></button>}
           <button onClick={() => setPanel(panel === "type" ? "" : "type")} className={btn} title="Reading style"><Type size={16} /><span className="max-sm:hidden">Aa</span></button>
-          <Link href={`/gurudeva/diaries/${e.slug}?view=book`} className={btn} title="Open in the book reader"><BookOpen size={16} /></Link>
+          <Link href={`/gurudeva/diaries/${e.slug}?view=book`} className={btn} title="Read in book format"><BookOpen size={16} /><span className="max-md:hidden">Book format</span></Link>
         </div>
       </div>
       {panel && <div className="fixed inset-0 z-[70]" onClick={() => setPanel("")}><aside className={`absolute top-0 h-full w-[88%] max-w-[340px] overflow-y-auto bg-[#fffaf2] p-4 shadow-2xl ${panel === "toc" ? "left-0" : "right-0"}`} onClick={(ev) => ev.stopPropagation()}>
         <div className="mb-3 flex items-center justify-between"><p className="text-[14px] font-semibold text-zinc-900">{panel === "toc" ? `Contents · ${list.length} pages` : "Reading style"}</p><button onClick={() => setPanel("")} className="text-zinc-400 hover:text-zinc-900"><X size={18} /></button></div>
         <div className="text-zinc-800">{panel === "toc" ? toc : typePanel}</div>
       </aside></div>}
-      <div className="relative mx-auto px-3 py-6 sm:px-6 sm:py-10" style={{ maxWidth: (showOrig && s.orig === "side" ? width * 1.9 : width) + 120 }}>
-        {prev && <Link href={`/gurudeva/diaries/${prev.slug}`} aria-label={`Previous: ${when(prev)}`} className="fixed left-2 top-1/2 z-20 hidden size-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/80 text-zinc-700 shadow-md backdrop-blur hover:bg-white md:flex"><ChevronLeft size={20} /></Link>}
-        {next && <Link href={`/gurudeva/diaries/${next.slug}`} aria-label={`Next: ${when(next)}`} className="fixed right-2 top-1/2 z-20 hidden size-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/80 text-zinc-700 shadow-md backdrop-blur hover:bg-white md:flex"><ChevronRight size={20} /></Link>}
-        <article className="rounded-[6px] px-6 py-9 shadow-[0_1px_2px_rgba(0,0,0,.06),0_30px_60px_-30px_rgba(60,35,10,.45)] sm:px-14 sm:py-14" style={{ ...T.page, color: T.ink }}>
-          <header className="mb-8 text-center">
-            <p className="text-[11.5px] font-semibold uppercase tracking-[0.22em]" style={{ color: T.soft }}>{[weekday(e), e.place].filter(Boolean).join(" · ") || "His Diary"}</p>
-            <h1 className="mt-2 text-[24px] font-semibold tracking-[-0.01em] sm:text-[30px]" style={{ fontFamily: FONTS[s.font]?.[1] }}>{when(e)}</h1>
-            {e.title && <p className="mt-1 text-[15px]" style={{ color: T.soft }}>{e.title}</p>}
-            <div className="mx-auto mt-5 flex items-center justify-center gap-2" aria-hidden><span className="h-px w-12" style={{ background: T.soft, opacity: .4 }} /><span className="size-1.5 rotate-45" style={{ background: T.soft }} /><span className="h-px w-12" style={{ background: T.soft, opacity: .4 }} /></div>
-          </header>
-          <div className={showOrig && s.orig === "side" ? "grid gap-10 md:grid-cols-2" : ""} style={{ fontFamily: FONTS[s.font]?.[1], fontSize: `clamp(${s.size - 3}px, 4.3vw, ${s.size}px)`, lineHeight: s.lead }}>
-            {showOrig && s.orig === "side" && <div className="opacity-90">{body(orig, e.original_lang)}</div>}
-            <div className="mx-auto" style={{ maxWidth: showOrig && s.orig === "side" ? undefined : width }}>{tr.length ? body(tr) : <p className="text-center opacity-70">The translation of this page is being prepared.</p>}</div>
-            {showOrig && s.orig === "below" && <div className="mx-auto mt-8 border-t pt-8 opacity-90" style={{ maxWidth: width, borderColor: `${T.soft}55` }}>{body(orig, e.original_lang)}</div>}
+      {/* His Diary: one bound page that flows for long entries — dark saffron cover with gold tooling, ruled paper with a margin line,
+          lotus corners, a ribbon; beside it (wide screens) this month's calendar and the volume, to find the way. */}
+      <div aria-hidden className="fixed inset-x-0 top-0 z-[60] h-[3px]"><div className="h-full bg-[#e07b26] transition-[width] duration-150" style={{ width: `${progress}%` }} /></div>
+      <div className="mx-auto grid max-w-[1240px] gap-8 px-2 py-6 sm:px-6 sm:py-10 lg:grid-cols-[230px_minmax(0,1fr)]">
+        <aside className="hidden lg:block"><div className="sticky top-[130px] space-y-5 text-[#3d1f05]">
+          <div className="rounded-2xl border border-[#e7d3b1] bg-[#fffaf1]/80 p-4">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#9a5a1c]">{e.volume ? `Volume ${e.volume}` : "His Diary"}</p>
+            <p className="mt-1 text-[15px] font-semibold">{e.date ? `${MON[Number(e.date.slice(5, 7)) - 1]} ${e.date.slice(0, 4)}` : "Undated"}</p>
+            {cal && <div className="mt-3 grid grid-cols-7 gap-0.5 text-center text-[11.5px] tabular-nums">
+              {["S", "M", "T", "W", "T", "F", "S"].map((d, k) => <span key={k} className="py-1 text-[10px] font-semibold text-[#9a5a1c]/70">{d}</span>)}
+              {Array.from({ length: cal.lead }, (_, k) => <span key={`x${k}`} />)}
+              {Array.from({ length: cal.days }, (_, k) => { const d = k + 1; const hit = cal.map.get(d); const on = hit?.slug === e.slug; return hit ? <Link key={d} href={`/gurudeva/diaries/${hit.slug}`} className={`rounded-full py-1 font-medium transition ${on ? "bg-[#c2621d] text-white" : "bg-[#f6e3c4] text-[#5c2401] hover:bg-[#efd2a6]"}`}>{d}</Link> : <span key={d} className="py-1 text-[#3d1f05]/30">{d}</span>; })}
+            </div>}
+            <p className="mt-3 text-[11.5px] text-[#9a5a1c]">{monthCount} {monthCount === 1 ? "page" : "pages"} this month · {i + 1} of {list.length} in all</p>
           </div>
-          {e.notes && <p className="mx-auto mt-8 border-t pt-4 text-[13px] opacity-75" style={{ maxWidth: width, borderColor: `${T.soft}55` }}>{e.notes}</p>}
-          {e.scan_url && /* eslint-disable-next-line @next/next/no-img-element */ <figure className="mx-auto mt-10" style={{ maxWidth: width }}><img src={e.scan_url} alt={`The page in his own hand, ${when(e)}`} className="w-full rounded shadow" loading="lazy" /><figcaption className="mt-2 text-center text-[12px]" style={{ color: T.soft }}>The page in his own hand</figcaption></figure>}
-          <footer className="mt-10 text-center text-[11.5px] tabular-nums" style={{ color: T.soft }}>{[e.volume ? `Volume ${e.volume}` : null, e.page ? `page ${e.page}` : null, `${i + 1} of ${list.length}`].filter(Boolean).join(" · ")}</footer>
-        </article>
-        <nav className="mt-6 grid grid-cols-2 gap-3">
-          {prev ? <Link href={`/gurudeva/diaries/${prev.slug}`} className="rounded-xl bg-white/70 px-4 py-3 text-zinc-800 shadow-sm hover:bg-white"><span className="block text-[11px] text-zinc-500">Previous page</span><span className="text-[14px] font-medium">{when(prev)}</span></Link> : <span />}
-          {next ? <Link href={`/gurudeva/diaries/${next.slug}`} className="rounded-xl bg-white/70 px-4 py-3 text-right text-zinc-800 shadow-sm hover:bg-white"><span className="block text-[11px] text-zinc-500">Next page</span><span className="text-[14px] font-medium">{when(next)}</span></Link> : <span />}
-        </nav>
-        <p className="mt-4 hidden text-center text-[12px] md:block" style={{ color: T.dark ? "#888" : "#9a8a76" }}>← → to turn the page</p>
+          <div className="grid grid-cols-2 gap-2 text-[12.5px]">
+            {prev ? <Link href={`/gurudeva/diaries/${prev.slug}`} className="rounded-xl border border-[#e7d3b1] bg-[#fffaf1]/80 px-3 py-2 hover:bg-white"><span className="block text-[10.5px] opacity-60">Previous</span>{when(prev)}</Link> : <span />}
+            {next ? <Link href={`/gurudeva/diaries/${next.slug}`} className="rounded-xl border border-[#e7d3b1] bg-[#fffaf1]/80 px-3 py-2 text-right hover:bg-white"><span className="block text-[10.5px] opacity-60">Next</span>{when(next)}</Link> : <span />}
+          </div>
+        </div></aside>
+        <div className="min-w-0">
+          <div className="dj-cover relative mx-auto rounded-[10px] p-[5px] shadow-[0_30px_60px_-30px_rgba(40,14,0,.55)] sm:p-[7px]" style={{ maxWidth: (showOrig && s.orig === "side" ? width * 1.75 : width) + 140 }}>
+            <article className="dj-page relative z-10 overflow-hidden rounded-[6px] px-6 pb-12 pt-12 sm:px-20 sm:pb-20 sm:pt-16" style={{ ...T.page, color: T.ink, ["--lh" as any]: `${Math.round(s.size * s.lead)}px` }}>
+              <span aria-hidden className="pointer-events-none absolute inset-3 rounded-[3px] border sm:inset-5" style={{ borderColor: T.dark ? "rgba(232,184,114,.18)" : "rgba(176,132,60,.32)" }} />
+              <header className="text-center" style={{ color: T.soft }}>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.26em]">{[weekday(e), e.place].filter(Boolean).join(" · ") || "His Diary"}</p>
+                <h1 className="mt-2 text-[26px] font-semibold tracking-[-0.01em] sm:text-[34px]" style={{ color: T.ink, fontFamily: FONTS[s.font]?.[1] }}>{when(e)}</h1>
+                {e.title && <p className="mt-1 text-[15px]">{e.title}</p>}
+                <span aria-hidden className="mx-auto mt-5 block h-px w-20" style={{ background: T.soft, opacity: .5 }} />
+              </header>
+              <div className={`mx-auto mt-10 ${showOrig && s.orig === "side" ? "grid gap-12 md:grid-cols-2" : ""}`} style={{ maxWidth: showOrig && s.orig === "side" ? undefined : width, fontFamily: FONTS[s.font]?.[1], fontSize: `clamp(${s.size - 3}px, 4.3vw, ${s.size}px)`, lineHeight: "var(--lh)", ["--rule" as any]: T.dark ? "rgba(255,255,255,.07)" : "rgba(120,80,30,.13)" }}>
+                {showOrig && s.orig === "side" && <div className="opacity-90">{body(orig, e.original_lang)}</div>}
+                <div>{tr.length ? body(tr) : <p className="text-center opacity-70">The translation of this page is being prepared.</p>}</div>
+                {showOrig && s.orig === "below" && <div className="mt-[var(--lh)] opacity-90">{body(orig, e.original_lang)}</div>}
+              </div>
+              {e.notes && <p className="mx-auto mt-8 border-t pt-4 text-[13px] opacity-75" style={{ maxWidth: width, borderColor: `${T.soft}55` }}>{e.notes}</p>}
+              {e.scan_url && /* eslint-disable-next-line @next/next/no-img-element */ <figure className="mx-auto mt-10" style={{ maxWidth: width }}><img src={e.scan_url} alt={`The page in his own hand, ${when(e)}`} className="w-full rounded shadow" loading="lazy" /><figcaption className="mt-2 text-center text-[12px]" style={{ color: T.soft }}>The page in his own hand</figcaption></figure>}
+              <footer className="mt-12 text-center text-[11.5px] tabular-nums tracking-[0.06em]" style={{ color: T.soft }}>{[e.volume ? `Volume ${e.volume}` : null, e.page ? `page ${e.page}` : null].filter(Boolean).join(" · ")}</footer>
+            </article>
+          </div>
+          <nav className="mx-auto mt-6 grid grid-cols-2 gap-3 lg:hidden" style={{ maxWidth: width + 140 }}>
+            {prev ? <Link href={`/gurudeva/diaries/${prev.slug}`} className="rounded-xl bg-[#fff8ec]/85 px-4 py-3 text-[#3d1f05] shadow-sm hover:bg-white"><span className="block text-[11px] opacity-60">Previous page</span><span className="text-[14px] font-medium">{when(prev)}</span></Link> : <span />}
+            {next ? <Link href={`/gurudeva/diaries/${next.slug}`} className="rounded-xl bg-[#fff8ec]/85 px-4 py-3 text-right text-[#3d1f05] shadow-sm hover:bg-white"><span className="block text-[11px] opacity-60">Next page</span><span className="text-[14px] font-medium">{when(next)}</span></Link> : <span />}
+          </nav>
+          <p className="mt-4 hidden text-center text-[12px] md:block" style={{ color: T.dark ? "#888" : "#9a8a76" }}>← → to turn the page</p>
+        </div>
       </div>
     </div>
   );
