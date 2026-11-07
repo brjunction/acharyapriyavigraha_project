@@ -29,26 +29,59 @@ function Sketch({ k }: { k: string }) {
 }
 
 export function VideoSections({ onSources }: { onSources: () => void }) {
-  const [d, setD] = useState<{ sections: Sec[]; sources: Src[]; items?: It[] } | null>(null);
+  // Everything is edited here first (instant), then sent at once with Publish.
+  const [d, setD] = useState<{ sections: Sec[]; sources: Src[] } | null>(null);
+  const [secs, setSecs] = useState<Sec[]>([]); const [deleted, setDeleted] = useState<string[]>([]);
+  const [itemsOf, setItemsOf] = useState<Record<string, It[]>>({}); const [touched, setTouched] = useState<Set<string>>(new Set()); const [adds, setAdds] = useState<Record<string, string[]>>({});
+  const [dirty, setDirty] = useState(false); const [publishing, setPublishing] = useState(false);
   const [cur, setCur] = useState<string | null>(null); const [name, setName] = useState(""); const [links, setLinks] = useState(""); const [busy, setBusy] = useState(""); const [log, setLog] = useState<{ ok: boolean; note: string }[]>([]); const [show, setShow] = useState(100);
   const [sel, setSel] = useState<Set<string>>(new Set()); const [last, setLast] = useState(-1); const [drag, setDrag] = useState<number | null>(null); const [over, setOver] = useState<number | null>(null);
-  const load = useCallback((id = cur) => api<any>(`/api/admin/videos/sections${id ? `?id=${id}` : ""}`).then((r) => { setD(r); if (!id && r.sections[0]) setCur(r.sections[0].id); }).catch((e) => toast(e.message, true)), [cur]);
-  useEffect(() => { load(); }, [cur]); // eslint-disable-line
-  const post = async (body: any, quiet = false) => { try { const r = await api<any>("/api/admin/videos/sections", "POST", body); if (!quiet) await load(); return r; } catch (e: any) { toast(e.message, true); } };
-  const s = d?.sections.find((x) => x.id === cur);
-  const items = d?.items || [];
-  const setItems = (next: It[]) => { setD((x) => (x ? { ...x, items: next } : x)); post({ items: { id: cur, ids: next.map((i) => i.youtube_id) } }, true); };
+  const API = "/api/admin/videos/sections";
+  const loadAll = useCallback(async (keepCur?: string | null) => {
+    try { const r = await api<any>(API); setD(r); setSecs(r.sections); setDeleted([]); setItemsOf({}); setTouched(new Set()); setAdds({}); setDirty(false); setCur((c) => keepCur ?? c ?? r.sections[0]?.id ?? null); } catch (e: any) { toast(e.message, true); }
+  }, []);
+  useEffect(() => { loadAll(); }, [loadAll]);
+  // A section's videos are fetched once, when it is first opened.
+  useEffect(() => { if (!cur || itemsOf[cur]) return; api<any>(`${API}?id=${cur}`).then((r) => setItemsOf((m) => (m[cur] ? m : { ...m, [cur]: r.items }))).catch((e) => toast(e.message, true)); }, [cur, itemsOf]);
+  useEffect(() => { if (!dirty) return; const h = (e: BeforeUnloadEvent) => { e.preventDefault(); }; window.addEventListener("beforeunload", h); return () => window.removeEventListener("beforeunload", h); }, [dirty]);
+  const post = async (body: any) => { try { return await api<any>(API, "POST", body); } catch (e: any) { toast(e.message, true); } };
+  const publish = async () => {
+    setPublishing(true);
+    const items: Record<string, string[]> = {}; touched.forEach((id) => { if (itemsOf[id] && !deleted.includes(id)) items[id] = itemsOf[id].map((x) => x.youtube_id); });
+    const r = await post({ publish: { sections: secs.map((x, i) => ({ id: x.id, name: x.name, intro: x.intro, layout: x.layout, color: x.color, on_home: x.on_home, hidden: x.hidden, kinds: x.kinds, position: i })), deleted, items, adds } });
+    setPublishing(false); if (r) { toast("Published — the website shows it now."); await loadAll(cur); }
+  };
+  /** Server actions that read YouTube publish pending changes first, then reload. */
+  const server = async (body: any) => { if (dirty) await publish(); const r = await post(body); await loadAll(cur); return r; };
+  const s = secs.find((x) => x.id === cur);
+  const items = (cur && itemsOf[cur]) || [];
+  const mark = (id?: string | null) => { if (id) setTouched((t) => new Set(t).add(id)); setDirty(true); };
+  const setItems = (next: It[], id = cur) => { if (!id) return; setItemsOf((m) => ({ ...m, [id]: next })); mark(id); };
   const mv = (i: number, j: number) => { if (j < 0 || j >= items.length) return; const c = [...items]; const [x] = c.splice(i, 1); c.splice(j, 0, x); setItems(c); };
-  const moveSec = (i: number, dir: number) => { const ids = d!.sections.map((x) => x.id); const j = i + dir; if (j < 0 || j >= ids.length) return; [ids[i], ids[j]] = [ids[j], ids[i]]; post({ order: ids }); };
-  const up = (p: Partial<Sec>) => post({ update: { id: cur, ...p } });
+  const moveSec = (i: number, dir: number) => { const j = i + dir; if (j < 0 || j >= secs.length) return; const c = [...secs]; [c[i], c[j]] = [c[j], c[i]]; setSecs(c); setDirty(true); };
+  const up = (p: Partial<Sec>) => { setSecs((xs) => xs.map((x) => (x.id === cur ? { ...x, ...p } : x))); setDirty(true); };
   // Tick many: a click ticks one; Shift+click ticks everything between.
   const tick = (i: number, shift: boolean) => setSel((old) => { const n = new Set(old); const y = items[i].youtube_id; if (shift && last >= 0) { const [a, z] = [Math.min(last, i), Math.max(last, i)]; for (let k = a; k <= z; k++) n.add(items[k].youtube_id); } else if (n.has(y)) n.delete(y); else n.add(y); setLast(i); return n; });
-  const bulk = async (op: string, to?: string) => { const yts = items.filter((x) => sel.has(x.youtube_id)).map((x) => x.youtube_id); await post({ bulk: { id: cur, yts, op, to } }); setSel(new Set()); toast(op === "drop" ? `${yts.length} removed from this section.` : op === "move" ? `${yts.length} moved.` : op === "copy" ? `${yts.length} also added there.` : "Order saved."); };
+  const sendTo = (to: string, moving: It[]) => { if (itemsOf[to]) { const have = new Set(itemsOf[to].map((x) => x.youtube_id)); setItems([...itemsOf[to], ...moving.filter((x) => !have.has(x.youtube_id))], to); } else { setAdds((a) => ({ ...a, [to]: [...(a[to] || []), ...moving.map((x) => x.youtube_id)] })); setDirty(true); } };
+  const bulk = (op: string, to?: string) => {
+    const picked = items.filter((x) => sel.has(x.youtube_id)); const rest = items.filter((x) => !sel.has(x.youtube_id));
+    if (op === "top") setItems([...picked, ...rest]); else if (op === "bottom") setItems([...rest, ...picked]); else if (op === "drop") setItems(rest);
+    else if (to) { sendTo(to, picked); if (op === "move") setItems(rest); }
+    setSel(new Set());
+  };
+  const dropOne = (yt: string) => setItems(items.filter((x) => x.youtube_id !== yt));
   const drop = (to: number) => { if (drag === null || drag === to) return; const c = [...items]; const [x] = c.splice(drag, 1); c.splice(to, 0, x); setItems(c); setDrag(null); setOver(null); };
   const attached = (d?.sources || []).filter((x) => x.section_id === cur); const free = (d?.sources || []).filter((x) => !x.section_id);
 
   return (
     <div>
+    {/* Publish bar: changes are made here instantly and go to the website in one step */}
+    <div className={cn("sticky top-2 z-20 mb-4 flex flex-wrap items-center gap-3 rounded-xl border px-4 py-2.5 transition", dirty ? "border-amber-300 bg-amber-50 shadow-sm" : "border-zinc-200 bg-white")}>
+      <span className={cn("size-2.5 rounded-full", dirty ? "bg-amber-500" : "bg-emerald-500")} />
+      <p className="flex-1 text-[13px]">{dirty ? <><b>Unpublished changes.</b> Keep arranging — nothing is sent until you publish.</> : "Everything is published."}</p>
+      {dirty && <Btn size="sm" disabled={publishing} onClick={() => confirm("Throw away the changes made since the last publish?") && loadAll(cur)}>Discard</Btn>}
+      <Btn kind="primary" busy={publishing} disabled={!dirty} onClick={publish}><Check />Publish</Btn>
+    </div>
     <div className="mb-5 grid gap-3 sm:grid-cols-3">
       {[["1", "Sections", "Each section is a tab and a block on the Videos page — Shorts, SG Diary, GGS Enhanced… Order them on the left."], ["2", "What goes in", "Tick kinds (e.g. Shorts + Daily diary) and/or paste playlist or channel links. New videos join by themselves."], ["3", "Arrange", "Drag to reorder. Tick many videos to move them to the top, to another section, or remove them."]].map(([n, t, x]) => (
         <div key={n} className="flex gap-3 rounded-xl border border-zinc-200 bg-white p-3"><span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-zinc-900 text-[12px] font-semibold text-white">{n}</span><span><span className="block text-[13px] font-semibold">{t}</span><span className="block text-[12px] leading-snug text-zinc-500">{x}</span></span></div>))}
@@ -57,12 +90,12 @@ export function VideoSections({ onSources }: { onSources: () => void }) {
       <aside className="space-y-3">
         <Card className="p-3">
           <p className="mb-2 text-[13px] font-semibold">New section</p>
-          <div className="flex gap-2"><Input value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. SG Diary, GGS Enhanced, Shorts" onKeyDown={(e) => e.key === "Enter" && name.trim() && post({ create: { name } }).then((r) => { setName(""); if (r?.id) setCur(r.id); })} />
-            <Btn kind="primary" disabled={!name.trim()} onClick={() => post({ create: { name } }).then((r) => { setName(""); if (r?.id) setCur(r.id); })}><Plus /></Btn></div>
+          <div className="flex gap-2"><Input value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. SG Diary, GGS Enhanced, Shorts" onKeyDown={(e) => e.key === "Enter" && name.trim() && post({ create: { name } }).then((r) => { setName(""); if (r?.id) { setSecs((xs) => [...xs, { ...r, videos: 0, kinds: [] }]); setItemsOf((m) => ({ ...m, [r.id]: [] })); setCur(r.id); } })} />
+            <Btn kind="primary" disabled={!name.trim()} onClick={() => post({ create: { name } }).then((r) => { setName(""); if (r?.id) { setSecs((xs) => [...xs, { ...r, videos: 0, kinds: [] }]); setItemsOf((m) => ({ ...m, [r.id]: [] })); setCur(r.id); } })}><Plus /></Btn></div>
         </Card>
         <Card className="overflow-hidden">
           <p className="border-b border-zinc-100 px-3 py-2.5 text-[12px] font-medium text-zinc-500">Order on the Videos page — tabs follow this order</p>
-          {d?.sections.length ? d.sections.map((x, i) => (
+          {secs.length ? secs.map((x, i) => (
             <div key={x.id} className={cn("group flex items-center gap-2 border-b border-zinc-100 px-3 py-2.5 last:border-0", x.id === cur ? "bg-zinc-50" : "hover:bg-zinc-50/60", x.hidden && "opacity-50")}>
               <span className="size-3 shrink-0 rounded-full" style={{ background: SW[x.color] }} />
               <button onClick={() => { setCur(x.id); setShow(100); setLog([]); setSel(new Set()); }} className="min-w-0 flex-1 text-left"><span className="block truncate text-[13.5px] font-medium">{x.name}</span><span className="block text-[11.5px] text-zinc-500">{LAYOUTS.find(([k]) => k === x.layout)?.[1].split(" — ")[0]} · {x.videos} videos{x.on_home ? " · on Home" : ""}</span></button>
@@ -80,7 +113,7 @@ export function VideoSections({ onSources }: { onSources: () => void }) {
               <Btn size="sm" onClick={() => up({ on_home: !s.on_home })}>{s.on_home ? <Check className="text-emerald-600" /> : <Home />}{s.on_home ? "On Home" : "Show on Home"}</Btn>
               <Btn size="sm" onClick={() => up({ hidden: !s.hidden })}>{s.hidden ? <EyeOff /> : <Eye />}{s.hidden ? "Hidden" : "Shown"}</Btn>
               <a href={`/teachings/videos/s/${s.slug}`} target="_blank" className="text-[12.5px] text-zinc-500 underline">Open</a>
-              <button onClick={() => confirm(`Delete the section “${s.name}”? Its videos stay in the archive.`) && post({ remove: s.id }).then(() => setCur(null))} className="p-1.5 text-zinc-400 hover:text-red-600" title="Delete section"><Trash2 className="size-4" /></button>
+              <button onClick={() => confirm(`Delete the section “${s.name}”? Its videos stay in the archive.`) && (() => { setDeleted((dl) => [...dl, s.id]); setSecs((xs) => xs.filter((x) => x.id !== s.id)); setCur(secs.find((x) => x.id !== s.id)?.id || null); setDirty(true); })()} className="p-1.5 text-zinc-400 hover:text-red-600" title="Delete section"><Trash2 className="size-4" /></button>
             </div>
             <input key={`i${s.id}`} defaultValue={s.intro || ""} placeholder="A short line under the name (optional)" onBlur={(e) => e.target.value !== (s.intro || "") && up({ intro: e.target.value })} className="mt-1 w-full rounded px-1 text-[13px] text-zinc-600 outline-none hover:bg-zinc-50 focus:bg-zinc-50" />
             <p className="mb-2 mt-4 text-[12px] font-medium text-zinc-500">Design</p>
@@ -105,18 +138,18 @@ export function VideoSections({ onSources }: { onSources: () => void }) {
                 <div key={x.id} className="flex items-center gap-2.5 rounded-lg border border-zinc-100 px-2.5 py-2">
                   {x.avatar ? /* eslint-disable-next-line @next/next/no-img-element */ <img src={x.avatar} alt="" className={cn("shrink-0 object-cover", x.kind === "channel" ? "size-8 rounded-full" : "h-8 w-12 rounded")} /> : <Youtube className="size-5 text-red-600" />}
                   <span className="min-w-0 flex-1 truncate text-[13px]">{x.name || x.url} <span className="text-zinc-400">· {x.kind}</span></span>
-                  {s.layout !== "playlists" && <label className="flex items-center gap-1.5 text-[12px] text-zinc-600"><input type="checkbox" checked={x.new_on_top ?? x.kind === "channel"} onChange={(e) => post({ newOnTop: { source: x.id, on: e.target.checked } })} />New at top</label>}
-                  <button onClick={() => post({ detach: { source: x.id } })} title="Take this playlist out of the section — its videos stay" className="flex items-center gap-1 rounded px-1.5 py-1 text-[12px] text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900"><Unlink className="size-3.5" />Unlink</button>
-                  <button onClick={() => confirm("Take this playlist out of the section, and remove its videos from the section too?") && post({ detach: { source: x.id, purge: true } })} title="Take it out with its videos" className="flex items-center gap-1 rounded px-1.5 py-1 text-[12px] text-zinc-500 hover:bg-red-50 hover:text-red-600"><Trash2 className="size-3.5" />Remove with videos</button>
+                  {s.layout !== "playlists" && <label className="flex items-center gap-1.5 text-[12px] text-zinc-600"><input type="checkbox" checked={x.new_on_top ?? x.kind === "channel"} onChange={(e) => server({ newOnTop: { source: x.id, on: e.target.checked } })} />New at top</label>}
+                  <button onClick={() => server({ detach: { source: x.id } })} title="Take this playlist out of the section — its videos stay" className="flex items-center gap-1 rounded px-1.5 py-1 text-[12px] text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900"><Unlink className="size-3.5" />Unlink</button>
+                  <button onClick={() => confirm("Take this playlist out of the section, and remove its videos from the section too?") && server({ detach: { source: x.id, purge: true } })} title="Take it out with its videos" className="flex items-center gap-1 rounded px-1.5 py-1 text-[12px] text-zinc-500 hover:bg-red-50 hover:text-red-600"><Trash2 className="size-3.5" />Remove with videos</button>
                 </div>))}
               {!attached.length && <p className="text-[12.5px] text-zinc-500">Nothing yet. Paste a playlist or channel link below, or choose one already added.</p>}
             </div>
-            {free.length > 0 && <Select value="" onChange={(e) => e.target.value && post({ attach: { id: s.id, source: e.target.value } })} className="mt-2 !h-8 !w-auto text-[12.5px]"><option value="">Add a playlist or channel already in the Studio…</option>{free.map((x) => <option key={x.id} value={x.id}>{x.name || x.url}</option>)}</Select>}
+            {free.length > 0 && <Select value="" onChange={(e) => e.target.value && server({ attach: { id: s.id, source: e.target.value } })} className="mt-2 !h-8 !w-auto text-[12.5px]"><option value="">Add a playlist or channel already in the Studio…</option>{free.map((x) => <option key={x.id} value={x.id}>{x.name || x.url}</option>)}</Select>}
             <p className="mt-4 text-[13.5px] font-semibold">Add links</p>
             <p className="text-[12px] text-zinc-500">One per line: single videos are added to this section; a playlist or channel link brings in all its videos and keeps feeding this section.</p>
             <Textarea rows={3} value={links} onChange={(e) => setLinks(e.target.value)} placeholder={"https://youtu.be/…\nhttps://www.youtube.com/playlist?list=PL…"} className="mt-2 font-mono text-[12.5px]" />
             <div className="mt-2 flex flex-wrap gap-2">
-              {[["end", "Add to the end"], ["top", "Add to the top"]].map(([k, l]) => <Btn key={k} kind={k === "end" ? "primary" : undefined} busy={busy === k} disabled={!links.trim()} onClick={async () => { setBusy(k); const r = await post({ add: { id: s.id, top: k === "top", links: links.split(/[\n\s,]+/).filter(Boolean) } }); setBusy(""); if (r?.results) { setLog(r.results); setLinks(""); } }}><Plus />{l}</Btn>)}
+              {[["end", "Add to the end"], ["top", "Add to the top"]].map(([k, l]) => <Btn key={k} kind={k === "end" ? "primary" : undefined} busy={busy === k} disabled={!links.trim()} onClick={async () => { setBusy(k); const r = await server({ add: { id: s.id, top: k === "top", links: links.split(/[\n\s,]+/).filter(Boolean) } }); setBusy(""); if (r?.results) { setLog(r.results); setLinks(""); } }}><Plus />{l}</Btn>)}
               <Btn onClick={onSources}><Youtube />All channels & playlists</Btn>
             </div>
             {log.length > 0 && <ul className="mt-2 space-y-0.5 rounded-md bg-zinc-50 p-2.5 text-[12px]">{log.map((l, i) => <li key={i} className={l.ok ? "text-zinc-700" : "text-red-600"}>{l.ok ? "✓ " : "✕ "}{l.note}</li>)}</ul>}
@@ -132,8 +165,8 @@ export function VideoSections({ onSources }: { onSources: () => void }) {
                 <b className="mr-1">{sel.size} ticked</b>
                 <button onClick={() => bulk("top")} className="flex items-center gap-1 rounded-md bg-white/10 px-2.5 py-1 hover:bg-white/20"><ChevronsUp className="size-3.5" />To the top</button>
                 <button onClick={() => bulk("bottom")} className="flex items-center gap-1 rounded-md bg-white/10 px-2.5 py-1 hover:bg-white/20"><ChevronsDown className="size-3.5" />To the bottom</button>
-                <label className="flex items-center gap-1 rounded-md bg-white/10 px-2 py-0.5"><FolderInput className="size-3.5" /><select value="" onChange={(e) => e.target.value && bulk("move", e.target.value)} className="bg-transparent py-0.5 text-white outline-none [&>option]:text-zinc-900"><option value="">Move to…</option>{d!.sections.filter((x) => x.id !== s.id).map((x) => <option key={x.id} value={x.id}>{x.name}</option>)}</select></label>
-                <label className="flex items-center gap-1 rounded-md bg-white/10 px-2 py-0.5"><Copy className="size-3.5" /><select value="" onChange={(e) => e.target.value && bulk("copy", e.target.value)} className="bg-transparent py-0.5 text-white outline-none [&>option]:text-zinc-900"><option value="">Also add to…</option>{d!.sections.filter((x) => x.id !== s.id).map((x) => <option key={x.id} value={x.id}>{x.name}</option>)}</select></label>
+                <label className="flex items-center gap-1 rounded-md bg-white/10 px-2 py-0.5"><FolderInput className="size-3.5" /><select value="" onChange={(e) => e.target.value && bulk("move", e.target.value)} className="bg-transparent py-0.5 text-white outline-none [&>option]:text-zinc-900"><option value="">Move to…</option>{secs.filter((x) => x.id !== s.id).map((x) => <option key={x.id} value={x.id}>{x.name}</option>)}</select></label>
+                <label className="flex items-center gap-1 rounded-md bg-white/10 px-2 py-0.5"><Copy className="size-3.5" /><select value="" onChange={(e) => e.target.value && bulk("copy", e.target.value)} className="bg-transparent py-0.5 text-white outline-none [&>option]:text-zinc-900"><option value="">Also add to…</option>{secs.filter((x) => x.id !== s.id).map((x) => <option key={x.id} value={x.id}>{x.name}</option>)}</select></label>
                 <button onClick={() => confirm(`Remove ${sel.size} videos from this section? They stay in the archive.`) && bulk("drop")} className="flex items-center gap-1 rounded-md bg-red-500/90 px-2.5 py-1 hover:bg-red-500"><Trash2 className="size-3.5" />Remove</button>
                 <button onClick={() => setSel(new Set())} className="ml-auto flex items-center gap-1 text-white/70 hover:text-white"><X className="size-3.5" />Clear</button>
               </div>)}
@@ -151,7 +184,7 @@ export function VideoSections({ onSources }: { onSources: () => void }) {
                     <button title="To the top" onClick={() => mv(i, 0)} className="p-1 text-zinc-500 hover:text-zinc-900"><ChevronsUp className="size-4" /></button>
                     <button title="Up" onClick={() => mv(i, i - 1)} className="p-1 text-zinc-500 hover:text-zinc-900"><ArrowUp className="size-4" /></button>
                     <button title="Down" onClick={() => mv(i, i + 1)} className="p-1 text-zinc-500 hover:text-zinc-900"><ArrowDown className="size-4" /></button>
-                    <button title="Remove from this section" onClick={() => post({ drop: { id: s.id, yt: v.youtube_id } })} className="p-1 text-zinc-400 hover:text-red-600"><Trash2 className="size-4" /></button>
+                    <button title="Remove from this section" onClick={() => dropOne(v.youtube_id)} className="p-1 text-zinc-400 hover:text-red-600"><Trash2 className="size-4" /></button>
                   </span>
                 </li>); })}
             </ol>}

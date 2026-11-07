@@ -29,6 +29,26 @@ export async function GET(req: Request) {
  */
 export async function POST(req: Request) {
   const g = await guard("editor"); if ("res" in g) return g.res; const b = await req.json();
+  /** Publish: everything arranged in the Studio, sent in one go. */
+  if (b.publish) {
+    const P = b.publish as { sections: any[]; deleted: string[]; items: Record<string, string[]>; adds: Record<string, string[]> };
+    for (const id of P.deleted || []) await sql`delete from video_sections where id = ${id}`;
+    const fed: string[] = [];
+    for (const x of P.sections || []) {
+      const cur = (await sql`select kinds from video_sections where id = ${x.id}`)[0] as any; if (!cur) continue;
+      const kinds = Array.isArray(x.kinds) ? x.kinds.map(String) : cur.kinds;
+      await sql`update video_sections set name = ${String(x.name || "").trim() || "Section"}, intro = ${x.intro || null}, layout = ${LAY.includes(x.layout) ? x.layout : "row"}, color = ${COL.includes(x.color) ? x.color : "saffron"}, on_home = ${!!x.on_home}, hidden = ${!!x.hidden}, kinds = ${kinds}, position = ${Number(x.position) || 0} where id = ${x.id}`;
+      if (JSON.stringify([...(cur.kinds || [])].sort()) !== JSON.stringify([...kinds].sort())) fed.push(x.id);
+    }
+    for (const [id, yts] of Object.entries(P.items || {})) {
+      const pos = yts.map((_, i) => i);
+      await sql`update video_section_items set removed = true where section_id = ${id} and not (youtube_id = any(${yts}::text[]))`;
+      await sql`insert into video_section_items (section_id, youtube_id, position, removed) select ${id}::uuid, y, p, false from unnest(${yts}::text[], ${pos}::int[]) as t(y, p) on conflict (section_id, youtube_id) do update set position = excluded.position, removed = false`;
+    }
+    for (const [id, yts] of Object.entries(P.adds || {})) { if (P.items?.[id]) continue; await sql`update video_section_items set removed = false where section_id = ${id} and youtube_id = any(${yts}::text[])`; await addToSection(id, yts, false); }
+    for (const id of fed) await feedKinds(id);
+    fresh(); return json({ ok: true });
+  }
   if (b.create) {
     const name = String(b.create.name || "").trim(); if (!name) return fail("Give the section a name.");
     let slug = slugify(name); for (let i = 2; (await sql`select 1 from video_sections where slug = ${slug}`).length; i++) slug = `${slugify(name)}-${i}`;
