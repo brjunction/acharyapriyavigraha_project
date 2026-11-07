@@ -147,7 +147,7 @@ function ModeSwitch({ mode, setMode, big = false }: { mode: Mode; setMode: (m: M
     <div role="radiogroup" aria-label="Menu style" className={`flex shrink-0 items-center rounded-full border border-line bg-band/60 p-0.5 ${big ? "w-full" : ""}`}>
       {(["simple", "advanced"] as Mode[]).map((m) => (
         <button key={m} role="radio" aria-checked={mode === m} onClick={() => setMode(m)}
-          className={`rounded-full font-medium transition ${big ? "flex-1 py-2.5 text-[15px]" : "px-3 py-1 text-[12.5px]"} ${mode === m ? "bg-white text-ink shadow-[0_1px_3px_rgba(0,0,0,.12)]" : "text-ink-3 hover:text-ink"}`}>
+          className={`rounded-full font-medium transition ${big ? "flex-1 py-2 text-[13.5px]" : "px-3 py-1 text-[12px]"} ${mode === m ? "bg-white text-ink shadow-[0_1px_3px_rgba(0,0,0,.12)]" : "text-ink-3 hover:text-ink"}`}>
           {m === "simple" ? "Simple" : "Advanced"}
         </button>
       ))}
@@ -155,82 +155,77 @@ function ModeSwitch({ mode, setMode, big = false }: { mode: Mode; setMode: (m: M
   );
 }
 
-/** A Simple-menu icon: a chosen icon, or an uploaded picture shown round. */
-function SIc({ it, size, box }: { it: { icon: SimpleMenu["icon"]; img?: string }; size: number; box: string }) {
+/** A Simple-menu icon: a chosen icon, or an uploaded photo. */
+function SIc({ it, size, box, round = false }: { it: { icon: SimpleMenu["icon"]; img?: string; pos?: string }; size: number; box: string; round?: boolean }) {
   const I = it.icon;
   return (
-    <span className={`flex shrink-0 items-center justify-center overflow-hidden rounded-full bg-acc-soft text-[var(--acc)] ${box}`}>
-      {it.img ? /* eslint-disable-next-line @next/next/no-img-element */ <img src={it.img} alt="" className="h-full w-full object-cover" /> : <I size={size} strokeWidth={1.6} />}
+    <span className={`flex shrink-0 items-center justify-center overflow-hidden ${round ? "rounded-full" : "rounded-2xl"} ${it.img ? "bg-band" : "bg-acc-soft text-[var(--acc)]"} ${box}`}>
+      {it.img ? /* eslint-disable-next-line @next/next/no-img-element */ <img src={it.img} alt="" className="h-full w-full object-cover" style={it.pos ? { objectPosition: it.pos } : undefined} /> : <I size={size} strokeWidth={1.6} />}
     </span>
   );
 }
 const extOf = (h: string) => (h.startsWith("http") ? { target: "_blank", rel: "noreferrer" } : {});
 
+/** A big rounded card: photo or icon on the left, the name and a line about it beside. */
+function FeatureCard({ f, onClick, here }: { f: SimpleMenu["featured"][number]; onClick: () => void; here: string }) {
+  const on = hit(here, f.href);
+  return (
+    <Link href={f.href} {...extOf(f.href)} onClick={onClick} aria-current={on ? "page" : undefined}
+      className={`group flex items-center gap-3.5 rounded-2xl border bg-white p-3 transition duration-200 hover:-translate-y-0.5 hover:border-[var(--acc)]/50 hover:shadow-[0_10px_24px_-14px_rgba(0,0,0,.3)] ${on ? "border-[var(--acc)]" : "border-line"}`}>
+      <SIc it={f} size={26} box="size-14 transition duration-300 group-hover:scale-105" />
+      <span className="min-w-0">
+        <span className="block text-[14px] font-semibold leading-snug text-ink group-hover:text-[var(--acc)]">{f.label}</span>
+        {f.note && <span className="mt-0.5 block text-[12px] leading-snug text-ink-3">{f.note}</span>}
+      </span>
+    </Link>
+  );
+}
+
 function SimplePanel({ menu, onNavigate }: { menu: SimpleMenu; onNavigate: () => void }) {
   const here = usePathname();
-  const [more, setMore] = useState(false);
-  const long = menu.all.length > 15;
-  const list = long && !more ? menu.all.slice(0, 12) : menu.all;
+  const n = menu.groups.length; const cols = n >= 4 ? "columns-4" : n === 3 ? "columns-3" : n === 2 ? "columns-2" : "columns-1";
   return (
-    <div className={`acc-${menu.accent} mega-enter max-h-[calc(100vh-76px)] overflow-y-auto rounded-3xl border border-line bg-surface shadow-[0_24px_60px_-24px_rgba(60,30,10,.35)]`}>
-      <div className="flex items-center gap-4 px-7 pb-4 pt-6">
-        <SIc it={menu} size={26} box="size-14" />
-        <div className="min-w-0 flex-1">
-          <p className="text-[21px] font-semibold tracking-[-0.01em] text-ink">{menu.label}</p>
-          <p className="text-[14.5px] text-ink-3">{menu.intro}</p>
-        </div>
+    <div className={`acc-${menu.accent} mega-enter max-h-[calc(100vh-76px)] overflow-y-auto rounded-2xl border border-line bg-surface shadow-[var(--shadow-lg)]`}>
+      <div className="grid grid-cols-4 gap-3 bg-acc-tint p-4">
+        {menu.featured.map((f) => <FeatureCard key={f.href} f={f} onClick={onNavigate} here={here} />)}
       </div>
-      <div className="grid grid-cols-4 gap-3 px-7">
-        {menu.featured.map((f) => (
-          <Link key={f.href} href={f.href} {...extOf(f.href)} onClick={onNavigate} aria-current={hit(here, f.href) ? "page" : undefined}
-            className={`group flex flex-col items-center gap-3 rounded-2xl px-3 pb-5 pt-6 text-center ring-1 transition duration-200 hover:-translate-y-1 hover:bg-white hover:shadow-[0_12px_28px_-14px_rgba(0,0,0,.28)] hover:ring-[var(--acc)]/40 ${hit(here, f.href) ? "bg-white ring-[var(--acc)]" : "bg-acc-tint ring-transparent"}`}>
-            <span className="transition duration-300 group-hover:scale-110"><SIc it={f} size={28} box="size-16 bg-white shadow-[0_2px_8px_-2px_rgba(0,0,0,.12)]" /></span>
-            <span className="text-[16px] font-semibold leading-snug text-ink">{f.label}</span>
-            {f.note && <span className="-mt-2 text-[13px] leading-snug text-ink-3">{f.note}</span>}
-          </Link>))}
-      </div>
-      <div className="mx-7 mt-6 border-t border-line pb-6 pt-4">
-        <ul className="grid grid-cols-3 gap-x-6">
-          {list.map((a) => (
-            <li key={a.href}><Link href={a.href} {...extOf(a.href)} onClick={onNavigate} aria-current={hit(here, a.href) ? "page" : undefined}
-              className={`group flex items-center gap-2.5 rounded-lg px-2 py-2 text-[15px] leading-snug transition hover:bg-acc-tint ${hit(here, a.href) ? "font-semibold text-[var(--acc)]" : "text-ink-2 hover:text-ink"}`}>
-              <span className="size-1.5 shrink-0 rounded-full bg-[var(--acc)] opacity-40 transition group-hover:opacity-100" />{a.label}</Link></li>))}
-        </ul>
-        {long && <button onClick={() => setMore(!more)} className="mt-2 flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[14.5px] font-medium text-[var(--acc)] hover:bg-acc-tint">{more ? "Show fewer" : `Show all ${menu.all.length} pages`}<ChevronDown size={16} className={`transition ${more ? "rotate-180" : ""}`} /></button>}
-      </div>
+      {n > 0 && <div className={`${cols} gap-6 px-5 pb-4 pt-3`}>
+        {menu.groups.map((g) => (
+          <div key={g.title} className="break-inside-avoid pb-2">
+            <p className="px-2 pb-1 pt-2 text-[10.5px] font-semibold uppercase tracking-[0.12em] text-[var(--acc)]">{g.title}</p>
+            {g.links.map((a) => { const I = a.icon; return (
+              <Link key={a.href} href={a.href} {...extOf(a.href)} onClick={onNavigate} aria-current={hit(here, a.href) ? "page" : undefined}
+                className={`flex items-center gap-2.5 rounded-lg px-2 py-1.5 text-[13px] transition hover:bg-acc-tint ${hit(here, a.href) ? "bg-acc-soft font-semibold" : "text-ink"}`}>
+                <span className="mega-ic"><I size={15} strokeWidth={1.8} /></span>{a.label}</Link>); })}
+          </div>))}
+      </div>}
     </div>
   );
 }
 
-/** Phone, Simple: four big rows; one tap shows the four big buttons and a plain list. */
+/** Phone, Simple: four big rows; one tap shows the four cards and the pages grouped below. */
 function SimpleMobile({ menus, onClose, open, setOpen }: { menus: SimpleMenu[]; onClose: () => void; open: SimpleMenu | null; setOpen: (m: SimpleMenu | null) => void }) {
+  const here = usePathname();
   if (!open) return (
-    <div className="space-y-3">
+    <div className="space-y-2.5">
       {menus.map((m) => (
-        <button key={m.key} onClick={() => setOpen(m)} className={`acc-${m.accent} flex w-full items-center gap-4 rounded-3xl bg-acc-tint px-4 py-4 text-left transition active:scale-[.98]`}>
-          <SIc it={m} size={26} box="size-14 bg-white shadow-[0_2px_8px_-2px_rgba(0,0,0,.12)]" />
-          <span className="min-w-0 flex-1"><span className="block text-[19px] font-semibold text-ink">{m.label}</span><span className="block truncate text-[14px] text-ink-3">{m.intro}</span></span>
-          <ChevronRight size={22} className="shrink-0 text-ink-3" />
+        <button key={m.key} onClick={() => setOpen(m)} className={`acc-${m.accent} flex w-full items-center gap-3.5 rounded-2xl border border-line bg-white p-3 text-left transition active:scale-[.98]`}>
+          <SIc it={m} size={24} box="size-12" />
+          <span className="min-w-0 flex-1"><span className="block text-[15px] font-semibold text-ink">{m.label}</span><span className="block truncate text-[12px] text-ink-3">{m.intro}</span></span>
+          <ChevronRight size={18} className="shrink-0 text-ink-3" />
         </button>))}
     </div>
   );
   return (
     <div className={`acc-${open.accent}`}>
-      <div className="mb-4 flex items-center gap-3.5">
-        <SIc it={open} size={24} box="size-12" />
-        <p className="text-[21px] font-semibold text-ink">{open.label}</p>
-      </div>
-      <div className="grid grid-cols-2 gap-3">
-        {open.featured.map((f) => (
-          <Link key={f.href} href={f.href} {...extOf(f.href)} onClick={onClose} className="flex flex-col items-center gap-2.5 rounded-3xl bg-acc-tint px-2 pb-4 pt-5 text-center active:scale-[.98]">
-            <SIc it={f} size={26} box="size-14 bg-white shadow-[0_2px_8px_-2px_rgba(0,0,0,.12)]" />
-            <span className="text-[16px] font-semibold leading-snug text-ink">{f.label}</span>
-            {f.note && <span className="-mt-1.5 text-[13px] leading-snug text-ink-3">{f.note}</span>}
-          </Link>))}
-      </div>
-      <ul className="mt-5 divide-y divide-line border-t border-line">
-        {open.all.map((a) => <li key={a.href}><Link href={a.href} {...extOf(a.href)} onClick={onClose} className="flex items-center justify-between gap-3 px-1 py-3.5 text-[17px] text-ink active:bg-acc-tint">{a.label}<ChevronRight size={18} className="shrink-0 text-ink-3" /></Link></li>)}
-      </ul>
+      <div className="space-y-2.5">{open.featured.map((f) => <FeatureCard key={f.href} f={f} onClick={onClose} here={here} />)}</div>
+      {open.groups.map((g) => (
+        <div key={g.title} className="mt-4">
+          <p className="px-2 pb-1 text-[10.5px] font-semibold uppercase tracking-[0.12em] text-[var(--acc)]">{g.title}</p>
+          {g.links.map((a) => { const I = a.icon; return (
+            <Link key={a.href} href={a.href} {...extOf(a.href)} onClick={onClose} className={`flex items-center gap-3 rounded-xl px-2 py-2 text-[14px] active:bg-acc-tint ${hit(here, a.href) ? "bg-acc-soft font-semibold" : "text-ink"}`}>
+              <span className="mega-ic"><I size={15} strokeWidth={1.8} /></span>{a.label}</Link>); })}
+        </div>))}
     </div>
   );
 }
@@ -252,10 +247,10 @@ function MobileMenu({ onClose, mode, setMode }: { onClose: () => void; mode: Mod
       <div className="relative flex-1 overflow-hidden">
         {mode === "simple" ? (
           <nav className="absolute inset-0 overflow-y-auto px-4 pb-8 pt-4">
-            {sOpen ? <button onClick={() => setSOpen(null)} className="mb-4 flex items-center gap-1.5 rounded-full bg-band px-4 py-2.5 text-[16px] font-medium text-ink-2"><ChevronLeft size={20} />All menus</button> : <>
+            {sOpen ? <div className="mb-3 flex items-center gap-2"><button onClick={() => setSOpen(null)} className="flex items-center gap-1 rounded-full px-1 py-2 text-[13px] text-ink-2"><ChevronLeft size={17} />All menus</button><span className="ml-auto text-[14px] font-semibold text-ink">{sOpen.label}</span></div> : <>
               <ModeSwitch mode={mode} setMode={setMode} big />
-              <button onClick={() => { onClose(); setSearch(true); }} className="my-4 flex w-full items-center gap-3 rounded-full border border-line bg-page px-5 py-4 text-left text-[17px] text-ink-3">
-                <Search size={21} /> Search
+              <button onClick={() => { onClose(); setSearch(true); }} className="my-3 flex w-full items-center gap-3 rounded-xl border border-line bg-page px-4 py-3 text-left text-[13.5px] text-ink-3">
+                <Search size={17} /> Search lectures, quotes, verses…
               </button></>}
             <SimpleMobile menus={simpleMenus(MENUS, simpleCfg)} onClose={onClose} open={sOpen} setOpen={setSOpen} />
           </nav>
@@ -367,8 +362,8 @@ export function Header() {
           <nav data-simple-nav className="hidden items-center justify-center gap-1 lg:flex" aria-label="Main">
             {SIMPLE.map((m) => { const on = sOpen === m.key; const current = m.featured.concat(m.all).some((a) => hit(path, a.href)); return (
               <button key={m.key} onClick={() => setSOpen(on ? null : m.key)} aria-expanded={on} aria-haspopup="true"
-                className={`acc-${m.accent} relative flex items-center gap-2 whitespace-nowrap rounded-full py-1 pl-1 pr-3.5 text-[15px] font-medium text-ink transition ${on ? "bg-acc-soft" : "hover:bg-acc-tint"}`}>
-                <SIc it={m} size={17} box={`size-8 ${on ? "bg-white" : ""}`} />{m.label}<ChevronDown size={15} className={`-ml-0.5 opacity-50 transition-transform ${on ? "rotate-180" : ""}`} />
+                className={`acc-${m.accent} relative flex items-center gap-2 whitespace-nowrap rounded-full py-1 pl-1 pr-3 text-[12.5px] font-medium text-ink transition ${on ? "bg-acc-soft" : "hover:bg-acc-tint"}`}>
+                <SIc it={m} size={17} round box={`size-8 ${on ? "!bg-white" : ""}`} />{m.label}<ChevronDown size={13} className={`-ml-0.5 opacity-50 transition-transform ${on ? "rotate-180" : ""}`} />
                 {current && <span className="absolute inset-x-4 -bottom-[5px] h-[2px] rounded-full bg-[var(--acc)]" />}
               </button>); })}
           </nav>
@@ -398,12 +393,12 @@ export function Header() {
               <kbd className="hidden whitespace-nowrap rounded border border-line bg-surface px-1.5 text-[10px] text-ink-3 xl:inline">Ctrl K</kbd>
             </button>
             <div className="hidden lg:block"><ModeSwitch mode={mode} setMode={setMode} /></div>
-            <button onClick={() => setMobile(true)} aria-label="Open menu" className="flex h-9 items-center gap-1.5 rounded-full bg-ink px-3.5 text-[14px] font-medium text-white transition hover:bg-ink/85 lg:hidden"><Menu size={18} />Menu</button>
+            <button onClick={() => setMobile(true)} aria-label="Open menu" className="flex h-8 items-center gap-1.5 rounded-full bg-ink px-3 text-[12.5px] font-medium text-white transition hover:bg-ink/85 sm:h-9 lg:hidden"><Menu size={16} />Menu</button>
           </div>
         </div>
       </div>
       {mode === "simple" && sOpen && (() => { const sm = SIMPLE.find((x) => x.key === sOpen); return sm && (
-        <div data-simple-nav className="absolute left-1/2 top-full hidden -translate-x-1/2 pt-1 lg:block" style={{ width: "min(1000px, calc(100vw - 2rem))" }}>
+        <div data-simple-nav className="absolute left-1/2 top-full hidden -translate-x-1/2 pt-1 lg:block" style={{ width: "min(1080px, calc(100vw - 2rem))" }}>
           <SimplePanel key={sm.key} menu={sm} onNavigate={() => setSOpen(null)} />
         </div>); })()}
       {mode === "advanced" && menu && (
