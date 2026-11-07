@@ -8,7 +8,8 @@ import type { NavLink, NavMenu } from "./nav";
  *  so every page stays reachable — nothing is left out, only arranged more simply. */
 export type SimpleLink = { href: string; label: string; icon: LucideIcon; img?: string; pos?: string; note?: string; group?: string };
 export type SimpleGroup = { title: string; links: SimpleLink[] };
-export type SimpleMenu = { key: string; label: string; intro: string; href: string; accent: string; icon: LucideIcon; img?: string; featured: SimpleLink[]; groups: SimpleGroup[]; all: SimpleLink[] };
+export type SimpleTab = { title: string; acc: string; items: SimpleLink[] };
+export type SimpleMenu = { key: string; label: string; intro: string; href: string; accent: string; icon: LucideIcon; img?: string; featured: SimpleLink[]; groups: SimpleGroup[]; all: SimpleLink[]; tabs: SimpleTab[] };
 
 /** What editors can change in the Studio (Website menus → Simple menu). Icons are an icon name or a picture address. */
 export type SimpleFeaturedJ = { href: string; label: string; note?: string; icon?: string; group?: string };
@@ -25,10 +26,10 @@ export const SIMPLE_DEFAULTS: { key: string; label: string; intro: string; icon:
     { group: "Remembrance", href: "/gurudeva/places-of-remembrance", label: "Smṛti Bhavan", note: "Everything related to him", icon: "Landmark" },
     { group: "Remembrance", href: "/gurudeva/memories", label: "Memories & pastimes", note: "Disciples remembering him", icon: "HandHeart" },
     { group: "Remembrance", href: "/gurudeva/glorifications", label: "Glorifications", note: "Vyāsa-pūjā offerings", icon: "Gift" },
-    { group: "His mission", href: "/gurudeva/projects", label: "Projects", note: "Bhubaneswar, temples, initiatives", icon: "Building2" },
-    { group: "His mission", href: "/gurudeva/srila-prabhupada", label: "Śrīla Prabhupāda", note: "His beloved spiritual master", icon: "Crown" },
-    { group: "His mission", href: "/gurudeva/disciples", label: "His disciples", note: "Every initiated disciple", icon: "IdCard" },
-    { group: "His mission", href: "/gurudeva/letters", label: "Letters", note: "With Śrīla Prabhupāda and others", icon: "Mail" }] },
+    { group: "Projects", href: "/gurudeva/projects", label: "All his projects", note: "Bhubaneswar, temples, initiatives", icon: "Building2" },
+    { group: "Lineage & disciples", href: "/gurudeva/srila-prabhupada", label: "Śrīla Prabhupāda", note: "His beloved spiritual master", icon: "Crown" },
+    { group: "Lineage & disciples", href: "/gurudeva/disciples", label: "His disciples", note: "Every initiated disciple", icon: "IdCard" },
+    { group: "Lineage & disciples", href: "/gurudeva/letters", label: "Letters", note: "With Śrīla Prabhupāda and others", icon: "Mail" }] },
   { key: "listen", label: "Listen & Watch", intro: "His lectures, videos and kīrtanas", icon: "Headphones", accent: "teal", featured: [
     { href: "/teachings/audio", label: "Audio lectures", note: "Every recorded lecture, remastered", icon: "Headphones" },
     { href: "/teachings/videos", label: "Videos", note: "His lectures and moments on video", icon: "Clapperboard" },
@@ -76,8 +77,9 @@ export function simpleMenus(menus: NavMenu[], cfg?: SimpleCfg | null): SimpleMen
   const T = (title: string, links: NavLink[]) => ({ title, links });
   const GROUPS: Record<string, { title: string; links: NavLink[] }[]> = {
     gurudeva: G("gurudeva"),
-    listen: [T("Hear & watch", listenTeach), T("On YouTube", yt), T("Everything", top("teachings", "All teachings"))],
-    read: [...teach.filter((g) => g.title !== "Hear & watch"), ...G("tattva").map((g) => (g.title === "Subjects" ? T("Topics", [...top("tattva", "All topics"), ...g.links]) : g)), T("Other languages", top("translations", "Translations"))],
+    listen: [T("Hear & watch", listenTeach), T("On YouTube", yt)],
+    // Tattva is one card only; its topics open on the Tattva page.
+    read: [...teach.filter((g) => g.title !== "Hear & watch"), T("Other languages", top("translations", "Translations"))],
     about: [...G("about"), ...G("resources").map((g) => T(g.title, g.links.filter((l) => !yt.includes(l))))],
   };
   return SIMPLE_DEFAULTS.map((d) => {
@@ -88,6 +90,16 @@ export function simpleMenus(menus: NavMenu[], cfg?: SimpleCfg | null): SimpleMen
     const fh = new Set(featured.map((f) => f.href)); const seen = new Set<string>(fh);
     const groups: SimpleGroup[] = GROUPS[d.key].map((g) => ({ title: g.title, links: g.links.filter((l) => !seen.has(l.href) && seen.add(l.href)).map((l) => ({ href: l.href, label: l.label, icon: l.icon })) })).filter((g) => g.links.length);
     const href = d.key === "gurudeva" ? m("gurudeva")?.href || "/gurudeva" : d.key === "about" ? "/about" : "/teachings";
-    return { key: d.key, label: c.label || d.label, intro: c.intro || d.intro, href, accent: d.accent, ...pick(c.icon || d.icon, FALLBACK[d.key]), featured, groups, all: groups.flatMap((g) => g.links) };
+    // Tabs: the groups chosen in the dashboard, with every other page of the full menu added to the group it belongs with — so Simple has everything, a little at a time.
+    const tabs: SimpleTab[] = [];
+    const tabOf = (t: string) => { let x = tabs.find((y) => y.title === t); if (!x) { x = { title: t, acc: tabs.length === 0 ? d.accent : GROUP_ACC.filter((a) => a !== d.accent)[(tabs.length - 1) % 6], items: [] }; tabs.push(x); } return x; };
+    featured.forEach((f) => tabOf(f.group || d.label).items.push(f));
+    for (const g of GROUPS[d.key]) for (const l of g.links) {
+      if (fh.has(l.href)) continue; fh.add(l.href);
+      const mates = new Set(g.links.map((x) => x.href)); let best: SimpleTab | null = null; let n = 0;
+      for (const t of tabs) { const k = t.items.filter((i) => mates.has(i.href)).length; if (k > n) { n = k; best = t; } }
+      (best || tabOf(g.title)).items.push({ href: l.href, label: l.label, note: l.desc ? l.desc.split(" · ")[0] : undefined, icon: l.icon });
+    }
+    return { key: d.key, label: c.label || d.label, intro: c.intro || d.intro, href, accent: d.accent, ...pick(c.icon || d.icon, FALLBACK[d.key]), featured, groups, all: groups.flatMap((g) => g.links), tabs };
   });
 }
