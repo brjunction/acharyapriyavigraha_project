@@ -2,27 +2,37 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
-import { ArrowLeft, List, Search, Type, BookOpen, Columns2, Bookmark, BookmarkCheck, Maximize, Minimize, Keyboard, ChevronLeft, ChevronRight, X, Languages, PanelLeft, Focus, BookOpenText, Minus, Plus, Check, ChevronDown, Loader2 } from "lucide-react";
+import { ArrowLeft, List, Search, Type, BookOpen, Columns2, Bookmark, BookmarkCheck, Maximize, Minimize, Keyboard, ChevronLeft, ChevronRight, X, Languages, PanelLeft, Focus, BookOpenText, Minus, Plus, Check, ChevronDown, Loader2, FileText } from "lucide-react";
 import type { TocItem } from "@/lib/content/books-public";
 
 /* ------------------------------------------------------------------ settings */
-type Mode = "classic" | "focus" | "pages" | "parallel";
-export type Theme = "light" | "paper" | "sepia" | "sage" | "rose" | "dusk" | "slate" | "dark";
-export type FontK = "literata" | "gentium" | "noto" | "sans";
+type Mode = "classic" | "focus" | "pages" | "sheet" | "parallel";
+export type Theme = "ivory" | "light" | "paper" | "sepia" | "sage" | "rose" | "dusk" | "slate" | "dark";
+export type FontK = "sans" | "notosans" | "atkinson" | "source" | "literata" | "gentium" | "garamond" | "crimson" | "lora" | "merri" | "noto";
 export type ReaderSettings = { mode: Mode; theme: Theme; font: FontK; size: number; leading: number; width: number; justify: boolean; sidebar: boolean };
-const DEF: ReaderSettings = { mode: "classic", theme: "light", font: "sans", size: 19, leading: 1.75, width: 680, justify: false, sidebar: true };
+const DEF: ReaderSettings = { mode: "classic", theme: "light", font: "sans", size: 17, leading: 1.75, width: 680, justify: false, sidebar: true };
 const KEY = "tj_reader_v2";
-export const loadSettings = (): ReaderSettings => { try { return { ...DEF, ...JSON.parse(localStorage.getItem(KEY) || "{}") }; } catch { return DEF; } };
+export const loadSettings = (): ReaderSettings => { try { const x = { ...DEF, ...JSON.parse(localStorage.getItem(KEY) || "{}") }; if (!(x.font in FONTS)) x.font = DEF.font; if (!(x.theme in THEMES)) x.theme = DEF.theme; return x; } catch { return DEF; } };
 export const saveSettings = (s: Partial<ReaderSettings>) => { try { localStorage.setItem(KEY, JSON.stringify({ ...loadSettings(), ...s })); } catch {} };
 
 const DEV = '"Noto Serif Devanagari", "Noto Sans Devanagari"';
 export const FONTS: Record<FontK, [string, string]> = {
+  sans: ["Inter", `var(--font-sans), "Noto Sans Devanagari", system-ui, sans-serif`],
+  notosans: ["Noto Sans", `"Noto Sans", "Noto Sans Devanagari", system-ui, sans-serif`],
+  atkinson: ["Atkinson (clear)", `"Atkinson Hyperlegible", "Noto Sans Devanagari", system-ui, sans-serif`],
+  source: ["Source Serif", `"Source Serif 4", ${DEV}, Georgia, serif`],
   literata: ["Literata", `"Literata", ${DEV}, Georgia, serif`],
   gentium: ["Gentium", `"Gentium Book Plus", ${DEV}, Georgia, serif`],
+  garamond: ["EB Garamond", `"EB Garamond", ${DEV}, Garamond, serif`],
+  crimson: ["Crimson Pro", `"Crimson Pro", ${DEV}, Georgia, serif`],
+  lora: ["Lora", `"Lora", ${DEV}, Georgia, serif`],
+  merri: ["Merriweather", `"Merriweather", ${DEV}, Georgia, serif`],
   noto: ["Noto Serif", `"Noto Serif", ${DEV}, Georgia, serif`],
-  sans: ["Inter", `var(--font-sans), "Noto Sans Devanagari", system-ui, sans-serif`],
 };
+/* every reading font, loaded once with the reader */
+const FONT_CSS = "https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;600&family=Atkinson+Hyperlegible:wght@400;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=Literata:opsz,wght@7..72,400;7..72,600&family=Gentium+Book+Plus:wght@400;700&family=EB+Garamond:wght@400;600&family=Crimson+Pro:wght@400;600&family=Lora:wght@400;600&family=Merriweather:wght@400;700&family=Noto+Serif:wght@400;600&family=Noto+Serif+Devanagari:wght@400;600&family=Noto+Sans+Devanagari:wght@400;600&display=swap";
 export const THEMES: Record<Theme, { label: string; bg: string; ink: string; muted: string; line: string; panel: string; swatch: string }> = {
+  ivory: { label: "Ivory", bg: "#fffbf3", ink: "#2a2018", muted: "#8c7559", line: "rgba(90,60,20,0.11)", panel: "rgba(255,251,243,0.84)", swatch: "#fbf1dc" },
   light: { label: "White", bg: "#ffffff", ink: "#1c1c1c", muted: "#7a7a7a", line: "rgba(0,0,0,0.08)", panel: "rgba(255,255,255,0.78)", swatch: "#ffffff" },
   paper: { label: "Paper", bg: "#fbf8f1", ink: "#26221c", muted: "#8a8173", line: "rgba(60,45,20,0.1)", panel: "rgba(251,248,241,0.82)", swatch: "#f6f0e2" },
   sepia: { label: "Sepia", bg: "#f4ead5", ink: "#3a2e20", muted: "#8c7a62", line: "rgba(58,46,32,0.13)", panel: "rgba(244,234,213,0.82)", swatch: "#eadbb8" },
@@ -35,10 +45,11 @@ export const THEMES: Record<Theme, { label: string; bg: string; ink: string; mut
 const MODES: [Mode, string, string, any][] = [
   ["classic", "Classic", "Contents beside the text", PanelLeft],
   ["focus", "Focus", "Only the text, nothing else", Focus],
-  ["pages", "Pages", "Turn pages like a printed book", BookOpenText],
+  ["pages", "Book pages", "An open book: turn the pages", BookOpenText],
+  ["sheet", "Paper", "One long page of paper on the desk", FileText],
   ["parallel", "Side by side", "Two languages together", Columns2],
 ];
-const SHORTCUTS: [string, string][] = [["← →", "Previous / next page or chapter"], ["Space", "Next page (Pages reader)"], ["J  K", "Scroll down / up"], ["1 2 3 4", "Classic, Focus, Pages, Side by side"], ["C", "Contents"], ["/", "Search in this book"], ["A", "Text settings"], ["+  −  0", "Bigger, smaller, reset text"], ["T", "Change colour theme"], ["L", "Language"], ["B", "Bookmark this chapter"], ["F", "Full screen"], ["?", "These shortcuts"], ["Esc", "Close / leave reader"]];
+const SHORTCUTS: [string, string][] = [["← →", "Previous / next page or chapter"], ["Space", "Next page (Pages reader)"], ["J  K", "Scroll down / up"], ["1 2 3 4 5", "Classic, Focus, Book pages, Paper, Side by side"], ["C", "Contents"], ["/", "Search in this book"], ["A", "Text settings"], ["+  −  0", "Bigger, smaller, reset text"], ["T", "Change colour theme"], ["L", "Language"], ["B", "Bookmark this chapter"], ["F", "Full screen"], ["?", "These shortcuts"], ["Esc", "Close / leave reader"]];
 
 type Nav = { href: string; title: string } | null;
 type Tr = { slug: string; title: string; language: string; native: string; href: string; current: boolean };
@@ -62,7 +73,9 @@ export function Reader({ book, chapter, toc, prev, next, translations, parallel,
   const [page, setPage] = useState(0); const [pages, setPages] = useState(1);
   const hasPar = translations.length > 1;
   const mode: Mode = s.mode === "parallel" && !parallel ? "classic" : s.mode;
-  const T = THEMES[s.theme];
+  const T = THEMES[s.theme] || THEMES.light;
+  const dark = s.theme === "dusk" || s.theme === "dark" || s.theme === "slate";
+  const touch = useRef<number | null>(null); const [flip, setFlip] = useState(false);
 
   useLayoutEffect(() => { setS(loadSettings()); setReady(true); }, []);
   const set = useCallback((p: Partial<ReaderSettings>) => setS((o) => { const x = { ...o, ...p }; saveSettings(x); return x; }), []);
@@ -82,15 +95,17 @@ export function Reader({ book, chapter, toc, prev, next, translations, parallel,
   useEffect(() => { if (mode !== "focus") setBarHidden(false); }, [mode]);
 
   // Pages reader: CSS columns, moved one page at a time
-  const gap = 64;
-  const measure = useCallback(() => { const el = pager.current; if (!el) return; const step = el.clientWidth + gap; const n = Math.max(1, Math.round((el.scrollWidth + gap) / step)); setPages(n); setPage((p) => Math.min(p, n - 1)); }, []);
-  useEffect(() => { if (mode !== "pages") return; measure(); const r = new ResizeObserver(measure); if (pager.current) r.observe(pager.current); document.fonts?.ready.then(measure); return () => r.disconnect(); }, [mode, measure, s.size, s.leading, s.width, s.font]);
-  useEffect(() => { const el = pager.current; if (mode !== "pages" || !el) return; el.scrollTo({ left: page * (el.clientWidth + gap), behavior: "instant" as ScrollBehavior }); setPct(pages > 1 ? (page / (pages - 1)) * 100 : 100); }, [page, pages, mode]);
+  const [two, setTwo] = useState(false); const gap = two ? 112 : 56;
+  useEffect(() => { const f = () => setTwo(window.innerWidth >= 1024); f(); window.addEventListener("resize", f); return () => window.removeEventListener("resize", f); }, []);
+  const measure = useCallback(() => { const el = pager.current; if (!el) return; const step = el.clientWidth + gap; const n = Math.max(1, Math.round((el.scrollWidth + gap) / step)); setPages(n); setPage((p) => Math.min(p, n - 1)); }, [gap]);
+  useEffect(() => { if (mode !== "pages") return; measure(); const r = new ResizeObserver(measure); if (pager.current) r.observe(pager.current); document.fonts?.ready.then(measure); return () => r.disconnect(); }, [mode, measure, s.size, s.leading, s.width, s.font, two]);
+  useEffect(() => { const el = pager.current; if (mode !== "pages" || !el) return; el.scrollTo({ left: page * (el.clientWidth + gap), behavior: "instant" as ScrollBehavior }); setPct(pages > 1 ? (page / (pages - 1)) * 100 : 100); }, [page, pages, mode, gap]);
   useEffect(() => { if (mode === "pages") { try { if (sessionStorage.getItem("tj_from_next") === "1") { sessionStorage.removeItem("tj_from_next"); setTimeout(() => setPage(Math.max(0, pages - 1)), 50); } } catch {} } }, [mode, pages]);
   const turn = useCallback((d: number) => {
     if (mode !== "pages") { const h = d > 0 ? next?.href : prev?.href; if (h) router.push(h + (parallel ? `?with=${parallel.slug}` : "")); return; }
-    if (d > 0) { if (page < pages - 1) setPage(page + 1); else if (next) router.push(next.href); }
-    else { if (page > 0) setPage(page - 1); else if (prev) { try { sessionStorage.setItem("tj_from_next", "1"); } catch {} router.push(prev.href); } }
+    const go = (n: number) => { setFlip(true); setTimeout(() => { setPage(n); setFlip(false); }, 140); };
+    if (d > 0) { if (page < pages - 1) go(page + 1); else if (next) router.push(next.href); }
+    else { if (page > 0) go(page - 1); else if (prev) { try { sessionStorage.setItem("tj_from_next", "1"); } catch {} router.push(prev.href); } }
   }, [mode, page, pages, next, prev, router, parallel]);
 
   const marked = marks.some((m) => m.href === chapter.href);
@@ -110,10 +125,10 @@ export function Reader({ book, chapter, toc, prev, next, translations, parallel,
         j: () => el?.scrollBy({ top: 90, behavior: "smooth" }), k: () => el?.scrollBy({ top: -90, behavior: "smooth" }),
         ArrowDown: () => mode === "pages" ? turn(1) : el?.scrollBy({ top: 60 }), ArrowUp: () => mode === "pages" ? turn(-1) : el?.scrollBy({ top: -60 }),
         Home: () => mode === "pages" ? setPage(0) : el?.scrollTo({ top: 0 }), End: () => mode === "pages" ? setPage(pages - 1) : el?.scrollTo({ top: el.scrollHeight }),
-        "1": () => set({ mode: "classic" }), "2": () => set({ mode: "focus" }), "3": () => set({ mode: "pages" }), "4": () => hasPar && set({ mode: "parallel" }),
+        "1": () => set({ mode: "classic" }), "2": () => set({ mode: "focus" }), "3": () => set({ mode: "pages" }), "4": () => set({ mode: "sheet" }), "5": () => hasPar && set({ mode: "parallel" }),
         c: () => setPanel((p) => (p === "contents" ? null : "contents")), "/": () => setPanel("search"), s: () => setPanel("search"),
         a: () => setPop((p) => (p === "text" ? null : "text")), l: () => hasPar && setPop((p) => (p === "lang" ? null : "lang")), m: () => setPop((p) => (p === "mode" ? null : "mode")),
-        "+": () => set({ size: Math.min(30, s.size + 1) }), "=": () => set({ size: Math.min(30, s.size + 1) }), "-": () => set({ size: Math.max(14, s.size - 1) }), "0": () => set({ size: DEF.size, leading: DEF.leading, width: DEF.width }),
+        "+": () => set({ size: Math.min(30, s.size + 1) }), "=": () => set({ size: Math.min(30, s.size + 1) }), "-": () => set({ size: Math.max(13, s.size - 1) }), "0": () => set({ size: DEF.size, leading: DEF.leading, width: DEF.width }),
         t: () => { const ks = Object.keys(THEMES) as Theme[]; set({ theme: ks[(ks.indexOf(s.theme) + 1) % ks.length] }); },
         b: toggleMark, f: toggleFull, "?": () => setHelp((x) => !x),
         Escape: () => { if (help) setHelp(false); else if (pop) setPop(null); else if (panel) setPanel(null); else router.push(book.href); },
@@ -137,11 +152,12 @@ export function Reader({ book, chapter, toc, prev, next, translations, parallel,
     </nav>
   );
 
+  const desk = dark ? `color-mix(in srgb, ${T.bg} 70%, #000)` : `color-mix(in srgb, ${T.bg} 90%, #6b4a1c)`;
   const icon = "flex size-9 items-center justify-center rounded-md transition hover:bg-black/[0.06] [.rd-dark_&]:hover:bg-white/10";
-  const dark = s.theme === "dusk" || s.theme === "dark" || s.theme === "slate";
 
   return (
     <div className={`rd fixed inset-0 z-[70] flex flex-col ${dark ? "rd-dark" : ""}`} style={{ background: T.bg, color: T.ink, ["--rd-ink" as any]: T.ink, ["--rd-muted" as any]: T.muted, ["--rd-line" as any]: T.line, ["--rd-bg" as any]: T.bg, visibility: ready ? "visible" : "hidden" }}>
+      <link rel="stylesheet" href={FONT_CSS} precedence="default" />
       {/* top bar */}
       <div className={`absolute inset-x-0 top-0 z-20 transition-transform duration-300 ${barHidden ? "-translate-y-full" : ""}`} onMouseEnter={() => setBarHidden(false)}>
         <div className="flex h-12 items-center gap-1 border-b px-2 backdrop-blur-xl backdrop-saturate-150 sm:px-3" style={{ background: T.panel, borderColor: T.line }}>
@@ -151,6 +167,8 @@ export function Reader({ book, chapter, toc, prev, next, translations, parallel,
             <p className="truncate text-[12px]" style={{ color: T.muted }}>{book.title}</p>
             <p className="truncate text-[13px] font-medium">{chapter.title}</p>
           </div>
+          <button onClick={() => set({ size: Math.max(13, s.size - 1) })} className={`${icon} font-sans text-[13px] font-semibold`} title="Smaller text (−)" aria-label="Smaller text">A−</button>
+          <button onClick={() => set({ size: Math.min(30, s.size + 1) })} className={`${icon} font-sans text-[16px] font-semibold`} title="Larger text (+)" aria-label="Larger text">A+</button>
           <button onClick={() => setPanel("search")} className={`${icon} hidden sm:flex`} title="Search in this book (/)"><Search size={17} /></button>
           {hasPar && <div className="relative"><button onClick={() => setPop(pop === "lang" ? null : "lang")} className={icon} title="Language (L)"><Languages size={17} /></button>{pop === "lang" && <Pop T={T} onClose={() => setPop(null)}>
             <p className="px-2 pb-1 text-[11.5px] font-medium" style={{ color: T.muted }}>Read this book in</p>
@@ -176,17 +194,33 @@ export function Reader({ book, chapter, toc, prev, next, translations, parallel,
         {mode === "classic" && s.sidebar && <aside className="hidden w-[290px] shrink-0 overflow-y-auto border-r pb-10 pt-16 font-sans [scrollbar-width:thin] lg:block" style={{ borderColor: T.line }}><Contents toc={toc} current={chapter.id} T={T} suffix={parallel ? `?with=${parallel.slug}` : ""} /></aside>}
 
         {mode === "pages" ? (
-          <div className="relative flex min-w-0 flex-1 flex-col pt-14">
-            <div className="relative mx-auto min-h-0 w-full flex-1 px-6 py-6 sm:px-10" onClick={(e) => { if ((e.target as HTMLElement).closest("a, button")) return; const r = e.currentTarget.getBoundingClientRect(); const x = (e.clientX - r.left) / r.width; if (x < 0.3) turn(-1); else if (x > 0.7) turn(1); }} style={{ maxWidth: s.width * 2 + gap + 80 }}>
-              <div ref={pager} className="rd-text h-full overflow-hidden" style={{ ...textStyle, columnWidth: Math.min(s.width, 560), columnGap: gap, columnFill: "auto" }}>
-                {heading(chapter.title)}{children}
+          <div className="relative flex min-w-0 flex-1 flex-col pt-14" style={{ background: desk }}>
+            <div className="relative mx-auto min-h-0 w-full flex-1 px-2 py-3 sm:px-6 sm:py-6" onClick={(e) => { if ((e.target as HTMLElement).closest("a, button")) return; const r = e.currentTarget.getBoundingClientRect(); const x = (e.clientX - r.left) / r.width; if (x < 0.25) turn(-1); else if (x > 0.75) turn(1); }} onTouchStart={(e) => { touch.current = e.touches[0].clientX; }} onTouchEnd={(e) => { if (touch.current === null) return; const dx = e.changedTouches[0].clientX - touch.current; touch.current = null; if (Math.abs(dx) > 50) turn(dx < 0 ? 1 : -1); }} style={{ maxWidth: two ? s.width * 2 + 200 : s.width + 80 }}>
+              {/* the open book: paper, a fine inner rule, the fold between facing pages, page numbers at the foot */}
+              <div className="relative h-full overflow-hidden rounded-[5px] shadow-[0_26px_60px_-30px_rgba(30,15,0,.55),0_0_0_1px_rgba(0,0,0,.05)]" style={{ background: T.bg }}>
+                {two && <span aria-hidden className="pointer-events-none absolute inset-y-0 left-1/2 z-10 w-16 -translate-x-1/2" style={{ background: dark ? "linear-gradient(90deg,transparent,rgba(0,0,0,.4),transparent)" : "linear-gradient(90deg,transparent,rgba(80,50,15,.12) 47%,rgba(80,50,15,.2) 50%,rgba(80,50,15,.12) 53%,transparent)" }} />}
+                <span aria-hidden className="pointer-events-none absolute inset-3 z-10 rounded-[3px] border sm:inset-4" style={{ borderColor: T.line }} />
+                <div className={`h-full px-7 pb-12 pt-10 sm:px-12 sm:pt-12 transition-opacity duration-200 ${flip ? "opacity-0" : "opacity-100"}`}>
+                  <div ref={pager} className="rd-text h-full overflow-hidden" style={{ ...textStyle, columnCount: two ? 2 : 1, columnGap: gap, columnFill: "auto" }}>
+                    {heading(chapter.title)}{children}
+                  </div>
+                </div>
+                <span className="absolute bottom-5 left-0 z-10 w-1/2 text-center font-sans text-[11px] tabular-nums sm:bottom-6" style={{ color: T.muted, width: two ? "50%" : "100%" }}>{two ? page * 2 + 1 : page + 1}</span>
+                {two && page * 2 + 2 <= pages * 2 && <span className="absolute bottom-5 right-0 z-10 w-1/2 text-center font-sans text-[11px] tabular-nums sm:bottom-6" style={{ color: T.muted }}>{page * 2 + 2}</span>}
               </div>
             </div>
             <div className="flex h-11 items-center justify-between gap-3 px-4 font-sans text-[12px]" style={{ color: T.muted }}>
-              <button onClick={() => turn(-1)} className="flex items-center gap-1 rounded-md px-2 py-1 hover:bg-black/5 [.rd-dark_&]:hover:bg-white/10"><ChevronLeft size={15} />{page === 0 && prev ? "Previous chapter" : "Previous"}</button>
-              <span className="tabular-nums">Page {page + 1} of {pages} · Chapter {chapter.index + 1} of {chapter.total}</span>
-              <button onClick={() => turn(1)} className="flex items-center gap-1 rounded-md px-2 py-1 hover:bg-black/5 [.rd-dark_&]:hover:bg-white/10">{page >= pages - 1 && next ? "Next chapter" : "Next"}<ChevronRight size={15} /></button>
+              <button onClick={() => turn(-1)} className="flex items-center gap-1 rounded-md px-2 py-1 hover:bg-black/5 [.rd-dark_&]:hover:bg-white/10"><ChevronLeft size={15} /><span className="max-sm:hidden">{page === 0 && prev ? "Previous chapter" : "Previous page"}</span></button>
+              <span className="tabular-nums">{two ? `Pages ${page * 2 + 1}–${page * 2 + 2} of ${pages * 2}` : `Page ${page + 1} of ${pages}`}<span className="max-sm:hidden"> · Chapter {chapter.index + 1} of {chapter.total}</span></span>
+              <button onClick={() => turn(1)} className="flex items-center gap-1 rounded-md px-2 py-1 hover:bg-black/5 [.rd-dark_&]:hover:bg-white/10"><span className="max-sm:hidden">{page >= pages - 1 && next ? "Next chapter" : "Next page"}</span><ChevronRight size={15} /></button>
             </div>
+          </div>
+        ) : mode === "sheet" ? (
+          <div ref={scroller} className="min-w-0 flex-1 overflow-y-auto px-2 [scrollbar-width:thin] sm:px-6" style={{ background: desk }}>
+            <article className="rd-text relative mx-auto mb-16 mt-16 rounded-[5px] px-6 pb-14 pt-12 shadow-[0_26px_60px_-30px_rgba(30,15,0,.5),0_0_0_1px_rgba(0,0,0,.05)] sm:mt-20 sm:px-14 sm:pt-16" style={{ ...textStyle, maxWidth: s.width + 140, background: T.bg }}>
+              <span aria-hidden className="pointer-events-none absolute inset-3 rounded-[3px] border sm:inset-4" style={{ borderColor: T.line }} />
+              {heading(chapter.title)}{children}{extra}{end}
+            </article>
           </div>
         ) : (
           <div ref={scroller} className="min-w-0 flex-1 overflow-y-auto scroll-smooth [scrollbar-width:thin]">
@@ -241,11 +275,11 @@ function TextSettings({ s, set, T }: { s: ReaderSettings; set: (p: Partial<Reade
   return (
     <div className="p-1">
       <p className={lab} style={{ color: T.muted }}>Colour</p>
-      <div className="grid grid-cols-4 gap-1.5">{(Object.keys(THEMES) as Theme[]).map((k) => <button key={k} onClick={() => set({ theme: k })} className={`flex flex-col items-center gap-1 rounded-lg border p-1.5 text-[11.5px] ${s.theme === k ? "ring-2 ring-current" : ""}`} style={{ borderColor: T.line }}><span className="h-6 w-full rounded border" style={{ background: THEMES[k].swatch, borderColor: "rgba(0,0,0,0.12)", color: THEMES[k].ink }}><span className="text-[12px] font-semibold" style={{ fontFamily: "Georgia, serif" }}>Aa</span></span>{THEMES[k].label}</button>)}</div>
+      <div className="grid grid-cols-3 gap-1.5">{(Object.keys(THEMES) as Theme[]).map((k) => <button key={k} onClick={() => set({ theme: k })} className={`flex flex-col items-center gap-1 rounded-lg border p-1.5 text-[11.5px] ${s.theme === k ? "ring-2 ring-current" : ""}`} style={{ borderColor: T.line }}><span className="h-6 w-full rounded border" style={{ background: THEMES[k].swatch, borderColor: "rgba(0,0,0,0.12)", color: THEMES[k].ink }}><span className="text-[12px] font-semibold" style={{ fontFamily: "Georgia, serif" }}>Aa</span></span>{THEMES[k].label}</button>)}</div>
       <p className={lab} style={{ color: T.muted }}>Font</p>
       <div className={`${seg} grid-cols-2`}>{(Object.keys(FONTS) as FontK[]).map((k) => <button key={k} onClick={() => set({ font: k })} className={`rounded-md px-2 py-1.5 text-[13.5px] ${s.font === k ? on : ""}`} style={{ fontFamily: FONTS[k][1] }}>{FONTS[k][0]}</button>)}</div>
       <p className={lab} style={{ color: T.muted }}>Size</p>
-      <div className="flex items-center gap-2"><button onClick={() => set({ size: Math.max(14, s.size - 1) })} className="flex size-8 items-center justify-center rounded-md border" style={{ borderColor: T.line }}><Minus size={14} /></button><input type="range" min={14} max={30} value={s.size} onChange={(e) => set({ size: Number(e.target.value) })} className="flex-1 accent-current" /><button onClick={() => set({ size: Math.min(30, s.size + 1) })} className="flex size-8 items-center justify-center rounded-md border" style={{ borderColor: T.line }}><Plus size={14} /></button><span className="w-7 text-right text-[12px] tabular-nums">{s.size}</span></div>
+      <div className="flex items-center gap-2"><button onClick={() => set({ size: Math.max(13, s.size - 1) })} className="flex size-8 items-center justify-center rounded-md border" style={{ borderColor: T.line }}><Minus size={14} /></button><input type="range" min={13} max={30} value={s.size} onChange={(e) => set({ size: Number(e.target.value) })} className="flex-1 accent-current" /><button onClick={() => set({ size: Math.min(30, s.size + 1) })} className="flex size-8 items-center justify-center rounded-md border" style={{ borderColor: T.line }}><Plus size={14} /></button><span className="w-7 text-right text-[12px] tabular-nums">{s.size}</span></div>
       <p className={lab} style={{ color: T.muted }}>Line spacing</p>
       <div className={`${seg} grid-cols-3`}>{([[1.5, "Compact"], [1.75, "Normal"], [2.05, "Relaxed"]] as const).map(([v, l]) => <button key={l} onClick={() => set({ leading: v })} className={`rounded-md px-2 py-1 text-[12.5px] ${s.leading === v ? on : ""}`}>{l}</button>)}</div>
       <p className={lab} style={{ color: T.muted }}>Page width</p>
