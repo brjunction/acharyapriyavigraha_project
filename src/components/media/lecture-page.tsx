@@ -12,6 +12,7 @@ import { docText } from "@/components/cms/doc-text";
 import { LectureLayout } from "@/components/media/lecture-layout";
 import { LecturePlayer } from "@/components/media/player";
 import { SuggestButton, SelectToSuggest } from "@/components/media/suggest";
+import { TranscriptSwitch } from "@/components/media/transcript-switch";
 import { sql } from "@/lib/db";
 
 
@@ -29,7 +30,8 @@ export async function RealLecture({ a }: { a: any }) {
     ["Song", a.song || null, null], ["Written by", a.song_author || null, null], ["Sung by", a.singer || null, null],
     ["Series", a.series || null, a.series ? `${base}?series=${encodeURIComponent(a.series)}` : null], ["Language", a.language || null, null], ["Length", l.duration ? fmtDur(l.duration) : null, null],
   ];
-  const doc = Array.isArray(a.transcript) ? a.transcript : []; const heads = headings(doc);
+  const own = Array.isArray(a.transcript) ? a.transcript : []; const mach = Array.isArray(a.machine_transcript) ? a.machine_transcript : [];
+  const doc = own.length ? own : mach; const heads = headings(doc);
   const ld = { "@context": "https://schema.org", "@type": "AudioObject", name: l.title, contentUrl: a.audio_url || undefined, uploadDate: l.date || undefined, duration: l.duration ? `PT${Math.floor(l.duration / 60)}M${l.duration % 60}S` : undefined, description: a.summary || undefined, locationCreated: l.place || undefined, inLanguage: a.language || undefined, creator: { "@type": "Person", name: "Śrī Śrīmad Gour Govinda Swāmī Gurudeva" } };
   return (
     <div className="bg-white">
@@ -46,7 +48,7 @@ export async function RealLecture({ a }: { a: any }) {
           player={<LecturePlayer l={l} />}
           transcript={<>
             {heads.length > 2 && <nav className="mt-4 rounded-xl border border-line p-4"><p className="mb-2 text-[11.5px] font-semibold uppercase tracking-[0.08em] text-ink-3">Contents</p><ol className="columns-1 gap-6 text-[13px] sm:columns-2">{heads.map((h) => <li key={h.id} className="mb-1" style={{ paddingLeft: (h.level - 1) * 12 }}><a href={`#${h.id}`} className="text-ink-2 hover:text-saffron">{h.text}</a></li>)}</ol></nav>}
-            {doc.length ? <SelectToSuggest><div className="book-body"><Render doc={doc} /></div></SelectToSuggest> : <p className="mt-6 rounded-xl border border-dashed border-line p-8 text-center text-[13.5px] text-ink-3">The {song ? "words of this song are" : "transcription of this lecture is"} being prepared.</p>}
+            {doc.length ? <SelectToSuggest><TranscriptSwitch source={a.machine_source} devotee={own.length ? <div className="book-body"><Render doc={own} /></div> : null} auto={mach.length ? <div className="book-body"><Render doc={mach} /></div> : null} /></SelectToSuggest> : <p className="mt-6 rounded-xl border border-dashed border-line p-8 text-center text-[13.5px] text-ink-3">The {song ? "words of this song are" : "transcription of this lecture is"} being prepared.</p>}
             <div className="mt-8 flex flex-wrap items-center gap-2 border-t border-line pt-4"><SuggestButton slug={a.slug} label="Suggest an improvement to this transcription" /></div>
           </>}
           aside={<>

@@ -1,10 +1,11 @@
 "use client";
 import dynamic from "next/dynamic";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Headphones, Music, Plus, Search, Upload, Trash2, Eye, EyeOff, Tag, MapPin, Layers, ChevronLeft, ChevronRight, Play, Pause, FileText, ExternalLink, Check, X, ListFilter, Pencil, Merge, FileUp, FileSpreadsheet, Download } from "lucide-react";
+import { Bot, Headphones, Music, Plus, Search, Upload, Trash2, Eye, EyeOff, Tag, MapPin, Layers, ChevronLeft, ChevronRight, Play, Pause, FileText, ExternalLink, Check, X, ListFilter, Pencil, Merge, FileUp, FileSpreadsheet, Download } from "lucide-react";
 import { AUDIO_KINDS, AUDIO_LANGS, SCRIPTURES, CC_LILA, verseRef, parseRef, durText, parseDur, isSong, fold } from "@/lib/content/text";
 import { fileTitle, placeCode } from "@/lib/content/audio-names-core";
 import { AiAssist } from "../ai-assist";
+import { BatchTranscripts } from "./batch";
 import { Btn, Badge, Card, Field, Input, Select, Textarea, PageHeader, Sheet, Tabs, Empty, Modal, api, toast, cn } from "../ui";
 
 const NotionEditor = dynamic(() => import("../notion/editor"), { ssr: false });
@@ -15,12 +16,15 @@ const fmt = (d: string | null) => (d ? new Date(d).toLocaleDateString("en-GB", {
 
 export function AudioPanel({ songs = false }: { songs?: boolean }) {
   const [tab, setTab] = useState("list");
+  const [batch, setBatch] = useState(false);
   const lists: [string, string][] = [[songs ? "stype" : "atype", "Types"], ["place", "Places"], ["language", "Languages"], ["series", "Series"], ["topic", "Topics"]];
   return (
     <div>
+      {batch && <BatchTranscripts onClose={() => setBatch(false)} />}
       <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
         <div><h1 className="flex items-center gap-2 text-[20px] font-semibold tracking-tight text-zinc-950">{songs ? <Music className="size-5" /> : <Headphones className="size-5" />}{songs ? "Kīrtanas & bhajanas" : "Audio lectures"}</h1>
           <p className="mt-0.5 text-[13px] text-zinc-500">{songs ? "Songs he sang and led, with their words, writer and singer." : "Every recorded lecture with its details and transcription."}</p></div>
+        {!songs && <Btn size="sm" onClick={() => setBatch(true)}><Bot />Batch transcriptions</Btn>}
         <div className="flex items-center gap-1 rounded-lg bg-zinc-100 p-0.5 text-[12.5px]">
           <button onClick={() => setTab("list")} className={cn("rounded-md px-3 py-1.5", tab === "list" ? "bg-white font-medium shadow-xs" : "text-zinc-600")}>{songs ? "Kīrtanas" : "Lectures"}</button>
           <select value={tab === "list" ? "" : tab} onChange={(e) => e.target.value && setTab(e.target.value)} className={cn("h-7 rounded-md bg-transparent px-2 outline-none", tab !== "list" ? "bg-white font-medium shadow-xs" : "text-zinc-600")}><option value="">Lists…</option>{lists.map(([k, l]) => <option key={k} value={k}>{l}</option>)}</select>
@@ -290,7 +294,7 @@ function TranscriptionStudio({ a, song, initial, rev, busy, onChange, onStatus, 
 }
 
 /** Word (.docx) → editor blocks, in the browser. */
-async function docxToBlocks(f: File): Promise<any[]> {
+export async function docxToBlocks(f: File): Promise<any[]> {
   // @ts-expect-error browser build has no types
   const mammoth = (await import("mammoth/mammoth.browser.min.js")).default;
   const { value: html } = await mammoth.convertToHtml({ arrayBuffer: await f.arrayBuffer() }, { styleMap: ["p[style-name='Title'] => h1:fresh", "p[style-name='Quote'] => blockquote:fresh"] });
