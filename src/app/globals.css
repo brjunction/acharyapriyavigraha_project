@@ -687,3 +687,28 @@ html[data-motion="reduce"] .bless-word, html[data-motion="reduce"] .bless-rise, 
 .hx-mandala { animation: gl-orbit 140s linear infinite; }
 .hx-mandala-rev { animation: gl-orbit 220s linear infinite reverse; }
 @media (prefers-reduced-motion: reduce) { .hx-mandala, .hx-mandala-rev { animation: none !important; } }
+
+/* Original hero on the red-saffron gradient: the lattice keeps its lines, the base colour is the gradient */
+.hero-red .bgimg { background-color: transparent !important; }
+.hero-warm-move { background-size: 140% 140%; animation: hero-warm-move 18s ease-in-out infinite alternate; }
+@keyframes hero-warm-move { 0% { background-position: 0% 50%; } 100% { background-position: 100% 50%; } }
+.hx-sweep::after { content: ""; position: absolute; inset: 0; background: linear-gradient(100deg, transparent 30%, rgba(255,214,150,.55) 50%, transparent 70%); transform: translateX(-120%); animation: hx-sweep 5.5s cubic-bezier(.4,0,.2,1) 1.5s infinite; pointer-events: none; }
+@keyframes hx-sweep { 0% { transform: translateX(-120%); } 45%, 100% { transform: translateX(120%); } }
+.hx-glow { animation: hx-glow 5s ease-in-out infinite alternate; }
+@keyframes hx-glow { from { filter: drop-shadow(0 0 0 rgba(255,214,150,0)); } to { filter: drop-shadow(0 0 28px rgba(255,214,150,.45)); } }
+@media (prefers-reduced-motion: reduce) { .hero-warm-move, .hx-sweep::after { animation: none !important; } }
+
+/* Hero: live — a light passing over the title, a running line, glowing buttons, floating icons */
+.hx-title { color: #fff6ea; }
+.hx-shine { text-shadow: none; background: linear-gradient(100deg, #fff6ea 0%, #fff6ea 42%, #ffe3a0 50%, #fff6ea 58%, #fff6ea 100%); background-size: 300% 100%; background-position: 100% 0; -webkit-background-clip: text; background-clip: text; color: transparent !important; animation: hero-word .9s cubic-bezier(.2,.7,.2,1) forwards, hx-shine 7s ease-in-out infinite; }
+@keyframes hx-shine { 0%, 60% { background-position: 100% 0; } 85%, 100% { background-position: 0% 0; } }
+.hx-line-run { left: -4rem; animation: hx-line-run 3.6s cubic-bezier(.45,.05,.35,1) 1.2s infinite; }
+@keyframes hx-line-run { 0% { left: -4rem; } 70%, 100% { left: 100%; } }
+.hx-pulse { animation: hx-pulse 3.2s ease-in-out infinite; }
+@keyframes hx-pulse { 0%, 100% { box-shadow: 0 14px 30px -14px rgba(247,197,86,.8), 0 0 0 0 rgba(247,197,86,.45); } 50% { box-shadow: 0 14px 30px -14px rgba(247,197,86,.9), 0 0 0 8px rgba(247,197,86,0); } }
+.hx-border::before { content: ""; position: absolute; inset: -1px; border-radius: inherit; padding: 1px; background: conic-gradient(from var(--hx-a, 0deg), transparent 0deg, #ffe3a0 60deg, transparent 140deg); -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; animation: hx-border 4.5s linear infinite; pointer-events: none; }
+@property --hx-a { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
+@keyframes hx-border { to { --hx-a: 360deg; } }
+.hx-float { display: inline-flex; animation: hx-float 3.6s ease-in-out infinite; }
+@keyframes hx-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+@media (prefers-reduced-motion: reduce) { .hx-shine, .hx-line-run, .hx-pulse, .hx-border, .hx-float { animation: none !important; } .hx-shine { color: #fff6ea !important; background: none; } }

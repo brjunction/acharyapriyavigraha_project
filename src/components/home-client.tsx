@@ -59,9 +59,13 @@ export function Hero() {
     <>
     {/* Indian border standing on a light strip below the navigation, outside the saffron hero, as its top fringe */}
     <div aria-hidden className="relative z-[1] bg-white pt-4"><div className="h-8 w-full overflow-hidden"><VMask name="border-4" repeat="repeat-x" size="auto 100%" pos="center top" className="h-full w-full text-[#8a3a0a]" /></div></div>
-    <section className="relative isolate -mt-px overflow-hidden" onPointerMove={move}>
+    <section className="hero-red relative isolate -mt-px overflow-hidden" onPointerMove={move}>
+      {/* the red-saffron gradient, with the same Indic lattice over it */}
+      <div aria-hidden className="hero-warm hero-warm-move absolute inset-0 -z-10" />
+      <div aria-hidden className="hero-aurora pointer-events-none absolute inset-0 -z-10 opacity-60" />
+      <div aria-hidden className="pointer-events-none absolute inset-0 z-0 overflow-hidden">{Array.from({ length: 18 }, (_, k) => <span key={k} className="hero-spark" style={{ left: `${(k * 37 + 7) % 100}%`, animationDuration: `${15 + (k % 6) * 2.5}s`, animationDelay: `${-((k * 13) % 21)}s`, width: k % 4 ? 2 : 3, height: k % 4 ? 2 : 3 }} />)}</div>
       <Backdrop src="saffron-dark" flip pos="left center" o={0.4} />
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(70%_80%_at_80%_40%,rgba(243,179,99,0.28),transparent_65%),linear-gradient(100deg,rgba(70,26,3,0.55),transparent_60%)]" />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_70%_at_78%_42%,rgba(255,214,150,0.22),transparent_65%),linear-gradient(100deg,rgba(60,8,4,0.35),transparent_60%)]" />
       <VMask name="mandala-saffron" className="hero-spin-rev pointer-events-none absolute -bottom-56 -left-48 h-[620px] w-[620px] text-[#f3b363] opacity-[0.16]" />
       {/* One Indic pattern only (the lotus lattice above); the paisley belongs to the footer */}
       <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-[3px] bg-gradient-to-r from-[#c98a2b] via-[#ffc566] to-[#c98a2b]" />
@@ -70,15 +74,16 @@ export function Hero() {
       ))}
       <div className="relative mx-auto grid max-w-[1240px] grid-cols-[minmax(0,1fr)] content-center items-center gap-5 px-5 py-8 max-lg:min-h-[calc(100svh-132px)] sm:gap-9 sm:px-10 sm:py-12 lg:min-h-[740px] lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:py-28">
         <div className="rise order-2 text-center lg:order-1 lg:text-left">
-          <span className="hero-pill inline-flex max-w-[330px] items-center gap-2 rounded-full border border-[#f3b363]/70 bg-[#f3b363]/20 py-1 pl-3 pr-3 text-[10.5px] leading-snug sm:max-w-none font-semibold text-[#fff1da] sm:py-1.5 sm:pl-4 sm:pr-4 sm:text-[12px] backdrop-blur">
-            <span role="img" aria-label="ISKCON" className="-my-1 block h-6 w-[30px] shrink-0 text-[#ffd98a] sm:h-7 sm:w-[34px]" style={{ WebkitMaskImage: "url(/iskcon-mask.png)", maskImage: "url(/iskcon-mask.png)", WebkitMaskSize: "contain", maskSize: "contain", WebkitMaskRepeat: "no-repeat", maskRepeat: "no-repeat", WebkitMaskPosition: "center", maskPosition: "center", background: "currentColor" }} /><span className="h-4 w-px shrink-0 bg-[#f3b363]/50" />
-            The Complete Life and Teachings of Śrī Śrīmad Gour Govinda Swāmī Gurudeva
+          <span className="hero-pill hx-sweep relative inline-flex items-center gap-2.5 overflow-hidden rounded-full bg-white py-1 pl-2 pr-4 text-[11.5px] font-semibold leading-snug text-[#851813] shadow-[0_12px_30px_-14px_rgba(40,5,2,.6)] sm:gap-3 sm:py-1.5 sm:pr-5 sm:text-[13px]">
+            <span role="img" aria-label="ISKCON" className="block h-6 w-[30px] shrink-0 text-[#c2621d] sm:h-7 sm:w-[34px]" style={{ WebkitMaskImage: "url(/iskcon-mask.png)", maskImage: "url(/iskcon-mask.png)", WebkitMaskSize: "contain", maskSize: "contain", WebkitMaskRepeat: "no-repeat", maskRepeat: "no-repeat", WebkitMaskPosition: "center", maskPosition: "center", background: "currentColor" }} />
+            <span className="h-4 w-px shrink-0 bg-[#c2621d]/30" />
+            The Complete Life &amp; Teachings of Śrīla Gurudeva
           </span>
-          <h1 className="mt-4 text-[23px] font-bold leading-[1.15] tracking-[-0.03em] text-[#fff1da] sm:mt-5 sm:text-[32px] lg:mt-6 lg:text-[38.5px]">
-            {["Words", "that", "give", "life"].map((w, i) => <span key={w} className="hero-word mr-[0.28em]" style={{ animationDelay: `${0.15 + i * 0.12}s` }}>{w}</span>)}<br />
-            {["to", "a"].map((w, i) => <span key={w} className="hero-word mr-[0.28em]" style={{ animationDelay: `${0.63 + i * 0.12}s` }}>{w}</span>)}<span className="hero-word hero-gold" style={{ animationDelay: "0.9s" }}>burning heart</span>
+          <h1 className="hx-title mt-4 text-[30px] font-semibold leading-[1.1] tracking-[-0.035em] [text-shadow:0_2px_24px_rgba(70,10,4,.35)] sm:mt-5 sm:text-[42px] lg:mt-6 lg:text-[52px]">
+            {["Words", "That", "Give", "Life"].map((w, i) => <span key={w} className="hero-word hx-shine mr-[0.24em]" style={{ animationDelay: `${0.15 + i * 0.12}s, ${2 + i * 0.12}s` }}>{w}</span>)}<br />
+            {["to", "a"].map((w, i) => <span key={w} className="hero-word hx-shine mr-[0.24em]" style={{ animationDelay: `${0.63 + i * 0.12}s, ${2.5 + i * 0.12}s` }}>{w}</span>)}<span className="hero-word hero-gold" style={{ animationDelay: "0.9s" }}>Burning Heart</span>
           </h1>
-          <div className="hero-rule mx-auto mt-5 h-[3px] w-24 rounded-full bg-gradient-to-r from-[#ffc566] to-transparent lg:mx-0" />
+          <div aria-hidden className="hx-line relative mx-auto mt-5 h-px w-48 overflow-hidden bg-gradient-to-r from-transparent via-[#f3c35e]/70 to-transparent sm:w-64 lg:mx-0 lg:bg-gradient-to-r lg:from-[#f3c35e]/80 lg:via-[#f3c35e]/40 lg:to-transparent"><span className="hx-line-run absolute inset-y-0 w-16 bg-gradient-to-r from-transparent via-[#fff3c8] to-transparent" /></div>
           <p className="mx-auto mt-3 max-w-[34rem] text-[12.5px] leading-relaxed text-[#ffe9cc]/90 sm:mt-4 sm:text-[14.5px] lg:mx-0 lg:mt-5 lg:max-w-xl">
             Lectures, letters, books, quotes and photographs of Śrīla Gurudeva, gathered in one searchable home and growing in many languages. Listen, read, and find the exact words you were looking for.
           </p>
@@ -94,14 +99,14 @@ export function Hero() {
             <span aria-hidden className="absolute inset-x-4 -bottom-px h-px origin-left scale-x-0 bg-gradient-to-r from-transparent via-[#f3c35e] to-transparent transition duration-500 group-focus-within/sr:scale-x-100" />
           </form>
           <div className="hx-in mx-auto mt-4 flex max-w-xl flex-wrap justify-center gap-2.5 lg:mx-0 lg:justify-start" style={{ animationDelay: ".55s" }}>
-            <Link href="/teachings/audio" className="inline-flex h-11 items-center gap-2 rounded-full bg-[linear-gradient(135deg,#f7c556,#e8913c)] pl-1.5 pr-5 text-[13.5px] font-semibold text-[#4a0d0b] shadow-[0_14px_30px_-14px_rgba(247,197,86,.8)] transition hover:-translate-y-0.5"><span className="flex size-8 items-center justify-center rounded-full bg-[#4a0d0b]/15"><Headphones size={15} /></span>Listen to His Lectures</Link>
-            <Link href="/teachings/books" className="inline-flex h-11 items-center gap-2 rounded-full border border-white/25 bg-white/[0.08] pl-1.5 pr-5 text-[13.5px] font-semibold text-[#fff6ea] backdrop-blur transition hover:-translate-y-0.5 hover:border-[#f3c35e]/60"><span className="flex size-8 items-center justify-center rounded-full bg-white/15"><BookOpen size={15} /></span>Read His Books</Link>
+            <Link href="/teachings/audio" className="hx-sweep hx-pulse relative inline-flex h-11 items-center overflow-hidden gap-2 rounded-full bg-[linear-gradient(135deg,#f7c556,#e8913c)] pl-1.5 pr-5 text-[13.5px] font-semibold text-[#4a0d0b] shadow-[0_14px_30px_-14px_rgba(247,197,86,.8)] transition hover:-translate-y-0.5"><span className="flex size-8 items-center justify-center rounded-full bg-[#4a0d0b]/15"><Headphones size={15} /></span>Listen to His Lectures</Link>
+            <Link href="/teachings/books" className="hx-border relative inline-flex h-11 items-center gap-2 rounded-full border border-white/25 bg-white/[0.08] pl-1.5 pr-5 text-[13.5px] font-semibold text-[#fff6ea] backdrop-blur transition hover:-translate-y-0.5 hover:border-[#f3c35e]/60"><span className="flex size-8 items-center justify-center rounded-full bg-white/15"><BookOpen size={15} /></span>Read His Books</Link>
           </div>
           {/* a dock of quick ways in */}
           <nav aria-label="Quick links" className="hx-in mx-auto mt-7 grid max-w-xl grid-cols-6 divide-x divide-white/10 overflow-hidden rounded-2xl border border-white/10 bg-white/[0.05] backdrop-blur lg:mx-0" style={{ animationDelay: ".65s" }}>
             {([["/teachings/audio", Headphones, "Audio"], ["/teachings/videos", PlayCircle, "Videos"], ["/teachings/books", BookOpen, "Books"], ["/teachings/quotes", QuoteIcon, "Quotes"], ["/gurudeva/diaries", NotebookPen, "Diary"], ["/gurudeva/gallery", ImageIcon, "Gallery"]] as const).map(([h, I, l]) => (
               <Link key={h} href={h} className="group/d flex flex-col items-center gap-1.5 px-1 py-3 text-[11px] font-medium text-[#ffe9d2]/80 transition hover:bg-white/[0.08] hover:text-[#fff6ea] sm:text-[11.5px]">
-                <I size={19} strokeWidth={1.6} className="text-[#f3c35e] transition duration-300 group-hover/d:-translate-y-0.5 group-hover/d:scale-110" />{l}
+                <span className="hx-float" style={{ animationDelay: `${-["/teachings/audio", "/teachings/videos", "/teachings/books", "/teachings/quotes", "/gurudeva/diaries", "/gurudeva/gallery"].indexOf(h) * 0.5}s` }}><I size={19} strokeWidth={1.6} className="text-[#f3c35e] transition duration-300 group-hover/d:-translate-y-0.5 group-hover/d:scale-110" /></span>{l}
               </Link>))}
           </nav>
         </div>
@@ -109,7 +114,7 @@ export function Hero() {
         {/* Portrait: a plain circular frame, no animation */}
         <div className="relative order-1 mx-auto w-full max-w-[min(190px,26svh)] sm:max-w-[min(280px,28svh)] lg:order-2 lg:max-w-[340px]">
           <div aria-hidden className="pointer-events-none absolute inset-[-42%]"><VMask name="mandala-saffron" className="hero-spin h-full w-full text-[#f3b363] opacity-[0.34]" /></div>
-          <div className="relative"><PortraitFrame photo focus="center 30%" src="/photos/gurudeva-hero.webp" alt="Śrī Śrīmad Gour Govinda Swāmī Gurudeva" className="mx-auto w-full" /></div>
+          <div className="hx-glow relative"><PortraitFrame photo focus="center 30%" src="/photos/gurudeva-hero.webp" alt="Śrī Śrīmad Gour Govinda Swāmī Gurudeva" className="mx-auto w-full" /></div>
         </div>
       </div>
     </section>
