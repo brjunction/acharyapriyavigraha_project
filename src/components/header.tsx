@@ -144,10 +144,10 @@ const MODE_KEY = "tj_menu_mode";
 /** Simple | Advanced — remembered on this device. */
 function ModeSwitch({ mode, setMode, big = false, small = false }: { mode: Mode; setMode: (m: Mode) => void; big?: boolean; small?: boolean }) {
   return (
-    <div role="radiogroup" aria-label="Menu style" className={`flex shrink-0 items-center rounded-full border border-line bg-band/60 p-0.5 ${big ? "w-full" : ""}`}>
+    <div role="radiogroup" aria-label="Menu style" className={`flex shrink-0 items-center rounded-full border border-[#f3b363]/55 bg-[#851813] p-0.5 shadow-[0_6px_14px_-8px_rgba(110,50,8,.45)] ${big ? "w-full" : ""}`}>
       {(["simple", "advanced"] as Mode[]).map((m) => (
         <button key={m} role="radio" aria-checked={mode === m} onClick={() => setMode(m)}
-          className={`rounded-full font-medium transition ${big ? "flex-1 py-2 text-[13.5px]" : small ? "px-2.5 py-1 text-[11.5px]" : "px-3 py-1 text-[12px]"} ${mode === m ? "bg-white text-ink shadow-[0_1px_3px_rgba(0,0,0,.12)]" : "text-ink-3 hover:text-ink"}`}>
+          className={`rounded-full font-medium transition ${big ? "flex-1 py-2 text-[13.5px]" : small ? "px-2.5 py-1 text-[11.5px]" : "px-3 py-1 text-[12px]"} ${mode === m ? "bg-[#fff1da] text-[#851813] shadow-[0_1px_3px_rgba(0,0,0,.2)]" : "text-[#fff1da]/80 hover:text-white"}`}>
           {m === "simple" ? "Simple" : "Advanced"}
         </button>
       ))}
@@ -450,7 +450,7 @@ export function Header() {
               <kbd className="hidden whitespace-nowrap rounded border border-line bg-surface px-1.5 text-[10px] text-ink-3 xl:inline">Ctrl K</kbd>
             </button>
             <div className="hidden lg:block"><ModeSwitch mode={mode} setMode={setMode} small /></div>
-            <button onClick={() => setMobile(true)} aria-label="Open menu" className="flex h-8 items-center gap-1.5 rounded-full bg-[linear-gradient(135deg,#7a3206,#592300)] px-3 text-[12.5px] font-medium text-[#fff1df] shadow-[0_6px_16px_-8px_rgba(89,35,0,.8)] ring-1 ring-[#e8b872]/30 transition hover:brightness-125 sm:h-9 lg:hidden"><Menu size={16} />Menu</button>
+            <button onClick={() => setMobile(true)} aria-label="Open menu" className="flex h-8 items-center gap-1.5 rounded-full border border-[#f3b363]/55 bg-[#851813] px-3 text-[12.5px] font-semibold text-[#fff1da] shadow-[0_6px_14px_-8px_rgba(110,50,8,.45)] transition hover:brightness-110 sm:h-9 lg:hidden"><Menu size={16} />Menu</button>
           </div>
         </div>
       </div>
