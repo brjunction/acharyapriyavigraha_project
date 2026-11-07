@@ -50,6 +50,7 @@ export async function getVideoNav(): Promise<VNav> {
 export async function getVideoHome(): Promise<{ sections: VSection[]; latest: VCard[]; channels: Shelf[] }> {
   if (!hasDb()) return { sections: [], latest: [], channels: [] };
   try {
+    await ensureDefaultSections();
     const [secs, latest, channels] = await Promise.all([
       sections("home", undefined, 12),
       sql`select slug, title, youtube_id, duration_sec, date, year from videos where status = 'published' and youtube_id is not null order by coalesce(published_at, date::timestamptz) desc nulls last, created_at desc limit 12`,
@@ -108,4 +109,43 @@ export async function addToSection(sectionId: string, ids: string[], top = false
   const pos = add.map((_, i) => (top ? edge.lo - add.length + i : edge.hi + 1 + i));
   await sql`insert into video_section_items (section_id, youtube_id, position) select ${sectionId}::uuid, y, p from unnest(${add}::text[], ${pos}::int[]) as t(y, p) on conflict do nothing`;
   return add.length;
+}
+
+/* ---------- Sections that fill themselves by kind ---------- */
+/** Kinds of video, and the section each starts in. */
+export const KIND_SECTIONS: { name: string; kinds: string[]; layout: string; color: string }[] = [
+  { name: "Shorts", kinds: ["short", "daily-diary"], layout: "shorts", color: "rose" },
+  { name: "Lectures", kinds: ["lecture"], layout: "featured", color: "saffron" },
+  { name: "Kīrtanas", kinds: ["kirtan"], layout: "row", color: "teal" },
+  { name: "Festivals", kinds: ["festival"], layout: "spotlight", color: "indigo" },
+  { name: "Darśanas", kinds: ["darshan"], layout: "row", color: "gold" },
+  { name: "Memories", kinds: ["memory"], layout: "row", color: "leaf" },
+  { name: "Documentaries", kinds: ["documentary"], layout: "grid", color: "plum" },
+  { name: "More videos", kinds: ["other"], layout: "grid", color: "teal" },
+];
+const slugOf = (s: string) => s.normalize("NFKD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+
+/** Add every video of a section's kinds that is not in it yet (newest at the top). Removed ones stay removed. */
+export async function feedKinds(sectionId?: string) {
+  await sql`insert into video_section_items (section_id, youtube_id, position)
+    select s.id, v.youtube_id, (select coalesce(min(position), 0) from video_section_items x where x.section_id = s.id) - row_number() over (partition by s.id order by coalesce(v.published_at, v.date::timestamptz) asc nulls first, v.created_at asc)
+    from video_sections s join (select distinct on (youtube_id) * from videos where youtube_id is not null order by youtube_id, created_at) v on v.kind = any(s.kinds)
+    where cardinality(s.kinds) > 0 and (${sectionId ?? null}::uuid is null or s.id = ${sectionId ?? null}::uuid)
+      and not exists (select 1 from video_section_items i where i.section_id = s.id and i.youtube_id = v.youtube_id)
+    on conflict do nothing`;
+}
+
+/** The first time, start with one section for each kind of video there is — so the page is organised at once. Done only once; after that the Studio decides. */
+export async function ensureDefaultSections() {
+  const done = (await sql`select 1 from settings where key = 'video_sections_seeded'`).length;
+  if (!done) {
+    const have = (await sql`select count(*)::int as c from video_sections`)[0] as any;
+    if (!have.c) {
+      const kinds = new Set(((await sql`select distinct kind from videos where youtube_id is not null`) as any[]).map((r) => r.kind));
+      let pos = 0;
+      for (const k of KIND_SECTIONS) if (k.kinds.some((x) => kinds.has(x))) await sql`insert into video_sections (name, slug, layout, color, position, kinds) values (${k.name}, ${slugOf(k.name)}, ${k.layout}, ${k.color}, ${pos++}, ${k.kinds}) on conflict (slug) do nothing`;
+    }
+    await sql`insert into settings (key, value) values ('video_sections_seeded', 'true'::jsonb) on conflict (key) do nothing`;
+  }
+  await feedKinds();
 }

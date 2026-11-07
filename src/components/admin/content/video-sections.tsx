@@ -2,13 +2,14 @@
 /* Studio → Videos → Page sections: how the Videos page is organised. Each section has a design and a colour,
    is fed by playlists or channels, and every video in it can be reordered, moved to another section or removed. */
 import { useCallback, useEffect, useState } from "react";
-import { ArrowUp, ArrowDown, Plus, Trash2, Eye, EyeOff, Home, ChevronsUp, Youtube, Unlink, Check, LayoutGrid } from "lucide-react";
+import { ArrowUp, ArrowDown, Plus, Trash2, Eye, EyeOff, Home, ChevronsUp, ChevronsDown, Youtube, Unlink, Check, LayoutGrid, GripVertical, X, Copy, FolderInput } from "lucide-react";
 import { Btn, Badge, Card, Input, Select, Textarea, Empty, api, toast, cn } from "../ui";
 import { LAYOUTS, COLORS } from "@/lib/video-layouts";
 
-type Sec = { id: string; name: string; slug: string; intro: string | null; layout: string; color: string; position: number; on_home: boolean; hidden: boolean; videos: number };
+type Sec = { id: string; name: string; slug: string; intro: string | null; layout: string; color: string; position: number; on_home: boolean; hidden: boolean; videos: number; kinds: string[] };
+const KINDS: [string, string][] = [["lecture", "Lectures"], ["short", "Shorts"], ["daily-diary", "Daily diary"], ["kirtan", "Kīrtanas"], ["festival", "Festivals"], ["darshan", "Darśanas"], ["documentary", "Documentaries"], ["memory", "Memories"], ["other", "Other"]];
 type Src = { id: string; name: string | null; url: string; kind: string; avatar: string | null; section_id: string | null; new_on_top: boolean; last_synced_at: string | null };
-type It = { youtube_id: string; slug: string | null; title: string | null; duration_sec: number | null; status: string | null };
+type It = { youtube_id: string; slug: string | null; title: string | null; duration_sec: number | null; status: string | null; kind?: string | null };
 const SW: Record<string, string> = { saffron: "#c2621d", rose: "#b8435a", teal: "#1f7a75", indigo: "#4252a8", leaf: "#3f7d3a", gold: "#b08414", plum: "#7b3f9e" };
 const dur = (s?: number | null) => (!s ? "" : s >= 3600 ? `${Math.floor(s / 3600)}:${String(Math.floor((s % 3600) / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}` : `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`);
 
@@ -30,6 +31,7 @@ function Sketch({ k }: { k: string }) {
 export function VideoSections({ onSources }: { onSources: () => void }) {
   const [d, setD] = useState<{ sections: Sec[]; sources: Src[]; items?: It[] } | null>(null);
   const [cur, setCur] = useState<string | null>(null); const [name, setName] = useState(""); const [links, setLinks] = useState(""); const [busy, setBusy] = useState(""); const [log, setLog] = useState<{ ok: boolean; note: string }[]>([]); const [show, setShow] = useState(100);
+  const [sel, setSel] = useState<Set<string>>(new Set()); const [last, setLast] = useState(-1); const [drag, setDrag] = useState<number | null>(null); const [over, setOver] = useState<number | null>(null);
   const load = useCallback((id = cur) => api<any>(`/api/admin/videos/sections${id ? `?id=${id}` : ""}`).then((r) => { setD(r); if (!id && r.sections[0]) setCur(r.sections[0].id); }).catch((e) => toast(e.message, true)), [cur]);
   useEffect(() => { load(); }, [cur]); // eslint-disable-line
   const post = async (body: any, quiet = false) => { try { const r = await api<any>("/api/admin/videos/sections", "POST", body); if (!quiet) await load(); return r; } catch (e: any) { toast(e.message, true); } };
@@ -39,9 +41,18 @@ export function VideoSections({ onSources }: { onSources: () => void }) {
   const mv = (i: number, j: number) => { if (j < 0 || j >= items.length) return; const c = [...items]; const [x] = c.splice(i, 1); c.splice(j, 0, x); setItems(c); };
   const moveSec = (i: number, dir: number) => { const ids = d!.sections.map((x) => x.id); const j = i + dir; if (j < 0 || j >= ids.length) return; [ids[i], ids[j]] = [ids[j], ids[i]]; post({ order: ids }); };
   const up = (p: Partial<Sec>) => post({ update: { id: cur, ...p } });
+  // Tick many: a click ticks one; Shift+click ticks everything between.
+  const tick = (i: number, shift: boolean) => setSel((old) => { const n = new Set(old); const y = items[i].youtube_id; if (shift && last >= 0) { const [a, z] = [Math.min(last, i), Math.max(last, i)]; for (let k = a; k <= z; k++) n.add(items[k].youtube_id); } else if (n.has(y)) n.delete(y); else n.add(y); setLast(i); return n; });
+  const bulk = async (op: string, to?: string) => { const yts = items.filter((x) => sel.has(x.youtube_id)).map((x) => x.youtube_id); await post({ bulk: { id: cur, yts, op, to } }); setSel(new Set()); toast(op === "drop" ? `${yts.length} removed from this section.` : op === "move" ? `${yts.length} moved.` : op === "copy" ? `${yts.length} also added there.` : "Order saved."); };
+  const drop = (to: number) => { if (drag === null || drag === to) return; const c = [...items]; const [x] = c.splice(drag, 1); c.splice(to, 0, x); setItems(c); setDrag(null); setOver(null); };
   const attached = (d?.sources || []).filter((x) => x.section_id === cur); const free = (d?.sources || []).filter((x) => !x.section_id);
 
   return (
+    <div>
+    <div className="mb-5 grid gap-3 sm:grid-cols-3">
+      {[["1", "Sections", "Each section is a tab and a block on the Videos page — Shorts, SG Diary, GGS Enhanced… Order them on the left."], ["2", "What goes in", "Tick kinds (e.g. Shorts + Daily diary) and/or paste playlist or channel links. New videos join by themselves."], ["3", "Arrange", "Drag to reorder. Tick many videos to move them to the top, to another section, or remove them."]].map(([n, t, x]) => (
+        <div key={n} className="flex gap-3 rounded-xl border border-zinc-200 bg-white p-3"><span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-zinc-900 text-[12px] font-semibold text-white">{n}</span><span><span className="block text-[13px] font-semibold">{t}</span><span className="block text-[12px] leading-snug text-zinc-500">{x}</span></span></div>))}
+    </div>
     <div className="grid gap-6 lg:grid-cols-[290px_minmax(0,1fr)]">
       <aside className="space-y-3">
         <Card className="p-3">
@@ -54,7 +65,7 @@ export function VideoSections({ onSources }: { onSources: () => void }) {
           {d?.sections.length ? d.sections.map((x, i) => (
             <div key={x.id} className={cn("group flex items-center gap-2 border-b border-zinc-100 px-3 py-2.5 last:border-0", x.id === cur ? "bg-zinc-50" : "hover:bg-zinc-50/60", x.hidden && "opacity-50")}>
               <span className="size-3 shrink-0 rounded-full" style={{ background: SW[x.color] }} />
-              <button onClick={() => { setCur(x.id); setShow(100); setLog([]); }} className="min-w-0 flex-1 text-left"><span className="block truncate text-[13.5px] font-medium">{x.name}</span><span className="block text-[11.5px] text-zinc-500">{LAYOUTS.find(([k]) => k === x.layout)?.[1].split(" — ")[0]} · {x.videos} videos{x.on_home ? " · on Home" : ""}</span></button>
+              <button onClick={() => { setCur(x.id); setShow(100); setLog([]); setSel(new Set()); }} className="min-w-0 flex-1 text-left"><span className="block truncate text-[13.5px] font-medium">{x.name}</span><span className="block text-[11.5px] text-zinc-500">{LAYOUTS.find(([k]) => k === x.layout)?.[1].split(" — ")[0]} · {x.videos} videos{x.on_home ? " · on Home" : ""}</span></button>
               <span className="flex flex-col opacity-0 group-hover:opacity-100"><button onClick={() => moveSec(i, -1)} className="text-zinc-400 hover:text-zinc-900"><ArrowUp className="size-3.5" /></button><button onClick={() => moveSec(i, 1)} className="text-zinc-400 hover:text-zinc-900"><ArrowDown className="size-3.5" /></button></span>
             </div>)) : <p className="p-3 text-[12.5px] text-zinc-500">No sections yet. Make the first one above.</p>}
         </Card>
@@ -80,7 +91,11 @@ export function VideoSections({ onSources }: { onSources: () => void }) {
                 </button>))}
             </div>
             <p className="mb-2 mt-4 text-[12px] font-medium text-zinc-500">Colour</p>
-            <div className="flex gap-2">{COLORS.map((c) => <button key={c} title={c} onClick={() => up({ color: c })} className={cn("size-8 rounded-full ring-offset-2 transition", s.color === c && "ring-2 ring-zinc-900")} style={{ background: SW[c] }} />)}</div>
+            <div className="flex flex-wrap gap-2">{COLORS.map((c) => <button key={c} title={c} onClick={() => up({ color: c })} className={cn("size-8 rounded-full ring-offset-2 transition", s.color === c && "ring-2 ring-zinc-900")} style={{ background: SW[c] }} />)}</div>
+            {s.layout !== "playlists" && <>
+              <p className="mb-1 mt-4 text-[12px] font-medium text-zinc-500">Include every video of these kinds — automatically, now and later</p>
+              <div className="flex flex-wrap gap-1.5">{KINDS.map(([k, l]) => { const on = (s.kinds || []).includes(k); return <button key={k} onClick={() => up({ kinds: on ? s.kinds.filter((x) => x !== k) : [...(s.kinds || []), k] })} className={cn("flex items-center gap-1 rounded-full border px-3 py-1 text-[12.5px] transition", on ? "border-zinc-900 bg-zinc-900 text-white" : "border-zinc-200 text-zinc-700 hover:border-zinc-400")}>{on && <Check className="size-3.5" />}{l}</button>; })}</div>
+            </>}
           </Card>
 
           <Card className="p-4">
@@ -91,7 +106,8 @@ export function VideoSections({ onSources }: { onSources: () => void }) {
                   {x.avatar ? /* eslint-disable-next-line @next/next/no-img-element */ <img src={x.avatar} alt="" className={cn("shrink-0 object-cover", x.kind === "channel" ? "size-8 rounded-full" : "h-8 w-12 rounded")} /> : <Youtube className="size-5 text-red-600" />}
                   <span className="min-w-0 flex-1 truncate text-[13px]">{x.name || x.url} <span className="text-zinc-400">· {x.kind}</span></span>
                   {s.layout !== "playlists" && <label className="flex items-center gap-1.5 text-[12px] text-zinc-600"><input type="checkbox" checked={x.new_on_top ?? x.kind === "channel"} onChange={(e) => post({ newOnTop: { source: x.id, on: e.target.checked } })} />New at top</label>}
-                  <button onClick={() => post({ detach: { source: x.id } })} title="Stop feeding this section (videos already in it stay)" className="p-1 text-zinc-400 hover:text-zinc-900"><Unlink className="size-4" /></button>
+                  <button onClick={() => post({ detach: { source: x.id } })} title="Take this playlist out of the section — its videos stay" className="flex items-center gap-1 rounded px-1.5 py-1 text-[12px] text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900"><Unlink className="size-3.5" />Unlink</button>
+                  <button onClick={() => confirm("Take this playlist out of the section, and remove its videos from the section too?") && post({ detach: { source: x.id, purge: true } })} title="Take it out with its videos" className="flex items-center gap-1 rounded px-1.5 py-1 text-[12px] text-zinc-500 hover:bg-red-50 hover:text-red-600"><Trash2 className="size-3.5" />Remove with videos</button>
                 </div>))}
               {!attached.length && <p className="text-[12.5px] text-zinc-500">Nothing yet. Paste a playlist or channel link below, or choose one already added.</p>}
             </div>
@@ -106,28 +122,44 @@ export function VideoSections({ onSources }: { onSources: () => void }) {
             {log.length > 0 && <ul className="mt-2 space-y-0.5 rounded-md bg-zinc-50 p-2.5 text-[12px]">{log.map((l, i) => <li key={i} className={l.ok ? "text-zinc-700" : "text-red-600"}>{l.ok ? "✓ " : "✕ "}{l.note}</li>)}</ul>}
           </Card>
 
-          {s.layout !== "playlists" && <Card>
-            <div className="flex items-center justify-between border-b border-zinc-100 px-4 py-3"><p className="text-[13.5px] font-semibold">Videos in this section <span className="font-normal text-zinc-500">{items.length} · the first ones show on Home</span></p></div>
-            {!items.length ? <p className="p-4 text-[12.5px] text-zinc-500">No videos yet.</p> : <ol className="divide-y divide-zinc-100">
-              {items.slice(0, show).map((v, i) => (
-                <li key={v.youtube_id} className="group flex items-center gap-3 px-3 py-2">
+          {s.layout !== "playlists" && <Card className="overflow-hidden">
+            <div className="flex flex-wrap items-center gap-2 border-b border-zinc-100 px-4 py-3">
+              <input type="checkbox" aria-label="Tick all" checked={!!items.length && sel.size === items.length} onChange={(e) => setSel(e.target.checked ? new Set(items.map((x) => x.youtube_id)) : new Set())} className="size-4" />
+              <p className="text-[13.5px] font-semibold">Videos in this section <span className="font-normal text-zinc-500">{items.length} · drag to reorder · the first ones show on Home</span></p>
+            </div>
+            {sel.size > 0 && (
+              <div className="sticky top-0 z-10 flex flex-wrap items-center gap-1.5 border-b border-zinc-200 bg-zinc-900 px-4 py-2 text-[12.5px] text-white">
+                <b className="mr-1">{sel.size} ticked</b>
+                <button onClick={() => bulk("top")} className="flex items-center gap-1 rounded-md bg-white/10 px-2.5 py-1 hover:bg-white/20"><ChevronsUp className="size-3.5" />To the top</button>
+                <button onClick={() => bulk("bottom")} className="flex items-center gap-1 rounded-md bg-white/10 px-2.5 py-1 hover:bg-white/20"><ChevronsDown className="size-3.5" />To the bottom</button>
+                <label className="flex items-center gap-1 rounded-md bg-white/10 px-2 py-0.5"><FolderInput className="size-3.5" /><select value="" onChange={(e) => e.target.value && bulk("move", e.target.value)} className="bg-transparent py-0.5 text-white outline-none [&>option]:text-zinc-900"><option value="">Move to…</option>{d!.sections.filter((x) => x.id !== s.id).map((x) => <option key={x.id} value={x.id}>{x.name}</option>)}</select></label>
+                <label className="flex items-center gap-1 rounded-md bg-white/10 px-2 py-0.5"><Copy className="size-3.5" /><select value="" onChange={(e) => e.target.value && bulk("copy", e.target.value)} className="bg-transparent py-0.5 text-white outline-none [&>option]:text-zinc-900"><option value="">Also add to…</option>{d!.sections.filter((x) => x.id !== s.id).map((x) => <option key={x.id} value={x.id}>{x.name}</option>)}</select></label>
+                <button onClick={() => confirm(`Remove ${sel.size} videos from this section? They stay in the archive.`) && bulk("drop")} className="flex items-center gap-1 rounded-md bg-red-500/90 px-2.5 py-1 hover:bg-red-500"><Trash2 className="size-3.5" />Remove</button>
+                <button onClick={() => setSel(new Set())} className="ml-auto flex items-center gap-1 text-white/70 hover:text-white"><X className="size-3.5" />Clear</button>
+              </div>)}
+            {!items.length ? <p className="p-4 text-[12.5px] text-zinc-500">No videos yet — tick kinds above or paste links.</p> : <ol className="divide-y divide-zinc-100">
+              {items.slice(0, show).map((v, i) => { const on = sel.has(v.youtube_id); return (
+                <li key={v.youtube_id} draggable onDragStart={() => setDrag(i)} onDragOver={(e) => { e.preventDefault(); setOver(i); }} onDragLeave={() => setOver((o) => (o === i ? null : o))} onDrop={() => drop(i)} onDragEnd={() => { setDrag(null); setOver(null); }}
+                  className={cn("group flex items-center gap-2.5 px-3 py-2 transition", on ? "bg-zinc-100" : "hover:bg-zinc-50", drag === i && "opacity-40", over === i && drag !== null && drag !== i && "shadow-[inset_0_2px_0_#18181b]")}>
+                  <GripVertical className="size-4 shrink-0 cursor-grab text-zinc-300 group-hover:text-zinc-500" />
+                  <input type="checkbox" checked={on} onChange={() => {}} onClick={(e) => tick(i, e.shiftKey)} className="size-4 shrink-0" aria-label="Tick" />
                   <span className="w-7 shrink-0 text-right text-[11.5px] tabular-nums text-zinc-400">{i + 1}</span>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={`https://i.ytimg.com/vi/${v.youtube_id}/mqdefault.jpg`} alt="" loading="lazy" className="aspect-video w-24 shrink-0 rounded object-cover" />
-                  <span className="min-w-0 flex-1"><span className="line-clamp-2 text-[13px]">{v.title || <span className="text-zinc-400">Coming with the next fetch</span>}</span><span className="text-[11.5px] text-zinc-400">{dur(v.duration_sec)}{v.status && v.status !== "published" ? ` · ${v.status}` : ""}</span></span>
-                  <span className="flex items-center gap-0.5 opacity-60 group-hover:opacity-100">
+                  <span className="min-w-0 flex-1"><span className="line-clamp-2 text-[13px]">{v.title || <span className="text-zinc-400">Coming with the next fetch</span>}</span><span className="text-[11.5px] text-zinc-400">{[KINDS.find(([k]) => k === v.kind)?.[1], dur(v.duration_sec), v.status && v.status !== "published" ? v.status : ""].filter(Boolean).join(" · ")}</span></span>
+                  <span className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100">
                     <button title="To the top" onClick={() => mv(i, 0)} className="p-1 text-zinc-500 hover:text-zinc-900"><ChevronsUp className="size-4" /></button>
                     <button title="Up" onClick={() => mv(i, i - 1)} className="p-1 text-zinc-500 hover:text-zinc-900"><ArrowUp className="size-4" /></button>
                     <button title="Down" onClick={() => mv(i, i + 1)} className="p-1 text-zinc-500 hover:text-zinc-900"><ArrowDown className="size-4" /></button>
-                    <Select value="" onChange={(e) => e.target.value && post({ move: { from: s.id, to: e.target.value, yt: v.youtube_id } })} className="!h-7 !w-36 text-[12px]"><option value="">Move to…</option>{d!.sections.filter((x) => x.id !== s.id).map((x) => <option key={x.id} value={x.id}>{x.name}</option>)}</Select>
-                    <button title="Remove from this section (stays removed after fetching)" onClick={() => post({ drop: { id: s.id, yt: v.youtube_id } })} className="p-1 text-zinc-400 hover:text-red-600"><Trash2 className="size-4" /></button>
+                    <button title="Remove from this section" onClick={() => post({ drop: { id: s.id, yt: v.youtube_id } })} className="p-1 text-zinc-400 hover:text-red-600"><Trash2 className="size-4" /></button>
                   </span>
-                </li>))}
+                </li>); })}
             </ol>}
             {items.length > show && <div className="p-3 text-center"><Btn size="sm" onClick={() => setShow((n) => n + 200)}>Show more ({items.length - show} left)</Btn></div>}
           </Card>}
           <p className="text-[12px] text-zinc-500"><Badge tone="outline">Tip</Badge> Videos are fetched every night without an API key; your order, moves and removals are kept.</p>
         </div>)}
+    </div>
     </div>
   );
 }

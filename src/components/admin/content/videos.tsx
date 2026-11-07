@@ -28,6 +28,7 @@ function VideoList({ onSources }: { onSources: () => void }) {
   const [edit, setEdit] = useState<string | null>(null); const [yt, setYt] = useState(false); const [sel, setSel] = useState<Set<string>>(new Set()); const t = useRef<any>(null); const [qq, setQq] = useState("");
   const load = useCallback(() => { const u = new URLSearchParams({ page: String(page), ...(kind && { kind }), ...(q && { q }), ...(year && { year }) }); api(`/api/admin/videos?${u}`).then(setData).catch((e) => toast(e.message, true)); }, [kind, q, year, page]);
   useEffect(() => { load(); }, [load]);
+  const [secs, setSecs] = useState<{ id: string; name: string }[]>([]); useEffect(() => { api<{ sections: { id: string; name: string }[] }>("/api/admin/videos/sections").then((r) => setSecs(r.sections)).catch(() => {}); }, []);
   const count = (k: string) => data?.kinds.find((x) => x.kind === k)?.n || 0;
   const bulk = async (b: any, m: string) => { await api("/api/admin/videos/bulk", "POST", { ids: [...sel], ...b }).then(() => { toast(m); setSel(new Set()); load(); }).catch((e) => toast(e.message, true)); };
   return (
@@ -39,6 +40,7 @@ function VideoList({ onSources }: { onSources: () => void }) {
         <Select value={year} onChange={(e) => { setYear(e.target.value); setPage(1); }} className="!w-auto"><option value="">All years</option>{data?.years.map((y) => <option key={y.year} value={y.year}>{y.year} ({y.n})</option>)}</Select>
       </div>
       {sel.size > 0 && <div className="mb-3 flex flex-wrap items-center gap-2 rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-[12.5px]"><b>{sel.size} selected</b>
+        <Select className="!h-8 !w-48" value="" onChange={async (e) => { const to = e.target.value; if (!to) return; const r = await api<{ added: number }>("/api/admin/videos/sections", "POST", { addTo: { to, ids: [...sel] } }); toast(`${r.added} added to the section.`); setSel(new Set()); }}><option value="">Add to section…</option>{secs.map((x) => <option key={x.id} value={x.id}>{x.name}</option>)}</Select>
         <Select className="!h-8 !w-48" value="" onChange={(e) => e.target.value && bulk({ set: { kind: e.target.value } }, "Kind changed.")}><option value="">Set kind…</option>{VIDEO_KINDS.map(([k, l]) => <option key={k} value={k}>{l}</option>)}</Select>
         <Btn size="sm" onClick={() => bulk({ set: { status: "published" } }, "Live.")}><Eye />Make live</Btn><Btn size="sm" onClick={() => bulk({ set: { status: "draft" } }, "Hidden.")}><EyeOff />Hide</Btn>
         <Btn size="sm" onClick={async () => { const r = await api<{ changed: number }>("/api/admin/videos/sources", "POST", { resort: true, ids: [...sel] }); toast(`${r.changed} videos sorted from their titles.`); setSel(new Set()); load(); }}>Sort from titles</Btn>

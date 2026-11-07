@@ -1,7 +1,7 @@
 import { sql } from "@/lib/db";
 import { guard, json, fail } from "@/lib/api";
 import { revalidatePath } from "next/cache";
-import { addToSection, LAYOUTS, COLORS } from "@/lib/video-home";
+import { addToSection, LAYOUTS, COLORS, ensureDefaultSections, feedKinds, KIND_SECTIONS } from "@/lib/video-home";
 import { resolve, addVideo, videoId, sourceMeta, syncSource, apiKey, type Source } from "@/lib/youtube-sync";
 
 export const maxDuration = 300;
@@ -13,11 +13,12 @@ const LAY = LAYOUTS.map(([k]) => k as string); const COL = COLORS as readonly st
 export async function GET(req: Request) {
   const g = await guard("viewer"); if ("res" in g) return g.res;
   const id = new URL(req.url).searchParams.get("id");
+  await ensureDefaultSections().catch(() => {});
   const sections = await sql`select s.*, (select count(*)::int from video_section_items i where i.section_id = s.id and not i.removed) as videos from video_sections s order by position, created_at`;
   const sources = await sql`select id, name, url, kind, ref, avatar, section_id, new_on_top, last_synced_at from video_sources order by position, created_at`;
   if (!id) return json({ sections, sources });
-  const items = await sql`select i.youtube_id, i.position, v.slug, v.title, v.duration_sec, v.status from video_section_items i left join videos v on v.youtube_id = i.youtube_id where i.section_id = ${id} and not i.removed order by i.position limit 3000`;
-  return json({ sections, sources, items });
+  const items = await sql`select i.youtube_id, i.position, v.slug, v.title, v.duration_sec, v.status, v.kind from video_section_items i left join lateral (select * from videos v where v.youtube_id = i.youtube_id order by created_at limit 1) v on true where i.section_id = ${id} and not i.removed order by i.position limit 3000`;
+  return json({ sections, sources, items, kinds: KIND_SECTIONS });
 }
 
 /**
@@ -37,7 +38,8 @@ export async function POST(req: Request) {
   if (b.update) {
     const u = b.update; const cur = (await sql`select * from video_sections where id = ${u.id}`)[0] as any; if (!cur) return fail("Not found.");
     await sql`update video_sections set name = ${String(u.name ?? cur.name).trim() || cur.name}, intro = ${"intro" in u ? u.intro || null : cur.intro}, layout = ${LAY.includes(u.layout) ? u.layout : cur.layout}, color = ${COL.includes(u.color) ? u.color : cur.color},
-      on_home = ${"on_home" in u ? !!u.on_home : cur.on_home}, hidden = ${"hidden" in u ? !!u.hidden : cur.hidden} where id = ${u.id}`;
+      on_home = ${"on_home" in u ? !!u.on_home : cur.on_home}, hidden = ${"hidden" in u ? !!u.hidden : cur.hidden}, kinds = ${Array.isArray(u.kinds) ? u.kinds.map(String) : cur.kinds} where id = ${u.id}`;
+    if (Array.isArray(u.kinds)) await feedKinds(u.id);
     fresh(); return json({ ok: true });
   }
   if (Array.isArray(b.order)) { for (const [i, id] of b.order.entries()) await sql`update video_sections set position = ${i} where id = ${id}`; fresh(); return json({ ok: true }); }
@@ -59,7 +61,25 @@ export async function POST(req: Request) {
     fresh(); return json({ results: out });
   }
   if (b.attach) { await sql`update video_sources set section_id = ${b.attach.id} where id = ${b.attach.source}`; const s = (await sql`select * from video_sources where id = ${b.attach.source}`)[0] as Source; try { await syncSource(s, await apiKey()); } catch {} fresh(); return json({ ok: true }); }
-  if (b.detach) { await sql`update video_sources set section_id = null where id = ${b.detach.source}`; fresh(); return json({ ok: true }); }
+  if (b.detach) {
+    const src = (await sql`select section_id from video_sources where id = ${b.detach.source}`)[0] as any;
+    if (b.detach.purge && src?.section_id) await sql`update video_section_items set removed = true where section_id = ${src.section_id} and youtube_id in (select youtube_id from video_source_items where source_id = ${b.detach.source})`;
+    await sql`update video_sources set section_id = null where id = ${b.detach.source}`; fresh(); return json({ ok: true });
+  }
+  /** Many videos at once: { bulk: { id, yts, op: "top" | "bottom" | "drop" | "move" | "copy", to? } } */
+  if (b.bulk) {
+    const { id, yts, op, to } = b.bulk as { id: string; yts: string[]; op: string; to?: string }; if (!yts?.length) return json({ ok: true });
+    if (op === "drop" || op === "move") await sql`update video_section_items set removed = true where section_id = ${id} and youtube_id = any(${yts}::text[])`;
+    if ((op === "move" || op === "copy") && to) { await sql`update video_section_items set removed = false where section_id = ${to} and youtube_id = any(${yts}::text[])`; await addToSection(to, yts, false); }
+    if (op === "top" || op === "bottom") {
+      const e = (await sql`select coalesce(min(position), 0) as lo, coalesce(max(position), 0) as hi from video_section_items where section_id = ${id}`)[0] as any;
+      const pos = yts.map((_, i) => (op === "top" ? e.lo - yts.length + i : e.hi + 1 + i));
+      await sql`update video_section_items i set position = t.p from unnest(${yts}::text[], ${pos}::int[]) as t(y, p) where i.section_id = ${id} and i.youtube_id = t.y`;
+    }
+    fresh(); return json({ ok: true });
+  }
+  /** From All videos: { addTo: { to, ids: [video ids] } } */
+  if (b.addTo) { const rows = (await sql`select youtube_id from videos where id = any(${b.addTo.ids}::uuid[]) and youtube_id is not null`) as any[]; const yts = rows.map((r) => r.youtube_id); await sql`update video_section_items set removed = false where section_id = ${b.addTo.to} and youtube_id = any(${yts}::text[])`; const n = await addToSection(b.addTo.to, yts, false); fresh(); return json({ added: n }); }
   if (b.items) { const { id, ids } = b.items as { id: string; ids: string[] }; const pos = ids.map((_, i) => i); await sql`update video_section_items i set position = t.p from unnest(${ids}::text[], ${pos}::int[]) as t(y, p) where i.section_id = ${id} and i.youtube_id = t.y`; fresh(); return json({ ok: true }); }
   if (b.move) {
     const { from, to, yt } = b.move; if (from === to) return json({ ok: true });
