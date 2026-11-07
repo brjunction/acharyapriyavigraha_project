@@ -11,7 +11,7 @@ export const ADMIN_GROUPS: AdminGroup[] = [
     { href: "/admin/archive/memories", label: "Memories & pastimes", icon: HandHeart, desc: "Who remembers him, and what" },
     { href: "/admin/archive/glorifications", label: "Glorifications", icon: Gift, desc: "Vyāsa-pūjā offerings and poems" },
     { href: "/admin/archive/gallery", label: "Gallery", icon: Image, desc: "Photo albums by occasion" },
-    { href: "/admin/archive/places", label: "Places of remembrance", icon: MapPin, desc: "Where he lived, served and preached" },
+    { href: "/admin/archive/places", label: "Smṛti Bhavan", icon: MapPin, desc: "Everything related to Śrīla Gurudeva" },
     { href: "/admin/archive/belongings", label: "Personal belongings", icon: Package, desc: "Items he used, and their stories" },
     { href: "/admin/archive/letters", label: "Letters", icon: Mail, desc: "With Śrīla Prabhupāda, disciples and others" },
     { href: "/admin/archive/disciples", label: "Disciples", icon: IdCard, desc: "Biographies and their memories" },

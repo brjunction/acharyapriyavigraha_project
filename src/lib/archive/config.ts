@@ -40,8 +40,8 @@ export const COLLECTIONS: Record<string, Collection> = {
     labels: { images: ["Photos in this album", "Add many at once; give each a caption"], cover: ["Album cover", "If empty, the first photo is used"] },
   },
   places: {
-    key: "places", label: "Places of remembrance", singular: "place", base: "/gurudeva/places-of-remembrance", layout: "places", icon: "MapPin", sort: "position",
-    intro: "The places where Śrīla Gurudeva was born, lived, worshipped, preached and left this world.",
+    key: "places", label: "Smṛti Bhavan", singular: "entry", base: "/gurudeva/places-of-remembrance", layout: "places", icon: "MapPin", sort: "position",
+    intro: "Everything related to Śrīla Gurudeva, kept in remembrance — and the places where he was born, lived, worshipped, preached and left this world.",
     sections: [["odisha", "Odisha", "Where he was born and served"], ["india", "Elsewhere in India", "Holy dhāmas and cities he visited"], ["abroad", "Outside India", "Countries where he preached"]],
     fields: ["subtitle", "region", "country", "date_label", "cover", "images", "summary", "body", "links", "tags"],
     labels: { subtitle: ["What happened here", "e.g. His birthplace"], region: ["City / state"], date_label: ["When he was there", "e.g. 1985, 1991–93"], links: ["Map and other links", "Label | link, e.g. Map | https://maps.google.com/…"] },

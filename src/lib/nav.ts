@@ -36,7 +36,7 @@ export const MENUS: NavMenu[] = [
       ]),
       g("Remembrance", [
         l("/gurudeva/gallery", "Gallery", "Portraits, deities, festivals, travels", Image),
-        l("/gurudeva/places-of-remembrance", "Places of remembrance", "Where he lived, taught and left", MapPin),
+        l("/gurudeva/places-of-remembrance", "Smṛti Bhavan", "Everything related to Śrīla Gurudeva", Landmark),
         l("/gurudeva/personal-belongings", "Personal belongings", "Items he used, and their stories", Package),
       ]),
       g("Lineage & disciples", [
@@ -146,50 +146,22 @@ export const MENUS: NavMenu[] = [
   },
   {
     key: "about", label: "About", href: "/about", icon: Info, layout: "flyout", allLabel: "About overview",
-    intro: "The archive, the ācāryas, the scriptures and how to reach us.",
+    intro: "The archive, its founder and how to reach us.",
     feature: { title: "About the archive", text: "Why and how this archive exists.", image: "/photos/menu-marigold.webp", href: "/about", cta: "About overview" },
     groups: [
       g("Taptajīvanam", [
-        l("/about", "About the archive", "Why and how this archive exists", Archive),
+        l("/about", "About this website", "Why and how this archive exists", Archive),
+        l("/gurudeva/taptajivanam-projects", "Taptajīvanam project", "The archive and its services", Library),
         l("/about/mission", "Mission & principles", "How content is chosen and cared for", Compass),
         l("/about/founder", "Śrīla Haladhara Swāmī Guru Mahārāja", "Founder of Taptajīvanam", UserRound),
         l("/about/team", "Team & contributors", "Editors, translators, developers", Users),
         l("/thank-list", "Our Thank List", "Everyone who built this archive", HeartHandshake),
-        l("/about/news", "News & updates", "What's new on the site", Megaphone),
-      ]),
-      g("Ācāryas & paramparā", [
-        l("/about/acaryas", "Ācāryas", "The Gauḍīya Vaiṣṇava succession", GitBranch),
-        l("/about/acarya-biographies", "Ācārya biographies", "Life stories of the ācāryas", BookMarked),
-        l("/about/acarya-teachings", "Ācārya teachings", "Selected teachings, with sources", ScrollText),
-        l("/gurudeva/srila-prabhupada", "Śrīla Prabhupāda", "Founder-ācārya of ISKCON", Crown),
-        l("/about/bhaktisiddhanta", "Śrīla Bhaktisiddhānta Sarasvatī", "Śrīla Prabhupāda's spiritual master", Sunrise),
-        l("/about/bhaktivinoda", "Śrīla Bhaktivinoda Ṭhākura", "The seventh Gosvāmī", Feather),
-        l("/about/six-gosvamis", "The Six Gosvāmīs", "Of Vṛndāvana", Landmark),
-        l("/about/mahaprabhu", "Śrī Caitanya Mahāprabhu", "And His associates", Flower2),
-      ]),
-      g("Scriptures & references", [
-        l("/about/bhagavad-gita", "Bhagavad-gītā", "Verse index and lectures", BookOpen),
-        l("/about/srimad-bhagavatam", "Śrīmad-Bhāgavatam", "Canto by canto", Library),
-        l("/about/caitanya-caritamrta", "Caitanya-caritāmṛta", "Ādi, Madhya, Antya", ScrollText),
-        l("/tattva/index/glossary", "Glossary", "Sanskrit and Odia terms", BookA, true),
-        l("/about/diacritics", "Spelling & diacritics", "How names and verses are written (IAST)", Type),
-      ]),
-      g("Partners & support", [
-        l("/about/publishers", "Publishers", "The three publishers of his books", Newspaper),
-        l("/about/related-websites", "Related websites", "gourgovindaswami.org, Vanipedia and more", Globe),
-        l("/about/support", "Support the archive", "Sevā, sponsorship, contributions", HandHeart),
-        l("/about/locations", "Our locations", "Pattamundai and Bhubaneswar", Map),
       ]),
       g("Connect", [
         l("/about/contact", "Contact", "taptajivanam@gmail.com · +91 96687 21555", Phone),
-        l("/about/subscribe", "Subscribe to Gopāl Jiu magazine", "Receive the magazine", Mail),
+        l("/about/support", "Support the archive", "Sevā, sponsorship, contributions", HandHeart),
         l("/about/suggest-correction", "Suggest a correction", "Found a mistake? Tell us", MessageCircleQuestion),
-      ]),
-      g("Help & policies", [
-        l("/about/how-to-search", "How to search", "Verses, places, years, spellings", Search),
         l("/about/privacy", "Privacy & terms", "How we handle data and content", ShieldCheck),
-        l("/about/accessibility", "Accessibility", "Reading, fonts, screen readers", Accessibility),
-        l("/about/sitemap", "Sitemap", "Every page in one list", ListTree),
       ]),
     ],
   },
