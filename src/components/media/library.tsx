@@ -2,7 +2,7 @@
 /* One library for audio lectures, kīrtanas and videos: filters on the left (each can open into its parts), dense rows on the right. */
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Search, X, ChevronDown, ChevronRight, SlidersHorizontal, FileText, PlayCircle, ArrowDownUp, Rows3 } from "lucide-react";
+import { Search, X, ChevronDown, ChevronRight, SlidersHorizontal, FileText, PlayCircle, ArrowDownUp, Rows3, BookOpen, CalendarDays, MapPin, Tag, Mic } from "lucide-react";
 import type { Lecture } from "@/lib/data";
 import { PlayButton } from "@/components/lecture";
 
@@ -46,7 +46,7 @@ const GROUPS = [["none", "No grouping"], ["year", "By year"], ["place", "By plac
 const dur = (s: number) => (!s ? "" : s >= 3600 ? `${Math.floor(s / 3600)}:${String(Math.floor((s % 3600) / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}` : `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`);
 const date = (d: string) => { if (!d) return "Undated"; const [y, m, dd] = d.split("-").map(Number); return dd ? `${dd} ${MONTHS[m - 1].slice(0, 3)} ${y}` : m ? `${MONTHS[m - 1].slice(0, 3)} ${y}` : String(y); };
 
-export function MediaLibrary({ items, mode }: { items: MediaItem[]; mode: Mode }) {
+function AdvancedLibrary({ items, mode }: { items: MediaItem[]; mode: Mode }) {
   const facets = useMemo(() => facetsFor(mode, items), [mode, items]);
   const [sel, setSel] = useState<Record<string, string[]>>({}); const [q, setQ] = useState(""); const [text, setText] = useState(false);
   const [sort, setSort] = useState<(typeof SORTS)[number][0]>("new"); const [group, setGroup] = useState<(typeof GROUPS)[number][0]>("none"); const [limit, setLimit] = useState(100); const [drawer, setDrawer] = useState(false);
@@ -165,5 +165,111 @@ function VideoCard({ l }: { l: MediaItem }) {
       <h3 className="mt-2 line-clamp-2 text-[13.5px] font-medium leading-snug text-ink group-hover:text-saffron">{l.title}</h3>
       <p className="mt-0.5 truncate text-[12px] text-ink-3">{[date(l.date), l.place, l.scripture].filter(Boolean).join(" · ")}</p>
     </Link>
+  );
+}
+
+/* ---------- Basic search: big, plain and few taps, for elderly listeners. The default for audio. ---------- */
+type View = "basic" | "advanced";
+const VIEW_KEY = "tj_audio_view";
+
+/** Audio lectures: Basic (default) or Advanced, remembered on this device. Other media use the advanced library. */
+export function MediaLibrary({ items, mode }: { items: MediaItem[]; mode: Mode }) {
+  const [view, setViewS] = useState<View>("basic");
+  useEffect(() => { try { const u = new URLSearchParams(location.search); const any = [...u.keys()].some((k) => k !== "q"); if (localStorage.getItem(VIEW_KEY) === "advanced" || any) setViewS("advanced"); } catch {} }, []);
+  const setView = (v: View) => { setViewS(v); try { localStorage.setItem(VIEW_KEY, v); } catch {} if (v === "basic") history.replaceState(null, "", location.pathname); };
+  if (mode !== "audio") return <AdvancedLibrary items={items} mode={mode} />;
+  return (
+    <>
+      <div className={`mx-auto flex justify-center px-4 pt-6 sm:justify-start sm:px-6 ${view === "basic" ? "max-w-[980px]" : "max-w-[1240px]"}`}>
+        <div role="radiogroup" aria-label="Search style" className="flex rounded-full border border-line bg-band/60 p-1">
+          {(["basic", "advanced"] as View[]).map((v) => <button key={v} role="radio" aria-checked={view === v} onClick={() => setView(v)} className={`rounded-full px-5 py-2 text-[15px] font-medium transition ${view === v ? "bg-white text-ink shadow-[0_1px_3px_rgba(0,0,0,.12)]" : "text-ink-3 hover:text-ink"}`}>{v === "basic" ? "Basic search" : "Advanced search"}</button>)}
+        </div>
+      </div>
+      {view === "basic" ? <BasicAudio items={items} /> : <AdvancedLibrary items={items} mode={mode} />}
+    </>
+  );
+}
+
+type BKey = "book" | "year" | "place" | "topic" | "type";
+const BASIC: { k: BKey; title: string; icon: typeof BookOpen; get: (l: MediaItem) => string[] }[] = [
+  { k: "book", title: "Book", icon: BookOpen, get: (l) => { const p = scripturePath(l.scripture); return p ? [BOOK[p[0]] || "Other scriptures"] : []; } },
+  { k: "year", title: "Year", icon: CalendarDays, get: (l) => (l.date ? [l.date.slice(0, 4)] : []) },
+  { k: "place", title: "Place", icon: MapPin, get: (l) => (l.place ? [l.place] : l.country ? [l.country] : []) },
+  { k: "topic", title: "Topic", icon: Tag, get: (l) => l.topics || [] },
+  { k: "type", title: "Kind", icon: Mic, get: (l) => (l.type ? [l.type] : []) },
+];
+
+function BasicAudio({ items }: { items: MediaItem[] }) {
+  const [q, setQ] = useState(""); const [typed, setTyped] = useState("");
+  const [pick, setPick] = useState<Partial<Record<BKey, string>>>({});
+  const [open, setOpen] = useState<BKey | null>(null);
+  const [limit, setLimit] = useState(30);
+  const match = (l: MediaItem, skip?: BKey) => (!q || fold(`${l.title} ${l.place} ${l.country} ${l.scripture ?? ""} ${l.topics.join(" ")} ${l.date} ${l.series ?? ""} ${l.type}`).includes(fold(q)))
+    && BASIC.every((b) => b.k === skip || !pick[b.k] || b.get(l).includes(pick[b.k]!));
+  const list = useMemo(() => items.filter((l) => match(l)).sort((a, b) => b.date.localeCompare(a.date)), [items, q, pick]); // eslint-disable-line
+  useEffect(() => setLimit(30), [q, pick]);
+  const choices = useMemo(() => {
+    if (!open) return [];
+    const b = BASIC.find((x) => x.k === open)!; const m = new Map<string, number>();
+    items.filter((l) => match(l, open)).forEach((l) => b.get(l).forEach((v) => m.set(v, (m.get(v) || 0) + 1)));
+    const e = [...m.entries()];
+    return open === "year" ? e.sort((a, c) => c[0].localeCompare(a[0])) : open === "book" ? e.sort((a, c) => c[1] - a[1]) : e.sort((a, c) => c[1] - a[1] || a[0].localeCompare(c[0]));
+  }, [open, items, q, pick]); // eslint-disable-line
+  const any = q || Object.values(pick).some(Boolean);
+  const results = useRef<HTMLDivElement>(null);
+  const choose = (k: BKey, v: string) => { setPick((p) => ({ ...p, [k]: v })); setOpen(null); setTimeout(() => results.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 50); };
+
+  return (
+    <div className="mx-auto max-w-[980px] px-4 pb-20 pt-6 sm:px-6">
+      <form onSubmit={(e) => { e.preventDefault(); setQ(typed.trim()); setOpen(null); }} className="flex items-center gap-2 rounded-full border-2 border-line-strong bg-white p-1.5 pl-5 focus-within:border-saffron">
+        <Search size={24} className="shrink-0 text-ink-3" />
+        <input value={typed} onChange={(e) => { setTyped(e.target.value); if (!e.target.value) setQ(""); }} placeholder="Type a word" aria-label="Search lectures" className="h-12 min-w-0 flex-1 bg-transparent text-[18px] text-ink outline-none placeholder:text-ink-3 sm:text-[19px]" />
+        {typed && <button type="button" onClick={() => { setTyped(""); setQ(""); }} aria-label="Clear" className="p-2 text-ink-3"><X size={22} /></button>}
+        <button className="h-12 shrink-0 rounded-full bg-saffron px-6 text-[17px] font-semibold text-white hover:brightness-110">Search</button>
+      </form>
+
+      <p className="mb-3 mt-7 text-center text-[17px] font-medium text-ink-2 sm:text-left">Or find lectures by</p>
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
+        {BASIC.map((b) => { const I = b.icon; const on = open === b.k; const v = pick[b.k]; return (
+          <button key={b.k} onClick={() => setOpen(on ? null : b.k)} aria-expanded={on}
+            className={`flex items-center gap-3 rounded-2xl px-4 py-4 text-left transition last:max-sm:col-span-2 sm:flex-col sm:gap-2 sm:py-5 sm:text-center ${on ? "bg-ink text-white" : v ? "bg-saffron-soft text-ink ring-2 ring-saffron" : "bg-band text-ink hover:bg-saffron-soft"}`}>
+            <span className={`flex size-11 shrink-0 items-center justify-center rounded-full ${on ? "bg-white/15" : "bg-white text-saffron"}`}><I size={21} /></span>
+            <span className="min-w-0"><span className="block text-[18px] font-semibold">{b.title}</span>{v && <span className="block truncate text-[14px] opacity-80">{v}</span>}</span>
+          </button>); })}
+      </div>
+
+      {open && (
+        <div className="mt-4 rounded-3xl border border-line bg-white p-4 sm:p-5">
+          <div className="mb-3 flex items-center justify-between"><p className="text-[18px] font-semibold text-ink">Choose a {BASIC.find((b) => b.k === open)!.title.toLowerCase()}</p><button onClick={() => setOpen(null)} className="flex items-center gap-1 rounded-full px-3 py-1.5 text-[15px] text-ink-2 hover:bg-band"><X size={18} />Close</button></div>
+          <div className={`grid max-h-[420px] gap-2 overflow-y-auto ${open === "year" ? "grid-cols-3 sm:grid-cols-6" : "sm:grid-cols-2 lg:grid-cols-3"}`}>
+            {choices.map(([v, n]) => (
+              <button key={v} onClick={() => choose(open, v)} className={`flex items-center justify-between gap-3 rounded-xl px-4 py-3 text-left text-[16.5px] transition hover:bg-saffron-soft ${pick[open] === v ? "bg-saffron-soft font-semibold" : "bg-band/60"}`}>
+                <span className="min-w-0 truncate text-ink">{v}</span><span className="shrink-0 text-[14px] tabular-nums text-ink-3">{n}</span>
+              </button>))}
+          </div>
+        </div>)}
+
+      <div ref={results} className="scroll-mt-24">
+        <div className="mb-2 mt-8 flex flex-wrap items-center gap-2">
+          <h2 className="mr-auto text-[20px] font-semibold text-ink">{any ? `${list.length.toLocaleString()} lectures found` : "Newest lectures"}</h2>
+          {q && <button onClick={() => { setQ(""); setTyped(""); }} className="flex items-center gap-1.5 rounded-full bg-band px-4 py-2 text-[15px] text-ink">“{q}”<X size={17} /></button>}
+          {BASIC.filter((b) => pick[b.k]).map((b) => <button key={b.k} onClick={() => setPick((p) => ({ ...p, [b.k]: undefined }))} className="flex items-center gap-1.5 rounded-full bg-band px-4 py-2 text-[15px] text-ink">{pick[b.k]}<X size={17} /></button>)}
+          {any && <button onClick={() => { setPick({}); setQ(""); setTyped(""); }} className="rounded-full px-4 py-2 text-[15px] font-medium text-saffron hover:bg-saffron-soft">Start again</button>}
+        </div>
+        {!list.length ? <p className="py-16 text-center text-[17px] text-ink-3">No lectures found. Press “Start again”.</p> : (
+          <ul className="divide-y divide-line">
+            {list.slice(0, limit).map((l) => { const where = [l.place, l.country && l.country !== "India" ? l.country : ""].filter(Boolean).join(", "); return (
+              <li key={l.slug} className="flex items-center gap-4 py-4">
+                <PlayButton l={l} size={52} />
+                <div className="min-w-0 flex-1">
+                  <Link href={l.href || `/teachings/audio/${l.slug}`} className="line-clamp-2 text-[17px] font-medium leading-snug text-ink hover:text-saffron sm:text-[18px]">{l.title}</Link>
+                  <p className="mt-1 text-[15px] text-ink-3">{[date(l.date), where, l.scripture].filter(Boolean).join(" · ")}</p>
+                </div>
+                {l.duration > 0 && <span className="hidden shrink-0 text-[15px] tabular-nums text-ink-3 sm:block">{dur(l.duration)}</span>}
+              </li>); })}
+          </ul>)}
+        {list.length > limit && <div className="pt-6 text-center"><button onClick={() => setLimit((n) => n + 30)} className="h-14 rounded-full border-2 border-line-strong px-8 text-[17px] font-semibold text-ink hover:bg-band">Show more lectures</button></div>}
+      </div>
+    </div>
   );
 }
