@@ -1,5 +1,5 @@
 import type { LucideIcon } from "lucide-react";
-import { Headphones, BookOpen, Info, Network, Languages, LayoutGrid } from "lucide-react";
+import { Headphones, BookOpen, Info, Network, Languages, LayoutGrid, Image, GitBranch, Building2, Quote, Clapperboard, Smartphone, ScrollText, Globe, Megaphone, UserRound, Sparkles } from "lucide-react";
 import { Lotus } from "@/components/lotus-icon";
 import { ICONS, isImgIcon } from "./menus";
 import type { NavLink, NavMenu } from "./nav";
@@ -8,7 +8,7 @@ import type { NavLink, NavMenu } from "./nav";
  *  so every page stays reachable — nothing is left out, only arranged more simply. */
 export type SimpleLink = { href: string; label: string; icon: LucideIcon; img?: string; pos?: string; note?: string; group?: string };
 export type SimpleGroup = { title: string; links: SimpleLink[] };
-export type SimpleTab = { title: string; acc: string; items: SimpleLink[] };
+export type SimpleTab = { title: string; acc: string; items: SimpleLink[]; icon: LucideIcon; img?: string; pos?: string };
 export type SimpleMenu = { key: string; label: string; intro: string; href: string; accent: string; icon: LucideIcon; img?: string; featured: SimpleLink[]; groups: SimpleGroup[]; all: SimpleLink[]; tabs: SimpleTab[] };
 
 /** What editors can change in the Studio (Website menus → Simple menu). Icons are an icon name or a picture address. */
@@ -31,10 +31,10 @@ export const SIMPLE_DEFAULTS: { key: string; label: string; intro: string; icon:
     { group: "Lineage & disciples", href: "/gurudeva/disciples", label: "His disciples", note: "Every initiated disciple", icon: "IdCard" },
     { group: "Lineage & disciples", href: "/gurudeva/letters", label: "Letters", note: "With Śrīla Prabhupāda and others", icon: "Mail" }] },
   { key: "listen", label: "Listen & Watch", intro: "His lectures, videos and kīrtanas", icon: "Headphones", accent: "teal", featured: [
-    { href: "/teachings/audio", label: "Audio lectures", note: "Every recorded lecture, remastered", icon: "Headphones" },
-    { href: "/teachings/videos", label: "Videos", note: "His lectures and moments on video", icon: "Clapperboard" },
-    { href: "/teachings/kirtans", label: "Kīrtanas & bhajanas", note: "Songs he sang and led", icon: "Music" },
-    { href: "/resources/taptajivanam-youtube", label: "Taptajīvanam YouTube", note: "Lectures and shorts", icon: "Youtube" }] },
+    { group: "Listen", href: "/teachings/audio", label: "Audio lectures", note: "Every recorded lecture, remastered", icon: "Headphones" },
+    { group: "Listen", href: "/teachings/kirtans", label: "Kīrtanas & bhajanas", note: "Songs he sang and led", icon: "Music" },
+    { group: "Watch", href: "/teachings/videos", label: "Videos", note: "His lectures and moments on video", icon: "Clapperboard" },
+    { group: "Watch", href: "/resources/taptajivanam-youtube", label: "Taptajīvanam YouTube", note: "Lectures and shorts", icon: "Youtube" }] },
   { key: "read", label: "Read", intro: "Books, quotes and tattva", icon: "BookOpen", accent: "indigo", featured: [
     { group: "Read", href: "/teachings/books", label: "Books", note: "Publications on his teachings", icon: "BookOpen" },
     { group: "Read", href: "/teachings/magazines", label: "Magazines", note: "Gopāl Jiu magazine and more", icon: "Newspaper" },
@@ -52,6 +52,8 @@ export const SIMPLE_DEFAULTS: { key: string; label: string; intro: string; icon:
     { href: "/about/contact", label: "Contact", note: "Write to us or call", icon: "Phone" }] },
 ];
 /** Where to centre each photo, so no head is cut. */
+/** The picture or icon of each group in the Simple menu. */
+const TAB_ICON: Record<string, LucideIcon> = { "His life": UserRound, Remembrance: Image, "Lineage & disciples": GitBranch, Projects: Building2, Read: BookOpen, "His words": Quote, Listen: Headphones, Watch: Clapperboard, About: Info, Tools: Smartphone, "Paramparā protection": ScrollText, "Elsewhere online": Globe, "News & updates": Megaphone };
 const POS: Record<string, string> = { "/photos/gurudeva-writing.webp": "18% 22%", "/photos/menu-seated-1.webp": "50% 30%", "/photos/menu-garland.webp": "50% 25%", "/photos/gurudeva-portrait.webp": "50% 30%" };
 /** Colours for the groups inside a Simple menu, in order. */
 export const GROUP_ACC = ["saffron", "rose", "teal", "indigo", "leaf", "gold", "plum"];
@@ -92,7 +94,7 @@ export function simpleMenus(menus: NavMenu[], cfg?: SimpleCfg | null): SimpleMen
     const href = d.key === "gurudeva" ? m("gurudeva")?.href || "/gurudeva" : d.key === "about" ? "/about" : "/teachings";
     // Tabs: the groups chosen in the dashboard, with every other page of the full menu added to the group it belongs with — so Simple has everything, a little at a time.
     const tabs: SimpleTab[] = [];
-    const tabOf = (t: string) => { let x = tabs.find((y) => y.title === t); if (!x) { x = { title: t, acc: tabs.length === 0 ? d.accent : GROUP_ACC.filter((a) => a !== d.accent)[(tabs.length - 1) % 6], items: [] }; tabs.push(x); } return x; };
+    const tabOf = (t: string) => { let x = tabs.find((y) => y.title === t); if (!x) { x = { title: t, acc: tabs.length === 0 ? d.accent : GROUP_ACC.filter((a) => a !== d.accent)[(tabs.length - 1) % 6], items: [], icon: TAB_ICON[t] || Sparkles }; tabs.push(x); } return x; };
     featured.forEach((f) => tabOf(f.group || d.label).items.push(f));
     for (const g of GROUPS[d.key]) for (const l of g.links) {
       if (fh.has(l.href)) continue; fh.add(l.href);
@@ -100,6 +102,8 @@ export function simpleMenus(menus: NavMenu[], cfg?: SimpleCfg | null): SimpleMen
       for (const t of tabs) { const k = t.items.filter((i) => mates.has(i.href)).length; if (k > n) { n = k; best = t; } }
       (best || tabOf(g.title)).items.push({ href: l.href, label: l.label, note: l.desc ? l.desc.split(" · ")[0] : undefined, icon: l.icon });
     }
+    // A group shows the photo of its first page when there is one (e.g. His life → Śrīla Gurudeva's portrait).
+    for (const t of tabs) { const ph = t.items.find((x) => x.img); if (ph && t.items[0] === ph) { t.img = ph.img; t.pos = ph.pos; } }
     return { key: d.key, label: c.label || d.label, intro: c.intro || d.intro, href, accent: d.accent, ...pick(c.icon || d.icon, FALLBACK[d.key]), featured, groups, all: groups.flatMap((g) => g.links), tabs };
   });
 }

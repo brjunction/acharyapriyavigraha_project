@@ -183,34 +183,37 @@ function FeatureCard({ f, onClick, here, compact = false }: { f: SimpleMenu["fea
 
 const cardCols = (n: number) => (n <= 4 ? Math.max(n, 1) : n === 6 || n === 5 || n === 9 ? 3 : 4);
 
-/** Simple panel: the groups on the left; the chosen group's pages beside them as icon cards. Everything is here, a little at a time. */
+/** Simple panel: first only the groups (His life, Remembrance…) as a few tiles; a click opens that group's pages, with a way back. */
 function SimplePanel({ menu, onNavigate, onEverything }: { menu: SimpleMenu; onNavigate: () => void; onEverything: () => void }) {
   const here = usePathname();
-  const tabs = menu.tabs;
-  const [ti, setTi] = useState(() => Math.max(0, tabs.findIndex((t) => t.items.some((x) => hit(here, x.href)))));
-  const t = tabs[ti] ?? tabs[0];
-  const one = tabs.length === 1;
-  const cols = one ? cardCols(t.items.length) : t.items.length <= 4 ? 2 : 3;
+  const [ti, setTi] = useState(-1);
+  const tabs = menu.tabs; const t = tabs[ti];
   return (
-    <div className={`acc-${menu.accent} mega-enter overflow-hidden rounded-2xl border border-line bg-surface shadow-[var(--shadow-lg)]`}>
-      <div className={one ? "" : "grid grid-cols-[220px_minmax(0,1fr)]"}>
-        {!one && (
-          <div className="space-y-1 border-r border-line bg-band/40 p-2.5">
-            {tabs.map((x, k) => (
-              <button key={x.title} onMouseEnter={() => setTi(k)} onClick={() => setTi(k)} aria-pressed={k === ti}
-                className={`acc-${x.acc} flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-left transition ${k === ti ? "bg-white shadow-[0_1px_3px_rgba(0,0,0,.1)] ring-1 ring-[var(--acc)]/30" : "hover:bg-white/70"}`}>
-                <span className={`h-6 w-1 shrink-0 rounded-full bg-[var(--acc)] transition ${k === ti ? "opacity-100" : "opacity-40"}`} />
-                <span className={`min-w-0 flex-1 text-[13.5px] font-semibold leading-snug ${k === ti ? "text-[var(--acc)]" : "text-ink"}`}>{x.title}</span>
-                <span className="text-[11.5px] tabular-nums text-ink-3">{x.items.length}</span>
-                <ChevronRight size={14} className={`shrink-0 transition ${k === ti ? "translate-x-0.5 text-[var(--acc)]" : "text-ink-3"}`} />
-              </button>))}
-          </div>)}
-        <div key={t.title} className={`acc-${t.acc} grid content-start gap-2.5 bg-acc-tint p-3.5`} style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }}>
-          {t.items.map((f, k) => <div key={f.href} className="sm-card" style={{ animationDelay: `${k * 30}ms` }}><FeatureCard f={f} onClick={onNavigate} here={here} compact /></div>)}
+    <div className={`acc-${menu.accent} mega-enter overflow-hidden rounded-3xl border border-line bg-surface shadow-[var(--shadow-lg)]`}>
+      {!t ? (
+        <div className="grid gap-3 p-4" style={{ gridTemplateColumns: `repeat(${tabs.length <= 5 ? tabs.length : 3}, minmax(0, 1fr))` }}>
+          {tabs.map((x, k) => (
+            <button key={x.title} onClick={() => setTi(k)} className={`acc-${x.acc} sm-card group flex flex-col items-center gap-3 rounded-2xl bg-acc-tint px-3 pb-5 pt-6 text-center ring-1 ring-transparent transition duration-200 hover:-translate-y-1 hover:bg-white hover:shadow-[0_14px_30px_-16px_rgba(0,0,0,.35)] hover:ring-[var(--acc)]/35`} style={{ animationDelay: `${k * 50}ms` }}>
+              <span className="flex size-[72px] items-center justify-center overflow-hidden rounded-full bg-white text-[var(--acc)] shadow-[0_4px_14px_-6px_rgba(0,0,0,.25)] ring-4 ring-white transition duration-300 group-hover:scale-105">
+                {x.img ? /* eslint-disable-next-line @next/next/no-img-element */ <img src={x.img} alt="" className="h-full w-full object-cover" style={x.pos ? { objectPosition: x.pos } : undefined} /> : <x.icon size={30} strokeWidth={1.5} />}
+              </span>
+              <span className="text-[15px] font-semibold leading-snug text-ink group-hover:text-[var(--acc)]">{x.title}</span>
+              <span className="-mt-2 flex items-center gap-1 text-[12px] text-ink-3">{x.items.length} pages<ChevronRight size={13} className="transition group-hover:translate-x-0.5" /></span>
+            </button>))}
         </div>
-      </div>
+      ) : (
+        <div key={t.title} className={`acc-${t.acc}`}>
+          <div className="flex items-center gap-3 border-b border-line bg-acc-tint px-4 py-2.5">
+            <button onClick={() => setTi(-1)} className="flex items-center gap-1 rounded-full bg-white px-3 py-1.5 text-[13px] font-medium text-ink-2 shadow-[0_1px_3px_rgba(0,0,0,.08)] hover:text-[var(--acc)]"><ChevronLeft size={16} />{menu.label}</button>
+            <span className="h-5 w-1 rounded-full bg-[var(--acc)]" /><span className="text-[15px] font-semibold text-[var(--acc)]">{t.title}</span>
+          </div>
+          <div className="grid gap-2.5 p-4" style={{ gridTemplateColumns: `repeat(${t.items.length <= 4 ? 2 : 3}, minmax(0, 1fr))` }}>
+            {t.items.map((f, k) => <div key={f.href} className="sm-card" style={{ animationDelay: `${k * 35}ms` }}><FeatureCard f={f} onClick={onNavigate} here={here} compact /></div>)}
+          </div>
+        </div>
+      )}
       <div className="flex items-center justify-center border-t border-line px-4 py-2">
-        <button onClick={onEverything} className="group flex items-center gap-1.5 rounded-full px-3 py-1 text-[13px] font-medium text-[var(--acc)] hover:bg-acc-tint">Use Advanced view for {menu.label}<ArrowRight size={14} className="transition group-hover:translate-x-0.5" /></button>
+        <button onClick={onEverything} className="group flex items-center gap-1.5 rounded-full px-3 py-1 text-[12.5px] font-medium text-ink-3 hover:bg-band hover:text-ink">Use Advanced view for {menu.label}<ArrowRight size={14} className="transition group-hover:translate-x-0.5" /></button>
       </div>
     </div>
   );
@@ -219,15 +222,15 @@ function SimplePanel({ menu, onNavigate, onEverything }: { menu: SimpleMenu; onN
 /** Phone, Simple: each group opens in place when tapped; the first is open. */
 function MobileTabs({ menu, onClose }: { menu: SimpleMenu; onClose: () => void }) {
   const here = usePathname();
-  const [o, setO] = useState(() => Math.max(0, menu.tabs.findIndex((t) => t.items.some((x) => hit(here, x.href)))));
+  const [o, setO] = useState(-1);
   if (menu.tabs.length === 1) return <div className="grid grid-cols-2 gap-2">{menu.tabs[0].items.map((f, k) => <div key={f.href} className="sm-card" style={{ animationDelay: `${k * 35}ms` }}><FeatureCard f={f} onClick={onClose} here={here} compact /></div>)}</div>;
   return (
     <div className="space-y-2">
       {menu.tabs.map((t, k) => (
         <div key={t.title} className={`acc-${t.acc} overflow-hidden rounded-2xl ${k === o ? "bg-acc-tint" : "border border-line bg-white"}`}>
-          <button onClick={() => setO(k === o ? -1 : k)} aria-expanded={k === o} className="flex w-full items-center gap-2.5 px-3.5 py-3 text-left">
-            <span className="h-5 w-1 shrink-0 rounded-full bg-[var(--acc)]" />
-            <span className="flex-1 text-[14.5px] font-semibold text-ink">{t.title}</span>
+          <button onClick={() => setO(k === o ? -1 : k)} aria-expanded={k === o} className="flex w-full items-center gap-3 px-3 py-2.5 text-left">
+            <span className="flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-full bg-white text-[var(--acc)] ring-1 ring-line">{t.img ? /* eslint-disable-next-line @next/next/no-img-element */ <img src={t.img} alt="" className="h-full w-full object-cover" style={t.pos ? { objectPosition: t.pos } : undefined} /> : <t.icon size={20} strokeWidth={1.6} />}</span>
+            <span className="flex-1 text-[15px] font-semibold text-ink">{t.title}</span>
             <span className="text-[12px] tabular-nums text-ink-3">{t.items.length}</span>
             <ChevronDown size={17} className={`text-ink-3 transition ${k === o ? "rotate-180" : ""}`} />
           </button>
@@ -414,8 +417,8 @@ export function Header() {
           <nav className="hidden items-center justify-center gap-1 lg:flex" aria-label="Main" onMouseLeave={hide}>
             {SIMPLE.map((m) => { const on = active === m.key; const current = m.featured.concat(m.all).some((a) => hit(path, a.href)); return (
               <button key={m.key} onMouseEnter={() => show(m.key)} onFocus={() => show(m.key)} onClick={() => setActive(on ? null : m.key)} aria-expanded={on} aria-haspopup="true"
-                className={`acc-${m.accent} relative flex items-center gap-2 whitespace-nowrap rounded-full py-1 pl-1 pr-3 text-[12.5px] font-medium text-ink transition ${on ? "bg-acc-soft" : "hover:bg-acc-tint"}`}>
-                <SIc it={m} size={17} round box={`size-8 ${on ? "!bg-white" : ""}`} />{m.label}<ChevronDown size={13} className={`-ml-0.5 opacity-50 transition-transform ${on ? "rotate-180" : ""}`} />
+                className={`acc-${m.accent} relative flex items-center gap-1.5 whitespace-nowrap rounded-full px-3 py-1.5 text-[13px] font-medium text-ink transition ${on ? "bg-acc-soft" : "hover:bg-acc-tint"}`}>
+                <m.icon size={15} strokeWidth={1.9} className="text-[var(--acc)]" />{m.label}<ChevronDown size={13} className={`-ml-0.5 opacity-50 transition-transform ${on ? "rotate-180" : ""}`} />
                 {current && <span className="absolute inset-x-4 -bottom-[5px] h-[2px] rounded-full bg-[var(--acc)]" />}
               </button>); })}
           </nav>
@@ -455,7 +458,7 @@ export function Header() {
           <MegaPanel key={pmenu.key} menu={pmenu} onNavigate={() => { pinned.current = false; setActive(null); setPeek(null); }} onPin={(b) => { pinned.current = b; }} />
         </div>)}
       {mode === "simple" && smenu && !pmenu && (
-        <div className="absolute left-1/2 top-full hidden -translate-x-1/2 pt-1 lg:block" style={{ width: `min(${smenu.tabs.length > 1 ? 1000 : smenu.tabs[0]?.items.length <= 3 ? 760 : 1000}px, calc(100vw - 2rem))` }}
+        <div className="absolute left-1/2 top-full hidden -translate-x-1/2 pt-1 lg:block" style={{ width: `min(${Math.min(5, smenu.tabs.length) * 190 + 40}px, calc(100vw - 2rem))`, minWidth: 560 }}
           onMouseEnter={() => show(smenu.key)} onMouseLeave={hide}>
           <SimplePanel key={smenu.key} menu={smenu} onNavigate={() => setActive(null)} onEverything={() => setPeek(ADV_KEY[smenu.key])} />
         </div>)}
