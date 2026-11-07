@@ -38,7 +38,7 @@ export function GurudevaLotus({ src, alt, focus = "center 28%" }: { src: string;
         {RINGS.map((r, ri) => (
           /* one movement per nested group: the slow turn, the breathing, the first unfolding */
           <g key={ri} className={`lx-spin ${r.spin}`} style={{ transformOrigin: `${C}px ${C}px` }}>
-            <g className="lx-breathe" style={{ transformOrigin: `${C}px ${C}px`, animationDelay: `${-ri * 1.6}s` }}>
+            <g className="lx-breathe" style={{ transformOrigin: `${C}px ${C}px`, animationDelay: `${-ri * 1.4}s` }}>
               <g className="lx-open" style={{ transformOrigin: `${C}px ${C}px`, animationDelay: `${r.delay}s` }} filter={r.glow ? "url(#lx-sh)" : undefined}>
                 {Array.from({ length: r.n }, (_, i) => {
                   const a = f((360 / r.n) * i + r.off);

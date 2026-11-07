@@ -36,8 +36,34 @@ export function Stat({ n, label, suffix = "" }: { n: number; label: string; suff
   return <div ref={ref}><p className="text-[26px] font-bold leading-none tracking-[-0.03em] tabular text-ink">{v.toLocaleString()}{suffix}</p><p className="mt-1.5 text-[11.5px] text-ink-3">{label}</p></div>;
 }
 
-/** Flowers that come alive in the hero: left %, top %, size px, cycle seconds. */
-const BLOOMS: [number, number, number, number][] = [[6, 14, 22, 11], [18, 72, 18, 13], [31, 8, 16, 12], [44, 88, 20, 14], [52, 22, 14, 10], [63, 64, 18, 15], [72, 10, 22, 12], [84, 82, 16, 11], [93, 30, 20, 13], [12, 42, 14, 16], [88, 56, 14, 12], [38, 54, 12, 17]];
+/** The printed flowers of the hero: each small flower turns slowly in place, the little corner flowers the other way,
+    and a soft wave of light passes across the print now and then. */
+function ButiTile({ id, light = false }: { id: string; light?: boolean }) {
+  const c = light ? "#fff6e0" : "#fff3dc";
+  return (
+    <pattern id={id} width="64" height="64" patternUnits="userSpaceOnUse">
+      <g fill={c}>
+        {[0, 45, 90, 135, 180, 225, 270, 315].map((a) => <ellipse key={a} cx="32" cy="24.5" rx="2.6" ry="6" transform={`rotate(${a} 32 32)`} />)}
+        <animateTransform attributeName="transform" type="rotate" from="0 32 32" to="360 32 32" dur="48s" repeatCount="indefinite" />
+      </g>
+      <circle cx="32" cy="32" r="2.6" fill="#ffd27a" />
+      {[[0, 0], [64, 0], [0, 64], [64, 64]].map(([x, y]) => (
+        <g key={`${x}${y}`} fill={c}>
+          {[0, 60, 120, 180, 240, 300].map((a) => <ellipse key={a} cx={x} cy={y - 4} rx="1.5" ry="3.4" transform={`rotate(${a} ${x} ${y})`} />)}
+          <animateTransform attributeName="transform" type="rotate" from={`360 ${x} ${y}`} to={`0 ${x} ${y}`} dur="36s" repeatCount="indefinite" />
+        </g>))}
+      <g fill="#ffe2a8">{[[16, 16], [48, 16], [16, 48], [48, 48], [32, 4], [4, 32], [60, 32], [32, 60]].map(([x, y]) => <circle key={`${x}-${y}`} cx={x} cy={y} r=".9" />)}</g>
+    </pattern>
+  );
+}
+function HeroButi() {
+  return (
+    <>
+      <svg aria-hidden className="hero-buti2 pointer-events-none absolute inset-0 -z-10 h-full w-full"><defs><ButiTile id="hb-a" /></defs><rect width="100%" height="100%" fill="url(#hb-a)" /></svg>
+      <div aria-hidden className="hero-buti-wave pointer-events-none absolute inset-0 -z-10"><svg className="h-full w-full"><defs><ButiTile id="hb-b" light /></defs><rect width="100%" height="100%" fill="url(#hb-b)" /></svg></div>
+    </>
+  );
+}
 
 export function Hero() {
   const box = useRef<HTMLElement>(null);
@@ -52,13 +78,8 @@ export function Hero() {
     <section className="hero-red relative isolate overflow-hidden" onPointerMove={move}>
       {/* a warm saffron ground printed with small Indic flowers, drifting very slowly; a soft light behind Śrīla Gurudeva */}
       <div aria-hidden className="hero-saffron absolute inset-0 -z-10" />
-      <div aria-hidden className="hero-buti pointer-events-none absolute inset-0 -z-10" />
+      <HeroButi />
       <div aria-hidden className="hero-vig pointer-events-none absolute inset-0 -z-10" />
-      {/* a few of the printed flowers come alive: each glows, turns and opens, very slowly, at its own time */}
-      <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">{BLOOMS.map(([x, y, z, d], k) => (
-        <svg key={k} viewBox="-12 -12 24 24" className="hx-bloom absolute" style={{ left: `${x}%`, top: `${y}%`, width: z, height: z, animationDuration: `${d}s`, animationDelay: `${-((k * 2.7) % d)}s` }}>
-          {[0, 45, 90, 135, 180, 225, 270, 315].map((a) => <ellipse key={a} cx="0" cy="-6" rx="2.3" ry="5.2" transform={`rotate(${a})`} fill="#ffe9c4" />)}<circle r="2.2" fill="#ffc560" />
-        </svg>))}</div>
       <div aria-hidden className="pointer-events-none absolute inset-0 z-0 overflow-hidden">{Array.from({ length: 14 }, (_, k) => <span key={k} className="hero-spark" style={{ left: `${(k * 37 + 7) % 100}%`, animationDuration: `${16 + (k % 6) * 2.5}s`, animationDelay: `${-((k * 13) % 21)}s`, width: k % 4 ? 2 : 3, height: k % 4 ? 2 : 3 }} />)}</div>
       <VMask name="mandala-saffron" className="hero-spin-rev pointer-events-none absolute -bottom-24 -left-24 size-[240px] text-[#e8b872] opacity-[0.12] sm:-bottom-32 sm:-left-32 sm:size-[360px]" />
             <div className="relative mx-auto grid max-w-[1240px] grid-cols-[minmax(0,1fr)] content-center items-center gap-5 px-5 py-8 min-h-[calc(100svh-52px)] sm:min-h-[calc(100svh-58px)] sm:gap-9 sm:px-10 sm:py-12 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:py-28">

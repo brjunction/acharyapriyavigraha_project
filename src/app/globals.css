@@ -729,10 +729,12 @@ html[data-motion="reduce"] .bless-word, html[data-motion="reduce"] .bless-rise, 
 @keyframes lx-turn { to { transform: rotate(360deg); } }
 .lx-spin { animation: lx-turn 140s linear infinite; }
 .lx-spin.lx-ccw { animation-direction: reverse; }
-.lx-spin.lx-s1 { animation-duration: 420s; } .lx-spin.lx-s2, .lx-spin.lx-s3, .lx-spin.lx-s4 { animation: none; }
-.lx-flower { animation: lx-turn 360s linear infinite; transform-origin: 50% 50%; }
-.lx-breathe { animation: lx-breathe 14s cubic-bezier(.37,0,.63,1) infinite; }
-@keyframes lx-breathe { 0%, 100% { transform: scale(1); } 50% { transform: scale(.955); } }
+/* rings turn in alternate directions, each at its own calm pace */
+.lx-spin.lx-s1 { animation-duration: 240s; } .lx-spin.lx-s2 { animation-duration: 190s; } .lx-spin.lx-s3 { animation-duration: 150s; } .lx-spin.lx-s4 { animation-duration: 120s; }
+.lx-flower { }
+/* the lotus closes a little and opens again, ring after ring, slowly */
+.lx-breathe { animation: lx-breathe 11s cubic-bezier(.37,0,.63,1) infinite; }
+@keyframes lx-breathe { 0%, 100% { transform: scale(1); } 50% { transform: scale(.87); } }
 .lx-bloom { }
 @keyframes lx-bloom { 0%, 100% { transform: scale(1) rotate(0deg); } 50% { transform: scale(.94) rotate(6deg); } }
 .lx-open { animation: lx-open 2.6s cubic-bezier(.2,.8,.2,1) both; }
@@ -777,8 +779,12 @@ html[data-motion="reduce"] .bless-word, html[data-motion="reduce"] .bless-rise, 
 .vb .vb-lotus { opacity: 0; transform: scale(.4) rotate(-60deg); transition: opacity .8s ease .9s, transform 1.2s cubic-bezier(.2,.8,.2,1) .9s; }
 .vb[data-on="1"] .vb-lotus { opacity: 1; transform: none; animation: lx-turn 40s linear 2.2s infinite; }
 @media (prefers-reduced-motion: reduce) { .vb-mandala, .vb-petal, .vb-frame::before, .vb[data-on="1"] .vb-line, .vb[data-on="1"] .vb-lotus { animation: none !important; } .vb .vb-line, .vb .vb-rule, .vb .vb-lotus { opacity: 1 !important; transform: none !important; filter: none !important; transition: none !important; } .vb-petal { display: none; } }
-.hx-bloom { opacity: 0; transform: translate(-50%,-50%) scale(.5) rotate(0deg); animation: hx-bloom ease-in-out infinite; filter: drop-shadow(0 0 6px rgba(255,200,120,.45)); }
-@keyframes hx-bloom { 0%, 100% { opacity: 0; transform: translate(-50%,-50%) scale(.5) rotate(0deg); } 45% { opacity: .38; transform: translate(-50%,-50%) scale(1) rotate(60deg); } 60% { opacity: .3; transform: translate(-50%,-50%) scale(1.04) rotate(75deg); } }
 .hero-buti { animation-name: hero-buti, hero-buti-glow; animation-duration: 90s, 8s; animation-timing-function: linear, ease-in-out; animation-iteration-count: infinite; animation-direction: normal, alternate; }
 @keyframes hero-buti-glow { from { opacity: .055; } to { opacity: .1; } }
-@media (prefers-reduced-motion: reduce) { .hx-bloom { animation: none; opacity: .25; } .hero-buti { animation: none; } }
+
+/* The printed flowers: a faint print that breathes, and a soft wave of light that passes across it */
+.hero-buti2 { opacity: .07; -webkit-mask-image: radial-gradient(120% 90% at 30% 50%, rgba(0,0,0,.4) 0%, #000 75%); mask-image: radial-gradient(120% 90% at 30% 50%, rgba(0,0,0,.4) 0%, #000 75%); animation: hero-buti-glow 9s ease-in-out infinite alternate; }
+@keyframes hero-buti-glow { from { opacity: .055; } to { opacity: .095; } }
+.hero-buti-wave { opacity: .13; -webkit-mask-image: linear-gradient(115deg, transparent 0%, transparent 45%, #000 50%, transparent 55%, transparent 100%); mask-image: linear-gradient(115deg, transparent 0%, transparent 45%, #000 50%, transparent 55%, transparent 100%); -webkit-mask-size: 400% 100%; mask-size: 400% 100%; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; animation: hero-buti-wave 14s ease-in-out infinite; }
+@keyframes hero-buti-wave { 0% { -webkit-mask-position: 100% 0; mask-position: 100% 0; } 70%, 100% { -webkit-mask-position: 0% 0; mask-position: 0% 0; } }
+@media (prefers-reduced-motion: reduce) { .hero-buti2, .hero-buti-wave { animation: none; } .hero-buti-wave { display: none; } }
