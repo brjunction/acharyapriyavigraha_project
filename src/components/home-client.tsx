@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { ArrowRight, Search, Play, Pause, SkipForward, ChevronLeft, ChevronRight, Headphones, Quote as QuoteIcon, Copy, Check, PlayCircle, BookOpen, UserRound, NotebookPen, Image as ImageIcon } from "lucide-react";
+import { ScrollText, ArrowRight, Search, Play, Pause, SkipForward, ChevronLeft, ChevronRight, Headphones, Quote as QuoteIcon, Copy, Check, PlayCircle, BookOpen, UserRound, NotebookPen, Image as ImageIcon } from "lucide-react";
 import { CONVERSATION, LETTER } from "@/lib/prabhupada";
 import { LECTURES, fmtDate, DIARY, IMG, LANGUAGES, QUOTE_OF_DAY, TIMELINE } from "@/lib/data";
 import { Img } from "./img";
@@ -111,6 +111,7 @@ export function Hero() {
           <div className="hx-in mx-auto mt-5 grid max-w-xl grid-cols-2 gap-2.5 sm:flex sm:flex-wrap sm:justify-center lg:mx-0 lg:justify-start" style={{ animationDelay: ".7s" }}>
             <Link href="/teachings/audio" className="hx-sweep relative inline-flex h-10 items-center justify-center overflow-hidden gap-2 sm:justify-start rounded-full bg-[linear-gradient(135deg,#ffd76a,#f0a23c)] pl-1.5 pr-5 text-[12.5px] font-semibold text-[#4a1a00] shadow-[0_14px_30px_-12px_rgba(240,162,60,.65)] ring-1 ring-[#ffe7a8]/60 transition hover:-translate-y-0.5"><span className="flex size-8 items-center justify-center rounded-full bg-[#4a1a00]/12"><Headphones size={15} /></span><span className="sm:hidden">Listen</span><span className="max-sm:hidden">Listen to His Lectures</span></Link>
             <Link href="/teachings/books" className="hx-border relative inline-flex h-10 items-center justify-center sm:justify-start gap-2 rounded-full border border-white/60 bg-white/[0.14] pl-1.5 pr-5 text-[12.5px] font-semibold text-[#fff6ea] backdrop-blur transition hover:-translate-y-0.5 hover:border-[#f3c35e]/60"><span className="flex size-8 items-center justify-center rounded-full bg-white/15"><BookOpen size={15} /></span><span className="sm:hidden">Read</span><span className="max-sm:hidden">Read His Books</span></Link>
+            <Link href="/webfolio" className="group relative col-span-2 inline-flex h-10 items-center justify-center gap-2 rounded-full border border-[#f3c77a]/80 bg-[linear-gradient(135deg,rgba(243,199,122,.22),rgba(232,145,60,.12))] pl-1.5 pr-5 text-[12.5px] font-semibold text-[#ffe7b8] backdrop-blur transition hover:-translate-y-0.5 hover:border-[#ffd98a] sm:col-span-1 sm:justify-start"><span className="flex size-8 items-center justify-center rounded-full bg-[#f3c77a]/25"><ScrollText size={15} /></span>Digital WebFolio</Link>
           </div>
         </div>
 
