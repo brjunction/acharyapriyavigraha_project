@@ -6,7 +6,6 @@ import { createPortal } from "react-dom";
 import { ChevronDown, ChevronRight, ChevronLeft, Search, Menu, X, ArrowRight } from "lucide-react";
 import { ACCENT, type NavMenu } from "@/lib/nav";
 import { simpleMenus, groupsOf, ADV_KEY, type SimpleMenu } from "@/lib/simple-nav";
-import { TextSizeControl } from "./text-scale";
 import { useMenus, useSimpleCfg } from "./menus-context";
 import { LogoMark, Rosette } from "./motifs";
 import { usePrefs } from "./providers";
@@ -185,7 +184,7 @@ function FeatureCard({ f, onClick, here, compact = false }: { f: SimpleMenu["fea
 const cardCols = (n: number) => (n <= 4 ? Math.max(n, 1) : n === 6 || n === 5 || n === 9 ? 3 : 4);
 
 /** Simple panel: the chosen main pages as cards; below, the way to everything else and the view controls. */
-function SimplePanel({ menu, onNavigate, onEverything, controls }: { menu: SimpleMenu; onNavigate: () => void; onEverything: () => void; controls: React.ReactNode }) {
+function SimplePanel({ menu, onNavigate, onEverything }: { menu: SimpleMenu; onNavigate: () => void; onEverything: () => void }) {
   const here = usePathname();
   return (
     <div className={`acc-${menu.accent} mega-enter overflow-hidden rounded-2xl border border-line bg-surface shadow-[var(--shadow-lg)]`}>
@@ -205,9 +204,8 @@ function SimplePanel({ menu, onNavigate, onEverything, controls }: { menu: Simpl
                 </div>
               </div>))}
           </div>); })()}
-      <div className="flex items-center justify-between gap-3 border-t border-line px-4 py-2.5">
+      <div className="flex items-center justify-center gap-3 border-t border-line px-4 py-2">
         <button onClick={onEverything} className="group flex items-center gap-1.5 rounded-full px-2 py-1 text-[13px] font-medium text-[var(--acc)] hover:bg-acc-tint">See everything in {menu.label}<ArrowRight size={14} className="transition group-hover:translate-x-0.5" /></button>
-        {controls}
       </div>
     </div>
   );
@@ -240,12 +238,32 @@ function SimpleMobile({ menus, onClose, open, setOpen, onEverything }: { menus: 
   );
 }
 
+/** Phone, Simple: “See everything” shows the full list of that one menu, just this once. */
+function PeekList({ menu, onBack, onClose }: { menu: NavMenu; onBack: () => void; onClose: () => void }) {
+  const path = usePathname();
+  return (
+    <div className={`acc-${ACCENT[menu.key]}`}>
+      <div className="mb-2 flex items-center gap-2"><button onClick={onBack} className="flex items-center gap-1 rounded-full px-1 py-2 text-[13px] text-ink-2"><ChevronLeft size={17} />Back</button><span className="ml-auto text-[14px] font-semibold text-ink">Everything in {menu.label}</span></div>
+      {menu.groups.map((g) => (
+        <div key={g.title} className="mb-2">
+          <p className="px-2 pb-1 pt-3 text-[10.5px] font-semibold uppercase tracking-[0.12em] text-[var(--acc)]">{g.title}</p>
+          {g.links.map((it) => { const I = it.icon; return (
+            <Link key={it.href + it.label} href={it.href} onClick={onClose} className={`flex items-center gap-3 rounded-xl px-2 py-2 hover:bg-acc-tint ${hit(path, it.href) ? "bg-acc-soft font-semibold" : ""}`}>
+              <span className="mega-ic"><I size={15} strokeWidth={1.8} /></span>
+              <span><span className="block text-[13px] font-medium">{it.label}</span><span className="block text-[11px] leading-snug text-ink-3">{it.desc}</span></span>
+            </Link>); })}
+        </div>))}
+    </div>
+  );
+}
+
 function MobileMenu({ onClose, mode, setMode }: { onClose: () => void; mode: Mode; setMode: (m: Mode) => void }) {
   const path = usePathname();
   const MENUS = useMenus();
   const [open, setOpen] = useState<NavMenu | null>(null);
   const [og, setOg] = useState<string | null>(null);
   const [sOpen, setSOpen] = useState<SimpleMenu | null>(null);
+  const [peek, setPeek] = useState<NavMenu | null>(null);
   const simpleCfg = useSimpleCfg();
   const { setSearch } = usePrefs();
   return createPortal(
@@ -257,16 +275,17 @@ function MobileMenu({ onClose, mode, setMode }: { onClose: () => void; mode: Mod
       <div className="relative flex-1 overflow-hidden">
         {mode === "simple" ? (
           <nav className="absolute inset-0 overflow-y-auto px-4 pb-8 pt-4">
+            {peek ? <PeekList menu={peek} onBack={() => setPeek(null)} onClose={onClose} /> : <>
             {sOpen ? <div className="mb-3 flex items-center gap-2"><button onClick={() => setSOpen(null)} className="flex items-center gap-1 rounded-full px-1 py-2 text-[13px] text-ink-2"><ChevronLeft size={17} />All menus</button><span className="ml-auto text-[14px] font-semibold text-ink">{sOpen.label}</span></div> : <>
-              <div className="flex items-center gap-2"><div className="min-w-0 flex-1"><ModeSwitch mode={mode} setMode={setMode} big /></div><TextSizeControl /></div>
+              <ModeSwitch mode={mode} setMode={setMode} big />
               <button onClick={() => { onClose(); setSearch(true); }} className="my-3 flex w-full items-center gap-3 rounded-xl border border-line bg-page px-4 py-3 text-left text-[13.5px] text-ink-3">
                 <Search size={17} /> Search lectures, quotes, verses…
               </button></>}
-            <SimpleMobile menus={simpleMenus(MENUS, simpleCfg)} onClose={onClose} open={sOpen} setOpen={setSOpen} onEverything={(m) => { const adv = MENUS.find((x) => x.key === ADV_KEY[m.key]); setSOpen(null); setMode("advanced"); if (adv) setOpen(adv); }} />
+            <SimpleMobile menus={simpleMenus(MENUS, simpleCfg)} onClose={onClose} open={sOpen} setOpen={setSOpen} onEverything={(m) => setPeek(MENUS.find((x) => x.key === ADV_KEY[m.key]) || null)} /></>}
           </nav>
         ) : <>
         <nav className={`absolute inset-0 overflow-y-auto px-4 py-4 transition-transform duration-300 ${open ? "-translate-x-full" : "translate-x-0"}`}>
-          <div className="mb-3 flex items-center gap-2"><div className="min-w-0 flex-1"><ModeSwitch mode={mode} setMode={setMode} big /></div><TextSizeControl /></div>
+          <div className="mb-3"><ModeSwitch mode={mode} setMode={setMode} big /></div>
           <button onClick={() => { onClose(); setSearch(true); }} className="mb-4 flex w-full items-center gap-3 rounded-xl border border-line bg-page px-4 py-3 text-left text-[13px] text-ink-3">
             <Search size={17} /> Search lectures, quotes, verses…
           </button>
@@ -356,11 +375,14 @@ export function Header() {
     document.addEventListener("keydown", k); return () => document.removeEventListener("keydown", k);
   }, [active]);
 
-  const show = (k: string) => { if (timer.current) clearTimeout(timer.current); setActive(k); };
-  const hide = () => { if (timer.current) clearTimeout(timer.current); timer.current = setTimeout(() => { if (!pinned.current) setActive(null); }, 150); };
+  // “See everything” (Simple): the full menu of that section, only until the menu closes or another is opened. Never saved.
+  const [peek, setPeek] = useState<string | null>(null);
+  const show = (k: string) => { if (timer.current) clearTimeout(timer.current); setActive((a) => { if (a !== k) setPeek(null); return k; }); };
+  const hide = () => { if (timer.current) clearTimeout(timer.current); timer.current = setTimeout(() => { if (!pinned.current) { setActive(null); setPeek(null); } }, 150); };
   const menu = MENUS.find((m) => m.key === active);
   const smenu = SIMPLE.find((m) => m.key === active);
-  const controls = <span className="flex items-center gap-2"><ModeSwitch mode={mode} setMode={setMode} /><TextSizeControl /></span>;
+  const pmenu = mode === "simple" && peek ? MENUS.find((m) => m.key === peek) : undefined;
+  const pwide = pmenu && (pmenu.layout === "flyout" ? 1080 : pmenu.layout === "tiles" ? 880 : pmenu.groups.length >= 4 ? 1240 : pmenu.groups.length === 3 ? 980 : 780);
   const wide = menu && (menu.layout === "flyout" ? 1080 : menu.layout === "tiles" ? 880 : menu.groups.length >= 4 ? 1240 : menu.groups.length === 3 ? 980 : 780);
 
   return (
@@ -402,20 +424,25 @@ export function Header() {
               <Search size={15} /><span className="hidden flex-1 whitespace-nowrap text-left text-[12px] text-ink-3 xl:inline">Search…</span>
               <kbd className="hidden whitespace-nowrap rounded border border-line bg-surface px-1.5 text-[10px] text-ink-3 xl:inline">Ctrl K</kbd>
             </button>
-            <div className="lg:hidden max-[359px]:hidden"><ModeSwitch mode={mode} setMode={setMode} small /></div>
+            <div className="max-[359px]:hidden"><ModeSwitch mode={mode} setMode={setMode} small /></div>
             <button onClick={() => setMobile(true)} aria-label="Open menu" className="flex h-8 items-center gap-1.5 rounded-full bg-ink px-2 text-[12.5px] font-medium text-white transition hover:bg-ink/85 min-[420px]:px-3 sm:h-9 lg:hidden"><Menu size={16} /><span className="max-[419px]:hidden">Menu</span></button>
           </div>
         </div>
       </div>
-      {mode === "simple" && smenu && (
+      {pmenu && smenu && (
+        <div className="absolute left-1/2 top-full hidden -translate-x-1/2 pt-1 lg:block" style={{ width: `min(${pwide}px, calc(100vw - 2rem))` }}
+          onMouseEnter={() => show(smenu.key)} onMouseLeave={hide}>
+          <MegaPanel key={pmenu.key} menu={pmenu} onNavigate={() => { pinned.current = false; setActive(null); setPeek(null); }} onPin={(b) => { pinned.current = b; }} />
+        </div>)}
+      {mode === "simple" && smenu && !pmenu && (
         <div className="absolute left-1/2 top-full hidden -translate-x-1/2 pt-1 lg:block" style={{ width: `min(${groupsOf(smenu).length > 1 ? 1120 : smenu.featured.length <= 3 ? 760 : smenu.featured.length === 4 ? 1000 : 900}px, calc(100vw - 2rem))` }}
           onMouseEnter={() => show(smenu.key)} onMouseLeave={hide}>
-          <SimplePanel key={smenu.key} menu={smenu} onNavigate={() => setActive(null)} controls={controls} onEverything={() => { setMode("advanced"); setActive(ADV_KEY[smenu.key]); }} />
+          <SimplePanel key={smenu.key} menu={smenu} onNavigate={() => setActive(null)} onEverything={() => setPeek(ADV_KEY[smenu.key])} />
         </div>)}
       {mode === "advanced" && menu && (
         <div className="absolute left-1/2 top-full hidden -translate-x-1/2 pt-1 lg:block" style={{ width: `min(${wide}px, calc(100vw - 2rem))` }}
           onMouseEnter={() => show(menu.key)} onMouseLeave={hide}>
-          <MegaPanel key={menu.key} menu={menu} controls={controls} onNavigate={() => { pinned.current = false; setActive(null); }} onPin={(b) => { pinned.current = b; }} />
+          <MegaPanel key={menu.key} menu={menu} onNavigate={() => { pinned.current = false; setActive(null); }} onPin={(b) => { pinned.current = b; }} />
         </div>
       )}
       {mounted && mobile && <MobileMenu onClose={() => setMobile(false)} mode={mode} setMode={setMode} />}

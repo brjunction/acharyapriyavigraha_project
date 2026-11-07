@@ -5,7 +5,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Search, X, ChevronDown, ChevronRight, SlidersHorizontal, FileText, PlayCircle, ArrowDownUp, Rows3, BookOpen, CalendarDays, MapPin, Tag, Mic } from "lucide-react";
 import type { Lecture } from "@/lib/data";
 import { PlayButton } from "@/components/lecture";
-import { TextSizeControl } from "@/components/text-scale";
+import { TextSizeControl, TextScaler } from "@/components/text-scale";
 
 export type MediaItem = Lecture & { thumb?: string; singer?: string; author?: string; song?: string; video?: boolean };
 export type Mode = "audio" | "kirtan" | "video";
@@ -187,7 +187,8 @@ export function MediaLibrary({ items, mode }: { items: MediaItem[]; mode: Mode }
         </div>
         <TextSizeControl big />
       </div>
-      {view === "basic" ? <BasicAudio items={items} /> : <AdvancedLibrary items={items} mode={mode} />}
+      <div id="audio-lib">{view === "basic" ? <BasicAudio items={items} /> : <AdvancedLibrary items={items} mode={mode} />}</div>
+      <TextScaler selector="#audio-lib" />
     </>
   );
 }

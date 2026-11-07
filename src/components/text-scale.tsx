@@ -1,5 +1,5 @@
 "use client";
-/* Text size for the whole site (A− / A+): only text grows or shrinks; width, spacing, pictures and icons stay as they are.
+/* Text size for the audio lectures (A− / A+): only text grows or shrinks; width, spacing, pictures and icons stay as they are.
    Remembered on the device. */
 import { useEffect, useState } from "react";
 
@@ -15,7 +15,7 @@ export function useTextScale(): [number, (n: number) => void] {
   return [k, set];
 }
 
-/** Applies the chosen size to the page content (not the top bar). Mounted once in the site layout. */
+/** Applies the chosen size inside one part of the page (the audio library). */
 export function TextScaler({ selector = "#main" }: { selector?: string }) {
   const [k] = useTextScale();
   useEffect(() => {
