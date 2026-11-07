@@ -62,7 +62,7 @@ export function Hero() {
       <Backdrop src="saffron-dark" flip pos="left center" o={0.4} />
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(70%_80%_at_80%_40%,rgba(243,179,99,0.28),transparent_65%),linear-gradient(100deg,rgba(70,26,3,0.55),transparent_60%)]" />
       <VMask name="mandala-saffron" className="hero-spin-rev pointer-events-none absolute -bottom-56 -left-48 h-[620px] w-[620px] text-[#f3b363] opacity-[0.16]" />
-      <VMask name="paisley-red" repeat="repeat" size="380px" className="pointer-events-none absolute inset-0 text-[#f3b363] opacity-[0.07]" />
+      {/* One Indic pattern only (the lotus lattice above); the paisley belongs to the footer */}
       <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-[3px] bg-gradient-to-r from-[#c98a2b] via-[#ffc566] to-[#c98a2b]" />
       {[8, 22, 36, 61, 74, 90].map((x, i) => (
         <div key={x} className="pointer-events-none absolute bottom-24" style={{ left: `${x}%` }}><div className="hero-petal" style={{ animationDelay: `${i * 1.5}s` }}><Padma className="h-5 w-5 text-[#ffd48a]" layers={2} /></div></div>
