@@ -3,6 +3,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { ChevronDown, MessagesSquare, Mail, ArrowRight } from "lucide-react";
 import { CONVERSATION, LETTER } from "@/lib/prabhupada";
+import { Portal } from "@/components/ui/portal";
 
 /** Numbers that count up once when they come into view. */
 export function LiveNumbers({ items }: { items: { n: number; label: string; sub: string }[] }) {
@@ -35,7 +36,7 @@ export function BlessingLetters({ align = "center" }: { align?: "center" | "left
   return (
     <>
       <div className={`mt-7 flex flex-wrap gap-2 ${align === "left" ? "justify-start" : "justify-center"}`}><button onClick={() => setOpen("c")} className={`${base} bg-gradient-to-r from-[#8a1c0f] to-[#b8401a] text-white shadow-[0_8px_20px_-8px_rgba(138,28,15,.6)] hover:shadow-[0_12px_26px_-8px_rgba(138,28,15,.7)]`}><span className="flex size-7 items-center justify-center rounded-full bg-white/15"><MessagesSquare size={15} /></span>Read the conversation<ArrowRight size={15} className="transition group-hover:translate-x-0.5" /></button><button onClick={() => setOpen("l")} className={`${base} border border-[#ecd9a8] bg-[#fdf6e3] text-[#7a3b0c] hover:border-[#e0bf6a] hover:bg-[#fbefcc]`}><span className="flex size-7 items-center justify-center rounded-full bg-[#f3dfa6] text-[#8a4a0c]"><Mail size={15} /></span>Read the letter<ArrowRight size={15} className="transition group-hover:translate-x-0.5" /></button></div>
-      {open && <div className="fixed inset-0 z-[90] flex items-center justify-center bg-black/40 p-3 backdrop-blur-sm sm:p-8" onClick={() => setOpen(null)}>
+      {open && <Portal><div className="fixed inset-0 z-[130] flex items-center justify-center bg-black/40 p-3 backdrop-blur-sm sm:p-8" onClick={() => setOpen(null)}>
         <div className="flex max-h-full w-full max-w-3xl flex-col overflow-hidden rounded-2xl bg-[#fffdf8] shadow-2xl" onClick={(e) => e.stopPropagation()}>
           <div className="flex items-start justify-between gap-4 border-b border-[#efe4cf] px-6 py-4 sm:px-8">
             <div><p className="text-[11px] font-medium uppercase tracking-[0.25em] text-saffron">Śrīla Prabhupāda on Śrīla Gurudeva</p><p className="mt-1 text-[17px] font-semibold text-ink sm:text-[19px]">{open === "c" ? CONVERSATION.title : LETTER.title}</p><p className="text-[12.5px] text-ink-3">{open === "c" ? CONVERSATION.speakers : `Letter ${LETTER.ref}`}</p></div>
@@ -46,7 +47,7 @@ export function BlessingLetters({ align = "center" }: { align?: "center" | "left
               : <><p className="mb-4">{LETTER.salutation}</p>{LETTER.paras.map((p, i) => <p key={i} className="mb-4">{hl(p)}</p>)}<p className="mt-6 text-ink-3">{LETTER.closing[0]}<br />{LETTER.closing[1]}</p></>}
           </div>
         </div>
-      </div>}
+      </div></Portal>}
     </>
   );
 }

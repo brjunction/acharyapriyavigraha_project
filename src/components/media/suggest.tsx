@@ -4,6 +4,7 @@
    Studio, where a manager sees exactly what changed and accepts or declines it. A note, or information about the
    recording, can be sent too. */
 import { useEffect, useRef, useState } from "react";
+import { Portal } from "@/components/ui/portal";
 import { Check, MessageSquarePlus, X, Bold, Italic, RotateCcw, Undo2, Redo2, RemoveFormatting } from "lucide-react";
 
 /** Only words, bold and italic are kept from the page. */
@@ -64,7 +65,7 @@ export function SuggestButton({ slug, label = "Suggest an improvement", about = 
   const canSend = mode === "edit" ? true : noteLen >= 3;
   return (<>
     <button onClick={() => start()} className={`inline-flex items-center gap-1.5 rounded-full border border-line px-3 py-1.5 text-[12.5px] text-ink-2 hover:border-saffron hover:text-saffron ${className}`}><MessageSquarePlus size={14} />{label}</button>
-    {open && <div className="fixed inset-0 z-[95] flex items-end justify-center bg-black/20 p-3 sm:items-center" onClick={() => setOpen(false)}>
+    {open && <Portal><div className="fixed inset-0 z-[130] flex items-end justify-center bg-black/20 p-3 sm:items-center" onClick={() => setOpen(false)}>
       <div className="max-h-[92dvh] w-full max-w-xl overflow-y-auto rounded-2xl bg-white p-5 shadow-[0_30px_80px_-20px_rgba(0,0,0,.4)]" onClick={(e) => e.stopPropagation()}>
         <div className="mb-3 flex items-center justify-between"><p className="text-[16px] font-semibold text-ink">Suggest an improvement</p><button onClick={() => setOpen(false)} aria-label="Close" className="text-ink-3 hover:text-ink"><X size={18} /></button></div>
         {state === "sent" ? <div className="py-6 text-center"><Check className="mx-auto mb-2 text-ok" /><p className="text-[14px] text-ink">Thank you. Your suggestion will be reviewed by the team before anything is changed.</p><div className="mt-4 flex justify-center gap-3"><button onClick={() => setOpen(false)} className="rounded-full bg-saffron px-4 py-2 text-[13px] font-semibold text-white">Close</button></div></div> : <div className="space-y-3">
@@ -88,7 +89,7 @@ export function SuggestButton({ slug, label = "Suggest an improvement", about = 
           <p className="text-center text-[11.5px] text-ink-3">Suggestions are reviewed by the team; nothing on the page changes until then.</p>
         </div>}
       </div>
-    </div>}
+    </div></Portal>}
   </>);
 }
 

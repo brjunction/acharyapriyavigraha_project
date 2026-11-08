@@ -8,6 +8,7 @@ import { ArrowRight, X } from "lucide-react";
 import { CONVERSATION, LETTER } from "@/lib/prabhupada";
 import { FOUNDER_STEPS } from "@/components/home/home-data";
 import { VMask } from "@/components/motifs";
+import { Portal } from "@/components/ui/portal";
 
 function useInView<T extends HTMLElement>(margin = "-12%") {
   const ref = useRef<T>(null); const [on, setOn] = useState(false);
@@ -28,7 +29,7 @@ function Reading({ which, onClose }: { which: "c" | "l"; onClose: () => void }) 
     return () => { window.removeEventListener("keydown", k); document.body.style.overflow = ""; };
   }, [onClose]);
   return (
-    <div className="op-fade fixed inset-0 z-[90] flex items-center justify-center bg-[#2a0d03]/45 p-3 backdrop-blur-sm sm:p-8" onClick={onClose}>
+    <div className="op-fade fixed inset-0 z-[130] flex items-center justify-center bg-[#2a0d03]/45 p-3 backdrop-blur-sm sm:p-8" onClick={onClose}>
       <div className="op-rise flex max-h-full w-full max-w-2xl flex-col overflow-hidden rounded-[22px] bg-[#fffdf8] shadow-[0_40px_100px_-30px_rgba(0,0,0,.6)]" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-start justify-between gap-4 border-b border-[#efe4cf] px-6 py-4 sm:px-8">
           <div><p className="text-[10.5px] font-semibold uppercase tracking-[0.22em] text-saffron">Śrīla Prabhupāda on Śrīla Gurudeva</p><p className="mt-1 text-[16px] font-semibold text-ink sm:text-[18px]">{which === "c" ? CONVERSATION.title : LETTER.title}</p></div>
@@ -75,7 +76,7 @@ export function KrishnaSentOpening() {
           ))}
         </div>
       </div>
-      {open && <Reading which={open} onClose={() => setOpen(null)} />}
+      {open && <Portal><Reading which={open} onClose={() => setOpen(null)} /></Portal>}
     </section>
   );
 }
