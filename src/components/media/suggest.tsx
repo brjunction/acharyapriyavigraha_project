@@ -6,7 +6,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Check, MessageSquarePlus, X, Bold, Italic, RotateCcw } from "lucide-react";
 
-const MARKS = ["ā", "ī", "ū", "ṛ", "ṝ", "ḷ", "ṅ", "ñ", "ṇ", "ṭ", "ḍ", "ś", "ṣ", "ṁ", "ḥ", "Ā", "Ī", "Ū", "Ś", "Ṣ", "Ṛ", "Ṇ"];
 /** Only words, bold and italic are kept from the page. */
 function walk(n: Node, html: boolean): string {
   if (n.nodeType === 3) { const t = n.textContent || ""; return html ? t.replace(/&/g, "&amp;").replace(/</g, "&lt;") : t; }
@@ -58,7 +57,7 @@ export function SuggestButton({ slug, label = "Suggest an improvement", about = 
                 <button onMouseDown={(e) => e.preventDefault()} onClick={() => cmd("bold")} title="Bold" className="flex size-8 items-center justify-center rounded-md text-ink-2 hover:bg-band"><Bold size={15} /></button>
                 <button onMouseDown={(e) => e.preventDefault()} onClick={() => cmd("italic")} title="Italic" className="flex size-8 items-center justify-center rounded-md text-ink-2 hover:bg-band"><Italic size={15} /></button>
                 <span className="mx-1 h-5 w-px bg-line" />
-                {MARKS.map((m) => <button key={m} onMouseDown={(e) => e.preventDefault()} onClick={() => cmd("insertText", m)} className="h-8 min-w-7 rounded-md px-1 text-[14px] text-ink-2 hover:bg-band">{m}</button>)}
+                <span className="px-1 text-[12px] text-ink-3">Diacritics: type a letter, then tap <kbd className="rounded border border-line px-1 text-[11px]">Shift</kbd> (a → ā, s → ś → ṣ)</span>
                 <button onMouseDown={(e) => e.preventDefault()} onClick={() => { if (ed.current && p.html) ed.current.innerHTML = cleanHtml(p.html); }} title="Start again" className="ml-auto flex size-8 items-center justify-center rounded-md text-ink-3 hover:bg-band"><RotateCcw size={14} /></button>
               </div>
               <div ref={ed} contentEditable suppressContentEditableWarning className="max-h-[40dvh] min-h-[120px] overflow-y-auto px-3.5 py-3 text-[15px] leading-[1.75] text-ink outline-none" onPaste={(e) => { e.preventDefault(); document.execCommand("insertText", false, e.clipboardData.getData("text/plain")); }} />

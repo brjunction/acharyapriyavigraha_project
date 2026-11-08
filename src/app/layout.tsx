@@ -5,6 +5,7 @@ import "@fontsource/gentium-book-plus/400-italic.css";
 import "@fontsource/gentium-book-plus/700.css";
 import "./globals.css";
 import { Providers } from "@/components/providers";
+import { IastKeys } from "@/components/ui/iast-keys";
 
 export const metadata: Metadata = {
   title: { default: "Taptajivanam — Life and Teachings of Śrī Śrīmad Gour Govinda Swāmī Gurudeva", template: "%s — Taptajivanam" },
@@ -19,6 +20,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <head>
       </head>
       <body suppressHydrationWarning>
+        <IastKeys />
         <Providers>{children}</Providers>
       </body>
     </html>
