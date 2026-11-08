@@ -1,6 +1,7 @@
 /* Archive.org: reading a collection's file list, finding where a file is served from today,
    and reading the date / verse / place from a recording's file name. Server only. */
-import { archiveDownload } from "./archive-url";
+import { archiveDownload, archiveRef } from "./archive-url";
+import { sql } from "./db";
 
 type Meta = { server?: string; d1?: string; d2?: string; dir?: string; files: { name: string; format?: string; source?: string; length?: string; size?: string; title?: string; original?: string }[]; title?: string };
 const cache = new Map<string, { at: number; meta: Meta }>();
@@ -71,4 +72,14 @@ export function parseName(name: string, length?: string, size?: string): Parsed 
   let title = [ref, rest].filter(Boolean).join(" · ") || name.replace(/\.mp3$/i, "");
   if (partN) title += ` — Part ${partN}`; if (rec) title += ` (recording ${rec[1]})`;
   return { name, title, date, date_note, place, country, scripture, canto, chapter, verse, duration_sec: secs(length), size: size ? Number(size) || null : null };
+}
+
+/** One request to Archive.org refreshes the saved direct address of every recording from that collection. */
+export async function refreshItemDirect(item: string) {
+  const m = await itemMeta(item, true); const host = m?.d1 || m?.server; if (!m || !host || !m.dir) return 0;
+  const rows = (await sql`select id, audio_url from audios where audio_url like ${`https://archive.org/download/${item}/%`}`) as { id: string; audio_url: string }[];
+  const names = new Set(m.files.map((f) => f.name)); const ids: string[] = []; const urls: string[] = [];
+  for (const r of rows) { const ref = archiveRef(r.audio_url); if (!ref || !names.has(ref.file)) continue; ids.push(r.id); urls.push(`https://${host}${m.dir}/${ref.file.split("/").map(encodeURIComponent).join("/")}`); }
+  if (ids.length) await sql`update audios a set audio_direct = t.u, audio_direct_at = now() from unnest(${ids}::uuid[], ${urls}::text[]) as t(i, u) where a.id = t.i`;
+  return ids.length;
 }

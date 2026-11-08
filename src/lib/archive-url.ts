@@ -9,10 +9,16 @@ export function archiveRef(u?: string | null): { item: string; file: string } | 
   try { return { item: decodeURIComponent(m[1]), file: decodeURIComponent(m[2]) }; } catch { return { item: m[1], file: m[2] }; }
 }
 export const archiveDownload = (item: string, file: string) => `https://archive.org/download/${encodeURIComponent(item)}/${enc(file)}`;
-/** The address the player should use for a stored audio link. */
-export function playUrl(u?: string | null): string | undefined {
+/** The address the player should use: the saved direct MP3 address when there is one (fastest), otherwise our fetcher. */
+export function playUrl(u?: string | null, direct?: string | null): string | undefined {
   if (!u) return undefined; const r = archiveRef(u);
-  return r ? `/api/archive/${encodeURIComponent(r.item)}/${enc(r.file)}` : u;
+  if (!r) return u;
+  return direct || `/api/archive/${encodeURIComponent(r.item)}/${enc(r.file)}`;
+}
+/** If a direct Archive.org address (…archive.org/N/items/ITEM/FILE) fails, the fetcher finds the current one. */
+export function archiveFallback(src?: string | null): string | null {
+  if (!src) return null; const m = /^https?:\/\/[^/]*archive\.org\/(?:\d+\/)?items\/([^/]+)\/([^?#]+)/i.exec(src); if (!m) return null;
+  return `/api/archive/${m[1]}/${m[2]}?retry=1`;
 }
 /** "SSGGSM1996" from a collection link (details/download/metadata) or the bare name. */
 export function archiveItem(s: string) {

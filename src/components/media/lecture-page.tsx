@@ -21,7 +21,7 @@ export async function RealLecture({ a }: { a: any }) {
   const l = toLecture(a); const song = a.kind === "kirtan" || a.kind === "bhajan";
   const [quotes, related] = await Promise.all([
     sql`select kind, slug, text, at_sec from excerpts where audio_id = ${a.id} and status = 'published' order by at_sec nulls last limit 30`.catch(() => [] as any[]),
-    sql`select slug, title, kind, type, date, date_note, place, country, scripture, canto, chapter, verse, language, series, topics, duration_sec, audio_url, transcript_status from audios where status = 'published' and id <> ${a.id} and ((place is not null and place = ${a.place}) or (series is not null and series = ${a.series}) or (scripture is not null and scripture = ${a.scripture} and chapter is not distinct from ${a.chapter})) order by date desc nulls last limit 6`.catch(() => [] as any[]),
+    sql`select slug, title, kind, type, date, date_note, place, country, scripture, canto, chapter, verse, language, series, topics, duration_sec, audio_url, audio_direct, transcript_status from audios where status = 'published' and id <> ${a.id} and ((place is not null and place = ${a.place}) or (series is not null and series = ${a.series}) or (scripture is not null and scripture = ${a.scripture} and chapter is not distinct from ${a.chapter})) order by date desc nulls last limit 6`.catch(() => [] as any[]),
   ]);
   const base = song ? "/teachings/kirtans" : "/teachings/audio";
   const facts: [string, string | null, string | null][] = [
@@ -37,7 +37,7 @@ export async function RealLecture({ a }: { a: any }) {
     <div className="bg-white">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ld) }} />
       <div className="mx-auto max-w-[1180px] px-4 pb-16 pt-5 sm:px-6">
-        <LectureLayout label={song ? "Words" : "Transcription"}
+        <LectureLayout label={song ? "Words" : "Transcription"} title={l.title} heads={heads.map((h: any) => ({ id: h.id, text: h.text, level: h.level }))}
           head={<>
             <p className="text-[12px] font-medium uppercase tracking-[0.08em] text-saffron">{[l.type, l.scripture].filter(Boolean).join(" · ")}</p>
             <h1 className="mt-1.5 text-[26px] leading-tight text-ink sm:text-[30px]">{l.title}</h1>
@@ -47,7 +47,7 @@ export async function RealLecture({ a }: { a: any }) {
           </>}
           player={<LecturePlayer l={l} />}
           transcript={<>
-            {heads.length > 2 && <nav className="mt-4 rounded-xl border border-line p-4"><p className="mb-2 text-[11.5px] font-semibold uppercase tracking-[0.08em] text-ink-3">Contents</p><ol className="columns-1 gap-6 text-[13px] sm:columns-2">{heads.map((h) => <li key={h.id} className="mb-1" style={{ paddingLeft: (h.level - 1) * 12 }}><a href={`#${h.id}`} className="text-ink-2 hover:text-saffron">{h.text}</a></li>)}</ol></nav>}
+            {heads.length > 2 && <nav className="mb-6 rounded-xl border border-line p-4 lg:hidden"><p className="mb-2 text-[11.5px] font-semibold uppercase tracking-[0.08em] text-ink-3">Contents</p><ol className="columns-1 gap-6 text-[13px] sm:columns-2">{heads.map((h) => <li key={h.id} className="mb-1" style={{ paddingLeft: (h.level - 1) * 12 }}><a href={`#${h.id}`} className="text-ink-2 hover:text-saffron">{h.text}</a></li>)}</ol></nav>}
             {doc.length ? <SelectToSuggest><TranscriptSwitch source={a.machine_source} devotee={own.length ? <div className="book-body"><Render doc={own} /></div> : null} auto={mach.length ? <div className="book-body"><Render doc={mach} /></div> : null} /></SelectToSuggest> : <p className="mt-6 rounded-xl border border-dashed border-line p-8 text-center text-[13.5px] text-ink-3">The {song ? "words of this song are" : "transcription of this lecture is"} being prepared.</p>}
             <div className="mt-8 flex flex-wrap items-center gap-2 border-t border-line pt-4"><SuggestButton slug={a.slug} label="Suggest an improvement to this transcription" /></div>
           </>}

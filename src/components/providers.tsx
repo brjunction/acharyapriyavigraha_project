@@ -1,4 +1,5 @@
 "use client";
+import { archiveFallback } from "@/lib/archive-url";
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 
 export type Prefs = {
@@ -119,6 +120,8 @@ export function Providers({ children }: { children: React.ReactNode }) {
       a.addEventListener("timeupdate", () => setTime(a!.currentTime));
       a.addEventListener("progress", () => { try { setBuffered(a!.buffered.length ? a!.buffered.end(a!.buffered.length - 1) : 0); } catch {} });
       a.addEventListener("ended", () => setPlaying(false));
+      // a direct Archive.org address that no longer works: ask the fetcher for the current one and carry on
+      a.addEventListener("error", () => { const fb = archiveFallback(a!.src); if (!fb) return; const at = a!.currentTime; a!.src = fb; a!.currentTime = at; a!.play().catch(() => {}); });
       a.addEventListener("loadedmetadata", () => setTrack((t) => (t && (!t.duration || Math.abs(t.duration - a!.duration) > 5) && a!.duration ? { ...t, duration: a!.duration } : t))); }
     if (a.src !== track.url) { a.src = track.url; a.currentTime = 0; setBuffered(0); }
   }, [track?.url]); // eslint-disable-line react-hooks/exhaustive-deps

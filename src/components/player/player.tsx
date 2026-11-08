@@ -10,7 +10,7 @@ const SPEEDS = [0.75, 1, 1.1, 1.25, 1.5, 1.75, 2];
 type Near = { slug: string; title: string; date: string | null; place: string | null; duration_sec: number | null; audio_url: string | null; transcript_status: string | null };
 type Info = { text: { h?: number; t: string }[]; prev: Near | null; next: Near | null };
 const SHORTCUTS: [string, string][] = [["K or Space", "Play / pause"], ["J  L", "Back / forward 10 seconds"], ["←  →", "Back / forward 5 seconds"], ["Shift ↑ ↓", "Volume up / down"], ["M", "Mute"], ["<  >", "Slower / faster"], ["T", "Show / hide the transcription"], ["P", "Pop out / dock the player"], ["F", "Full player"], ["N  B", "Next / previous lecture"], ["?", "These shortcuts"], ["Esc", "Close the full player"]];
-const toTrack = (n: Near): Track => ({ slug: n.slug, title: n.title, subtitle: [n.date, n.place].filter(Boolean).join(", "), duration: n.duration_sec || 0, url: playUrl(n.audio_url), href: `/teachings/audio/${n.slug}`, transcript: n.transcript_status === "done" });
+const toTrack = (n: Near): Track => ({ slug: n.slug, title: n.title, subtitle: [n.date, n.place].filter(Boolean).join(", "), duration: n.duration_sec || 0, url: playUrl(n.audio_url, (n as any).audio_direct), href: `/teachings/audio/${n.slug}`, transcript: n.transcript_status === "done" });
 
 /* -------------------------------------------------------------- shared bits */
 function Scrubber({ big }: { big?: boolean }) {

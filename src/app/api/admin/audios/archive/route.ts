@@ -3,7 +3,7 @@
    POST { import: { item, rows: [...], status, kind, language } } → adds the chosen recordings (only the link is stored; the sound stays on Archive.org). */
 import { sql } from "@/lib/db";
 import { guard, json, fail } from "@/lib/api";
-import { itemMeta, parseName } from "@/lib/archive";
+import { itemMeta, parseName, refreshItemDirect } from "@/lib/archive";
 import { archiveDownload, archiveItem } from "@/lib/archive-url";
 import { nextCode } from "@/lib/content/audio-names";
 import { searchText, uniqueSlug, slugBase } from "@/lib/content/audios";
@@ -25,19 +25,28 @@ export async function POST(req: Request) {
   if (b.import) {
     const { item, rows, status = "published", kind = "lecture", language = null } = b.import; if (!item || !Array.isArray(rows)) return fail("Nothing to import.");
     const out: { name: string; code?: string; error?: string }[] = [];
+    // the direct MP3 address of each file, saved now so the player starts at once
+    const m = await itemMeta(item); const host = m?.d1 || m?.server;
+    const direct = (name: string) => (host && m?.dir && m.files.some((f) => f.name === name) ? `https://${host}${m.dir}/${name.split("/").map(encodeURIComponent).join("/")}` : null);
     for (const r of rows.slice(0, 60)) {
       try {
         const url = archiveDownload(item, r.name);
         if ((await sql`select 1 from audios where audio_url = ${url}`).length) { out.push({ name: r.name, error: "Already here" }); continue; }
         const a: Record<string, any> = { kind, type: null, title: String(r.title || r.name).slice(0, 300), date: r.date || null, date_note: r.date_note || null, place: r.place || null, country: r.country || null, scripture: r.scripture || null, canto: r.canto ?? null, chapter: r.chapter ?? null, verse: r.verse || null, language, duration_sec: r.duration_sec || null, audio_url: url, file_title: String(r.name).replace(/\.mp3$/i, "") };
         const code = await nextCode(a); const slug = await uniqueSlug(slugBase(a));
-        await sql`insert into audios (kind, slug, title, file_title, code, date, date_note, place, country, scripture, canto, chapter, verse, language, duration_sec, audio_url, transcript_status, status, search)
-          values (${a.kind}, ${slug}, ${a.title}, ${a.file_title}, ${code}, ${a.date}, ${a.date_note}, ${a.place}, ${a.country}, ${a.scripture}, ${a.canto}, ${a.chapter}, ${a.verse}, ${a.language}, ${a.duration_sec}, ${url}, 'none', ${status === "draft" ? "draft" : "published"}, ${searchText(a)})`;
+        await sql`insert into audios (kind, slug, title, file_title, code, date, date_note, place, country, scripture, canto, chapter, verse, language, duration_sec, audio_url, audio_direct, audio_direct_at, transcript_status, status, search)
+          values (${a.kind}, ${slug}, ${a.title}, ${a.file_title}, ${code}, ${a.date}, ${a.date_note}, ${a.place}, ${a.country}, ${a.scripture}, ${a.canto}, ${a.chapter}, ${a.verse}, ${a.language}, ${a.duration_sec}, ${url}, ${direct(r.name)}, ${direct(r.name) ? new Date().toISOString() : null}, 'none', ${status === "draft" ? "draft" : "published"}, ${searchText(a)})`;
         out.push({ name: r.name, code });
       } catch (e: any) { out.push({ name: r.name, error: String(e?.message || e).slice(0, 200) }); }
     }
     if (out.some((o) => o.code)) await freshSite();
     return json({ results: out });
+  }
+  /** Refresh the direct MP3 addresses of every recording from Archive.org (one request per collection). */
+  if (b.refresh) {
+    const items = ((await sql`select distinct split_part(substr(audio_url, 30), '/', 1) as item from audios where audio_url like 'https://archive.org/download/%'`) as any[]).map((r) => decodeURIComponent(r.item)).filter(Boolean);
+    let n = 0; for (const it of items) n += await refreshItemDirect(it);
+    await freshSite(); return json({ refreshed: n, collections: items.length });
   }
   return fail("Unknown request.");
 }

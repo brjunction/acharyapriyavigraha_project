@@ -13,7 +13,7 @@ export async function GET(_: Request, { params }: { params: Promise<{ slug: stri
   const songs = ["kirtan", "bhajan"].includes(a.kind);
   const nb = async (dir: "prev" | "next") => {
     const op = dir === "prev" ? "<" : ">", ord = dir === "prev" ? "desc" : "asc";
-    const q = `select slug, title, to_char(date, 'YYYY-MM-DD') date, place, duration_sec, audio_url, transcript_status from audios where status = 'published' and (kind in ('kirtan','bhajan')) = $1 and id <> $2 and (coalesce(date, '1900-01-01'), title) ${op} (coalesce($3::date, '1900-01-01'), $4) order by coalesce(date, '1900-01-01') ${ord}, title ${ord} limit 1`;
+    const q = `select slug, title, to_char(date, 'YYYY-MM-DD') date, place, duration_sec, audio_url, audio_direct, transcript_status from audios where status = 'published' and (kind in ('kirtan','bhajan')) = $1 and id <> $2 and (coalesce(date, '1900-01-01'), title) ${op} (coalesce($3::date, '1900-01-01'), $4) order by coalesce(date, '1900-01-01') ${ord}, title ${ord} limit 1`;
     try { return ((await sql.query(q, [songs, a.id, a.date, a.title])) as any[])[0] || null; } catch { return null; }
   };
   const [prev, next] = await Promise.all([nb("prev"), nb("next")]);

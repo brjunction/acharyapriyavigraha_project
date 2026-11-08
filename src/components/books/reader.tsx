@@ -30,7 +30,7 @@ export const FONTS: Record<FontK, [string, string]> = {
   noto: ["Noto Serif", `"Noto Serif", ${DEV}, Georgia, serif`],
 };
 /* every reading font, loaded once with the reader */
-const FONT_CSS = "https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;600&family=Atkinson+Hyperlegible:wght@400;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=Literata:opsz,wght@7..72,400;7..72,600&family=Gentium+Book+Plus:wght@400;700&family=EB+Garamond:wght@400;600&family=Crimson+Pro:wght@400;600&family=Lora:wght@400;600&family=Merriweather:wght@400;700&family=Noto+Serif:wght@400;600&family=Noto+Serif+Devanagari:wght@400;600&family=Noto+Sans+Devanagari:wght@400;600&display=swap";
+export const FONT_CSS = "https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;600&family=Atkinson+Hyperlegible:wght@400;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=Literata:opsz,wght@7..72,400;7..72,600&family=Gentium+Book+Plus:wght@400;700&family=EB+Garamond:wght@400;600&family=Crimson+Pro:wght@400;600&family=Lora:wght@400;600&family=Merriweather:wght@400;700&family=Noto+Serif:wght@400;600&family=Noto+Serif+Devanagari:wght@400;600&family=Noto+Sans+Devanagari:wght@400;600&display=swap";
 export const THEMES: Record<Theme, { label: string; bg: string; ink: string; muted: string; line: string; panel: string; swatch: string }> = {
   ivory: { label: "Ivory", bg: "#fffbf3", ink: "#2a2018", muted: "#8c7559", line: "rgba(90,60,20,0.11)", panel: "rgba(255,251,243,0.84)", swatch: "#fbf1dc" },
   light: { label: "White", bg: "#ffffff", ink: "#1c1c1c", muted: "#7a7a7a", line: "rgba(0,0,0,0.08)", panel: "rgba(255,255,255,0.78)", swatch: "#ffffff" },

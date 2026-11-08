@@ -174,3 +174,4 @@ alter table video_sources add column if not exists sync_state text, add column i
 alter table suggestions add column if not exists reply text, add column if not exists replied_at timestamptz, add column if not exists applied boolean not null default false;
 create table if not exists site_errors (id bigserial primary key, at timestamptz not null default now(), side text not null, path text, message text, stack text, digest text, ua text);
 alter table audios add column if not exists machine_transcript jsonb, add column if not exists machine_source text, add column if not exists machine_at timestamptz;
+alter table audios add column if not exists audio_direct text, add column if not exists audio_direct_at timestamptz;
