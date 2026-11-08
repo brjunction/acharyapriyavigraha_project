@@ -1,5 +1,6 @@
 "use client";
 import { archiveFallback } from "@/lib/archive-url";
+import { stopWarm } from "@/lib/audio-warm";
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 
 export type Prefs = {
@@ -123,7 +124,12 @@ export function Providers({ children }: { children: React.ReactNode }) {
       // a direct Archive.org address that no longer works: ask the fetcher for the current one and carry on
       a.addEventListener("error", () => { const fb = archiveFallback(a!.src); if (!fb) return; const at = a!.currentTime; a!.src = fb; a!.currentTime = at; a!.play().catch(() => {}); });
       a.addEventListener("loadedmetadata", () => setTrack((t) => (t && (!t.duration || Math.abs(t.duration - a!.duration) > 5) && a!.duration ? { ...t, duration: a!.duration } : t))); }
-    if (a.src !== track.url) { a.src = track.url; a.currentTime = 0; setBuffered(0); }
+    if (a.src !== track.url) { stopWarm(); a.src = track.url; a.currentTime = 0; setBuffered(0); }
+    // an Archive.org file is on two servers: if sound has not started within 2.5 s, try the other one at the same place
+    const el = a; const fb = archiveFallback(el.src); if (!fb) return;
+    let done = false; const ok = () => { done = true; }; el.addEventListener("playing", ok, { once: true });
+    const t = setTimeout(() => { if (done || el.paused || el.readyState >= 3) return; const at = el.currentTime; el.src = fb.replace("?retry=1", "?alt=1"); el.currentTime = at; el.play().catch(() => {}); }, 2500);
+    return () => { clearTimeout(t); el.removeEventListener("playing", ok); };
   }, [track?.url]); // eslint-disable-line react-hooks/exhaustive-deps
   // remember where each lecture was left
   useEffect(() => { if (!track || time < 5) return; if (Math.floor(time) % 5) return; try { const m = JSON.parse(localStorage.getItem("tj-resume") || "{}"); m[track.slug] = Math.floor(time); localStorage.setItem("tj-resume", JSON.stringify(m)); } catch {} }, [time, track]);

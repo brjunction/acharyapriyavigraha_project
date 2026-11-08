@@ -17,3 +17,5 @@ export function warm(url?: string | null) {
   timer = setTimeout(() => { try { if (!warmEl) { warmEl = new Audio(); warmEl.preload = "auto"; warmEl.muted = true; } if (warmEl.src !== new URL(url, location.href).href) { warmEl.src = url; warmEl.load(); } } catch {} }, 120);
 }
 export function cool() { if (timer) clearTimeout(timer); }
+/** Stop warming (the player is starting): the connection is kept for the player alone. */
+export function stopWarm() { if (timer) clearTimeout(timer); try { if (warmEl) { warmEl.removeAttribute("src"); warmEl.load(); } } catch {} }

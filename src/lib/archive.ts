@@ -78,8 +78,10 @@ export function parseName(name: string, length?: string, size?: string): Parsed 
 export async function refreshItemDirect(item: string) {
   const m = await itemMeta(item, true); const host = m?.d1 || m?.server; if (!m || !host || !m.dir) return 0;
   const rows = (await sql`select id, audio_url from audios where audio_url like ${`https://archive.org/download/${item}/%`}`) as { id: string; audio_url: string }[];
-  const names = new Set(m.files.map((f) => f.name)); const ids: string[] = []; const urls: string[] = [];
-  for (const r of rows) { const ref = archiveRef(r.audio_url); if (!ref || !names.has(ref.file)) continue; ids.push(r.id); urls.push(`https://${host}${m.dir}/${ref.file.split("/").map(encodeURIComponent).join("/")}`); }
-  if (ids.length) await sql`update audios a set audio_direct = t.u, audio_direct_at = now() from unnest(${ids}::uuid[], ${urls}::text[]) as t(i, u) where a.id = t.i`;
+  const names = new Set(m.files.map((f) => f.name)); const ids: string[] = []; const urls: string[] = []; const alts: string[] = [];
+  const host2 = m.d2 && m.d2 !== host ? m.d2 : null;
+  for (const r of rows) { const ref = archiveRef(r.audio_url); if (!ref || !names.has(ref.file)) continue; const path = `${m.dir}/${ref.file.split("/").map(encodeURIComponent).join("/")}`; ids.push(r.id); urls.push(`https://${host}${path}`); alts.push(host2 ? `https://${host2}${path}` : ""); }
+  // every file is kept on two Archive.org servers: the second address is the player's quick alternative
+  if (ids.length) await sql`update audios a set audio_direct = t.u, audio_direct2 = nullif(t.v, ''), audio_direct_at = now() from unnest(${ids}::uuid[], ${urls}::text[], ${alts}::text[]) as t(i, u, v) where a.id = t.i`;
   return ids.length;
 }
