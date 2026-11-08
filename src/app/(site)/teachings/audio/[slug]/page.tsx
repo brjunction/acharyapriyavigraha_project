@@ -13,7 +13,7 @@ export const revalidate = 300;
 export const dynamicParams = true;
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params; const a = await getAudio(slug);
-  if (a) { const l = toLecture(a); return { title: l.title, description: a.summary || [l.type, l.scripture, l.place, l.date].filter(Boolean).join(" · "), alternates: { canonical: `/teachings/audio/${slug}` } }; }
+  if (a) { const l = toLecture(a); return { title: l.title, description: a.summary || [l.type, l.scripture, l.place, l.date].filter(Boolean).join(" · "), alternates: { canonical: `/teachings/audio/${slug}` }, ...(/^(DEMO|TEST)/.test(a.code || "") ? { robots: { index: false, follow: false } } : {}) }; }
   const l = LECTURES.find((x) => x.slug === slug); return l ? { title: l.title } : {};
 }
 

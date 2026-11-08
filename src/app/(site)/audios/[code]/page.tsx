@@ -15,7 +15,7 @@ async function byCode(code: string) {
 export async function generateMetadata({ params }: { params: Promise<{ code: string }> }): Promise<Metadata> {
   const { code } = await params; const a = await byCode(code); if (!a) return {};
   const l = toLecture(a);
-  return { title: l.title, description: a.summary || [l.type, l.scripture, l.place, l.date].filter(Boolean).join(" · "), alternates: { canonical: `/audios/${a.code}` } };
+  return { title: l.title, description: a.summary || [l.type, l.scripture, l.place, l.date].filter(Boolean).join(" · "), alternates: { canonical: `/audios/${a.code}` }, ...(/^(DEMO|TEST)/.test(a.code || "") ? { robots: { index: false, follow: false } } : {}) };
 }
 export default async function Page({ params }: { params: Promise<{ code: string }> }) {
   const { code } = await params; const a = await byCode(code); if (!a) notFound();
