@@ -39,7 +39,7 @@ export async function topicContent(names: string[]) {
   const [quotes, compilations, lectures, videos, articles] = await Promise.all([
     q(sql`select e.slug, e.text, e.title, e.source, e.verse_ref, a.title as lecture, a.slug as lslug, a.date from excerpts e left join audios a on a.id = e.audio_id where e.status = 'published' and e.kind = 'quote' and e.topics && ${names} order by e.position, e.created_at limit 300`),
     q(sql`select e.slug, e.kind, e.title, e.text, e.source from excerpts e where e.status = 'published' and e.kind <> 'quote' and e.topics && ${names} order by e.kind, e.position limit 200`),
-    q(sql`select slug, title, kind, type, date, date_note, place, country, scripture, canto, chapter, verse, language, series, topics, duration_sec, audio_url, audio_direct, transcript_status from audios where status = 'published' and topics && ${names} order by date desc nulls last limit 200`),
+    q(sql`select slug, title, kind, type, date, date_note, place, country, scripture, canto, chapter, verse, language, series, topics, duration_sec, audio_url, audio_direct, audio_direct2, transcript_status from audios where status = 'published' and topics && ${names} order by date desc nulls last limit 200`),
     q(sql`select slug, title, date, youtube_id from videos where status = 'published' and topics && ${names} order by date desc nulls last limit 60`),
     q(sql`select slug, title, author, summary, date from articles where status = 'published' and topics && ${names} order by date desc nulls last limit 60`),
   ]);

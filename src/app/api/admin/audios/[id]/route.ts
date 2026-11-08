@@ -24,7 +24,12 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
   const sets: string[] = []; const vals: any[] = [];
   for (const [k, v] of Object.entries(a)) { vals.push(v); sets.push(`${k} = $${vals.length}`); }
   if (Array.isArray(b.transcript)) { vals.push(JSON.stringify(b.transcript)); sets.push(`transcript = $${vals.length}::jsonb`); }
-  vals.push(`${searchText(merged)} ${fold(docText(Array.isArray(b.transcript) ? b.transcript : cur.transcript || [], 400000))}`.trim()); sets.push(`search = $${vals.length}`);
+  // the automatic transcription (e.g. TwinMind), edited in the Studio like the devotees' one
+  if (Array.isArray(b.machine_transcript)) { vals.push(b.machine_transcript.length ? JSON.stringify(b.machine_transcript) : null); sets.push(`machine_transcript = $${vals.length}::jsonb`); if (b.machine_transcript.length && !cur.machine_at) sets.push(`machine_at = now()`); }
+  if (typeof b.machine_source === "string") { vals.push(b.machine_source.slice(0, 60) || null); sets.push(`machine_source = $${vals.length}`); }
+  // which transcription visitors see: best (devotees' if any, else automatic) · devotee · machine · both (a switch)
+  if (["best", "devotee", "machine", "both"].includes(b.transcript_show)) { vals.push(b.transcript_show); sets.push(`transcript_show = $${vals.length}`); }
+  vals.push(`${searchText(merged)} ${fold(docText(((t) => (t.length ? t : Array.isArray(b.machine_transcript) ? b.machine_transcript : cur.machine_transcript || []))(Array.isArray(b.transcript) ? b.transcript : cur.transcript || []), 400000))}`.trim()); sets.push(`search = $${vals.length}`);
   vals.push(id); await sql.query(`update audios set ${sets.join(", ")}, updated_at = now() where id = $${vals.length}`, vals);
   await rememberVocab(a); revalidatePath("/teachings/audio"); revalidatePath(`/teachings/audio/${cur.slug}`); revalidatePath("/teachings/kirtans"); if (merged.code) revalidatePath(`/audios/${merged.code}`);
   return json({ ok: true });

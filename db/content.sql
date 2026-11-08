@@ -179,3 +179,5 @@ alter table audios add column if not exists audio_direct text, add column if not
 create unique index if not exists videos_youtube_id_key on videos(youtube_id) where youtube_id is not null;
 create unique index if not exists audios_audio_url_key on audios(audio_url) where audio_url is not null;
 alter table audios add column if not exists audio_direct2 text;
+alter table audios add column if not exists transcript_show text not null default 'best'; -- best | devotee | machine | both
+alter table suggestions add column if not exists original text, add column if not exists proposed text, add column if not exists fp text; -- an edit suggestion: the paragraph as it is, the visitor's version (bold/italic as ** *), and a hashed sender mark for spam control

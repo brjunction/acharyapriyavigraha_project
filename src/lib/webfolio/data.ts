@@ -138,7 +138,7 @@ export async function itemPage(sec: string, g: string, slug: string): Promise<It
   if (!hasDb()) return null;
   if (sec === "lectures" || sec === "transcriptions" || sec === "kirtans") {
     const r = (await q(sql`select * from audios where slug = ${slug} and status = 'published'`))[0] as any; if (!r) return null;
-    return { title: r.title, sub: [date(r.date) || r.date_note, [r.place, r.country].filter(Boolean).join(", "), r.type, verseRef(r)].filter(Boolean).join(" · "), doc: r.transcript || [], text: r.summary || undefined, audio: playUrl(r.audio_url, r.audio_direct), href: `/teachings/audio/${slug}`,
+    return { title: r.title, sub: [date(r.date) || r.date_note, [r.place, r.country].filter(Boolean).join(", "), r.type, verseRef(r)].filter(Boolean).join(" · "), doc: r.transcript || [], text: r.summary || undefined, audio: playUrl(r.audio_url, r.audio_direct, r.audio_direct2), href: `/teachings/audio/${slug}`,
       facts: [["Length", durText(r.duration_sec)], ["Series", r.series], ["Language", r.language], ["Song", r.song], ["Written by", r.song_author], ["Sung by", r.singer]].filter(([, v]) => v) as [string, string][] };
   }
   if (sec === "videos") { const r = (await q(sql`select * from videos where slug = ${slug} and status = 'published'`))[0] as any; if (!r) return null; return { title: r.title, sub: [date(r.date) || r.year, r.place, r.type, r.scripture].filter(Boolean).join(" · "), text: r.description || undefined, youtube: r.youtube_id || undefined, href: `/teachings/videos/${slug}` }; }

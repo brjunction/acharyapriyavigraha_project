@@ -14,7 +14,7 @@ export function preconnect(url?: string | null) {
 export function warm(url?: string | null) {
   if (!url || typeof window === "undefined") return; preconnect(url);
   if (timer) clearTimeout(timer);
-  timer = setTimeout(() => { try { if (!warmEl) { warmEl = new Audio(); warmEl.preload = "auto"; warmEl.muted = true; } if (warmEl.src !== new URL(url, location.href).href) { warmEl.src = url; warmEl.load(); } } catch {} }, 120);
+  timer = setTimeout(() => { try { if (!warmEl) { warmEl = new Audio(); warmEl.preload = "metadata"; warmEl.muted = true; } if (warmEl.src !== new URL(url, location.href).href) { warmEl.src = url; warmEl.load(); } } catch {} }, 120);
 }
 export function cool() { if (timer) clearTimeout(timer); }
 /** Stop warming (the player is starting): the connection is kept for the player alone. */

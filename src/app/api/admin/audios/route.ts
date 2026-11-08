@@ -10,7 +10,7 @@ export async function GET(req: Request) {
   const u = new URL(req.url).searchParams; const p = (k: string) => u.get(k) || null;
   const songs = p("kind") === "songs"; const q = p("q") ? `%${fold(p("q"))}%` : null; const page = Math.max(1, Number(p("page")) || 1); const per = Math.min(200, Number(p("per")) || 50);
   const need = p("need"); const sort = p("sort") || "new";
-  const rows = await sql`select id, slug, kind, type, title, date, date_note, place, country, scripture, canto, chapter, verse, series, topics, duration_sec, audio_url, audio_direct, transcript_status, status, updated_at, count(*) over() as total
+  const rows = await sql`select id, slug, kind, type, title, date, date_note, place, country, scripture, canto, chapter, verse, series, topics, duration_sec, audio_url, audio_direct, audio_direct2, transcript_status, status, updated_at, count(*) over() as total
     from audios where (kind in ('kirtan','bhajan')) = ${songs}
       and (${q}::text is null or search like ${q}) and (${p("year")}::text is null or extract(year from date)::text = ${p("year")})
       and (${p("place")}::text is null or place = ${p("place")}) and (${p("type")}::text is null or coalesce(type, '') = ${p("type")}) and (${p("scripture")}::text is null or scripture = ${p("scripture")})

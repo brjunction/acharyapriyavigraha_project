@@ -10,11 +10,15 @@ export function archiveRef(u?: string | null): { item: string; file: string } | 
 }
 export const archiveDownload = (item: string, file: string) => `https://archive.org/download/${encodeURIComponent(item)}/${enc(file)}`;
 /** The address the player should use: the saved direct MP3 address when there is one (fastest), otherwise our fetcher. */
-export function playUrl(u?: string | null, direct?: string | null): string | undefined {
+export function playUrl(u?: string | null, direct?: string | null, direct2?: string | null): string | undefined {
   if (!u) return undefined; const r = archiveRef(u);
   if (!r) return u;
-  return direct || `/api/archive/${encodeURIComponent(r.item)}/${enc(r.file)}`;
+  // the second Archive.org server rides along after "#" (never sent to the server), for the player to switch to if the first is slow
+  if (direct) return direct2 ? `${direct}#tj2=${encodeURIComponent(direct2)}` : direct;
+  return `/api/archive/${encodeURIComponent(r.item)}/${enc(r.file)}`;
 }
+/** The second server carried after "#tj2=", if any. */
+export const secondServer = (src?: string | null) => { const m = /#tj2=([^#]+)$/.exec(src || ""); try { return m ? decodeURIComponent(m[1]) : null; } catch { return null; } };
 /** If a direct Archive.org address (…archive.org/N/items/ITEM/FILE) fails, the fetcher finds the current one. */
 export function archiveFallback(src?: string | null): string | null {
   if (!src) return null; const m = /^https?:\/\/[^/]*archive\.org\/(?:\d+\/)?items\/([^/]+)\/([^?#]+)/i.exec(src); if (!m) return null;

@@ -14,7 +14,7 @@ export function blocksToMd(blocks: any[]): string {
   }
   return out.join("\n\n");
 }
-function mdInline(s: string): any[] {
+export function mdInline(s: string): any[] {
   const parts: any[] = []; const re = /(\*\*\*[^*]+\*\*\*|\*\*[^*]+\*\*|\*[^*\s][^*]*\*)/g; let last = 0; let m: RegExpExecArray | null;
   while ((m = re.exec(s))) { if (m.index > last) parts.push({ type: "text", text: s.slice(last, m.index), styles: {} }); const x = m[0]; const k = x.startsWith("***") ? 3 : x.startsWith("**") ? 2 : 1; parts.push({ type: "text", text: x.slice(k, -k), styles: k === 3 ? { bold: true, italic: true } : k === 2 ? { bold: true } : { italic: true } }); last = m.index + x.length; }
   if (last < s.length) parts.push({ type: "text", text: s.slice(last), styles: {} });

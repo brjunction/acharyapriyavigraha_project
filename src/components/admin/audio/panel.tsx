@@ -131,122 +131,152 @@ function Topics({ value, onChange }: { value: string[]; onChange: (v: string[]) 
   );
 }
 
+type Tab = "basics" | "text" | "verse" | "more";
+/** One recording, in four calm tabs: Basics · Transcriptions · Verse & topics · More. Every option is here, nothing crowds. */
 function Editor({ id, songs, onClose, onSaved }: { id: string; songs: boolean; onClose: () => void; onSaved: () => void }) {
-  const [a, setA] = useState<any>(id === "new" ? { kind: songs ? "kirtan" : "lecture", type: songs ? "Kīrtana" : "Lecture", topics: [], status: "published", transcript_status: "none" } : null);
-  const [busy, setBusy] = useState(false); const [text, setText] = useState(false); const [playing, setPlaying] = useState(false);
-  const [unk, setUnk] = useState(false); const [more, setMore] = useState(false); const [rev, setRev] = useState(0);
-  const audio = useRef<HTMLAudioElement | null>(null); const transcript = useRef<any[] | null>(null);
-  useEffect(() => { if (id !== "new") api(`/api/admin/audios/${id}`).then((r) => { setA({ ...r, date: r.date?.slice(0, 10) || "", type: r.type || AUDIO_KINDS.find(([k]) => k === r.kind)?.[1] || "" }); setUnk(!r.date); }).catch((e) => toast(e.message, true)); return () => audio.current?.pause(); }, [id]);
+  const [a, setA] = useState<any>(id === "new" ? { kind: songs ? "kirtan" : "lecture", type: songs ? "Kīrtana" : "Lecture", topics: [], status: "published", transcript_status: "none", transcript_show: "best" } : null);
+  const [busy, setBusy] = useState(false); const [text, setText] = useState<"" | "own" | "machine">(""); const [playing, setPlaying] = useState(false);
+  const [unk, setUnk] = useState(false); const [rev, setRev] = useState(0); const [tab, setTab] = useState<Tab>("basics");
+  const audio = useRef<HTMLAudioElement | null>(null); const transcript = useRef<any[] | null>(null); const machine = useRef<any[] | null>(null);
+  useEffect(() => { if (id !== "new") api(`/api/admin/audios/${id}`).then((r) => { setA({ ...r, date: r.date?.slice(0, 10) || "", type: r.type || AUDIO_KINDS.find(([k]) => k === r.kind)?.[1] || "", transcript_show: r.transcript_show || "best" }); setUnk(!r.date); }).catch((e) => toast(e.message, true)); return () => audio.current?.pause(); }, [id]);
   if (!a) return <Sheet title="Opening…" onClose={onClose}><div /></Sheet>;
   const set = (k: string, v: any) => setA((p: any) => ({ ...p, [k]: v }));
+  const own = transcript.current || a.transcript || []; const mach = machine.current || a.machine_transcript || [];
   const save = async (close = true) => {
-    if (!a.title?.trim()) return toast("Please give a title.", true); setBusy(true);
+    if (!a.title?.trim()) { setTab("basics"); return toast("Please give a title.", true); } setBusy(true);
     try {
-      const body = { ...a, ...(transcript.current ? { transcript: transcript.current } : {}) };
-      if (id === "new") { const r = await api<{ id: string }>("/api/admin/audios", "POST", body); if (transcript.current) await api(`/api/admin/audios/${r.id}`, "PATCH", { transcript: transcript.current }); }
+      const extra = { ...(transcript.current ? { transcript: transcript.current } : {}), ...(machine.current ? { machine_transcript: machine.current } : {}), machine_source: a.machine_source || "", transcript_show: a.transcript_show };
+      const body = { ...a, ...extra };
+      if (id === "new") { const r = await api<{ id: string }>("/api/admin/audios", "POST", body); await api(`/api/admin/audios/${r.id}`, "PATCH", extra); }
       else await api(`/api/admin/audios/${id}`, "PATCH", body);
       toast("Saved."); onSaved(); if (close) onClose();
     } catch (e: any) { toast(e.message, true); } finally { setBusy(false); }
   };
   const test = () => { if (!a.audio_url) return; if (!audio.current) { audio.current = new Audio(); audio.current.addEventListener("loadedmetadata", () => { if (audio.current && !a.duration_sec) set("duration_sec", Math.round(audio.current.duration)); }); audio.current.addEventListener("pause", () => setPlaying(false)); }
-    if (playing) { audio.current.pause(); return; } audio.current.src = playUrl(a.audio_url) || ""; audio.current.play().then(() => setPlaying(true)).catch(() => toast("That link does not play. Check it is a direct link to an MP3 file.", true)); };
+    if (playing) { audio.current.pause(); return; } audio.current.src = playUrl(a.audio_url, a.audio_direct) || ""; audio.current.play().then(() => setPlaying(true)).catch(() => toast("That link does not play. Check it is a direct link to an MP3 file.", true)); };
   const song = songs || isSong(a.kind);
   const typeOf = (t: string) => (songs ? (fold(t || "").startsWith("bhaj") ? "bhajan" : "kirtan") : AUDIO_KINDS.find(([k, l]) => !isSong(k) && fold(l) === fold(t || ""))?.[0] || (t ? "other" : "lecture"));
-  const word = async (f: File) => {
-    try { const blocks = await docxToBlocks(f); transcript.current = blocks; setA((p: any) => ({ ...p, transcript: blocks, transcript_status: p.transcript_status === "none" ? "draft" : p.transcript_status })); setRev((n) => n + 1); setText(true); toast(`Imported ${blocks.length} paragraphs from ${f.name}. Check it, then Save.`); }
-    catch (e: any) { toast(e.message || "This Word file could not be read.", true); }
+  const word = async (f: File, target: "own" | "machine" = "own") => {
+    try {
+      const blocks = /\.docx$/i.test(f.name) ? await docxToBlocks(f) : await (async () => { const { BlockNoteEditor } = await import("@blocknote/core"); return BlockNoteEditor.create().tryParseMarkdownToBlocks(await f.text()); })();
+      if (target === "own") { transcript.current = blocks; setA((p: any) => ({ ...p, transcript: blocks, transcript_status: p.transcript_status === "none" ? "draft" : p.transcript_status })); }
+      else { machine.current = blocks; setA((p: any) => ({ ...p, machine_transcript: blocks, machine_source: p.machine_source || "TwinMind" })); }
+      setRev((n) => n + 1); toast(`Brought in ${blocks.length} paragraphs from ${f.name}. Check them, then Save.`);
+    } catch (e: any) { toast(e.message || "This file could not be read.", true); }
   };
-  const hasText = !!(transcript.current?.length || a.transcript?.length);
+  const useAuto = () => { if (!mach.length) return; if (own.length && !confirm("Replace the devotee transcription with a copy of the automatic one?")) return; const copy = JSON.parse(JSON.stringify(mach)); transcript.current = copy; setA((p: any) => ({ ...p, transcript: copy, transcript_status: p.transcript_status === "none" ? "draft" : p.transcript_status })); setRev((n) => n + 1); toast("Copied. The devotee transcription can now be checked and edited."); };
+  const clearOne = (target: "own" | "machine") => { if (!confirm(target === "own" ? "Remove the devotee transcription?" : "Remove the automatic transcription?")) return; if (target === "own") { transcript.current = []; setA((p: any) => ({ ...p, transcript: [], transcript_status: "none" })); } else { machine.current = []; setA((p: any) => ({ ...p, machine_transcript: [] })); } };
+  const words = (bl: any[]) => { let n = 0; const walk = (x: any) => { if (Array.isArray(x)) x.forEach(walk); else if (x && typeof x === "object") { if (typeof x.text === "string") n += x.text.split(/\s+/).filter(Boolean).length; walk(x.content); walk(x.children); } }; walk(bl); return n; };
+  const TABS: [Tab, string][] = [["basics", "Basics"], ["text", song ? "Words" : "Transcriptions"], ["verse", song ? "Song & topics" : "Verse & topics"], ["more", "More"]];
+  const live = a.status === "published";
+  const card = "rounded-xl border border-zinc-200 bg-white";
+  const fileBtn = (label: string, target: "own" | "machine", accept: string) => <label className="inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-md border border-zinc-200 bg-white px-3 text-[12.5px] font-medium hover:bg-zinc-50"><FileUp className="size-4" />{label}<input type="file" accept={accept} className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) word(f, target); e.target.value = ""; }} /></label>;
   return (
-    <Sheet width="max-w-2xl" onClose={onClose} title={id === "new" ? (songs ? "New kīrtana" : "New lecture") : a.title}
-      actions={<>{id !== "new" && a.status === "published" && <a href={`/teachings/audio/${a.slug}`} target="_blank" className="rounded-md p-1.5 text-zinc-500 hover:bg-zinc-100" title="View on website"><ExternalLink className="size-4" /></a>}<Btn size="sm" kind="primary" busy={busy} onClick={() => save()}>Save</Btn></>}>
+    <Sheet width="max-w-3xl" onClose={onClose} title={id === "new" ? (songs ? "New kīrtana" : "New lecture") : a.title}
+      actions={<>{id !== "new" && live && <a href={a.code ? `/audios/${a.code}` : `/teachings/audio/${a.slug}`} target="_blank" className="rounded-md p-1.5 text-zinc-500 hover:bg-zinc-100" title="View on website"><ExternalLink className="size-4" /></a>}<Btn size="sm" kind="primary" busy={busy} onClick={() => save()}>Save</Btn></>}>
+      {/* tabs and the one switch that matters most */}
+      <div className="sticky top-0 z-10 flex flex-wrap items-center justify-between gap-2 border-b border-zinc-200 bg-white px-5 py-2">
+        <div className="flex gap-1 overflow-x-auto">{TABS.map(([k, l]) => <button key={k} onClick={() => setTab(k)} className={cn("whitespace-nowrap rounded-md px-3 py-1.5 text-[13px]", tab === k ? "bg-zinc-900 font-medium text-white" : "text-zinc-600 hover:bg-zinc-100")}>{l}</button>)}</div>
+        <button onClick={() => set("status", live ? "draft" : "published")} className={cn("flex items-center gap-2 rounded-full border px-3 py-1 text-[12.5px] font-medium", live ? "border-emerald-200 bg-emerald-50 text-emerald-700" : "border-zinc-200 bg-zinc-50 text-zinc-600")} title="Shown on the website or hidden"><span className={cn("size-2 rounded-full", live ? "bg-emerald-500" : "bg-zinc-400")} />{live ? "Live on the website" : "Hidden"}</button>
+      </div>
       <div className="space-y-5 p-5">
-        <Field label="Title"><Input autoFocus={id === "new"} value={a.title || ""} onChange={(e) => set("title", e.target.value)} placeholder={song ? "e.g. Śrī Guru-vandanā" : "e.g. The mercy of Śrīla Prabhupāda"} /></Field>
-        <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_200px]">
-          <Field label="File name" hint="The second title: the name of the MP3 when someone downloads it. Made from the date, place and verse — press Suggest after filling them in.">
-            <div className="flex gap-2"><Input value={a.file_title || ""} onChange={(e) => set("file_title", e.target.value.replace(/\.mp3$/i, ""))} placeholder="1977_10_11_Bhubaneswar_Bhagavatam_10_66" className="font-mono text-[12.5px]" /><Btn onClick={() => set("file_title", fileTitle(a))}>Suggest</Btn></div>
-          </Field>
-          <Field label="Address code" hint={`taptajivanam.com/audios/${a.code || "…"} — filled in by itself when saved (date + place + number).`}>
-            <Input value={a.code || ""} onChange={(e) => set("code", e.target.value.replace(/[^0-9A-Za-z_-]/g, ""))} placeholder={`${(a.date || "").replace(/-/g, "") || "YYYYMMDD"}${placeCode(a.place)}1`} className="font-mono text-[12.5px]" />
-          </Field>
-        </div>
-        <Field label="Type" hint="Used to organise the list on the website. Add your own with “Add new…”.">
-          <Pick kind={songs ? "stype" : "atype"} base={AUDIO_KINDS.filter(([k]) => isSong(k) === songs && k !== "other").map(([, l]) => l)} value={a.type || ""} onChange={(v) => setA((p: any) => ({ ...p, type: v, kind: typeOf(v) }))} empty="Choose a type" addLabel="type" />
-        </Field>
-        <div className="grid gap-4 sm:grid-cols-2">
-          <Field label="Date">
-            {unk ? <div className="flex gap-2"><Input value={a.date_note || ""} onChange={(e) => set("date_note", e.target.value)} placeholder="Unknown (or what is known, e.g. Summer 1993)" /></div>
-              : <Input type="date" value={a.date || ""} onChange={(e) => set("date", e.target.value)} />}
-            <label className="mt-1.5 flex items-center gap-2 text-[12px] text-zinc-600"><input type="checkbox" checked={unk} onChange={(e) => { setUnk(e.target.checked); if (e.target.checked) set("date", ""); else set("date_note", ""); }} className="size-3.5 accent-zinc-900" />Date unknown</label>
-          </Field>
-          <Field label="Place"><Pick kind="place" base={[]} value={a.place || ""} onChange={(v) => set("place", v)} empty="Unknown" addLabel="place" /></Field>
-        </div>
-        <Field label="MP3 link" hint="A direct link to the MP3 file. No upload is needed. Press Test to check it and fill the length.">
-          <div className="flex gap-2"><Input value={a.audio_url || ""} onChange={(e) => set("audio_url", e.target.value)} placeholder="https://archive.org/download/…/lecture.mp3" /><Btn onClick={test} disabled={!a.audio_url}>{playing ? <Pause /> : <Play />}{playing ? "Stop" : "Test"}</Btn></div>
-          {a.duration_sec ? <p className="mt-1 text-[12px] text-zinc-500">Length {durText(a.duration_sec)}</p> : null}
-        </Field>
-        <Field label="Language"><Pick kind="language" base={AUDIO_LANGS} value={a.language || ""} onChange={(v) => set("language", v)} empty="Not set" addLabel="language" /></Field>
-        <Field label={song ? "Words of the song" : "Transcription"}>
-          <div className="rounded-lg border border-zinc-200 bg-zinc-50/60 p-3">
-            <div className="flex flex-wrap items-center gap-2">
-              <Btn onClick={() => setText(true)}><FileText />{hasText ? "Open and edit" : "Write"}</Btn>
-              <label className="inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-md border border-zinc-200 bg-white px-3 text-[13px] font-medium shadow-xs hover:bg-zinc-50"><FileUp className="size-4" />Import from Word<input type="file" accept=".docx" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) word(f); e.target.value = ""; }} /></label>
-              {!song && <Select value={a.transcript_status} onChange={(e) => set("transcript_status", e.target.value)} className="!h-8 !w-40"><option value="none">Not started</option><option value="draft">In progress</option><option value="done">Finished</option></Select>}
-            </div>
-            <p className="mt-2 text-[12px] text-zinc-500">{hasText ? `${(transcript.current || a.transcript).length} paragraphs. ` : ""}A Word file keeps its headings, bold, italics and lists; you can edit everything afterwards.</p>
+        {tab === "basics" && <>
+          <Field label="Title"><Input autoFocus={id === "new"} value={a.title || ""} onChange={(e) => set("title", e.target.value)} placeholder={song ? "e.g. Śrī Guru-vandanā" : "e.g. The mercy of Śrīla Prabhupāda"} /></Field>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Field label="Type"><Pick kind={songs ? "stype" : "atype"} base={AUDIO_KINDS.filter(([k]) => isSong(k) === songs && k !== "other").map(([, l]) => l)} value={a.type || ""} onChange={(v) => setA((p: any) => ({ ...p, type: v, kind: typeOf(v) }))} empty="Choose a type" addLabel="type" /></Field>
+            <Field label="Language"><Pick kind="language" base={AUDIO_LANGS} value={a.language || ""} onChange={(v) => set("language", v)} empty="Not set" addLabel="language" /></Field>
+            <Field label="Date">
+              {unk ? <Input value={a.date_note || ""} onChange={(e) => set("date_note", e.target.value)} placeholder="Unknown (or what is known, e.g. Summer 1993)" /> : <Input type="date" value={a.date || ""} onChange={(e) => set("date", e.target.value)} />}
+              <label className="mt-1.5 flex items-center gap-2 text-[12px] text-zinc-600"><input type="checkbox" checked={unk} onChange={(e) => { setUnk(e.target.checked); if (e.target.checked) set("date", ""); else set("date_note", ""); }} className="size-3.5 accent-zinc-900" />Date unknown</label>
+            </Field>
+            <Field label="Place"><Pick kind="place" base={[]} value={a.place || ""} onChange={(v) => set("place", v)} empty="Unknown" addLabel="place" /></Field>
           </div>
-        </Field>
+          <Field label="MP3 link" hint="Paste the Archive.org link of the file (archive.org/download/…) or any direct MP3 link. Press Test to listen and fill in the length.">
+            <div className="flex gap-2"><Input value={a.audio_url || ""} onChange={(e) => set("audio_url", e.target.value)} placeholder="https://archive.org/download/…/lecture.mp3" /><Btn onClick={test} disabled={!a.audio_url}>{playing ? <Pause /> : <Play />}{playing ? "Stop" : "Test"}</Btn></div>
+            {a.duration_sec ? <p className="mt-1 text-[12px] text-zinc-500">Length {durText(a.duration_sec)}</p> : null}
+          </Field>
+          <Field label="Short summary" hint="Two or three lines shown in lists and search results."><Textarea value={a.summary || ""} onChange={(e) => set("summary", e.target.value)} /></Field>
+        </>}
 
-        <details className="group rounded-lg border border-zinc-200" open={more} onToggle={(e) => setMore((e.target as HTMLDetailsElement).open)}>
-          <summary className="flex cursor-pointer list-none items-center justify-between px-4 py-3 text-[13px] font-medium"><span>More details <span className="font-normal text-zinc-500">— country, verse, series, topics, summary…</span></span><ChevronRight className="size-4 text-zinc-400 transition group-open:rotate-90" /></summary>
-          <div className="space-y-5 border-t border-zinc-200 p-4">
-            <div className="grid gap-4 sm:grid-cols-2">
-              <Field label="Country"><Combo kind="country" value={a.country} onChange={(v) => set("country", v)} placeholder="e.g. India" /></Field>
-              <Field label="Occasion"><Combo kind="occasion" value={a.occasion} onChange={(v) => set("occasion", v)} placeholder="e.g. Gaura-pūrṇimā" /></Field>
+        {tab === "text" && <>
+          {!song && <div className={`${card} p-4`}>
+            <p className="text-[13px] font-semibold">On the website, show</p>
+            <div className="mt-2 grid gap-1.5 sm:grid-cols-2">{([["best", "The best one", "The devotee transcription when there is one, otherwise the automatic one"], ["devotee", "Devotee transcription only", "The automatic one stays hidden"], ["machine", "Automatic transcription only", "Marked as automatic for visitors"], ["both", "Both, with a switch", "Visitors choose which to read"]] as const).map(([k, l, d]) => <button key={k} onClick={() => set("transcript_show", k)} className={cn("rounded-lg border p-2.5 text-left", a.transcript_show === k ? "border-zinc-900 bg-zinc-50" : "border-zinc-200 hover:border-zinc-300")}><span className="flex items-center justify-between text-[13px] font-medium">{l}{a.transcript_show === k && <Check className="size-4" />}</span><span className="block text-[11.5px] text-zinc-500">{d}</span></button>)}</div>
+          </div>}
+          {/* the devotees' transcription */}
+          <div className={card}>
+            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-zinc-100 px-4 py-3"><p className="text-[13.5px] font-semibold">{song ? "Words of the song" : "Devotee transcription"}</p><span className="text-[12px] text-zinc-500">{own.length ? `${words(own).toLocaleString()} words` : "Empty"}</span></div>
+            <div className="flex flex-wrap items-center gap-2 p-4">
+              <Btn kind="primary" size="sm" onClick={() => setText("own")}><FileText />{own.length ? "Open and edit" : "Write"}</Btn>
+              {fileBtn("Bring in Word / text file", "own", ".docx,.txt,.md")}
+              {!song && <Select value={a.transcript_status} onChange={(e) => set("transcript_status", e.target.value)} className="!h-8 !w-auto text-[12.5px]"><option value="none">Not started</option><option value="draft">In progress</option><option value="done">Finished</option></Select>}
+              {own.length > 0 && <button onClick={() => clearOne("own")} className="ml-auto text-[12px] text-zinc-400 hover:text-red-600">Remove</button>}
             </div>
-            {!song && <div>
-              <div className="grid gap-4 sm:grid-cols-4">
-                <Field label="Scripture" className="sm:col-span-2"><Select value={a.scripture || ""} onChange={(e) => set("scripture", e.target.value || null)}><option value="">None</option>{Object.entries(SCRIPTURES).map(([k, v]) => <option key={k} value={k}>{v}</option>)}</Select></Field>
-                {a.scripture === "SB" && <Field label="Canto"><Input type="number" min={1} max={12} value={a.canto ?? ""} onChange={(e) => set("canto", e.target.value)} /></Field>}
-                {a.scripture === "CC" && <Field label="Līlā"><Select value={a.canto ?? ""} onChange={(e) => set("canto", e.target.value)}><option value="" />{CC_LILA.map((l, i) => <option key={l} value={i + 1}>{l}</option>)}</Select></Field>}
-                {a.scripture && a.scripture !== "OTHER" && <Field label="Chapter"><Input type="number" min={1} value={a.chapter ?? ""} onChange={(e) => set("chapter", e.target.value)} /></Field>}
-                {a.scripture && <Field label={a.scripture === "OTHER" ? "Reference" : "Verse"} className={a.scripture === "OTHER" ? "sm:col-span-2" : ""}><Input value={a.verse || ""} onChange={(e) => set("verse", e.target.value)} placeholder={a.scripture === "OTHER" ? "e.g. Śikṣāṣṭakam 3" : "e.g. 6 or 6-7"} /></Field>}
-              </div>
-              <p className="mt-2 text-[12px] text-zinc-500">Shown as <b className="text-zinc-800">{verseRef(a) || "—"}</b>. Or type a reference: <input onKeyDown={(e) => { if (e.key === "Enter") { const p = parseRef((e.target as HTMLInputElement).value); setA((x: any) => ({ ...x, ...p })); (e.target as HTMLInputElement).value = ""; } }} placeholder="SB 1.2.6 ↵" className="ml-1 w-28 rounded border border-zinc-200 px-1.5 py-0.5 text-[11.5px] outline-none" /></p>
-            </div>}
-            {song && <div className="grid gap-4 sm:grid-cols-3">
-              <Field label="Song or bhajana"><Input value={a.song || ""} onChange={(e) => set("song", e.target.value)} placeholder="e.g. Gurudeva kṛpā-bindu diyā" /></Field>
-              <Field label="Written by"><Input value={a.song_author || ""} onChange={(e) => set("song_author", e.target.value)} placeholder="e.g. Bhaktivinoda Ṭhākura" /></Field>
-              <Field label="Sung by"><Combo kind="singer" value={a.singer} onChange={(v) => set("singer", v)} /></Field>
-            </div>}
-            <div className="grid gap-4 sm:grid-cols-2">
-              <Field label="Series"><Combo kind="series" value={a.series} onChange={(v) => set("series", v)} placeholder="e.g. Bhubaneswar 1993 SB class" /></Field>
-              <Field label="Length" hint="h:mm:ss"><Input value={durText(a.duration_sec)} onChange={(e) => set("duration_sec", parseDur(e.target.value))} placeholder="1:12:00" /></Field>
+          </div>
+          {/* the automatic one */}
+          {!song && <div className={card}>
+            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-zinc-100 px-4 py-3"><p className="text-[13.5px] font-semibold">Automatic transcription</p><span className="flex items-center gap-2 text-[12px] text-zinc-500">From <Input value={a.machine_source || ""} onChange={(e) => set("machine_source", e.target.value)} placeholder="TwinMind" className="!h-7 !w-36 text-[12px]" />{mach.length ? ` · ${words(mach).toLocaleString()} words` : " · Empty"}</span></div>
+            <div className="flex flex-wrap items-center gap-2 p-4">
+              <Btn size="sm" onClick={() => setText("machine")}><FileText />{mach.length ? "Open and edit" : "Write"}</Btn>
+              {fileBtn("Bring in TwinMind file", "machine", ".docx,.txt,.md")}
+              <Btn size="sm" onClick={useAuto} disabled={!mach.length} title="Copy it into the devotee transcription, to check and correct there">Use as devotee transcription</Btn>
+              {mach.length > 0 && <button onClick={() => clearOne("machine")} className="ml-auto text-[12px] text-zinc-400 hover:text-red-600">Remove</button>}
             </div>
-            <Field label="Topics"><Topics value={a.topics || []} onChange={(v) => set("topics", v)} /></Field>
-            <Field label="Short summary" hint="Two or three lines that appear in lists and search results."><Textarea value={a.summary || ""} onChange={(e) => set("summary", e.target.value)} /></Field>
+            <p className="px-4 pb-3 text-[11.5px] text-zinc-500">Bring in the file you downloaded from TwinMind (Word, text or Markdown). Inside the editor, the AI assistant can structure and tidy it.</p>
+          </div>}
+        </>}
+
+        {tab === "verse" && <>
+          {!song && <div>
+            <div className="grid gap-4 sm:grid-cols-4">
+              <Field label="Scripture" className="sm:col-span-2"><Select value={a.scripture || ""} onChange={(e) => set("scripture", e.target.value || null)}><option value="">None</option>{Object.entries(SCRIPTURES).map(([k, v]) => <option key={k} value={k}>{v}</option>)}</Select></Field>
+              {a.scripture === "SB" && <Field label="Canto"><Input type="number" min={1} max={12} value={a.canto ?? ""} onChange={(e) => set("canto", e.target.value)} /></Field>}
+              {a.scripture === "CC" && <Field label="Līlā"><Select value={a.canto ?? ""} onChange={(e) => set("canto", e.target.value)}><option value="" />{CC_LILA.map((l, i) => <option key={l} value={i + 1}>{l}</option>)}</Select></Field>}
+              {a.scripture && a.scripture !== "OTHER" && <Field label="Chapter"><Input type="number" min={1} value={a.chapter ?? ""} onChange={(e) => set("chapter", e.target.value)} /></Field>}
+              {a.scripture && <Field label={a.scripture === "OTHER" ? "Reference" : "Verse"} className={a.scripture === "OTHER" ? "sm:col-span-2" : ""}><Input value={a.verse || ""} onChange={(e) => set("verse", e.target.value)} placeholder={a.scripture === "OTHER" ? "e.g. Śikṣāṣṭakam 3" : "e.g. 6 or 6-7"} /></Field>}
+            </div>
+            <p className="mt-2 text-[12px] text-zinc-500">Shown as <b className="text-zinc-800">{verseRef(a) || "—"}</b>. Or type a reference: <input onKeyDown={(e) => { if (e.key === "Enter") { const p = parseRef((e.target as HTMLInputElement).value); setA((x: any) => ({ ...x, ...p })); (e.target as HTMLInputElement).value = ""; } }} placeholder="SB 1.2.6 ↵" className="ml-1 w-28 rounded border border-zinc-200 px-1.5 py-0.5 text-[11.5px] outline-none" /></p>
+          </div>}
+          {song && <div className="grid gap-4 sm:grid-cols-3">
+            <Field label="Song or bhajana"><Input value={a.song || ""} onChange={(e) => set("song", e.target.value)} placeholder="e.g. Gurudeva kṛpā-bindu diyā" /></Field>
+            <Field label="Written by"><Input value={a.song_author || ""} onChange={(e) => set("song_author", e.target.value)} placeholder="e.g. Bhaktivinoda Ṭhākura" /></Field>
+            <Field label="Sung by"><Combo kind="singer" value={a.singer} onChange={(v) => set("singer", v)} /></Field>
+          </div>}
+          <Field label="Topics"><Topics value={a.topics || []} onChange={(v) => set("topics", v)} /></Field>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Field label="Series"><Combo kind="series" value={a.series} onChange={(v) => set("series", v)} placeholder="e.g. Bhubaneswar 1993 SB class" /></Field>
+            <Field label="Occasion"><Combo kind="occasion" value={a.occasion} onChange={(v) => set("occasion", v)} placeholder="e.g. Gaura-pūrṇimā" /></Field>
+            <Field label="Country"><Combo kind="country" value={a.country} onChange={(v) => set("country", v)} placeholder="e.g. India" /></Field>
+          </div>
+        </>}
+
+        {tab === "more" && <>
+          <div className="grid gap-4 sm:grid-cols-[minmax(0,1fr)_200px]">
+            <Field label="File name" hint="The name of the MP3 when someone downloads it. Press Suggest to make it from the date, place and verse.">
+              <div className="flex gap-2"><Input value={a.file_title || ""} onChange={(e) => set("file_title", e.target.value.replace(/\.mp3$/i, ""))} placeholder="1977_10_11_Bhubaneswar_Bhagavatam_10_66" className="font-mono text-[12.5px]" /><Btn onClick={() => set("file_title", fileTitle(a))}>Suggest</Btn></div>
+            </Field>
+            <Field label="Address code" hint={`taptajivanam.com/audios/${a.code || "…"} — filled in by itself when saved.`}>
+              <Input value={a.code || ""} onChange={(e) => set("code", e.target.value.replace(/[^0-9A-Za-z_-]/g, ""))} placeholder={`${(a.date || "").replace(/-/g, "") || "YYYYMMDD"}${placeCode(a.place)}1`} className="font-mono text-[12.5px]" />
+            </Field>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Field label="Length" hint="h:mm:ss"><Input value={durText(a.duration_sec)} onChange={(e) => set("duration_sec", parseDur(e.target.value))} placeholder="1:12:00" /></Field>
             <Field label="Second MP3 link (backup)"><Input value={a.audio_url_alt || ""} onChange={(e) => set("audio_url_alt", e.target.value)} placeholder="https://…" /></Field>
           </div>
-        </details>
-
-        <Group title="Publishing">
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Field label="Shown on the website"><Select value={a.status} onChange={(e) => set("status", e.target.value)}><option value="published">Yes, live</option><option value="draft">No, hidden</option></Select></Field>
-            <Field label="Notes for the team" hint="Never shown on the website."><Input value={a.notes || ""} onChange={(e) => set("notes", e.target.value)} /></Field>
-          </div>
-          {id !== "new" && <div className="mt-5 flex justify-between border-t border-zinc-200 pt-4"><span className="text-[12px] text-zinc-500">Address: /teachings/audio/{a.slug}</span><Btn size="sm" kind="danger" onClick={async () => { if (!confirm("Delete this recording?")) return; await api(`/api/admin/audios/${id}`, "DELETE"); onSaved(); onClose(); }}><Trash2 />Delete</Btn></div>}
-        </Group>
+          <Field label="Notes for the team" hint="Never shown on the website."><Textarea value={a.notes || ""} onChange={(e) => set("notes", e.target.value)} /></Field>
+          {id !== "new" && <div className="flex justify-between border-t border-zinc-200 pt-4"><span className="text-[12px] text-zinc-500">Address: /audios/{a.code || a.slug}</span><Btn size="sm" kind="danger" onClick={async () => { if (!confirm("Delete this recording?")) return; await api(`/api/admin/audios/${id}`, "DELETE"); onSaved(); onClose(); }}><Trash2 />Delete</Btn></div>}
+        </>}
       </div>
-      {text && <TranscriptionStudio a={a} song={song} initial={transcript.current || a.transcript || []} rev={rev} busy={busy}
-        onChange={(bl) => { transcript.current = bl; }} onStatus={(v) => set("transcript_status", v)} onWord={word}
-        onSave={async () => { await save(false); }} onClose={() => setText(false)}
-        onReplace={(bl) => { transcript.current = bl; setA((p: any) => ({ ...p, transcript: bl })); setRev((r) => r + 1); }} onSummary={(t) => set("summary", t)} />}
+      {text && <TranscriptionStudio key={text} a={a} song={song} label={text === "machine" ? `Automatic transcription${a.machine_source ? ` (${a.machine_source})` : ""}` : song ? "Words" : "Devotee transcription"} initial={text === "machine" ? mach : own} rev={rev} busy={busy}
+        onChange={(bl) => { if (text === "machine") machine.current = bl; else transcript.current = bl; }} onStatus={(v) => set("transcript_status", v)} onWord={(f) => word(f, text)}
+        onSave={async () => { await save(false); }} onClose={() => setText("")}
+        onReplace={(bl) => { if (text === "machine") { machine.current = bl; setA((p: any) => ({ ...p, machine_transcript: bl })); } else { transcript.current = bl; setA((p: any) => ({ ...p, transcript: bl })); } setRev((r) => r + 1); }} onSummary={(t) => set("summary", t)} showStatus={text === "own"} />}
     </Sheet>
   );
 }
 
 /** A quiet, full-screen place to transcribe: the recording and its details on the left, the text on the right. */
-function TranscriptionStudio({ a, song, initial, rev, busy, onChange, onStatus, onWord, onSave, onClose, onReplace, onSummary }: { a: any; song: boolean; initial: any[]; rev: number; busy: boolean; onChange: (b: any[]) => void; onStatus: (v: string) => void; onWord: (f: File) => void; onSave: () => Promise<void>; onClose: () => void; onReplace: (b: any[]) => void; onSummary: (s: string) => void }) {
+function TranscriptionStudio({ a, song, label, showStatus = true, initial, rev, busy, onChange, onStatus, onWord, onSave, onClose, onReplace, onSummary }: { a: any; song: boolean; label?: string; showStatus?: boolean; initial: any[]; rev: number; busy: boolean; onChange: (b: any[]) => void; onStatus: (v: string) => void; onWord: (f: File) => void; onSave: () => Promise<void>; onClose: () => void; onReplace: (b: any[]) => void; onSummary: (s: string) => void }) {
   const el = useRef<HTMLAudioElement>(null); const [t, setT] = useState(0); const [dur, setDur] = useState(a.duration_sec || 0); const [on, setOn] = useState(false); const [rate, setRate] = useState(1);
   const [dirty, setDirty] = useState(false); const [saved, setSaved] = useState<Date | null>(null); const [words, setWords] = useState(0); const current = useRef<any[]>(initial);
   const count = (bl: any[]) => { let n = 0; const walk = (x: any) => { if (Array.isArray(x)) x.forEach(walk); else if (x && typeof x === "object") { if (typeof x.text === "string") n += x.text.split(/\s+/).filter(Boolean).length; walk(x.content); walk(x.children); } }; walk(bl); return n; };
@@ -262,7 +292,7 @@ function TranscriptionStudio({ a, song, initial, rev, busy, onChange, onStatus, 
     <div className="fixed inset-0 z-[95] flex flex-col bg-white">
       <div className="flex h-12 items-center gap-3 border-b border-zinc-200 px-4">
         <button onClick={onClose} className="flex items-center gap-1 rounded-md px-2 py-1 text-[13px] text-zinc-600 hover:bg-zinc-100"><ChevronLeft className="size-4" />Details</button>
-        <p className="min-w-0 flex-1 truncate text-[13px] font-medium">{song ? "Words" : "Transcription"} · {a.title}</p>
+        <p className="min-w-0 flex-1 truncate text-[13px] font-medium">{label || (song ? "Words" : "Transcription")} · {a.title}</p>
         <span className="hidden text-[12px] text-zinc-500 sm:block">{words.toLocaleString()} words · {dirty ? "Unsaved changes" : saved ? `Saved ${saved.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}` : "Saved"}</span>
         <Btn size="sm" kind="primary" busy={busy} onClick={save}>Save</Btn>
       </div>
@@ -271,7 +301,7 @@ function TranscriptionStudio({ a, song, initial, rev, busy, onChange, onStatus, 
           <div>
             <p className="text-[12px] font-medium text-zinc-500">Recording</p>
             {a.audio_url ? <>
-              <audio ref={el} src={playUrl(a.audio_url)} preload="metadata" onTimeUpdate={(e) => setT(e.currentTarget.currentTime)} onLoadedMetadata={(e) => setDur(e.currentTarget.duration)} onPlay={() => setOn(true)} onPause={() => setOn(false)} />
+              <audio ref={el} src={playUrl(a.audio_url, a.audio_direct)} preload="none" onTimeUpdate={(e) => setT(e.currentTarget.currentTime)} onLoadedMetadata={(e) => setDur(e.currentTarget.duration)} onPlay={() => setOn(true)} onPause={() => setOn(false)} />
               <div className="mt-2 rounded-lg border border-zinc-200 bg-white p-3">
                 <div className="flex items-center gap-2"><button onClick={play} className="flex size-9 items-center justify-center rounded-full bg-zinc-900 text-white">{on ? <Pause className="size-4" /> : <Play className="size-4" />}</button>
                   <button onClick={() => jump(-5)} className="rounded px-1.5 py-1 text-[12px] text-zinc-600 hover:bg-zinc-100">−5s</button><button onClick={() => jump(5)} className="rounded px-1.5 py-1 text-[12px] text-zinc-600 hover:bg-zinc-100">+5s</button>
@@ -282,7 +312,7 @@ function TranscriptionStudio({ a, song, initial, rev, busy, onChange, onStatus, 
               <p className="mt-2 text-[11.5px] leading-relaxed text-zinc-500">Ctrl + Space play / pause · Ctrl + Alt + ← → move 5 s · Ctrl + S save</p>
             </> : <p className="mt-1 text-[12.5px] text-zinc-500">No MP3 link yet — add it in Details to listen while typing.</p>}
           </div>
-          {!song && <Field label="Progress"><Select value={a.transcript_status} onChange={(e) => { onStatus(e.target.value); setDirty(true); }}><option value="none">Not started</option><option value="draft">In progress</option><option value="done">Finished (shown on site)</option></Select></Field>}
+          {!song && showStatus && <Field label="Progress"><Select value={a.transcript_status} onChange={(e) => { onStatus(e.target.value); setDirty(true); }}><option value="none">Not started</option><option value="draft">In progress</option><option value="done">Finished (shown on site)</option></Select></Field>}
           <AiAssist blocks={() => current.current} context={[a.title, a.date || a.date_note, a.place, verseRef(a)].filter(Boolean).join(" · ")} onReplace={(bl) => { current.current = bl; onReplace(bl); setDirty(true); setWords(count(bl)); }} onSummary={onSummary} />
           <div><p className="text-[12px] font-medium text-zinc-500">Bring in text</p>
             <label className="mt-2 flex h-9 cursor-pointer items-center justify-center gap-1.5 rounded-md border border-zinc-200 bg-white text-[13px] font-medium hover:bg-zinc-50"><FileUp className="size-4" />Import from Word<input type="file" accept=".docx" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) onWord(f); e.target.value = ""; }} /></label>

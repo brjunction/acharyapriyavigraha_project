@@ -24,7 +24,7 @@ export async function RealLecture({ a }: { a: any }) {
   try { if (l.url && /^https?:/.test(l.url)) { const o = new URL(l.url).origin; preconnect(o, { crossOrigin: "anonymous" }); prefetchDNS(o); } else if (a.audio_url?.includes("archive.org")) { preconnect("https://archive.org"); } } catch {}
   const [quotes, related] = await Promise.all([
     sql`select kind, slug, text, at_sec from excerpts where audio_id = ${a.id} and status = 'published' order by at_sec nulls last limit 30`.catch(() => [] as any[]),
-    sql`select slug, title, kind, type, date, date_note, place, country, scripture, canto, chapter, verse, language, series, topics, duration_sec, audio_url, audio_direct, transcript_status from audios where status = 'published' and id <> ${a.id} and ((place is not null and place = ${a.place}) or (series is not null and series = ${a.series}) or (scripture is not null and scripture = ${a.scripture} and chapter is not distinct from ${a.chapter})) order by date desc nulls last limit 6`.catch(() => [] as any[]),
+    sql`select slug, title, kind, type, date, date_note, place, country, scripture, canto, chapter, verse, language, series, topics, duration_sec, audio_url, audio_direct, audio_direct2, transcript_status from audios where status = 'published' and id <> ${a.id} and ((place is not null and place = ${a.place}) or (series is not null and series = ${a.series}) or (scripture is not null and scripture = ${a.scripture} and chapter is not distinct from ${a.chapter})) order by date desc nulls last limit 6`.catch(() => [] as any[]),
   ]);
   const base = song ? "/teachings/kirtans" : "/teachings/audio";
   const facts: [string, string | null, string | null][] = [
@@ -33,7 +33,9 @@ export async function RealLecture({ a }: { a: any }) {
     ["Song", a.song || null, null], ["Written by", a.song_author || null, null], ["Sung by", a.singer || null, null],
     ["Series", a.series || null, a.series ? `${base}?series=${encodeURIComponent(a.series)}` : null], ["Language", a.language || null, null], ["Length", l.duration ? fmtDur(l.duration) : null, null],
   ];
-  const own = Array.isArray(a.transcript) ? a.transcript : []; const mach = Array.isArray(a.machine_transcript) ? a.machine_transcript : [];
+  // which transcription visitors see, as chosen in the Studio: best (devotees' if any, else automatic) · devotee · machine · both (a switch)
+  const show = a.transcript_show || "best"; const own0 = Array.isArray(a.transcript) ? a.transcript : []; const mach0 = Array.isArray(a.machine_transcript) ? a.machine_transcript : [];
+  const own = show === "machine" ? [] : own0; const mach = show === "devotee" || (show === "best" && own0.length) ? [] : mach0;
   const doc = own.length ? own : mach; const heads = headings(doc);
   const ld = { "@context": "https://schema.org", "@type": "AudioObject", name: l.title, contentUrl: a.audio_url || undefined, uploadDate: l.date || undefined, duration: l.duration ? `PT${Math.floor(l.duration / 60)}M${l.duration % 60}S` : undefined, description: a.summary || undefined, locationCreated: l.place || undefined, inLanguage: a.language || undefined, creator: { "@type": "Person", name: "Śrī Śrīmad Gour Govinda Swāmī Gurudeva" } };
   return (
