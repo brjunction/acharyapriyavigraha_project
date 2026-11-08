@@ -4,7 +4,7 @@
    Studio, where a manager sees exactly what changed and accepts or declines it. A note, or information about the
    recording, can be sent too. */
 import { useEffect, useRef, useState } from "react";
-import { Check, MessageSquarePlus, X, Bold, Italic, RotateCcw } from "lucide-react";
+import { Check, MessageSquarePlus, X, Bold, Italic, RotateCcw, Undo2, Redo2, RemoveFormatting } from "lucide-react";
 
 /** Only words, bold and italic are kept from the page. */
 function walk(n: Node, html: boolean): string {
@@ -19,11 +19,32 @@ function walk(n: Node, html: boolean): string {
 const cleanHtml = (h: string) => { const d = document.createElement("div"); d.innerHTML = h; return Array.from(d.childNodes).map((c) => walk(c, true)).join(""); };
 const toMd = (el: HTMLElement) => Array.from(el.childNodes).map((c) => walk(c, false)).join("").replace(/\*\*\s*\*\*/g, "").replace(/\s+/g, " ").trim();
 
+/** A small rich text box: Bold, Italic, Clear formatting, Undo, Redo — and IAST by tapping Shift after a letter. */
+function Rich({ boxRef, minH = 110, placeholder, onInput, onReset }: { boxRef: React.RefObject<HTMLDivElement | null>; minH?: number; placeholder?: string; onInput?: () => void; onReset?: () => void }) {
+  const cmd = (c: string) => { boxRef.current?.focus(); document.execCommand(c, false); onInput?.(); };
+  const b = "inline-flex h-8 items-center gap-1 rounded-md px-2 text-[12.5px] text-ink-2 hover:bg-band";
+  return (
+    <div className="rounded-xl border border-line focus-within:border-saffron">
+      <div className="flex flex-wrap items-center gap-0.5 border-b border-line px-1.5 py-1">
+        <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => cmd("bold")} title="Bold (Ctrl+B)" className={b}><Bold size={14} /><span className="max-sm:hidden">Bold</span></button>
+        <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => cmd("italic")} title="Italic (Ctrl+I)" className={b}><Italic size={14} /><span className="max-sm:hidden">Italic</span></button>
+        <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => cmd("removeFormat")} title="Clear formatting" className={b}><RemoveFormatting size={14} /><span className="max-sm:hidden">Plain</span></button>
+        <span className="mx-1 h-5 w-px bg-line" />
+        <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => cmd("undo")} title="Undo (Ctrl+Z)" className={b}><Undo2 size={14} /></button>
+        <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => cmd("redo")} title="Redo (Ctrl+Y)" className={b}><Redo2 size={14} /></button>
+        {onReset && <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={onReset} title="Start again" className={`${b} ml-auto text-ink-3`}><RotateCcw size={13} /><span className="max-sm:hidden">Start again</span></button>}
+      </div>
+      <div ref={boxRef} contentEditable suppressContentEditableWarning data-placeholder={placeholder} onInput={onInput} className="overflow-y-auto px-3.5 py-3 text-[15px] leading-[1.75] text-ink outline-none focus:outline-none focus-visible:outline-none focus-visible:ring-0 empty:before:text-ink-3 empty:before:content-[attr(data-placeholder)]" style={{ minHeight: minH, maxHeight: "40dvh" }} onPaste={(e) => { e.preventDefault(); document.execCommand("insertText", false, e.clipboardData.getData("text/plain")); }} />
+      <p className="border-t border-line px-3 py-1.5 text-[11.5px] text-ink-3">Diacritics: type a letter, then tap <kbd className="rounded border border-line px-1">Shift</kbd> — a → ā, r → ṛ, n → ṇ → ṅ → ñ, s → ś → ṣ</p>
+    </div>
+  );
+}
+
 type Passage = { quote: string; html?: string; text?: string };
 export function SuggestButton({ slug, label = "Suggest an improvement", about = "transcript", className = "" }: { slug: string; label?: string; about?: "transcript" | "info"; className?: string }) {
   const [open, setOpen] = useState(false); const [f, setF] = useState({ about: about as string, quote: "", text: "", name: "", email: "", website: "" });
   const [p, setP] = useState<Passage | null>(null); const [mode, setMode] = useState<"edit" | "note">("note");
-  const [state, setState] = useState<"" | "sending" | "sent" | string>(""); const opened = useRef(0); const ed = useRef<HTMLDivElement>(null);
+  const [state, setState] = useState<"" | "sending" | "sent" | string>(""); const opened = useRef(0); const ed = useRef<HTMLDivElement>(null); const note = useRef<HTMLDivElement>(null); const [noteLen, setNoteLen] = useState(0);
   useEffect(() => { try { const w = JSON.parse(localStorage.getItem("tj_suggest_who") || "{}"); setF((x) => ({ ...x, name: w.name || "", email: w.email || "" })); } catch {} }, []);
   const start = (pass?: Passage) => {
     const sel = pass?.quote ?? (typeof window !== "undefined" ? String(window.getSelection() || "").trim().slice(0, 1500) : "");
@@ -32,16 +53,15 @@ export function SuggestButton({ slug, label = "Suggest an improvement", about = 
   };
   useEffect(() => { if (open && mode === "edit" && p?.html && ed.current) ed.current.innerHTML = cleanHtml(p.html); }, [open, mode, p]);
   useEffect(() => { if (about !== "transcript") return; const h = (e: Event) => start((e as CustomEvent).detail as Passage); window.addEventListener("tj-suggest", h); return () => window.removeEventListener("tj-suggest", h); });
-  const cmd = (c: string, v?: string) => { ed.current?.focus(); document.execCommand(c, false, v); };
   const send = async () => {
-    const proposed = mode === "edit" && ed.current ? toMd(ed.current) : ""; const original = mode === "edit" && p ? (p.text || "").replace(/\s+/g, " ").trim() : "";
-    if (mode === "edit" && proposed.replace(/\*/g, "") === original && !proposed.includes("*") && !f.text.trim()) { setState("Nothing has been changed in the passage yet."); return; }
+    const noteMd = note.current ? toMd(note.current) : ""; const proposed = mode === "edit" && ed.current ? toMd(ed.current) : ""; const original = mode === "edit" && p ? (p.text || "").replace(/\s+/g, " ").trim() : "";
+    if (mode === "edit" && proposed.replace(/\*/g, "") === original && !proposed.includes("*") && !noteMd) { setState("Nothing has been changed in the passage yet."); return; }
     setState("sending");
-    try { const r = await fetch("/api/suggest", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ ...f, slug, proposed, original, t: Date.now() - opened.current }) }); const j = await r.json(); if (!r.ok) throw new Error(j.error || "Could not send."); try { localStorage.setItem("tj_suggest_who", JSON.stringify({ name: f.name, email: f.email })); } catch {} setState("sent"); setF((x) => ({ ...x, quote: "", text: "" })); }
+    try { const r = await fetch("/api/suggest", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ ...f, text: noteMd, slug, proposed, original, t: Date.now() - opened.current }) }); const j = await r.json(); if (!r.ok) throw new Error(j.error || "Could not send."); try { localStorage.setItem("tj_suggest_who", JSON.stringify({ name: f.name, email: f.email })); } catch {} setState("sent"); setF((x) => ({ ...x, quote: "", text: "" })); setNoteLen(0); }
     catch (e: any) { setState(e.message); }
   };
   const inp = "w-full rounded-lg border border-line bg-white px-3 py-2 text-[13.5px] outline-none focus:border-saffron";
-  const canSend = mode === "edit" ? true : f.text.trim().length >= 3;
+  const canSend = mode === "edit" ? true : noteLen >= 3;
   return (<>
     <button onClick={() => start()} className={`inline-flex items-center gap-1.5 rounded-full border border-line px-3 py-1.5 text-[12.5px] text-ink-2 hover:border-saffron hover:text-saffron ${className}`}><MessageSquarePlus size={14} />{label}</button>
     {open && <div className="fixed inset-0 z-[95] flex items-end justify-center bg-black/20 p-3 sm:items-center" onClick={() => setOpen(false)}>
@@ -52,20 +72,14 @@ export function SuggestButton({ slug, label = "Suggest an improvement", about = 
             : <div className="grid grid-cols-2 gap-1 rounded-lg bg-band p-0.5 text-[12.5px]">{([["transcript", "The transcription"], ["info", "About the recording"]] as const).map(([k, l]) => <button key={k} onClick={() => setF({ ...f, about: k })} className={`rounded-md px-2 py-1.5 ${f.about === k ? "bg-white font-medium text-ink shadow-sm" : "text-ink-3"}`}>{l}</button>)}</div>}
           {mode === "edit" && p?.html ? <div>
             <p className="mb-1.5 text-[12px] text-ink-3">Correct the words below — spelling, diacritics, italics, or words added or removed. Your version is sent for review.</p>
-            <div className="rounded-xl border border-line focus-within:border-saffron">
-              <div className="flex flex-wrap items-center gap-0.5 border-b border-line px-1.5 py-1">
-                <button onMouseDown={(e) => e.preventDefault()} onClick={() => cmd("bold")} title="Bold" className="flex size-8 items-center justify-center rounded-md text-ink-2 hover:bg-band"><Bold size={15} /></button>
-                <button onMouseDown={(e) => e.preventDefault()} onClick={() => cmd("italic")} title="Italic" className="flex size-8 items-center justify-center rounded-md text-ink-2 hover:bg-band"><Italic size={15} /></button>
-                <span className="mx-1 h-5 w-px bg-line" />
-                <span className="px-1 text-[12px] text-ink-3">Diacritics: type a letter, then tap <kbd className="rounded border border-line px-1 text-[11px]">Shift</kbd> (a → ā, s → ś → ṣ)</span>
-                <button onMouseDown={(e) => e.preventDefault()} onClick={() => { if (ed.current && p.html) ed.current.innerHTML = cleanHtml(p.html); }} title="Start again" className="ml-auto flex size-8 items-center justify-center rounded-md text-ink-3 hover:bg-band"><RotateCcw size={14} /></button>
-              </div>
-              <div ref={ed} contentEditable suppressContentEditableWarning className="max-h-[40dvh] min-h-[120px] overflow-y-auto px-3.5 py-3 text-[15px] leading-[1.75] text-ink outline-none" onPaste={(e) => { e.preventDefault(); document.execCommand("insertText", false, e.clipboardData.getData("text/plain")); }} />
-            </div>
-            <label className="mt-2 block text-[12px] text-ink-3">A note for the team <span className="text-ink-3/70">(optional)</span><textarea value={f.text} onChange={(e) => setF({ ...f, text: e.target.value })} rows={2} className={`${inp} mt-1`} /></label>
+            <Rich boxRef={ed} minH={120} onReset={() => { if (ed.current && p.html) ed.current.innerHTML = cleanHtml(p.html); }} />
+            <p className="mb-1 mt-3 text-[12px] text-ink-3">A note for the team <span className="text-ink-3/70">(optional)</span></p>
+            <Rich boxRef={note} minH={60} onInput={() => setNoteLen((note.current?.textContent || "").trim().length)} />
           </div> : <>
             {f.about === "transcript" && f.quote && <blockquote className="rounded-md border-l-2 border-line-strong bg-band/60 px-3 py-2 text-[13px] text-ink-2">{f.quote}</blockquote>}
-            <label className="block text-[12px] text-ink-3">{f.about === "transcript" ? "Your suggestion" : "What you know — date, place, verse, who is speaking, the occasion…"}<textarea value={f.text} onChange={(e) => setF({ ...f, text: e.target.value })} rows={4} className={`${inp} mt-1`} /></label>
+            {f.about === "transcript" && !f.quote && <p className="rounded-lg bg-band/60 px-3 py-2 text-[12.5px] leading-relaxed text-ink-2">To correct a passage directly, close this, <b>select the words</b> in the transcription and press <b>Suggest a correction</b> — the whole paragraph opens to edit.</p>}
+            <p className="mb-1 text-[12px] text-ink-3">{f.about === "transcript" ? "Your suggestion" : "What you know — date, place, verse, who is speaking, the occasion…"}</p>
+            <Rich boxRef={note} minH={110} onInput={() => setNoteLen((note.current?.textContent || "").trim().length)} />
           </>}
           <div className="grid gap-2 sm:grid-cols-2"><input value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} placeholder="Your name (optional)" className={inp} /><input value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} placeholder="Email, if we may ask you (optional)" className={inp} /></div>
           <input value={f.website} onChange={(e) => setF({ ...f, website: e.target.value })} tabIndex={-1} autoComplete="off" aria-hidden className="hidden" />

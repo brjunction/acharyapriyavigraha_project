@@ -68,7 +68,7 @@ function Edit({ r, onDone }: { r: Row; onDone: () => void }) {
       <div><p className="mb-1 flex items-center justify-between text-[11.5px] font-medium text-zinc-500">The paragraph after accepting<button onClick={() => setRaw(!raw)} className="font-normal text-zinc-500 underline">{raw ? "See it" : "Adjust before accepting"}</button></p>
         {raw ? <Textarea rows={4} value={prop} onChange={(e) => setProp(e.target.value)} className="font-mono text-[12.5px]" /> : <p className="rounded-lg bg-zinc-50 px-3.5 py-3 text-[14px] leading-[1.75]">{mdView(prop)}</p>}
         {raw && <p className="mt-1 text-[11.5px] text-zinc-500">**bold** and *italic* are kept as written.</p>}</div>
-      {r.text && r.text !== "(an edit of the passage)" && <div><p className="mb-1 text-[11.5px] font-medium text-zinc-500">Their note</p><p className="whitespace-pre-line text-[13.5px]">{r.text}</p></div>}
+      {r.text && r.text !== "(an edit of the passage)" && <div><p className="mb-1 text-[11.5px] font-medium text-zinc-500">Their note</p><p className="whitespace-pre-line text-[13.5px]">{mdView(r.text)}</p></div>}
       {r.applied ? <Badge>Applied to the transcription</Badge> : r.status !== "spam" && <Btn kind="primary" size="sm" busy={busy} onClick={accept}><Check />Accept — change the paragraph</Btn>}
     </div>
   );
@@ -84,7 +84,7 @@ function One({ r, onDone }: { r: Row; onDone: () => void }) {
     <div className="mt-3 space-y-3">
       {r.quote && <div><p className="mb-1 text-[11.5px] font-medium text-zinc-500">The passage</p><blockquote className="rounded-md border-l-2 border-zinc-300 bg-zinc-50 px-3 py-2 text-[13px] text-zinc-600">{r.quote}</blockquote></div>}
       <div><p className="mb-1 text-[11.5px] font-medium text-zinc-500">{canApply ? "Suggested text — you can adjust it before accepting" : "Suggestion"}</p>
-        {canApply ? <Textarea rows={3} value={text} onChange={(e) => setText(e.target.value)} className="text-[13.5px]" /> : <p className="whitespace-pre-line text-[13.5px]">{r.text}</p>}</div>
+        {canApply ? <Textarea rows={3} value={text} onChange={(e) => setText(e.target.value)} className="text-[13.5px]" /> : <p className="whitespace-pre-line text-[13.5px]">{mdView(r.text)}</p>}</div>
       {r.applied && <Badge>Applied to the transcription</Badge>}
       {canApply && <Btn kind="primary" size="sm" busy={busy === "a"} onClick={accept}><Check />Accept — change the transcription</Btn>}
       <div><p className="mb-1 text-[11.5px] font-medium text-zinc-500">Reply</p>

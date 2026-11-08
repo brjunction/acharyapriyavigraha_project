@@ -35,7 +35,7 @@ export async function RealLecture({ a }: { a: any }) {
   ];
   // which transcription visitors see, as chosen in the Studio: best (devotees' if any, else automatic) · devotee · machine · both (a switch)
   const show = a.transcript_show || "best"; const own0 = Array.isArray(a.transcript) ? a.transcript : []; const mach0 = Array.isArray(a.machine_transcript) ? a.machine_transcript : [];
-  const own = show === "machine" ? [] : own0; const mach = show === "devotee" || (show === "best" && own0.length) ? [] : mach0;
+  const own = show === "machine" ? [] : own0; const mach = show === "devotee" ? [] : mach0;
   const doc = own.length ? own : mach; const heads = headings(doc);
   const ld = { "@context": "https://schema.org", "@type": "AudioObject", name: l.title, contentUrl: a.audio_url || undefined, uploadDate: l.date || undefined, duration: l.duration ? `PT${Math.floor(l.duration / 60)}M${l.duration % 60}S` : undefined, description: a.summary || undefined, locationCreated: l.place || undefined, inLanguage: a.language || undefined, creator: { "@type": "Person", name: "Śrī Śrīmad Gour Govinda Swāmī Gurudeva" } };
   return (
@@ -53,7 +53,7 @@ export async function RealLecture({ a }: { a: any }) {
           player={<LecturePlayer l={l} />}
           transcript={<>
             {heads.length > 2 && <nav className="mb-6 rounded-xl border border-line p-4 lg:hidden"><p className="mb-2 text-[11.5px] font-semibold uppercase tracking-[0.08em] text-ink-3">Contents</p><ol className="columns-1 gap-6 text-[13px] sm:columns-2">{heads.map((h) => <li key={h.id} className="mb-1" style={{ paddingLeft: (h.level - 1) * 12 }}><a href={`#${h.id}`} className="text-ink-2 hover:text-saffron">{h.text}</a></li>)}</ol></nav>}
-            {doc.length ? <SelectToSuggest><TranscriptSwitch source={a.machine_source} devotee={own.length ? <div className="book-body"><Render doc={own} /></div> : null} auto={mach.length ? <div className="book-body"><Render doc={mach} /></div> : null} /></SelectToSuggest> : <p className="mt-6 rounded-xl border border-dashed border-line p-8 text-center text-[13.5px] text-ink-3">The {song ? "words of this song are" : "transcription of this lecture is"} being prepared.</p>}
+            {doc.length ? <SelectToSuggest><TranscriptSwitch first={show === "both" ? "a" : "d"} source={a.machine_source} devotee={own.length ? <div className="book-body"><Render doc={own} /></div> : null} auto={mach.length ? <div className="book-body"><Render doc={mach} /></div> : null} /></SelectToSuggest> : <p className="mt-6 rounded-xl border border-dashed border-line p-8 text-center text-[13.5px] text-ink-3">The {song ? "words of this song are" : "transcription of this lecture is"} being prepared.</p>}
             <div className="mt-8 flex flex-wrap items-center gap-2 border-t border-line pt-4"><SuggestButton slug={a.slug} label="Suggest an improvement to this transcription" /></div>
           </>}
           aside={<>
