@@ -7,7 +7,8 @@ export type Shelf = { id: string; name: string; avatar: string | null; descripti
 import { LAYOUTS, COLORS, type Layout } from "./video-layouts";
 export { LAYOUTS, COLORS, type Layout };
 export type VSection = { id: string; name: string; slug: string; intro: string | null; layout: Layout; color: string; count: number; items: VCard[]; playlists: Shelf[]; fold: string; parent: { name: string; slug: string } | null; children: VSection[] };
-export type VNav = { sections: { name: string; slug: string; color: string; layout: string }[]; channels: number };
+export type NavItem = { name: string; slug: string; color: string; layout: string; parent: string | null; count: number };
+export type VNav = { sections: { name: string; slug: string; color: string; layout: string }[]; channels: number; all: NavItem[] };
 
 /** Each YouTube video once, even when it was saved twice. */
 const once = <T extends { yt: string }>(xs: T[]) => { const seen = new Set<string>(); return xs.filter((x) => (seen.has(x.yt) ? false : (seen.add(x.yt), true))); };
@@ -49,11 +50,14 @@ async function sectionTree(focus?: string): Promise<{ roots: (VSection & { on_ho
 
 /** The tabs along the top of every Videos page. */
 export async function getVideoNav(): Promise<VNav> {
-  if (!hasDb()) return { sections: [], channels: 0 };
+  if (!hasDb()) return { sections: [], channels: 0, all: [] };
   try {
+    // every visible section and sub-section, for the "All sections" panel
+    const every = (await sql`select s.name, s.slug, s.color, s.layout, p.slug as parent, (select count(distinct v.youtube_id)::int from video_section_items i join videos v on v.youtube_id = i.youtube_id and v.status = 'published' where i.section_id = s.id and not i.removed) as count
+      from video_sections s left join video_sections p on p.id = s.parent_id where not s.hidden and (p.id is null or not p.hidden) order by coalesce(p.position, s.position), s.parent_id nulls first, s.position, s.created_at`.catch(() => [])) as NavItem[];
     const [s, c] = await Promise.all([sql`select name, slug, color, layout from video_sections where not hidden and on_tabs and parent_id is null order by position, created_at`, sql`select count(*)::int as c from video_sources where kind = 'channel' and not hidden`]);
-    return { sections: s as any[], channels: (c as any[])[0]?.c || 0 };
-  } catch { return { sections: [], channels: 0 }; }
+    return { sections: s as any[], channels: (c as any[])[0]?.c || 0, all: every };
+  } catch { return { sections: [], channels: 0, all: [] }; }
 }
 
 /** Home: every section marked “show on Home”, a few videos each, in its own design. */

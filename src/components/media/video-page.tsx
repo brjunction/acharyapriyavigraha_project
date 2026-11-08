@@ -17,7 +17,7 @@ const dur = (s: number) => (!s ? "" : s >= 3600 ? `${Math.floor(s / 3600)} h ${M
 /** The tab bar on every Videos page. */
 export async function VideosShell({ active, children }: { active: string; children: React.ReactNode }) {
   const nav = await getVideoNav();
-  return <div className="min-h-[60vh] bg-white"><VideoTabsBar tabs={nav.sections} active={active} channels={nav.channels} />{children}</div>;
+  return <div className="min-h-[60vh] bg-white"><VideoTabsBar tabs={nav.sections} active={active} channels={nav.channels} all={nav.all} />{children}</div>;
 }
 
 export async function VideoPage({ slug, list, sec }: { slug: string; list?: string; sec?: string }) {

@@ -2,12 +2,13 @@
 /* Videos — organised by sections made in the Studio. Each section has its own design and colour.
    Calm on a phone: few videos per section on Home, rows swipe sideways, every section has its own tab. */
 import Link from "next/link";
-import { useEffect, useMemo, useRef, useState } from "react";
-import { ChevronLeft, ChevronRight, ListVideo, Play, Search, X, SlidersHorizontal } from "lucide-react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { ChevronLeft, ChevronRight, ListVideo, Play, Search, X, SlidersHorizontal, LayoutGrid } from "lucide-react";
+import { Portal } from "@/components/ui/portal";
 import { useRouter } from "next/navigation";
 import type { AdvFilter, AdvResult } from "@/lib/video-advanced";
 import { LENGTHS } from "@/lib/video-layouts";
-import type { Shelf, VCard, VSection } from "@/lib/video-home";
+import type { Shelf, VCard, VSection, NavItem } from "@/lib/video-home";
 
 const dur = (s: number) => (!s ? "" : s >= 3600 ? `${Math.floor(s / 3600)}:${String(Math.floor((s % 3600) / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}` : `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`);
 const MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -19,28 +20,76 @@ import { Pager, usePages } from "@/components/ui/pager";
 export { watchHref };
 
 /* ---------- The tab bar along the top of every Videos page ---------- */
-export function VideoTabsBar({ tabs, active, channels }: { tabs: { name: string; slug: string; color: string }[]; active: string; channels: number }) {
-  const ref = useRef<HTMLDivElement>(null); const [away, setAway] = useState(false);
-  useEffect(() => { ref.current?.querySelector<HTMLElement>("[aria-current=page]")?.scrollIntoView({ inline: "center", block: "nearest" }); }, [active]);
-  useEffect(() => { let y = window.scrollY; const f = () => { const n = window.scrollY; if (Math.abs(n - y) < 6) return; setAway(n > y && n > 160); y = n; }; window.addEventListener("scroll", f, { passive: true }); return () => window.removeEventListener("scroll", f); }, []);
-  const all = [{ name: "Home", slug: "", color: "saffron" }, ...tabs, ...(channels ? [{ name: "Channels", slug: "channels", color: "saffron" }] : [])];
+/** The Videos bar, like YouTube's: one slim row of chips that always stays in view — swipe sideways on a phone,
+    arrows on a laptop — and an "All sections" button that opens every section and sub-section, grouped and searchable,
+    so even many sections stay tidy. Search opens from its icon so it takes no room until needed. */
+export function VideoTabsBar({ tabs, active, channels, all = [] }: { tabs: { name: string; slug: string; color: string }[]; active: string; channels: number; all?: NavItem[] }) {
+  const ref = useRef<HTMLDivElement>(null); const [edge, setEdge] = useState({ l: false, r: false }); const [panel, setPanel] = useState(false); const [find, setFind] = useState(false); const [q, setQ] = useState("");
+  const router = useRouter();
+  const chips = [{ name: "All", slug: "", color: "saffron" }, ...tabs, ...(channels ? [{ name: "Channels", slug: "channels", color: "saffron" }] : [])];
+  const hrefOf = (slug: string) => (!slug ? "/teachings/videos" : slug === "channels" ? "/teachings/videos/channels" : `/teachings/videos/s/${slug}`);
+  const measure = useCallback(() => { const el = ref.current; if (!el) return; setEdge({ l: el.scrollLeft > 4, r: el.scrollLeft + el.clientWidth < el.scrollWidth - 4 }); }, []);
+  useEffect(() => { ref.current?.querySelector<HTMLElement>("[aria-current=page]")?.scrollIntoView({ inline: "center", block: "nearest" }); measure(); }, [active, measure]);
+  useEffect(() => { window.addEventListener("resize", measure); return () => window.removeEventListener("resize", measure); }, [measure]);
+  useEffect(() => { if (!panel) return; const k = (e: KeyboardEvent) => e.key === "Escape" && setPanel(false); window.addEventListener("keydown", k); return () => window.removeEventListener("keydown", k); }, [panel]);
+  const slide = (d: number) => ref.current?.scrollBy({ left: d * Math.max(240, (ref.current?.clientWidth || 600) * 0.7), behavior: "smooth" });
+  const parents = all.filter((x) => !x.parent); const kids = (slug: string) => all.filter((x) => x.parent === slug);
+  const f = q.trim().toLowerCase(); const hit = (x: NavItem) => !f || x.name.toLowerCase().includes(f);
+  const onPage = (slug: string) => active === slug || all.find((x) => x.slug === active)?.parent === slug;
+  // chips in the site's own colours: warm ivory, and the hero's dark saffron for the one you are on
+  const chip = (on: boolean) => `flex h-8 shrink-0 items-center whitespace-nowrap rounded-lg px-3 text-[13px] font-medium transition ${on ? "bg-gradient-to-b from-[#7a3305] to-[#592300] text-[#fff3dc] shadow-[0_2px_8px_-3px_rgba(89,35,0,.6)]" : "bg-[#f6efe5] text-[#3d2a1a] hover:bg-[#efe2cf]"}`;
   return (
-    <div className={`sticky top-[52px] z-30 border-b border-line bg-white/95 backdrop-blur transition-transform duration-300 sm:top-[58px] ${away ? "-translate-y-[calc(100%+60px)]" : ""}`}>
-      <div className="mx-auto flex max-w-[1240px] items-center gap-3 px-4 sm:px-6">
-        <div ref={ref} className="-mx-1 flex min-w-0 flex-1 gap-1 overflow-x-auto px-1 py-2 [scrollbar-width:none]">
-          {all.map((t) => { const on = active === (t.slug || "home"); const href = !t.slug ? "/teachings/videos" : t.slug === "channels" ? "/teachings/videos/channels" : `/teachings/videos/s/${t.slug}`; return (
-            <Link key={t.slug || "home"} href={href} aria-current={on ? "page" : undefined}
-              className={`acc-${t.color} flex shrink-0 items-center gap-2 rounded-full px-4 py-2 text-[13.5px] font-medium transition ${on ? "bg-[var(--acc)] text-white shadow-[0_4px_14px_-6px_var(--acc)]" : "text-ink-2 hover:bg-acc-tint hover:text-ink"}`}>
-              {t.slug && t.slug !== "channels" && <span className={`size-2 rounded-full ${on ? "bg-white" : "bg-[var(--acc)]"}`} />}{t.name}
-            </Link>); })}
-        </div>
-        <Link href="/teachings/videos/advanced" aria-current={active === "advanced" ? "page" : undefined} className={`flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-[12.5px] font-medium transition ${active === "advanced" ? "border-ink bg-ink text-white" : "border-line text-ink-2 hover:border-ink-3 hover:text-ink"}`}><SlidersHorizontal size={14} /><span className="max-sm:hidden">Advanced</span></Link>
-        <form action="/teachings/videos/search" className="relative hidden w-56 shrink-0 md:block">
-          <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-3" />
-          <input name="q" placeholder="Search videos" aria-label="Search videos" className="h-9 w-full rounded-full border border-line bg-band/50 pl-9 pr-3 text-[13px] outline-none focus:border-saffron focus:bg-white" />
-        </form>
-        <Link href="/teachings/videos/search" aria-label="Search videos" className="flex size-9 shrink-0 items-center justify-center rounded-full border border-line text-ink-2 md:hidden"><Search size={16} /></Link>
+    <div className="sticky top-[52px] z-30 border-b border-line bg-white/95 backdrop-blur sm:top-[58px]">
+      <div className="mx-auto flex h-12 max-w-[1240px] items-center gap-2 px-3 sm:px-6">
+        {find ? (
+          <form action="/teachings/videos/search" className="flex flex-1 items-center gap-2" onSubmit={() => setFind(false)}>
+            <label className="relative flex-1"><Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-3" /><input autoFocus name="q" placeholder="Search videos" aria-label="Search videos" className="h-9 w-full rounded-lg border border-line bg-white pl-9 pr-3 text-[13.5px] outline-none focus:border-saffron" /></label>
+            <button type="button" onClick={() => setFind(false)} className="flex h-9 items-center rounded-lg px-3 text-[13px] text-ink-2 hover:bg-band">Cancel</button>
+          </form>
+        ) : <>
+          <button onClick={() => setPanel(true)} aria-label="All sections" title="All sections" className="flex h-8 shrink-0 items-center gap-1.5 rounded-lg border border-[#e8d9c3] bg-white px-2.5 text-[13px] font-medium text-[#592300] hover:border-[#c9a77d]"><LayoutGrid size={15} /><span className="max-sm:hidden">Sections</span></button>
+          <span className="h-5 w-px shrink-0 bg-line" />
+          <div className="relative min-w-0 flex-1">
+            {edge.l && <button onClick={() => slide(-1)} aria-label="Scroll left" className="absolute left-0 top-1/2 z-10 hidden size-8 -translate-y-1/2 items-center justify-center rounded-full bg-white shadow-[0_1px_6px_rgba(0,0,0,.18)] hover:bg-band sm:flex"><ChevronLeft size={17} /></button>}
+            {edge.l && <span aria-hidden className="pointer-events-none absolute inset-y-0 left-0 z-[5] w-10 bg-gradient-to-r from-white to-transparent" />}
+            <div ref={ref} onScroll={measure} className="flex gap-1.5 overflow-x-auto py-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+              {chips.map((t) => { const on = t.slug ? onPage(t.slug) : active === "home"; return <Link key={t.slug || "home"} href={hrefOf(t.slug)} aria-current={on ? "page" : undefined} className={chip(on)}>{t.name}</Link>; })}
+            </div>
+            {edge.r && <span aria-hidden className="pointer-events-none absolute inset-y-0 right-0 z-[5] w-10 bg-gradient-to-l from-white to-transparent" />}
+            {edge.r && <button onClick={() => slide(1)} aria-label="Scroll right" className="absolute right-0 top-1/2 z-10 hidden size-8 -translate-y-1/2 items-center justify-center rounded-full bg-white shadow-[0_1px_6px_rgba(0,0,0,.18)] hover:bg-band sm:flex"><ChevronRight size={17} /></button>}
+          </div>
+          <Link href="/teachings/videos/advanced" aria-current={active === "advanced" ? "page" : undefined} title="Advanced search and filters" className={`flex h-8 shrink-0 items-center gap-1.5 rounded-lg px-2.5 max-sm:hidden text-[13px] font-medium ${active === "advanced" ? "bg-[#592300] text-[#fff3dc]" : "text-ink-2 hover:bg-[#f6efe5]"}`}><SlidersHorizontal size={15} /><span className="max-lg:hidden">Advanced</span></Link>
+          <button onClick={() => setFind(true)} aria-label="Search videos" title="Search videos" className="flex size-8 shrink-0 items-center justify-center rounded-lg text-ink-2 hover:bg-[#f6efe5]"><Search size={16} /></button>
+        </>}
       </div>
+
+      {/* every section and sub-section */}
+      {panel && <Portal><div className="fixed inset-0 z-[130] flex items-end justify-center bg-black/25 sm:items-start sm:pt-24" onClick={() => setPanel(false)}>
+        <div className="flex max-h-[80dvh] w-full max-w-2xl flex-col overflow-hidden rounded-t-2xl bg-white shadow-[0_30px_80px_-20px_rgba(0,0,0,.45)] sm:rounded-2xl" onClick={(e) => e.stopPropagation()}>
+          <div className="flex items-center gap-2 border-b border-line px-4 py-3">
+            <label className="relative flex-1"><Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-3" /><input ref={(el) => { if (el && window.innerWidth >= 640) el.focus(); }} value={q} onChange={(e) => setQ(e.target.value)} placeholder={`Find a section (${all.length})`} className="h-9 w-full rounded-lg bg-band pl-9 pr-3 text-[13.5px] outline-none focus:bg-white focus:ring-1 focus:ring-line-strong" /></label>
+            <button onClick={() => setPanel(false)} aria-label="Close" className="flex size-9 items-center justify-center rounded-lg text-ink-3 hover:bg-band hover:text-ink"><X size={18} /></button>
+          </div>
+          <div className="overflow-y-auto p-2">
+            <div className="flex gap-2 px-1 pb-2">
+              <button onClick={() => { setPanel(false); router.push("/teachings/videos"); }} className={`flex-1 rounded-lg px-3 py-2.5 text-left text-[14px] ${active === "home" ? "bg-[#f6efe5] font-semibold" : "hover:bg-[#f6efe5]"}`}>All videos</button>
+              <button onClick={() => { setPanel(false); router.push("/teachings/videos/advanced"); }} className="flex items-center gap-1.5 rounded-lg px-3 py-2.5 text-[14px] text-ink-2 hover:bg-[#f6efe5]"><SlidersHorizontal size={15} />Advanced search</button>
+            </div>
+            {parents.filter((p) => hit(p) || kids(p.slug).some(hit)).map((p) => (
+              <div key={p.slug} className="border-t border-line/70 py-1 first:border-0">
+                <button onClick={() => { setPanel(false); router.push(hrefOf(p.slug)); }} className={`flex w-full items-center justify-between gap-3 rounded-lg px-3 py-2.5 text-left ${active === p.slug ? "bg-[#f6efe5]" : "hover:bg-[#faf5ee]"}`}>
+                  <span className={`acc-${p.color} flex items-center gap-2.5 text-[14px] font-semibold text-ink`}><span className="size-2 rounded-full bg-[var(--acc)]" />{p.name}</span>
+                  <span className="text-[12px] tabular-nums text-ink-3">{p.count ? `${p.count} videos` : kids(p.slug).length ? `${kids(p.slug).length} parts` : ""}</span>
+                </button>
+                {kids(p.slug).filter((k) => hit(k) || hit(p)).length > 0 && <div className="mb-1 ml-7 flex flex-wrap gap-1.5 pb-1">
+                  {kids(p.slug).filter((k) => hit(k) || hit(p)).map((k) => <button key={k.slug} onClick={() => { setPanel(false); router.push(hrefOf(k.slug)); }} className={chip(active === k.slug)}>{k.name}{k.count ? <span className={`ml-1.5 text-[11.5px] ${active === k.slug ? "text-white/70" : "text-ink-3"}`}>{k.count}</span> : null}</button>)}
+                </div>}
+              </div>))}
+            {channels > 0 && !f && <button onClick={() => { setPanel(false); router.push("/teachings/videos/channels"); }} className="flex w-full rounded-lg border-t border-line/70 px-3 py-2.5 text-left text-[14px] hover:bg-band">Our YouTube channels</button>}
+            {f && !all.some(hit) && <p className="px-3 py-6 text-center text-[13px] text-ink-3">No section has “{q}” in its name. <Link href={`/teachings/videos/search?q=${encodeURIComponent(q)}`} className="text-saffron underline">Search the videos instead</Link></p>}
+          </div>
+        </div>
+      </div></Portal>}
     </div>
   );
 }
