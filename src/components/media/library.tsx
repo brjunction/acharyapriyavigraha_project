@@ -3,7 +3,7 @@ import { Pager, usePages } from "@/components/ui/pager";
 /* One library for audio lectures, kīrtanas and videos: filters on the left (each can open into its parts), dense rows on the right. */
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Search, X, ChevronDown, ChevronRight, SlidersHorizontal, FileText, PlayCircle, ArrowDownUp, Rows3, BookOpen, CalendarDays, MapPin, Tag, Mic } from "lucide-react";
+import { Search, X, ChevronDown, ChevronRight, SlidersHorizontal, FileText, PlayCircle, ArrowDownUp, Rows3, BookOpen, CalendarDays, MapPin, Tag, Mic, TableProperties } from "lucide-react";
 import type { Lecture } from "@/lib/data";
 import { PlayButton } from "@/components/lecture";
 import { TextSizeControl, TextScaler } from "@/components/text-scale";
@@ -85,7 +85,7 @@ function AdvancedLibrary({ items, mode }: { items: MediaItem[]; mode: Mode }) {
       </div>
       <div className="mt-4 flex items-center justify-between gap-3 pb-1">
         <p className="text-[13px] text-ink-3"><b className="font-medium text-ink">{list.length.toLocaleString()}</b> {noun}</p>
-        <span className="flex items-center gap-1.5"><Pick icon={Rows3} value={group} onChange={(v) => setGroup(v as any)} options={GROUPS.filter(([g]) => g !== "scripture" || mode !== "kirtan")} /><Pick icon={ArrowDownUp} value={sort} onChange={(v) => setSort(v as any)} options={SORTS} /></span>
+        <span className="flex items-center gap-1.5">{mode === "audio" && <Link href="/teachings/audio/chart" title="Every recording on one page, year by year" className="flex h-9 items-center gap-1.5 rounded-md border border-line px-3 text-[12.5px] font-medium text-ink-2 hover:border-saffron hover:text-saffron"><TableProperties size={14} />Systematic chart</Link>}<Pick icon={Rows3} value={group} onChange={(v) => setGroup(v as any)} options={GROUPS.filter(([g]) => g !== "scripture" || mode !== "kirtan")} /><Pick icon={ArrowDownUp} value={sort} onChange={(v) => setSort(v as any)} options={SORTS} /></span>
       </div>
       <div ref={AP.top} />
       {mode !== "video" && list.length > 0 && <div className="hidden grid-cols-[32px_minmax(0,1fr)_110px_150px_110px_64px] gap-x-3 border-b border-line py-2 text-[12px] font-medium text-ink-3 md:grid"><span /><span>Title</span><span>Date</span><span>Place</span><span>Verse</span><span className="text-right">Length</span></div>}

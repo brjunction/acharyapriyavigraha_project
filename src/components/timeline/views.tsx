@@ -55,14 +55,53 @@ export function CardsView({ events }: { events: LifeEvent[] }) {
   );
 }
 
-/** One moment at a time, large, like a slideshow — with a strip of years to jump anywhere. */
-export function FilmView({ events }: { events: LifeEvent[] }) {
+/** One moment at a time, large, like a slideshow — with a strip of years to jump anywhere.
+    `simple`: the calm default for every reader — larger text, plain Previous / Next, the chapter it belongs to,
+    and a "Go to year" list instead of the strip. */
+export function FilmView({ events, simple = false, chapterOf }: { events: LifeEvent[]; simple?: boolean; chapterOf?: (e: LifeEvent) => string | null }) {
   const xs = useMemo(() => [...events].sort((a, b) => pos(a) - pos(b)), [events]);
-  const [i, setI] = useState(0); const [play, setPlay] = useState(false); const strip = useRef<HTMLDivElement>(null);
+  const [i, setI] = useState(0); const [play, setPlay] = useState(false); const [more, setMore] = useState(false); const strip = useRef<HTMLDivElement>(null); const top = useRef<HTMLDivElement>(null);
+  useEffect(() => { setI(0); }, [xs]);
+  useEffect(() => { setMore(false); }, [i]);
   useEffect(() => { if (!play) return; const t = setInterval(() => setI((k) => (k + 1) % xs.length), 6000); return () => clearInterval(t); }, [play, xs.length]);
-  useEffect(() => { const k = (ev: KeyboardEvent) => { if ((ev.target as HTMLElement).closest("input,textarea")) return; if (ev.key === "ArrowRight") setI((x) => Math.min(xs.length - 1, x + 1)); if (ev.key === "ArrowLeft") setI((x) => Math.max(0, x - 1)); }; window.addEventListener("keydown", k); return () => window.removeEventListener("keydown", k); }, [xs.length]);
+  useEffect(() => { const k = (ev: KeyboardEvent) => { if ((ev.target as HTMLElement).closest("input,textarea,select")) return; if (ev.key === "ArrowRight") setI((x) => Math.min(xs.length - 1, x + 1)); if (ev.key === "ArrowLeft") setI((x) => Math.max(0, x - 1)); }; window.addEventListener("keydown", k); return () => window.removeEventListener("keydown", k); }, [xs.length]);
   useEffect(() => { strip.current?.querySelector(`[data-i="${i}"]`)?.scrollIntoView({ inline: "center", block: "nearest", behavior: "smooth" }); }, [i]);
-  const e = xs[i]; if (!e) return null; const [, l, c] = kindOf(e.kind);
+  const years = useMemo(() => { const m = new Map<number, number>(); xs.forEach((x, k) => { if (!m.has(x.year)) m.set(x.year, k); }); return [...m.entries()]; }, [xs]);
+  const step = (d: number) => { setI((x) => Math.max(0, Math.min(xs.length - 1, x + d))); setPlay(false); if (simple) { const el = top.current; if (el && el.getBoundingClientRect().top < 0) el.scrollIntoView({ behavior: "smooth", block: "start" }); } };
+  const e = xs[i]; if (!e) return null; const [, l, c] = kindOf(e.kind); const ch = chapterOf?.(e);
+  if (simple) return (
+    <div ref={top} className="scroll-mt-24">
+      <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+        <label className="flex items-center gap-2 text-[14px] text-ink-2">Go to year
+          <select value={xs[i].year} onChange={(ev) => { const y = Number(ev.target.value); const k = years.find(([yy]) => yy === y)?.[1]; if (k !== undefined) setI(k); }} className="h-11 rounded-xl border border-line-strong bg-white px-3 text-[15px] font-medium tabular-nums text-ink outline-none focus:border-saffron">
+            {years.map(([y]) => <option key={y} value={y}>{y}</option>)}
+          </select>
+        </label>
+        <p className="text-[14px] tabular-nums text-ink-3">Moment {i + 1} of {xs.length}</p>
+      </div>
+      <div className="h-1 overflow-hidden rounded-full bg-line"><div className="h-full rounded-full bg-saffron transition-[width] duration-500" style={{ width: `${((i + 1) / xs.length) * 100}%` }} /></div>
+      <article key={e.id} className="tl-fade mt-6 grid items-start gap-7 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)] lg:gap-12">
+        {e.image ? /* eslint-disable-next-line @next/next/no-img-element */ <img src={e.image} alt={e.image_caption || ""} className="aspect-[4/3] w-full rounded-2xl object-cover object-top" />
+          : <div className="flex aspect-[16/7] w-full flex-col items-center justify-center rounded-2xl border border-line bg-[#faf6ef] text-center sm:aspect-[4/3]"><span className="text-[56px] font-semibold leading-none tabular-nums text-saffron/80 sm:text-[84px]">{e.year}</span>{e.place && <span className="mt-3 flex items-center gap-1.5 text-[14px] text-ink-3"><MapPin size={14} />{[e.place, e.country].filter(Boolean).join(", ")}</span>}</div>}
+        <div>
+          {ch && <p className="text-[12.5px] font-semibold uppercase tracking-[0.14em] text-saffron">{ch}</p>}
+          <p className="mt-2 text-[15px] font-medium tabular-nums text-ink-2">{when(e)}<span className="font-normal text-ink-3"> · {l}</span></p>
+          <h2 className="mt-2 text-[26px] font-semibold leading-tight tracking-[-0.01em] text-ink sm:text-[32px]">{e.title}</h2>
+          {e.summary && <p className="mt-4 text-[17px] leading-[1.7] text-ink-2">{e.summary}</p>}
+          {e.body && <>{more && <div className="mt-4 whitespace-pre-line border-t border-line pt-4 text-[16.5px] leading-[1.75] text-ink-2">{e.body}</div>}
+            <button onClick={() => setMore(!more)} className="mt-3 text-[15px] font-medium text-saffron underline-offset-4 hover:underline">{more ? "Show less" : "Read the full account"}</button></>}
+          {e.image && e.place && <p className="mt-4 flex items-center gap-1.5 text-[14.5px] text-ink-3"><MapPin size={15} />{[e.place, e.country].filter(Boolean).join(", ")}</p>}
+          {e.people.length > 0 && <p className="mt-1.5 text-[14.5px] text-ink-3">With {e.people.join(", ")}</p>}
+          {e.image_caption && <p className="mt-3 text-[13px] text-ink-3">Picture: {e.image_caption}</p>}
+        </div>
+      </article>
+      <div className="mt-8 grid grid-cols-2 gap-3 border-t border-line pt-6 sm:flex sm:justify-between">
+        <button onClick={() => step(-1)} disabled={i === 0} className="flex h-14 items-center justify-center gap-2 rounded-2xl border border-line-strong bg-white px-6 text-[16px] font-medium text-ink transition hover:border-ink disabled:opacity-35 sm:min-w-[200px]"><ChevronLeft size={20} />Previous</button>
+        <button onClick={() => step(1)} disabled={i >= xs.length - 1} className="flex h-14 items-center justify-center gap-2 rounded-2xl bg-ink px-6 text-[16px] font-medium text-white transition hover:bg-black disabled:opacity-35 sm:min-w-[200px]">Next<ChevronRight size={20} /></button>
+      </div>
+      {i < xs.length - 1 && <p className="mt-3 text-center text-[13.5px] text-ink-3 sm:text-right">Next: {xs[i + 1].year} · {xs[i + 1].title}</p>}
+    </div>
+  );
   return (
     <div>
       <div key={e.id} className="tl-fade grid items-center gap-8 overflow-hidden rounded-3xl border border-line bg-white p-5 sm:p-8 lg:grid-cols-[1.1fr_1fr]">

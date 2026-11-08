@@ -10,6 +10,10 @@ const serif = {} as const;
 type View = "story" | "highlights" | "years" | "line" | "cards" | "film";
 
 export function LifeTimeline({ eras, events, recordings }: { eras: Era[]; events: LifeEvent[]; recordings: Record<number, number> }) {
+  // Simple (the default): one moment at a time, calm and large. "More views" opens search, filters and the other layouts.
+  const [adv, setAdv] = useState(false);
+  useEffect(() => { try { setAdv(localStorage.getItem("tj_tl_adv") === "1"); } catch {} }, []);
+  const toggleAdv = (v: boolean) => { setAdv(v); try { localStorage.setItem("tj_tl_adv", v ? "1" : "0"); } catch {} };
   const [view, setView] = useState<View>("story"); const [q, setQ] = useState(""); const [kinds, setKinds] = useState<string[]>([]);
   const [activeEra, setActiveEra] = useState(0); const [activeYear, setActiveYear] = useState<number | null>(null); const [flash, setFlash] = useState<string | null>(null);
 
@@ -43,6 +47,22 @@ export function LifeTimeline({ eras, events, recordings }: { eras: Era[]; events
   const go = (id: string) => { const el = document.getElementById(id); if (!el) return; el.scrollIntoView({ behavior: "smooth", block: "center" }); if (id.startsWith("e-")) { setFlash(id); setTimeout(() => setFlash(null), 2200); } };
   const open = (e: LifeEvent) => { setView("story"); setQ(""); setKinds([]); setTimeout(() => go(`e-${e.slug}`), 60); };
 
+  const chapterOf = (e: LifeEvent) => { const k = eras.findIndex((x) => x.id === eraOf(eras, e.year)?.id); return k < 0 ? null : `Chapter ${k + 1} · ${eras[k].title}`; };
+  if (!adv) return (
+    <div className="bg-white">
+      <section className="mx-auto max-w-[1100px] px-5 pb-16 pt-10 sm:px-8 sm:pt-14">
+        <div className="mb-8 flex flex-wrap items-end justify-between gap-4 border-b border-line pb-6">
+          <div>
+            <h1 className="text-[30px] font-semibold leading-[1.1] tracking-[-0.02em] text-ink sm:text-[40px]">His life, year by year</h1>
+            <p className="mt-2 max-w-2xl text-[15.5px] leading-relaxed text-ink-2">The life of Śrī Śrīmad Gour Govinda Swāmī Gurudeva, one moment at a time.</p>
+          </div>
+          <button onClick={() => toggleAdv(true)} className="flex h-11 items-center gap-2 rounded-full border border-line-strong px-5 text-[14px] font-medium text-ink-2 transition hover:border-ink hover:text-ink"><Search size={16} />Search & more views</button>
+        </div>
+        {events.length ? <FilmView events={events} simple chapterOf={chapterOf} /> : <p className="py-20 text-center text-[15px] text-ink-3">The moments of his life are being added.</p>}
+      </section>
+    </div>
+  );
+
   return (
     <div className="bg-white">
       {/* Opening */}
@@ -65,6 +85,7 @@ export function LifeTimeline({ eras, events, recordings }: { eras: Era[]; events
               <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search a place, a person, a year…" className="h-10 w-full rounded-full border border-line-strong bg-white pl-9 pr-9 text-[13.5px] outline-none focus:border-saffron" />
               {q && <button onClick={() => setQ("")} aria-label="Clear" className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-3"><X size={15} /></button>}
             </label>
+            <button onClick={() => toggleAdv(false)} className="flex h-10 items-center gap-1.5 rounded-full bg-saffron-tint px-4 text-[13px] font-medium text-saffron hover:brightness-95">Simple view</button>
             <div className="flex rounded-full border border-line-strong p-0.5 text-[12.5px]" role="tablist">
               {([["story", Rows3, "Full story"], ["highlights", Sparkles, "Highlights"], ["line", GitCommitHorizontal, "Line"], ["cards", LayoutGrid, "Pictures"], ["film", Film, "One by one"], ["years", CalendarRange, "All years"]] as const).map(([v, I, l]) => (
                 <button key={v} role="tab" aria-selected={view === v} onClick={() => setView(v)} className={`flex h-8 items-center gap-1.5 rounded-full px-3 transition ${view === v ? "bg-ink text-white" : "text-ink-2 hover:text-ink"}`}><I size={14} />{l}</button>

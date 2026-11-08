@@ -60,7 +60,6 @@ export const MENUS: NavMenu[] = [
     groups: [
       g("Hear & watch", [
         l("/teachings/audio", "Audio lectures", "Filter by year, place, verse and topic", Headphones),
-        l("/teachings/audio/chart", "All Audios — Systematic Chart", "Every recording on one page, year by year", ListChecks),
         l("/teachings/videos", "Videos", "Lectures on video and excerpts", Clapperboard),
         l("/teachings/kirtans", "Kīrtanas & bhajanas", "Songs he sang and led", Music, true),
       ]),
