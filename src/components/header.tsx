@@ -198,7 +198,7 @@ function SimplePanel({ menu, onNavigate, onEverything }: { menu: SimpleMenu; onN
                 {x.img ? /* eslint-disable-next-line @next/next/no-img-element */ <img src={x.img} alt="" className="h-full w-full object-cover" style={x.pos ? { objectPosition: x.pos } : undefined} /> : <x.icon size={30} strokeWidth={1.5} />}
               </span>
               <span className="text-[15px] font-semibold leading-snug text-ink group-hover:text-[var(--acc)]">{x.title}</span>
-              <span className="-mt-2 flex items-center gap-1 text-[12px] text-ink-3">{x.items.length} pages<ChevronRight size={13} className="transition group-hover:translate-x-0.5" /></span>
+              <span className="-mt-2 flex items-center gap-1 text-[12px] text-ink-3">{x.items.length} {x.items.length === 1 ? "page" : "pages"}<ChevronRight size={13} className="transition group-hover:translate-x-0.5" /></span>
             </button>))}
         </div>
       ) : (

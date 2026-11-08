@@ -34,7 +34,7 @@ export const SIMPLE_DEFAULTS: { key: string; label: string; intro: string; icon:
     { group: "Listen", href: "/teachings/audio", label: "Audio lectures", note: "Every recorded lecture, remastered", icon: "Headphones" },
     { group: "Listen", href: "/teachings/kirtans", label: "Kīrtanas & bhajanas", note: "Songs he sang and led", icon: "Music" },
     { group: "Watch", href: "/teachings/videos", label: "Videos", note: "His lectures and moments on video", icon: "Clapperboard" },
-    { group: "Watch", href: "/resources/taptajivanam-youtube", label: "Taptajīvanam YouTube", note: "Lectures and shorts", icon: "Youtube" }] },
+ ] },
   { key: "read", label: "Read", intro: "Books, quotes and tattva", icon: "BookOpen", accent: "indigo", featured: [
     { group: "Read", href: "/teachings/books", label: "Books", note: "Publications on his teachings", icon: "BookOpen" },
     { group: "Read", href: "/teachings/magazines", label: "Magazines", note: "Gopāl Jiu magazine and more", icon: "Newspaper" },
@@ -46,14 +46,13 @@ export const SIMPLE_DEFAULTS: { key: string; label: string; intro: string; icon:
     { group: "Tattva", href: "/tattva", label: "Tattva", note: "Every subject of his teachings, topic by topic", icon: "Network" }] },
   { key: "about", label: "About", intro: "Archive, contact, resources", icon: "Info", accent: "leaf", featured: [
     { href: "/about", label: "About this website", note: "Why and how this archive exists", icon: "Archive" },
-    { href: "/gurudeva/taptajivanam-projects", label: "Taptajīvanam project", note: "The archive and its services", icon: "Library" },
     { href: "/about/founder", label: "Śrīla Guru Mahārāja", note: "Founder of Taptajīvanam", icon: "/photos/haladhara-sm.webp" },
     { href: "/thank-list", label: "Our Thank List", note: "Everyone who built this archive", icon: "HeartHandshake" },
     { href: "/about/contact", label: "Contact", note: "Write to us or call", icon: "Phone" }] },
 ];
 /** Where to centre each photo, so no head is cut. */
 /** The picture or icon of each group in the Simple menu. */
-const TAB_ICON: Record<string, LucideIcon> = { "His life": UserRound, Remembrance: Image, "Lineage & disciples": GitBranch, Projects: Building2, Read: BookOpen, "His words": Quote, Listen: Headphones, Watch: Clapperboard, About: Info, Tools: Smartphone, "Paramparā protection": ScrollText, "Elsewhere online": Globe, "News & updates": Megaphone };
+const TAB_ICON: Record<string, LucideIcon> = { "Apps & links": Smartphone, "His life": UserRound, Remembrance: Image, "Lineage & disciples": GitBranch, Projects: Building2, Read: BookOpen, "His words": Quote, Listen: Headphones, Watch: Clapperboard, About: Info, Tools: Smartphone, "Paramparā protection": ScrollText, "Elsewhere online": Globe, "News & updates": Megaphone };
 const POS: Record<string, string> = { "/photos/gurudeva-writing.webp": "18% 22%", "/photos/menu-seated-1.webp": "50% 30%", "/photos/menu-garland.webp": "50% 25%", "/photos/gurudeva-portrait.webp": "50% 30%" };
 /** Colours for the groups inside a Simple menu, in order. */
 export const GROUP_ACC = ["saffron", "rose", "teal", "indigo", "leaf", "gold", "plum"];
@@ -79,10 +78,14 @@ export function simpleMenus(menus: NavMenu[], cfg?: SimpleCfg | null): SimpleMen
   const T = (title: string, links: NavLink[]) => ({ title, links });
   const GROUPS: Record<string, { title: string; links: NavLink[] }[]> = {
     gurudeva: G("gurudeva"),
-    listen: [T("Hear & watch", listenTeach), T("On YouTube", yt)],
+    // Watch opens Videos directly; the YouTube channels are reached from the Videos page itself.
+    listen: [T("Hear & watch", listenTeach)],
     // Tattva is one card only; its topics open on the Tattva page.
     read: [...teach.filter((g) => g.title !== "Hear & watch"), T("Other languages", top("translations", "Translations"))],
-    about: [...G("about"), ...G("resources").map((g) => T(g.title, g.links.filter((l) => !yt.includes(l))))],
+    // About stays short: the archive itself, then news, paramparā, and one group for the app and other websites.
+    about: (() => { const res = G("resources").map((g) => T(g.title, g.links.filter((l) => !yt.includes(l)))); const by = (t: string) => res.find((g) => g.title === t)?.links || [];
+      const known = ["Tools", "Elsewhere online", "News & updates", "Paramparā protection"];
+      return [...G("about"), T("News & updates", by("News & updates")), T("Paramparā protection", by("Paramparā protection")), T("Apps & links", [...by("Tools"), ...by("Elsewhere online")]), ...res.filter((g) => !known.includes(g.title))]; })(),
   };
   return SIMPLE_DEFAULTS.map((d) => {
     const c = cfg?.[d.key] || {};

@@ -149,19 +149,14 @@ export const MENUS: NavMenu[] = [
     intro: "The archive, its founder and how to reach us.",
     feature: { title: "About the archive", text: "Why and how this archive exists.", image: "/photos/menu-marigold.webp", href: "/about", cta: "About overview" },
     groups: [
+      // Kept short on purpose: mission, team, support, corrections and privacy are reached from the About page and the footer.
       g("Taptajīvanam", [
         l("/about", "About this website", "Why and how this archive exists", Archive),
-        l("/gurudeva/taptajivanam-projects", "Taptajīvanam project", "The archive and its services", Library),
-        l("/about/mission", "Mission & principles", "How content is chosen and cared for", Compass),
         l("/about/founder", "Śrīla Haladhara Swāmī Guru Mahārāja", "Founder of Taptajīvanam", UserRound),
-        l("/about/team", "Team & contributors", "Editors, translators, developers", Users),
         l("/thank-list", "Our Thank List", "Everyone who built this archive", HeartHandshake),
       ]),
       g("Connect", [
         l("/about/contact", "Contact", "taptajivanam@gmail.com · +91 96687 21555", Phone),
-        l("/about/support", "Support the archive", "Sevā, sponsorship, contributions", HandHeart),
-        l("/about/suggest-correction", "Suggest a correction", "Found a mistake? Tell us", MessageCircleQuestion),
-        l("/about/privacy", "Privacy & terms", "How we handle data and content", ShieldCheck),
       ]),
     ],
   },
