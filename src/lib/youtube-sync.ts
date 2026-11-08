@@ -156,7 +156,8 @@ export async function syncStep(src: Source & { sync_state?: string | null; sync_
           await Promise.all(todo.slice(i, i + 8).map(async (v) => {
             const c = classify(v.title || "", "", known);
             const row = { youtube_id: v.youtube_id, title: v.title || `YouTube video ${v.youtube_id}`, duration_sec: v.seconds || null, published_at: v.published || null, channel: src.name, series: src.name, source_id: src.id, kind: src.default_kind || (src.show_as === "shorts" ? "short" : null) || (c.type === "Kīrtana" ? "kirtan" : c.type === "Festival" ? "festival" : c.type === "Memories" ? "memory" : (v.seconds && v.seconds <= 60 ? "short" : "lecture")), ...c };
-            try { await insertRow(VIDEO, row); added++; } catch { try { if (!(await sql`select 1 from videos where youtube_id = ${v.youtube_id}`).length) { await insertRow(VIDEO, row); added++; } } catch {} }
+            // each YouTube video is kept once (the database refuses a second copy); a video in several playlists is listed by each of them
+            if (!(await sql`select 1 from videos where youtube_id = ${v.youtube_id}`).length) { try { await insertRow(VIDEO, row); added++; } catch {} }
           }));
         }
       }

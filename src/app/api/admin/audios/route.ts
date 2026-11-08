@@ -28,6 +28,7 @@ export async function POST(req: Request) {
   const g = await guard("contributor"); if ("res" in g) return g.res;
   const b = await req.json(); const a = clean(b); if (!a.title) return fail("Give the recording a title.");
   if (g.user.role === "contributor") a.status = "draft";
+  if (a.audio_url) { const d = (await sql`select title from audios where audio_url = ${a.audio_url} limit 1`)[0] as any; if (d) return fail(`This MP3 link is already used by “${d.title}”. Each recording is kept once.`); }
   a.file_title ||= fileTitle(a); a.code = validCode(a.code) || (await nextCode(a)); const slug = await uniqueSlug(slugBase(a));
   const cols = Object.keys(a); const r = await sql.query(`insert into audios (slug, search, ${cols.join(", ")}) values ($1, $2, ${cols.map((_, i) => `$${i + 3}`).join(", ")}) returning id, slug`, [slug, searchText(a), ...cols.map((k) => a[k])]);
   await rememberVocab(a); return json(r[0]);

@@ -19,6 +19,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
   if (!cur.file_title && !a.file_title) a.file_title = fileTitle({ ...cur, ...a });
   if (!cur.code && !a.code) a.code = await nextCode({ ...cur, ...a }, id);
   if (a.code && (await sql`select 1 from audios where code = ${a.code} and id <> ${id}`).length) return fail(`The address code ${a.code} is already used by another recording.`);
+  if (a.audio_url) { const d = (await sql`select title from audios where audio_url = ${a.audio_url} and id <> ${id} limit 1`)[0] as any; if (d) return fail(`This MP3 link is already used by “${d.title}”. Each recording is kept once.`); }
   const merged = { ...cur, ...a };
   const sets: string[] = []; const vals: any[] = [];
   for (const [k, v] of Object.entries(a)) { vals.push(v); sets.push(`${k} = $${vals.length}`); }
