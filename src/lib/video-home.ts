@@ -1,4 +1,5 @@
 /* Videos, organised by sections made in the Studio — each with its own design and colour — plus channels and search. */
+import { cleanTitle } from "./video-layouts";
 import { sql, hasDb } from "./db";
 
 export type VCard = { slug: string; title: string; yt: string; seconds: number; date: string; description?: string };
@@ -8,8 +9,10 @@ export { LAYOUTS, COLORS, type Layout };
 export type VSection = { id: string; name: string; slug: string; intro: string | null; layout: Layout; color: string; count: number; items: VCard[]; playlists: Shelf[]; fold: string; parent: { name: string; slug: string } | null; children: VSection[] };
 export type VNav = { sections: { name: string; slug: string; color: string; layout: string }[]; channels: number };
 
+/** Each YouTube video once, even when it was saved twice. */
+const once = <T extends { yt: string }>(xs: T[]) => { const seen = new Set<string>(); return xs.filter((x) => (seen.has(x.yt) ? false : (seen.add(x.yt), true))); };
 const day = (d: any) => (d ? String(d instanceof Date ? d.toISOString() : d).slice(0, 10) : "");
-const card = (r: any): VCard => ({ slug: r.slug, title: r.title, yt: r.youtube_id, seconds: r.duration_sec || 0, date: day(r.date) || (r.year ? String(r.year) : ""), ...(r.description ? { description: String(r.description).slice(0, 400) } : {}) });
+const card = (r: any): VCard => ({ slug: r.slug, title: cleanTitle(r.title), yt: r.youtube_id, seconds: r.duration_sec || 0, date: day(r.date) || (r.year ? String(r.year) : ""), ...(r.description ? { description: String(r.description).slice(0, 400) } : {}) });
 /** How many videos each design shows on the Home tab. */
 const HOME_N: Record<string, number> = { featured: 5, spotlight: 7, row: 12, grid: 8, shorts: 14, playlists: 0, carousel: 6, list: 6, channels: 0, folder: 0, tabs: 0 };
 
@@ -29,14 +32,14 @@ async function sectionTree(focus?: string): Promise<{ roots: (VSection & { on_ho
   const secs = all.filter(visible); const ids = secs.map((s) => s.id); const fid = secs.find((s) => s.slug === focus)?.id || null;
   if (!ids.length) return { roots: [], bySlug: new Map() };
   const [counts, items, shelves] = await Promise.all([
-    sql`select i.section_id, count(*)::int as c from video_section_items i join videos v on v.youtube_id = i.youtube_id and v.status = 'published' where i.section_id = any(${ids}::uuid[]) and not i.removed group by i.section_id`,
+    sql`select i.section_id, count(distinct v.youtube_id)::int as c from video_section_items i join videos v on v.youtube_id = i.youtube_id and v.status = 'published' where i.section_id = any(${ids}::uuid[]) and not i.removed group by i.section_id`,
     sql`select * from (select i.section_id, v.slug, v.title, v.youtube_id, v.duration_sec, v.date, v.year, v.description, row_number() over (partition by i.section_id order by i.position) as n from video_section_items i join videos v on v.youtube_id = i.youtube_id and v.status = 'published' where i.section_id = any(${ids}::uuid[]) and not i.removed) t where n <= case when section_id = ${fid}::uuid then 5000 else 16 end order by section_id, n`,
     shelvesOf(ids),
   ]);
   const node = new Map<string, VSection & { on_home: boolean; parent_id: string | null }>();
   for (const s of secs) {
     const cap = s.id === fid ? Infinity : HOME_N[s.layout] ?? 12;
-    const its = (items as any[]).filter((i) => i.section_id === s.id).slice(0, cap === Infinity ? undefined : cap).map((r) => card(s.id === fid ? r : { ...r, description: null }));
+    const its = once((items as any[]).filter((i) => i.section_id === s.id).map((r) => card(s.id === fid ? r : { ...r, description: null }))).slice(0, cap === Infinity ? undefined : cap);
     node.set(s.id, { id: s.id, name: s.name, slug: s.slug, intro: s.intro, layout: s.layout, color: s.color, fold: s.fold || "none", on_home: s.on_home, parent_id: s.parent_id, parent: null, count: (counts as any[]).find((c) => c.section_id === s.id)?.c || 0, items: its, playlists: shelves.filter((x) => x.section_id === s.id), children: [] });
   }
   const roots: (VSection & { on_home: boolean })[] = [];
@@ -93,7 +96,7 @@ async function shelfOnce(id: string): Promise<Shelf | null | undefined> {
     const s = (await sql`select * from video_sources where id = ${id}`)[0] as any; if (!s) return null;
     // a channel is only a link to YouTube: its videos are not listed here
     const rows = s.kind === "channel" ? [] : (await sql`select v.slug, v.title, v.youtube_id, v.duration_sec, v.date, v.year from video_source_items i join videos v on v.youtube_id = i.youtube_id and v.status = 'published' where i.source_id = ${id} order by i.position limit 5000`) as any[];
-    return { id: s.id, name: s.name || s.url, avatar: s.avatar, description: s.description, showAs: s.show_as || "row", kind: s.kind, ref: s.ref, url: s.url, count: rows.length, items: rows.map(card) };
+    return { id: s.id, name: s.name || s.url, avatar: s.avatar, description: s.description, showAs: s.show_as || "row", kind: s.kind, ref: s.ref, url: s.url, count: once(rows.map(card)).length, items: once(rows.map(card)) };
   } catch { return undefined; }
 }
 

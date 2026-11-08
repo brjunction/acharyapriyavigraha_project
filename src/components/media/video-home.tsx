@@ -49,11 +49,11 @@ export function VideoTabsBar({ tabs, active, channels }: { tabs: { name: string;
 export function VideoHomeView({ sections, latest, channels }: { sections: VSection[]; latest: VCard[]; channels: Shelf[] }) {
   const [shorts, setShorts] = useState<{ list: VCard[]; i: number } | null>(null);
   return (
-    <div className="mx-auto max-w-[1240px] space-y-5 px-4 pb-16 pt-6 sm:space-y-7 sm:px-6">
+    <div className="mx-auto max-w-[1240px] space-y-8 px-4 pb-16 pt-6 sm:space-y-10 sm:px-6">
       {!sections.length && (latest.length ? <Block title="Newest videos" color="saffron"><Row items={latest} /></Block> : <p className="py-20 text-center text-[14px] text-ink-3">Videos are being added.</p>)}
       {sections.map((s) => <SectionBlock key={s.id} s={s} onShorts={(list, i) => setShorts({ list, i })} />)}
       {channels.length > 0 && !hasChannels(sections) && (
-        <Block title="Channels" color="saffron" more={{ href: "/teachings/videos/channels", label: "All channels" }}>
+        <Block title="Our YouTube channels" intro="Open a channel on YouTube to subscribe." color="saffron">
           <div className="-mx-4 flex snap-x scroll-px-4 gap-4 overflow-x-auto px-4 pb-1 [scrollbar-width:none] sm:mx-0 sm:grid sm:grid-cols-4 sm:px-0 lg:grid-cols-8">
             {channels.map((c) => <ChannelChip key={c.id} c={c} />)}
           </div>
@@ -76,10 +76,10 @@ function Block({ title, intro, color, more, children, fold = "none", depth = 0 }
       {intro && <p className="mt-1 pl-4 text-[12.5px] text-ink-3 sm:text-[13px]">{intro}</p>}
     </div>);
   return (
-    <section className={`acc-${color} ${sub ? "rounded-[22px] bg-white/80 p-3 shadow-[0_1px_3px_rgba(0,0,0,.05)] sm:p-4" : "rounded-[28px] bg-acc-tint p-4 sm:p-6"}`}>
+    <section className={`acc-${color} ${sub ? "rounded-2xl border border-line bg-white p-3 sm:p-4" : "border-t border-line pt-6 first:border-t-0 first:pt-0 sm:pt-8"}`}>
       <div className={`flex items-end justify-between gap-3 ${open ? (sub ? "mb-3" : "mb-4") : ""}`}>
         {can ? <button onClick={() => setOpen((o) => !o)} aria-expanded={open} className="min-w-0 text-left">{head}</button> : head}
-        {more && open && <Link href={more.href} className="flex shrink-0 items-center gap-0.5 rounded-full bg-white px-3.5 py-1.5 text-[12.5px] font-medium text-[var(--acc)] shadow-[0_1px_3px_rgba(0,0,0,.08)] transition hover:shadow-md sm:text-[13px]">{more.label}<ChevronRight size={15} /></Link>}
+        {more && open && <Link href={more.href} className="flex shrink-0 items-center gap-0.5 rounded-full border border-line px-3.5 py-1.5 text-[12.5px] font-medium text-ink-2 transition hover:border-[var(--acc)] hover:text-[var(--acc)] sm:text-[13px]">{more.label}<ChevronRight size={15} /></Link>}
       </div>
       <div className={`grid transition-[grid-template-rows] duration-500 ease-out ${open ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}><div className="min-h-0 overflow-hidden">{children}</div></div>
     </section>
@@ -90,7 +90,7 @@ function Block({ title, intro, color, more, children, fold = "none", depth = 0 }
     Tabs shows them as tabs to switch between; any other design shows its videos, then its sub-sections. */
 export function SectionBlock({ s, depth = 0, onShorts, full = false }: { s: VSection; depth?: number; onShorts?: (list: VCard[], i: number) => void; full?: boolean }) {
   const inner = <SectionInner s={s} depth={depth} onShorts={onShorts} full={full} />;
-  return <Block title={s.name} intro={s.intro} color={s.color} fold={s.fold} depth={depth} more={moreOf(s)}>{inner}</Block>;
+  return <Block title={s.name} intro={s.intro} color={s.color} fold={s.fold} depth={depth} more={s.layout === "channels" ? undefined : moreOf(s)}>{inner}</Block>;
 }
 function SectionInner({ s, depth = 0, onShorts, full = false }: { s: VSection; depth?: number; onShorts?: (list: VCard[], i: number) => void; full?: boolean }) {
   const kids = s.children || [];
@@ -349,7 +349,7 @@ export function SectionView({ s }: { s: VSection }) {
   const view = f ? { ...s, layout: s.layout === "shorts" ? "shorts" : "grid", items } as VSection : s;
   return (
     <div className={`acc-${s.color} mx-auto max-w-[1240px] px-4 pb-16 pt-6 sm:px-6`}>
-      <header className="mb-6 flex flex-wrap items-end justify-between gap-4 rounded-[28px] bg-acc-tint p-5 sm:p-7">
+      <header className="mb-6 flex flex-wrap items-end justify-between gap-4 border-b border-line pb-6">
         <div className="min-w-0">
           <h1 className="flex items-center gap-3 text-[24px] font-semibold tracking-[-0.02em] text-ink sm:text-[30px]"><span className="h-8 w-1.5 rounded-full bg-[var(--acc)]" />{s.name}</h1>
           {s.intro && <p className="mt-1.5 max-w-2xl pl-[18px] text-[14px] text-ink-2">{s.intro}</p>}

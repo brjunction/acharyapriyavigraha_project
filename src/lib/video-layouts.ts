@@ -21,3 +21,12 @@ export const LENGTHS: [string, string, number, number][] = [["short", "Under 1 m
 
 /** The watch address of a video (usable on the server and in the browser). */
 export const watchHref = (v: { slug: string }, q?: string) => `/teachings/videos/${v.slug}${q ? `?${q}` : ""}`;
+
+/** A YouTube title made calm for reading here: no hashtags or emoji, "||" and "|" shown as a quiet dot. */
+export function cleanTitle(t: string) {
+  const raw = String(t || "");
+  let s = raw.replace(/(^|\s)#[\p{L}\p{N}_]+/gu, " ").replace(/[\p{Extended_Pictographic}\u{1F3FB}-\u{1F3FF}\u{FE0F}\u{200D}]/gu, "")
+    .replace(/\s*\|\|?\s*/g, " · ").replace(/\s{2,}/g, " ").replace(/^[\s·\-–|]+|[\s·\-–|]+$/g, "").trim();
+  if (!s) s = raw.replace(/#/g, " ").replace(/\s{2,}/g, " ").trim();
+  return s;
+}
