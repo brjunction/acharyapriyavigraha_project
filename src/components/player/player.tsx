@@ -1,5 +1,6 @@
 "use client";
 import { playUrl } from "@/lib/archive-url";
+import { warm, preconnect } from "@/lib/audio-warm";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight, Play, Pause, RotateCcw, RotateCw, Volume2, Volume1, VolumeX, X, PictureInPicture2, Maximize2, Minimize2, FileText, Keyboard, Download, Link2, Check, Moon, ChevronDown, SkipBack, SkipForward, Search, PanelBottom, GripHorizontal, ExternalLink, Loader2 } from "lucide-react";
@@ -85,8 +86,13 @@ function MoreMenu() {
 
 /* -------------------------------------------------------------- transcription */
 function useInfo(slug?: string) {
-  const [info, setInfo] = useState<Info | null>(null); const [busy, setBusy] = useState(false);
+  const [info, setInfo] = useState<Info | null>(null); const [busy, setBusy] = useState(false); const { track, time } = usePlayer();
   useEffect(() => { if (!slug) return; setInfo(null); setBusy(true); fetch(`/api/audio/${slug}`).then((r) => r.json()).then(setInfo).catch(() => setInfo({ text: [], prev: null, next: null })).finally(() => setBusy(false)); }, [slug]);
+  // the next lecture: connect to its server now, and fetch its start in the last minute of this one, so Next starts at once
+  const nextUrl = info?.next ? toTrack(info.next).url : undefined;
+  useEffect(() => { preconnect(nextUrl); }, [nextUrl]);
+  const nearEnd = !!(track?.duration && time > track.duration - 60);
+  useEffect(() => { if (nearEnd && nextUrl) warm(nextUrl); }, [nearEnd, nextUrl]);
   return { info, busy };
 }
 function Transcript({ info, busy, compact }: { info: Info | null; busy: boolean; compact?: boolean }) {

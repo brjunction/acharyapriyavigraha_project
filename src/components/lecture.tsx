@@ -3,6 +3,7 @@ import Link from "next/link";
 import { useEffect, useRef } from "react";
 import { Play, Pause, FileText, Languages, Download, Share2, Quote, Copy, RotateCcw, RotateCw, X } from "lucide-react";
 import { usePlayer, usePrefs } from "./providers";
+import { warm, cool } from "@/lib/audio-warm";
 import { type Lecture, fmtDate, fmtDur, fmtClock, TRANSCRIPT } from "@/lib/data";
 
 const toTrack = (l: Lecture) => ({ slug: l.slug, title: l.title, subtitle: [l.date ? fmtDate(l.date) : null, l.place].filter(Boolean).join(", "), duration: l.duration, url: l.url, href: l.href, transcript: l.transcribed });
@@ -12,7 +13,7 @@ export function PlayButton({ l, size = 40 }: { l: Lecture; size?: number }) {
   const mine = track?.slug === l.slug;
   const on = mine && playing;
   return (
-    <button onClick={() => (mine ? toggle() : play(toTrack(l)))} style={{ width: size, height: size }} aria-label={on ? "Pause" : `Play ${l.title}`}
+    <button onClick={() => (mine ? toggle() : play(toTrack(l)))} onPointerEnter={() => !mine && warm(l.url)} onPointerLeave={cool} onTouchStart={() => !mine && warm(l.url)} onFocus={() => !mine && warm(l.url)} style={{ width: size, height: size }} aria-label={on ? "Pause" : `Play ${l.title}`}
       className={`relative flex shrink-0 items-center justify-center rounded-full transition ${on ? "bg-ink text-white" : mine ? "border border-ink bg-white text-ink" : "border border-line-strong bg-white text-ink hover:border-ink"}`}>
       {on ? (
         <span className="eq flex h-[38%] items-end gap-[2px]"><span style={{ animationDelay: "0s" }} /><span style={{ animationDelay: ".2s" }} /><span style={{ animationDelay: ".4s" }} /></span>

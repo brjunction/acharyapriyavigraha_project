@@ -1,5 +1,6 @@
 // The lecture page itself, shared by /teachings/audio/<slug> and /audios/<code>.
 import Link from "next/link";
+import { preconnect, prefetchDNS } from "react-dom";
 import { notFound } from "next/navigation";
 import { MapPin, Calendar, BookOpen, Tag, Languages, Clock } from "lucide-react";
 import { LECTURES, fmtDate, fmtDur, QUOTE_OF_DAY } from "@/lib/data";
@@ -19,6 +20,8 @@ import { sql } from "@/lib/db";
 /** A lecture: its details, a slim player, the transcription as a reading page, and what is related. */
 export async function RealLecture({ a }: { a: any }) {
   const l = toLecture(a); const song = a.kind === "kirtan" || a.kind === "bhajan";
+  // open the connection to the server the MP3 lives on while the page loads, so Play starts at once
+  try { if (l.url && /^https?:/.test(l.url)) { const o = new URL(l.url).origin; preconnect(o, { crossOrigin: "anonymous" }); prefetchDNS(o); } else if (a.audio_url?.includes("archive.org")) { preconnect("https://archive.org"); } } catch {}
   const [quotes, related] = await Promise.all([
     sql`select kind, slug, text, at_sec from excerpts where audio_id = ${a.id} and status = 'published' order by at_sec nulls last limit 30`.catch(() => [] as any[]),
     sql`select slug, title, kind, type, date, date_note, place, country, scripture, canto, chapter, verse, language, series, topics, duration_sec, audio_url, audio_direct, transcript_status from audios where status = 'published' and id <> ${a.id} and ((place is not null and place = ${a.place}) or (series is not null and series = ${a.series}) or (scripture is not null and scripture = ${a.scripture} and chapter is not distinct from ${a.chapter})) order by date desc nulls last limit 6`.catch(() => [] as any[]),
