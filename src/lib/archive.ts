@@ -41,9 +41,14 @@ export function parseName(name: string, length?: string, size?: string): Parsed 
   let rest = name.replace(/\.mp3$/i, "").replace(/_/g, " ").trim();
   let date: string | null = null, date_note: string | null = null;
   let m: RegExpExecArray | null;
-  if ((m = /^(\d{2}|\d{4})-(\d{2})-(\d{2})(?:-\d{2})?\b\s*/.exec(rest))) { const y = yr(m[1]), mo = Number(m[2]), d = Number(m[3]); if (mo >= 1 && mo <= 12) { if (d >= 1 && d <= 31) date = `${y}-${pad(mo)}-${pad(d)}`; else date_note = `${MON[mo - 1]} ${y}`; } rest = rest.slice(m[0].length); }
+  if ((m = /^(\d{2}|\d{4})-(\d{1,2})-(\d{1,2})(?:-\d{1,2})?\b\s*/.exec(rest))) { const y = yr(m[1]), mo = Number(m[2]), d = Number(m[3]); if (mo >= 1 && mo <= 12) { if (d >= 1 && d <= 31) date = `${y}-${pad(mo)}-${pad(d)}`; else date_note = `${MON[mo - 1]} ${y}`; } rest = rest.slice(m[0].length); }
   else if ((m = /^(\d{1,2})\.(\d{1,2})\.(\d{2}|\d{4})\b\s*/.exec(rest))) { const d = Number(m[1]), mo = Number(m[2]), y = yr(m[3]); if (mo >= 1 && mo <= 12 && d >= 1 && d <= 31) date = `${y}-${pad(mo)}-${pad(d)}`; rest = rest.slice(m[0].length); }
+  else if ((m = /^(\d{2}|\d{4})-(\d{1,2})\b\s*/.exec(rest))) { const y = yr(m[1]), mo = Number(m[2]); if (mo >= 1 && mo <= 12) date_note = `${MON[mo - 1]} ${y}`; rest = rest.slice(m[0].length); }
   else if ((m = /^(\d{1,2})\.(\d{2})\b\s*/.exec(rest))) { const mo = Number(m[1]), y = yr(m[2]); if (mo >= 1 && mo <= 12) date_note = `${MON[mo - 1]} ${y}`; rest = rest.slice(m[0].length); }
+  // a date written as 960115 (year, month, day) anywhere in the name
+  if (!date && !date_note && (m = /(?:^|\s)(\d{2})(\d{2})(\d{2})(?=\s|$)/.exec(rest))) { const y = yr(m[1]), mo = Number(m[2]), d = Number(m[3]); if (mo >= 1 && mo <= 12 && d >= 1 && d <= 31) { date = `${y}-${pad(mo)}-${pad(d)}`; rest = rest.replace(m[0], " "); } }
+  // a short code before the date (e.g. "DUC 96-2 …")
+  if (!date && !date_note && (m = /^([A-Z]{2,4})\s+(\d{2})-(\d{1,2})(?:-(\d{1,2}))?\b\s*/.exec(rest))) { const y = yr(m[2]), mo = Number(m[3]), d = Number(m[4] || 0); if (mo >= 1 && mo <= 12) { if (d >= 1 && d <= 31) date = `${y}-${pad(mo)}-${pad(d)}`; else date_note = `${MON[mo - 1]} ${y}`; rest = `${m[1]} ${rest.slice(m[0].length)}`; } }
   let scripture: string | null = null, canto: number | null = null, chapter: number | null = null, verse: string | null = null, ref = "";
   if ((m = /\b(SB|BG|CC)\s?(\d+)\.(\d+)(?:\.([\d-]+))?/.exec(rest))) {
     scripture = m[1];
@@ -55,7 +60,7 @@ export function parseName(name: string, length?: string, size?: string): Parsed 
   for (const [code, [p, c]] of Object.entries(PLACES)) { const r = new RegExp(`\\b${code}\\b`); if (r.test(rest)) { place = p; country = c; rest = rest.replace(r, " "); break; } }
   const part = /\bP(I{1,3}|IV)\b/.exec(rest); if (part) rest = rest.replace(part[0], " ");
   const rec = /\bRec\s?(\d)\b/i.exec(rest); if (rec) rest = rest.replace(rec[0], " ");
-  rest = rest.replace(/\b(BTM\d+[A-Z]?|HI8|AD-\d+|ORG)\b/g, " ").replace(/\s*-\s*$/, "").replace(/\s{2,}/g, " ").replace(/^[\s&-]+|[\s&-]+$/g, "").trim();
+  rest = rest.replace(/\b(BTM\d+[A-Z]?|MDR\d+|HI8|AD-\d+|ORG|MST(?:side[AB])?|TS)\b/g, " ").replace(/\s*-\s*$/, "").replace(/\s{2,}/g, " ").replace(/^[\s&-]+|[\s&-]+$/g, "").trim();
   // codes whose meaning the names themselves show; others are left for the editor to correct in the preview
   for (const [code, full] of [["RI", "Radio interview"], ["PA", "Public address"], ["SB", "Śrīmad-Bhāgavatam"], ["BG", "Bhagavad-gītā"]] as const) {
     const r = new RegExp(`(^|\\s)${code}(?=\\s|$)`); if (!r.test(rest)) continue;
