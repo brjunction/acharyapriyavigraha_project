@@ -1,4 +1,5 @@
 /* WebFolio: the whole archive as one document with a tree, built from the same data as the website. */
+import { playUrl } from "@/lib/archive-url";
 import { sql, hasDb } from "@/lib/db";
 import { getMenus } from "@/lib/menus-server";
 import { fold, verseRef, durText } from "@/lib/content/text";
@@ -80,7 +81,7 @@ export async function search(q: string) {
 export async function content(id: string): Promise<{ kind: string; title: string; sub?: string; blocks?: any[]; items?: { id: string; title: string; sub?: string; blocks?: any[]; text?: string }[]; data?: any } | null> {
   if (!hasDb() || !id) return null;
   const [t, a] = id.split(":"); const rest = id.slice(t.length + 1);
-  if (t === "a") { const r = (await sql`select * from audios where slug = ${a} and status = 'published'`)[0] as any; if (!r) return null; return { kind: "audio", title: r.title, sub: [r.date ? String(r.date).slice(0, 10) : r.date_note, r.place, verseRef(r), durText(r.duration_sec)].filter(Boolean).join(" · "), blocks: r.transcript || [], data: { url: r.audio_url, slug: r.slug, summary: r.summary } }; }
+  if (t === "a") { const r = (await sql`select * from audios where slug = ${a} and status = 'published'`)[0] as any; if (!r) return null; return { kind: "audio", title: r.title, sub: [r.date ? String(r.date).slice(0, 10) : r.date_note, r.place, verseRef(r), durText(r.duration_sec)].filter(Boolean).join(" · "), blocks: r.transcript || [], data: { url: playUrl(r.audio_url), slug: r.slug, summary: r.summary } }; }
   if (t === "bn") { const r = (await sql`select n.*, b.title as book, b.slug as bslug from book_nodes n join books b on b.id = n.book_id where n.id = ${a}`)[0] as any; if (!r) return null; const kids = await sql`select id, title, blocks from book_nodes where parent_id = ${a} and status = 'published' order by position`; return { kind: "chapter", title: r.title, sub: r.book, blocks: r.blocks || [], items: kids.map((k: any) => ({ id: `bn:${k.id}`, title: k.title, blocks: k.blocks })) }; }
   if (t === "book") { const b = (await sql`select * from books where id = ${a}`)[0] as any; if (!b) return null; const nodes = await sql`select id, book_id, parent_id, kind, position, title, slug, status, blocks from book_nodes where book_id = ${a} and status = 'published'`; const flat = order(nodes as any); return { kind: "book", title: b.title, sub: [b.author, b.year].filter(Boolean).join(" · "), data: { description: b.description }, items: flat.map((n: any) => ({ id: `bn:${n.id}`, title: n.title, blocks: (nodes as any[]).find((x) => x.id === n.id)?.blocks || [] })) }; }
   if (t === "ex") { const r = (await sql`select e.*, a.title as lecture from excerpts e left join audios a on a.id = e.audio_id where e.slug = ${a}`)[0] as any; if (!r) return null; return { kind: "excerpt", title: r.title || r.verse_ref || "", sub: r.source || r.lecture || r.author || "", data: r }; }

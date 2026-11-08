@@ -19,12 +19,13 @@ export async function dbRows(slug: string) {
 }
 
 import { verseRef } from "@/lib/content/text";
+import { playUrl } from "@/lib/archive-url";
 type ARow = { slug: string; title: string; kind: string; date: string | null; date_note: string | null; place: string | null; country: string | null; scripture: string | null; canto: number | null; chapter: number | null; verse: string | null; language: string | null; series: string | null; topics: string[]; duration_sec: number | null; audio_url: string | null; transcript_status: string; summary?: string | null };
 const KIND: Record<string, string> = { lecture: "Lecture", darshan: "Darśana", seminar: "Seminar", festival: "Festival", qa: "Questions & answers", initiation: "Initiation", kirtan: "Kīrtana", bhajan: "Bhajana", other: "Other" };
 export const toLecture = (r: ARow): Lecture => (({
   slug: r.slug, title: r.title, date: r.date ? String(r.date).slice(0, 10) : "", place: r.place || "", country: r.country || "", type: (r as any).type || KIND[r.kind] || "Lecture",
   scripture: verseRef(r) || undefined, duration: r.duration_sec || 0, transcribed: r.transcript_status === "done", languages: r.language ? [r.language] : [], topics: r.topics || [],
-  series: r.series || undefined, url: r.audio_url || undefined, href: `/teachings/audio/${r.slug}`,
+  series: r.series || undefined, url: playUrl(r.audio_url), href: `/teachings/audio/${r.slug}`,
   ...((r as any).singer ? { singer: (r as any).singer } : {}), ...((r as any).song_author ? { author: (r as any).song_author } : {}), ...((r as any).song ? { song: (r as any).song } : {}),
 }) as Lecture);
 /** Published recordings from the Audio panel. songs = kīrtanas and bhajanas. Null when there are none yet. */

@@ -1,11 +1,13 @@
 "use client";
 import dynamic from "next/dynamic";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Bot, Headphones, Music, Plus, Search, Upload, Trash2, Eye, EyeOff, Tag, MapPin, Layers, ChevronLeft, ChevronRight, Play, Pause, FileText, ExternalLink, Check, X, ListFilter, Pencil, Merge, FileUp, FileSpreadsheet, Download } from "lucide-react";
+import { Archive, Bot, Headphones, Music, Plus, Search, Upload, Trash2, Eye, EyeOff, Tag, MapPin, Layers, ChevronLeft, ChevronRight, Play, Pause, FileText, ExternalLink, Check, X, ListFilter, Pencil, Merge, FileUp, FileSpreadsheet, Download } from "lucide-react";
 import { AUDIO_KINDS, AUDIO_LANGS, SCRIPTURES, CC_LILA, verseRef, parseRef, durText, parseDur, isSong, fold } from "@/lib/content/text";
 import { fileTitle, placeCode } from "@/lib/content/audio-names-core";
 import { AiAssist } from "../ai-assist";
 import { BatchTranscripts } from "./batch";
+import { ArchiveImport } from "./archive-import";
+import { playUrl } from "@/lib/archive-url";
 import { Btn, Badge, Card, Field, Input, Select, Textarea, PageHeader, Sheet, Tabs, Empty, Modal, api, toast, cn } from "../ui";
 
 const NotionEditor = dynamic(() => import("../notion/editor"), { ssr: false });
@@ -16,15 +18,16 @@ const fmt = (d: string | null) => (d ? new Date(d).toLocaleDateString("en-GB", {
 
 export function AudioPanel({ songs = false }: { songs?: boolean }) {
   const [tab, setTab] = useState("list");
-  const [batch, setBatch] = useState(false);
+  const [batch, setBatch] = useState(false); const [arch, setArch] = useState(false);
   const lists: [string, string][] = [[songs ? "stype" : "atype", "Types"], ["place", "Places"], ["language", "Languages"], ["series", "Series"], ["topic", "Topics"]];
   return (
     <div>
       {batch && <BatchTranscripts onClose={() => setBatch(false)} />}
+      {arch && <ArchiveImport onClose={() => setArch(false)} onDone={() => { try { window.dispatchEvent(new Event("tj-audios-changed")); } catch {} }} />}
       <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
         <div><h1 className="flex items-center gap-2 text-[20px] font-semibold tracking-tight text-zinc-950">{songs ? <Music className="size-5" /> : <Headphones className="size-5" />}{songs ? "Kīrtanas & bhajanas" : "Audio lectures"}</h1>
           <p className="mt-0.5 text-[13px] text-zinc-500">{songs ? "Songs he sang and led, with their words, writer and singer." : "Every recorded lecture with its details and transcription."}</p></div>
-        {!songs && <Btn size="sm" onClick={() => setBatch(true)}><Bot />Batch transcriptions</Btn>}
+        {!songs && <span className="flex gap-1.5"><Btn size="sm" onClick={() => setArch(true)}><Archive />Import from Archive.org</Btn><Btn size="sm" onClick={() => setBatch(true)}><Bot />Batch transcriptions</Btn></span>}
         <div className="flex items-center gap-1 rounded-lg bg-zinc-100 p-0.5 text-[12.5px]">
           <button onClick={() => setTab("list")} className={cn("rounded-md px-3 py-1.5", tab === "list" ? "bg-white font-medium shadow-xs" : "text-zinc-600")}>{songs ? "Kīrtanas" : "Lectures"}</button>
           <select value={tab === "list" ? "" : tab} onChange={(e) => e.target.value && setTab(e.target.value)} className={cn("h-7 rounded-md bg-transparent px-2 outline-none", tab !== "list" ? "bg-white font-medium shadow-xs" : "text-zinc-600")}><option value="">Lists…</option>{lists.map(([k, l]) => <option key={k} value={k}>{l}</option>)}</select>
@@ -146,7 +149,7 @@ function Editor({ id, songs, onClose, onSaved }: { id: string; songs: boolean; o
     } catch (e: any) { toast(e.message, true); } finally { setBusy(false); }
   };
   const test = () => { if (!a.audio_url) return; if (!audio.current) { audio.current = new Audio(); audio.current.addEventListener("loadedmetadata", () => { if (audio.current && !a.duration_sec) set("duration_sec", Math.round(audio.current.duration)); }); audio.current.addEventListener("pause", () => setPlaying(false)); }
-    if (playing) { audio.current.pause(); return; } audio.current.src = a.audio_url; audio.current.play().then(() => setPlaying(true)).catch(() => toast("That link does not play. Check it is a direct link to an MP3 file.", true)); };
+    if (playing) { audio.current.pause(); return; } audio.current.src = playUrl(a.audio_url) || ""; audio.current.play().then(() => setPlaying(true)).catch(() => toast("That link does not play. Check it is a direct link to an MP3 file.", true)); };
   const song = songs || isSong(a.kind);
   const typeOf = (t: string) => (songs ? (fold(t || "").startsWith("bhaj") ? "bhajan" : "kirtan") : AUDIO_KINDS.find(([k, l]) => !isSong(k) && fold(l) === fold(t || ""))?.[0] || (t ? "other" : "lecture"));
   const word = async (f: File) => {
@@ -179,7 +182,7 @@ function Editor({ id, songs, onClose, onSaved }: { id: string; songs: boolean; o
           <Field label="Place"><Pick kind="place" base={[]} value={a.place || ""} onChange={(v) => set("place", v)} empty="Unknown" addLabel="place" /></Field>
         </div>
         <Field label="MP3 link" hint="A direct link to the MP3 file. No upload is needed. Press Test to check it and fill the length.">
-          <div className="flex gap-2"><Input value={a.audio_url || ""} onChange={(e) => set("audio_url", e.target.value)} placeholder="https://…/lecture.mp3" /><Btn onClick={test} disabled={!a.audio_url}>{playing ? <Pause /> : <Play />}{playing ? "Stop" : "Test"}</Btn></div>
+          <div className="flex gap-2"><Input value={a.audio_url || ""} onChange={(e) => set("audio_url", e.target.value)} placeholder="https://archive.org/download/…/lecture.mp3" /><Btn onClick={test} disabled={!a.audio_url}>{playing ? <Pause /> : <Play />}{playing ? "Stop" : "Test"}</Btn></div>
           {a.duration_sec ? <p className="mt-1 text-[12px] text-zinc-500">Length {durText(a.duration_sec)}</p> : null}
         </Field>
         <Field label="Language"><Pick kind="language" base={AUDIO_LANGS} value={a.language || ""} onChange={(v) => set("language", v)} empty="Not set" addLabel="language" /></Field>
@@ -268,7 +271,7 @@ function TranscriptionStudio({ a, song, initial, rev, busy, onChange, onStatus, 
           <div>
             <p className="text-[12px] font-medium text-zinc-500">Recording</p>
             {a.audio_url ? <>
-              <audio ref={el} src={a.audio_url} preload="metadata" onTimeUpdate={(e) => setT(e.currentTarget.currentTime)} onLoadedMetadata={(e) => setDur(e.currentTarget.duration)} onPlay={() => setOn(true)} onPause={() => setOn(false)} />
+              <audio ref={el} src={playUrl(a.audio_url)} preload="metadata" onTimeUpdate={(e) => setT(e.currentTarget.currentTime)} onLoadedMetadata={(e) => setDur(e.currentTarget.duration)} onPlay={() => setOn(true)} onPause={() => setOn(false)} />
               <div className="mt-2 rounded-lg border border-zinc-200 bg-white p-3">
                 <div className="flex items-center gap-2"><button onClick={play} className="flex size-9 items-center justify-center rounded-full bg-zinc-900 text-white">{on ? <Pause className="size-4" /> : <Play className="size-4" />}</button>
                   <button onClick={() => jump(-5)} className="rounded px-1.5 py-1 text-[12px] text-zinc-600 hover:bg-zinc-100">−5s</button><button onClick={() => jump(5)} className="rounded px-1.5 py-1 text-[12px] text-zinc-600 hover:bg-zinc-100">+5s</button>
