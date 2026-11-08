@@ -1,4 +1,5 @@
 "use client";
+import { Pager, usePages } from "@/components/ui/pager";
 /* One library for audio lectures, kīrtanas and videos: filters on the left (each can open into its parts), dense rows on the right. */
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -50,10 +51,10 @@ const date = (d: string) => { if (!d) return "Undated"; const [y, m, dd] = d.spl
 function AdvancedLibrary({ items, mode }: { items: MediaItem[]; mode: Mode }) {
   const facets = useMemo(() => facetsFor(mode, items), [mode, items]);
   const [sel, setSel] = useState<Record<string, string[]>>({}); const [q, setQ] = useState(""); const [text, setText] = useState(false);
-  const [sort, setSort] = useState<(typeof SORTS)[number][0]>("new"); const [group, setGroup] = useState<(typeof GROUPS)[number][0]>("none"); const [limit, setLimit] = useState(100); const [drawer, setDrawer] = useState(false);
+  const [sort, setSort] = useState<(typeof SORTS)[number][0]>("new"); const [group, setGroup] = useState<(typeof GROUPS)[number][0]>("none"); const [drawer, setDrawer] = useState(false);
   // Filters live in the address, so any view can be shared or bookmarked.
   useEffect(() => { const u = new URLSearchParams(location.search); const o: Record<string, string[]> = {}; facets.forEach((f) => { const v = u.get(f.k); if (v) o[f.k] = v.split("/"); }); if (u.get("q")) setQ(u.get("q")!); if (u.get("text")) setText(true); setSel(o); }, []); // eslint-disable-line
-  useEffect(() => { const u = new URLSearchParams(); Object.entries(sel).forEach(([k, v]) => v.length && u.set(k, v.join("/"))); if (q) u.set("q", q); if (text) u.set("text", "1"); history.replaceState(null, "", `${location.pathname}${u.size ? `?${u}` : ""}`); setLimit(100); }, [sel, q, text]);
+  useEffect(() => { const u = new URLSearchParams(); Object.entries(sel).forEach(([k, v]) => v.length && u.set(k, v.join("/"))); if (q) u.set("q", q); if (text) u.set("text", "1"); const pg = new URLSearchParams(location.search).get("page"); if (pg) u.set("page", pg); history.replaceState(null, "", `${location.pathname}${u.size ? `?${u}` : ""}`); }, [sel, q, text]);
 
   const pass = (l: MediaItem, skip?: string) => (!q || fold(`${l.title} ${l.place} ${l.country} ${l.scripture ?? ""} ${l.topics.join(" ")} ${l.date} ${l.series ?? ""} ${l.type} ${l.singer ?? ""} ${l.song ?? ""}`).includes(fold(q)))
     && (!text || l.transcribed) && facets.every((f) => f.k === skip || !sel[f.k]?.length || paths(f, l).some((p) => under(p, sel[f.k])));
@@ -62,6 +63,7 @@ function AdvancedLibrary({ items, mode }: { items: MediaItem[]; mode: Mode }) {
   const transcribed = items.filter((l) => l.transcribed).length;
   const noun = mode === "video" ? "videos" : mode === "kirtan" ? "recordings" : "lectures";
 
+  const PER = mode === "video" ? 24 : 50; const AP = usePages(list, PER, [sel, q, text, sort, group]);
   const groups = useMemo(() => {
     if (group === "none") return [["", list]] as [string, MediaItem[]][];
     const key = (l: MediaItem) => group === "year" ? (l.date ? l.date.slice(0, 4) : "Undated") : group === "place" ? [l.place, l.country].filter(Boolean).join(", ") || "Place not known" : (() => { const p = scripturePath(l.scripture); return p ? `${BOOK[p[0]] || "Other scriptures"}${p[1] && p[0] !== "BG" ? ` · ${scrLabel(p.slice(0, 2))}` : ""}` : "No verse"; })();
@@ -85,14 +87,15 @@ function AdvancedLibrary({ items, mode }: { items: MediaItem[]; mode: Mode }) {
         <p className="text-[13px] text-ink-3"><b className="font-medium text-ink">{list.length.toLocaleString()}</b> {noun}</p>
         <span className="flex items-center gap-1.5"><Pick icon={Rows3} value={group} onChange={(v) => setGroup(v as any)} options={GROUPS.filter(([g]) => g !== "scripture" || mode !== "kirtan")} /><Pick icon={ArrowDownUp} value={sort} onChange={(v) => setSort(v as any)} options={SORTS} /></span>
       </div>
+      <div ref={AP.top} />
       {mode !== "video" && list.length > 0 && <div className="hidden grid-cols-[32px_minmax(0,1fr)_110px_150px_110px_64px] gap-x-3 border-b border-line py-2 text-[12px] font-medium text-ink-3 md:grid"><span /><span>Title</span><span>Date</span><span>Place</span><span>Verse</span><span className="text-right">Length</span></div>}
-      {!list.length ? <p className="py-20 text-center text-[13.5px] text-ink-3">Nothing matches. Remove a filter to see more.</p> : (() => { let left = limit; return groups.map(([g, xs]) => { if (left <= 0) return null; const show = xs.slice(0, left); left -= show.length; return (
+      {!list.length ? <p className="py-20 text-center text-[13.5px] text-ink-3">Nothing matches. Remove a filter to see more.</p> : (() => { const a = (AP.page - 1) * PER, b = AP.page * PER; let pos = 0; return groups.map(([g, xs]) => { const show = xs.slice(Math.max(0, a - pos), Math.max(0, b - pos)); pos += xs.length; if (!show.length) return null; return (
         <div key={g || "all"}>
           {g && <div className="sticky top-[52px] z-10 flex items-baseline gap-2 border-b border-line bg-white/95 pb-2 pt-5 backdrop-blur sm:top-[58px]"><h2 className="text-[14px] font-semibold text-ink">{g}</h2><span className="text-[12px] text-ink-3">{xs.length}</span></div>}
           {mode === "video" ? <div className="grid gap-x-4 gap-y-6 py-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">{show.map((l) => <VideoCard key={l.slug} l={l} />)}</div>
             : <div className="divide-y divide-line">{show.map((l) => <Row key={l.slug} l={l} mode={mode} />)}</div>}
         </div>); }); })()}
-      {list.length > limit && <div className="py-6 text-center"><button onClick={() => setLimit((n) => n + 200)} className="h-9 rounded-md border border-line px-4 text-[13px] font-medium text-ink-2 hover:bg-band">Show more ({(list.length - limit).toLocaleString()} left)</button></div>}
+      <Pager {...AP} total={list.length} per={PER} label={mode === "video" ? "videos" : "recordings"} />
     </div>
   );
 }
@@ -206,11 +209,10 @@ function BasicAudio({ items }: { items: MediaItem[] }) {
   const [q, setQ] = useState(""); const [typed, setTyped] = useState("");
   const [pick, setPick] = useState<Partial<Record<BKey, string>>>({});
   const [open, setOpen] = useState<BKey | null>(null);
-  const [limit, setLimit] = useState(30);
   const match = (l: MediaItem, skip?: BKey) => (!q || fold(`${l.title} ${l.place} ${l.country} ${l.scripture ?? ""} ${l.topics.join(" ")} ${l.date} ${l.series ?? ""} ${l.type}`).includes(fold(q)))
     && BASIC.every((b) => b.k === skip || !pick[b.k] || b.get(l).includes(pick[b.k]!));
   const list = useMemo(() => items.filter((l) => match(l)).sort((a, b) => b.date.localeCompare(a.date)), [items, q, pick]); // eslint-disable-line
-  useEffect(() => setLimit(30), [q, pick]);
+  const BP = usePages(list, 30, [q, pick]);
   const choices = useMemo(() => {
     if (!open) return [];
     const b = BASIC.find((x) => x.k === open)!; const m = new Map<string, number>();
@@ -260,8 +262,8 @@ function BasicAudio({ items }: { items: MediaItem[] }) {
           {any && <button onClick={() => { setPick({}); setQ(""); setTyped(""); }} className="rounded-full px-3 py-1.5 text-[13px] font-medium text-saffron hover:bg-saffron-soft">Start again</button>}
         </div>
         {!list.length ? <p className="py-16 text-center text-[14px] text-ink-3">No lectures found. Press “Start again”.</p> : (
-          <ul className="divide-y divide-line">
-            {list.slice(0, limit).map((l) => { const where = [l.place, l.country && l.country !== "India" ? l.country : ""].filter(Boolean).join(", "); return (
+          <ul ref={BP.top as any} className="divide-y divide-line">
+            {BP.slice.map((l) => { const where = [l.place, l.country && l.country !== "India" ? l.country : ""].filter(Boolean).join(", "); return (
               <li key={l.slug} className="flex items-center gap-3.5 py-3">
                 <PlayButton l={l} size={40} />
                 <div className="min-w-0 flex-1">
@@ -271,7 +273,7 @@ function BasicAudio({ items }: { items: MediaItem[] }) {
                 {l.duration > 0 && <span className="hidden shrink-0 text-[12.5px] tabular-nums text-ink-3 sm:block">{dur(l.duration)}</span>}
               </li>); })}
           </ul>)}
-        {list.length > limit && <div className="pt-6 text-center"><button onClick={() => setLimit((n) => n + 30)} className="h-10 rounded-full border border-line-strong px-6 text-[13.5px] font-medium text-ink hover:bg-band">Show more lectures</button></div>}
+        <Pager {...BP} total={list.length} per={30} label="lectures" />
       </div>
     </div>
   );

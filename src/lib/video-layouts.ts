@@ -18,3 +18,6 @@ export type Layout = (typeof LAYOUTS)[number][0];
 export const COLORS = ["saffron", "rose", "teal", "indigo", "leaf", "gold", "plum"] as const;
 /** Lengths for the advanced video search: key, label, from (seconds), to. */
 export const LENGTHS: [string, string, number, number][] = [["short", "Under 1 min", 0, 61], ["5", "1–5 min", 61, 301], ["20", "5–20 min", 301, 1201], ["60", "20–60 min", 1201, 3601], ["long", "Over 1 hour", 3601, 1e9]];
+
+/** The watch address of a video (usable on the server and in the browser). */
+export const watchHref = (v: { slug: string }, q?: string) => `/teachings/videos/${v.slug}${q ? `?${q}` : ""}`;

@@ -2,7 +2,7 @@
 import { sql, hasDb } from "./db";
 
 export type VCard = { slug: string; title: string; yt: string; seconds: number; date: string; description?: string };
-export type Shelf = { id: string; name: string; avatar: string | null; description: string | null; showAs: string; kind: string; ref: string; count: number; items: VCard[] };
+export type Shelf = { id: string; name: string; avatar: string | null; description: string | null; showAs: string; kind: string; ref: string; url?: string; count: number; items: VCard[] };
 import { LAYOUTS, COLORS, type Layout } from "./video-layouts";
 export { LAYOUTS, COLORS, type Layout };
 export type VSection = { id: string; name: string; slug: string; intro: string | null; layout: Layout; color: string; count: number; items: VCard[]; playlists: Shelf[]; fold: string; parent: { name: string; slug: string } | null; children: VSection[] };
@@ -78,7 +78,7 @@ export async function getChannels(limit = 200): Promise<Shelf[]> {
   if (!hasDb()) return [];
   try {
     const rows = (await sql`select s.*, (select count(*)::int from video_source_items i join videos v on v.youtube_id = i.youtube_id and v.status = 'published' where i.source_id = s.id) as c from video_sources s where s.kind = 'channel' and not s.hidden order by s.position, s.created_at limit ${limit}`) as any[];
-    return rows.map((s) => ({ id: s.id, name: s.name || s.url, avatar: s.avatar, description: s.description, showAs: "channel", kind: s.kind, ref: s.ref, count: s.c || 0, items: [] }));
+    return rows.map((s) => ({ id: s.id, name: s.name || s.url, avatar: s.avatar, description: s.description, showAs: "channel", kind: s.kind, ref: s.ref, url: s.url, count: 0, items: [] }));
   } catch { return []; }
 }
 
@@ -91,8 +91,9 @@ export async function getShelf(id: string): Promise<Shelf | null> {
 async function shelfOnce(id: string): Promise<Shelf | null | undefined> {
   try {
     const s = (await sql`select * from video_sources where id = ${id}`)[0] as any; if (!s) return null;
-    const rows = (await sql`select v.slug, v.title, v.youtube_id, v.duration_sec, v.date, v.year from video_source_items i join videos v on v.youtube_id = i.youtube_id and v.status = 'published' where i.source_id = ${id} order by i.position limit 5000`) as any[];
-    return { id: s.id, name: s.name || s.url, avatar: s.avatar, description: s.description, showAs: s.show_as || "row", kind: s.kind, ref: s.ref, count: rows.length, items: rows.map(card) };
+    // a channel is only a link to YouTube: its videos are not listed here
+    const rows = s.kind === "channel" ? [] : (await sql`select v.slug, v.title, v.youtube_id, v.duration_sec, v.date, v.year from video_source_items i join videos v on v.youtube_id = i.youtube_id and v.status = 'published' where i.source_id = ${id} order by i.position limit 5000`) as any[];
+    return { id: s.id, name: s.name || s.url, avatar: s.avatar, description: s.description, showAs: s.show_as || "row", kind: s.kind, ref: s.ref, url: s.url, count: rows.length, items: rows.map(card) };
   } catch { return undefined; }
 }
 

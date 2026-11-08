@@ -14,7 +14,9 @@ const MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct
 const when = (d: string) => { if (!d) return ""; const [y, m, dd] = d.split("-").map(Number); return dd ? `${dd} ${MON[m - 1]} ${y}` : String(y); };
 const thumb = (id: string, q: "mq" | "hq" | "maxres" = "mq") => `https://i.ytimg.com/vi/${id}/${q === "maxres" ? "maxresdefault" : `${q}default`}.jpg`;
 const fold = (s: string) => s.normalize("NFKD").replace(/[̀-ͯ]/g, "").toLowerCase();
-export const watchHref = (v: VCard, q?: string) => `/teachings/videos/${v.slug}${q ? `?${q}` : ""}`;
+import { watchHref } from "@/lib/video-layouts";
+import { Pager, usePages } from "@/components/ui/pager";
+export { watchHref };
 
 /* ---------- The tab bar along the top of every Videos page ---------- */
 export function VideoTabsBar({ tabs, active, channels }: { tabs: { name: string; slug: string; color: string }[]; active: string; channels: number }) {
@@ -217,12 +219,17 @@ function Row({ items, q }: { items: VCard[]; q?: string }) {
     </div>
   );
 }
+/** Every video of a playlist, a page at a time. */
+export function PagedVideos({ items, q }: { items: VCard[]; q: string }) {
+  const P = usePages(items, 24, [items]);
+  return <><div ref={P.top} className="grid grid-cols-1 gap-x-4 gap-y-7 pt-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">{P.slice.map((v) => <VideoCard key={v.slug} v={v} q={q} />)}</div><Pager {...P} total={items.length} per={24} label="videos" /></>;
+}
 function Grid({ items, q, mobileMax }: { items: VCard[]; q?: string; mobileMax?: number }) {
-  const [n, setN] = useState(48);
+  const P = usePages(items, 24, [items]);
   return (
     <>
-      <div className="grid grid-cols-2 gap-x-3 gap-y-6 sm:grid-cols-3 sm:gap-x-4 lg:grid-cols-4">{items.slice(0, n).map((v, k) => <VideoCard key={v.slug} v={v} q={q} className={mobileMax && k >= mobileMax ? "max-sm:hidden" : ""} />)}</div>
-      {items.length > n && <div className="pt-6 text-center"><button onClick={() => setN((x) => x + 48)} className="rounded-full bg-white px-6 py-2.5 text-[13.5px] font-medium text-ink shadow-[0_1px_3px_rgba(0,0,0,.1)] hover:text-[var(--acc)]">Show more ({items.length - n} left)</button></div>}
+      <div ref={P.top} className="grid grid-cols-2 gap-x-3 gap-y-6 sm:grid-cols-3 sm:gap-x-4 lg:grid-cols-4">{P.slice.map((v, k) => <VideoCard key={v.slug} v={v} q={q} className={mobileMax && k >= mobileMax ? "max-sm:hidden" : ""} />)}</div>
+      <Pager {...P} total={items.length} per={24} label="videos" />
     </>
   );
 }
@@ -244,13 +251,14 @@ function PlaylistCard({ s, className = "" }: { s: Shelf; className?: string }) {
     </div>
   );
 }
+const channelUrl = (c: Shelf) => (c as any).url || (c.ref ? `https://www.youtube.com/channel/${c.ref}?sub_confirmation=1` : "https://www.youtube.com");
 export function ChannelChip({ c }: { c: Shelf }) {
   return (
-    <Link href={`/teachings/videos/list/${c.id}`} className="group flex w-24 shrink-0 snap-start flex-col items-center text-center sm:w-auto">
+    <a href={channelUrl(c)} target="_blank" rel="noopener" title={`${c.name} on YouTube`} className="group flex w-24 shrink-0 snap-start flex-col items-center text-center sm:w-auto">
       {c.avatar ? /* eslint-disable-next-line @next/next/no-img-element */ <img src={c.avatar} alt="" loading="lazy" className="size-20 rounded-full object-cover ring-4 ring-white transition duration-300 group-hover:scale-105 group-hover:ring-[var(--acc)]/30" /> : <span className="flex size-20 items-center justify-center rounded-full bg-white text-ink-3 ring-4 ring-white"><Play size={24} /></span>}
       <span className="mt-2 line-clamp-2 text-[13px] font-medium leading-snug text-ink group-hover:text-[var(--acc)]">{c.name}</span>
-      <span className="text-[11.5px] text-ink-3">{c.count} videos</span>
-    </Link>
+      <span className="text-[11.5px] text-ink-3">Open on YouTube</span>
+    </a>
   );
 }
 
@@ -279,18 +287,18 @@ function Carousel({ items, q }: { items: VCard[]; q: string }) {
 }
 /** A neat numbered list, like a playlist. */
 function NumberedList({ items, q }: { items: VCard[]; q: string }) {
-  const [n, setN] = useState(30);
+  const P = usePages(items, 30, [items]); const n = P.from;
   return (
     <>
-      <ol className="grid gap-2 lg:grid-cols-2">
-        {items.slice(0, n).map((v, k) => (
+      <ol ref={P.top as any} className="grid gap-2 lg:grid-cols-2">
+        {P.slice.map((v, j) => { const k = n + j; return (
           <li key={v.slug}><Link href={watchHref(v, q)} className="group flex items-center gap-3 rounded-2xl bg-white p-2 pr-3 shadow-[0_1px_3px_rgba(0,0,0,.06)] transition hover:shadow-[0_12px_28px_-16px_rgba(0,0,0,.3)]">
             <span className="w-7 shrink-0 text-center text-[15px] font-semibold tabular-nums text-[var(--acc)]">{k + 1}</span>
             <Thumb v={v} className="w-32 shrink-0 !rounded-xl sm:w-40" />
             <span className="min-w-0"><span className="line-clamp-2 text-[13.5px] font-medium leading-snug text-ink group-hover:text-[var(--acc)]">{v.title}</span>{v.date && <span className="mt-0.5 block text-[12px] text-ink-3">{when(v.date)}</span>}</span>
-          </Link></li>))}
+          </Link></li>); })}
       </ol>
-      {items.length > n && <div className="pt-5 text-center"><button onClick={() => setN((x) => x + 30)} className="rounded-full bg-white px-6 py-2.5 text-[13.5px] font-medium text-ink shadow-[0_1px_3px_rgba(0,0,0,.1)]">Show more</button></div>}
+      <Pager {...P} total={items.length} per={30} label="videos" />
     </>
   );
 }

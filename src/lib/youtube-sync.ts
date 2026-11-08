@@ -121,6 +121,8 @@ async function keepItems(id: string, xs: YtVideo[], from: number, gen: number) {
 export async function syncStep(src: Source & { sync_state?: string | null; sync_gen?: number | null }, key?: string | null, budget = 40000): Promise<StepResult> {
   const t0 = Date.now(); const left = () => budget - (Date.now() - t0); let added = 0;
   let st: St | null = null; try { st = src.sync_state ? JSON.parse(src.sync_state) : null; } catch { st = null; }
+  // A channel is only a link for visitors to open and subscribe on YouTube: its videos are never fetched.
+  if (src.kind === "channel") { await sql`update video_sources set sync_state = null, sync_error = null, last_synced_at = now() where id = ${src.id}`; return { state: "done", found: 0, added: 0, left: 0 }; }
   const save = async () => { await sql`update video_sources set sync_state = ${st && st.phase !== "done" ? JSON.stringify(st) : null} where id = ${src.id}`; };
   try {
     if (!st || st.phase === "done") { st = { phase: "list", urls: pagesFor({ kind: src.kind, ref: src.ref! }), t: null, k: null, v: null, pos: 0, gen: (src.sync_gen || 0) + 1 }; await sql`update video_sources set sync_gen = ${st.gen}, sync_error = null where id = ${src.id}`; }

@@ -2,7 +2,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ChevronRight, ExternalLink, FileText, ListVideo, Play, Search } from "lucide-react";
 import { getShelf, getQueue, getVideoNav, getSection, getChannels, searchVideos } from "@/lib/video-home";
-import { QueuePlayer, VideoCard, watchHref, VideoTabsBar, SectionView, ChannelChip, AdvancedVideos } from "./video-home";
+import { watchHref } from "@/lib/video-layouts";
+import { QueuePlayer, VideoCard, PagedVideos, VideoTabsBar, SectionView, ChannelChip, AdvancedVideos } from "./video-home";
 import { advancedVideos, type AdvFilter } from "@/lib/video-advanced";
 import { sql } from "@/lib/db";
 import { getVideo, findMovedVideo } from "@/lib/cms/library";
@@ -74,7 +75,7 @@ export async function ShelfPage({ id }: { id: string }) {
           </div>
         </header>
         {!s.items.length ? <p className="py-16 text-center text-[14px] text-ink-3">The videos are being fetched.</p> :
-          <div className="grid grid-cols-1 gap-x-4 gap-y-7 pt-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">{s.items.map((v) => <VideoCard key={v.slug} v={v} q={`list=${s.id}`} />)}</div>}
+          <PagedVideos items={s.items} q={`list=${s.id}`} />}
       </div>
     </div>
     </VideosShell>
