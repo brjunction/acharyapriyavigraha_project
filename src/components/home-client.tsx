@@ -95,11 +95,12 @@ export function Hero() {
             <span aria-hidden className="h-px w-4 shrink-0 bg-gradient-to-l from-transparent to-[#f3c77a] sm:w-10 lg:hidden" />
           </p>
           <h1 className="hx-title mt-3 text-[25px] font-semibold leading-[1.15] tracking-[-0.03em] sm:mt-5 sm:text-[34px] lg:mt-5 lg:text-[42px]">
-            {["Words", "That", "Give", "Life"].map((w, i) => <span key={w} className="hero-word hx-shine mr-[0.24em]" style={{ animationDelay: `${0.15 + i * 0.12}s, ${2 + i * 0.12}s` }}>{w}</span>)}<br />
-            {["to", "a"].map((w, i) => <span key={w} className="hero-word hx-shine mr-[0.24em]" style={{ animationDelay: `${0.63 + i * 0.12}s, ${2.5 + i * 0.12}s` }}>{w}</span>)}<span className="hero-word" style={{ animationDelay: "0.9s" }}><span className="hero-cream">Burning Heart</span></span>
+            {/* the motto of Taptajīvanam: tapta-jīvanam, life for those who suffer */}
+            {["Life", "for", "Those", "Aggrieved"].map((w, i) => <span key={w} className="hero-word hx-shine mr-[0.24em]" style={{ animationDelay: `${0.15 + i * 0.12}s, ${2 + i * 0.12}s` }}>{w}</span>)}<br />
+            {["Within", "This"].map((w, i) => <span key={w} className="hero-word hx-shine mr-[0.24em]" style={{ animationDelay: `${0.63 + i * 0.12}s, ${2.5 + i * 0.12}s` }}>{w}</span>)}<span className="hero-word" style={{ animationDelay: "0.9s" }}><span className="hero-cream">Material World</span></span>
           </h1>
           <p className="mx-auto mt-3 max-w-[34rem] text-[13px] leading-relaxed text-white [text-shadow:0_1px_2px_rgba(30,8,0,.5)] sm:mt-4 sm:text-[14.5px] lg:mx-0 lg:mt-5 lg:max-w-xl">
-            Lectures, letters, books, quotes and photographs of Śrīla Gurudeva, gathered in one searchable home and growing in many languages. Listen, read, and find the exact words you were looking for.
+            One digital home for the whole legacy of Śrīla Gurudeva: his words, his writings, his life and the memories of those who loved him, preserved with care for every searching heart.
           </p>
           {/* a dock of quick ways in */}
           <nav aria-label="Quick links" className="hx-in mx-auto mt-6 grid max-w-xl grid-cols-6 divide-x divide-[#ecd3ae] overflow-hidden rounded-2xl bg-[#fffaf2] shadow-[0_18px_40px_-18px_rgba(20,6,0,.7)] ring-1 ring-[#f3c77a]/50 lg:mx-0" style={{ animationDelay: ".5s" }}>
