@@ -18,7 +18,7 @@ export function People({ groups, empty }: { groups: [string, Person[]][]; empty:
         <section key={g} className="mb-10">
           <h2 className="mb-3 flex items-center gap-3 text-[13px] font-semibold uppercase tracking-[0.1em] text-ink-3">{g}<span className="h-px flex-1 bg-line" /><span className="font-normal normal-case tracking-normal">{ps.length}</span></h2>
           <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">{ps.map((p) => (
-            <Link key={p.slug} href={`/gaudiya/acharyas/${p.slug}`} className="group flex items-start gap-3 rounded-xl p-3 transition hover:bg-[#fff7ea]">
+            <Link key={p.slug} href={`/gaudiya/biographies/${p.slug}`} className="group flex items-start gap-3 rounded-xl p-3 transition hover:bg-[#fff7ea]">
               <Portrait src={p.cover} name={p.title} size={52} />
               <span className="min-w-0 pt-0.5"><span className="block text-[14.5px] font-medium leading-snug text-ink group-hover:text-saffron">{p.title}</span>{p.subtitle && <span className="mt-0.5 block text-[12.5px] text-ink-3">{p.subtitle}</span>}{!!p.books && <span className="mt-1 inline-block rounded-full bg-band px-2 py-0.5 text-[11.5px] text-ink-2">{p.books} {p.books === 1 ? "book" : "books"}</span>}</span>
             </Link>))}</div>

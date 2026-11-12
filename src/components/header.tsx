@@ -188,18 +188,15 @@ const PP = "Paramparā protection";
 function ParamparaBanner({ tab, onNavigate, mobile }: { tab: SimpleTab; onNavigate: () => void; mobile?: boolean }) {
   return (
     <div className="pp-glow rounded-2xl p-4 sm:p-5">
-      <svg aria-hidden viewBox="0 0 200 120" className="pointer-events-none absolute -right-6 -top-4 -z-10 w-[190px] text-[#d9a24e] opacity-30">
-        {Array.from({ length: 7 }).map((_, i) => <ellipse key={i} cx="100" cy="118" rx="22" ry="86" fill="none" stroke="currentColor" strokeWidth="1.3" transform={`rotate(${-66 + i * 22} 100 118)`} />)}
-      </svg>
       <div className={`flex gap-4 ${mobile ? "flex-col" : "items-start"}`}>
         <div className={mobile ? "" : "w-[250px] shrink-0"}>
           <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#a2560c]">Gauḍīya Paramparā Protection</p>
-          <p className="mt-1 text-[17px] font-semibold leading-snug text-ink">The complete resources of our paramparā</p>
+          <p className="mt-1 text-[15.5px] font-semibold leading-snug text-ink">The complete resources of our paramparā</p>
           <p className="mt-1.5 text-[13px] leading-relaxed text-ink-2">The books of the ācāryas, the scriptures with their commentaries, their songs, the Guru-paramparā and their lives — kept faithfully, in one place.</p>
         </div>
         <div className={`grid flex-1 gap-2 ${mobile ? "grid-cols-2" : "grid-cols-3"}`}>
-          {tab.items.map((f) => <Link key={f.href} href={f.href} onClick={onNavigate} className="group flex min-w-0 items-center gap-2.5 rounded-xl bg-white/80 p-2.5 ring-1 ring-[#e9cf9f] transition hover:-translate-y-0.5 hover:bg-white hover:shadow-[0_8px_20px_-10px_rgba(150,80,10,.45)]">
-            <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#fbe6c2] to-[#f2cf93] text-[#8a4b0f]"><f.icon size={17} strokeWidth={1.7} /></span>
+          {tab.items.map((f) => <Link key={f.href} href={f.href} onClick={onNavigate} className="group flex min-w-0 items-center gap-2.5 rounded-lg bg-white p-2 ring-1 ring-[#eadcc6] transition hover:ring-[#c9a77d]">
+            <span className="flex size-8 shrink-0 items-center justify-center rounded-md bg-[#f6efe5] text-[#853500]"><f.icon size={16} strokeWidth={1.7} /></span>
             <span className="min-w-0"><span className="line-clamp-2 block text-[13px] font-semibold leading-snug text-ink group-hover:text-[#a2560c]">{f.label}</span>{f.note && tab.items.length <= 6 && <span className="block truncate text-[11.5px] text-ink-3">{f.note}</span>}</span>
           </Link>)}
         </div>

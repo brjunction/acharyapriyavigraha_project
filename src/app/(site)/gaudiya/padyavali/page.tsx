@@ -1,11 +1,11 @@
-import { GaudiyaHead } from "@/components/gaudiya/page-head";
-import { GaudiyaLibrary } from "@/components/gaudiya/library";
-import { shelfData } from "@/lib/gaudiya/shelf";
+import PageHead, { MetaChip } from "@/components/hnv/page-head";
+import { AcharyaHub } from "@/components/gaudiya/hub";
+import { hubData } from "@/lib/gaudiya/shelf";
 
 export const revalidate = 300;
 export const metadata = { title: "Padyāvalī · Gauḍīya library", description: "The songs and bhajans of the Gauḍīya ācāryas, with their words and meaning." };
 export default async function Page() {
-  const d = await shelfData("songs");
-  return (<div className="bg-white"><GaudiyaHead at="/gaudiya/padyavali" title="Padyāvalī" intro="The songs and bhajans of our ācāryas, collection by collection." />
-    <div className="mx-auto max-w-[1240px] px-4 pb-24 pt-6 sm:px-6"><GaudiyaLibrary {...d} empty="The song collections are being added." /></div></div>);
+  const d = await hubData("songs");
+  return (<div className="hnv bg-white"><PageHead deva="पद्यावली" title="Padyāvalī" intro="The songs and bhajans of our ācāryas." meta={<><MetaChip n={d.books.length} label="books" /><MetaChip n={new Set(d.books.map((b) => b.acharya).filter(Boolean)).size} label="ācāryas" /></>} />
+    <AcharyaHub {...d} base="/gaudiya/padyavali" what="padyāvalī" /></div>);
 }
