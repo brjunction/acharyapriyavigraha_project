@@ -100,10 +100,10 @@ export function DiaryJournal({ e, list }: { e: JPage; list: JEntry[] }) {
     <div className="fixed inset-0 z-[55] flex flex-col" style={{ background: T.desk, color: T.ink }}>
       <link rel="stylesheet" href={FONT_LINK} precedence="default" />
       {/* the diary's own slim bar */}
-      <div className="flex shrink-0 items-center gap-1 px-2 py-1.5 sm:px-4" style={{ borderBottom: `1px solid ${T.dark ? "#ffffff14" : "#00000010"}` }}>
+      <div className="relative flex shrink-0 items-center gap-1 px-2 py-1.5 sm:px-4" style={{ borderBottom: `1px solid ${T.dark ? "#ffffff14" : "#00000010"}` }}>
         <Link href="/" className={bar} title="Back to the website"><Home size={17} /></Link>
         <button onClick={() => setPanel(panel === "toc" ? "" : "toc")} className={bar}><List size={17} /><span className="max-sm:hidden">Contents</span></button>
-        <span className="min-w-0 flex-1 truncate px-1 text-center text-[13px] font-medium max-sm:invisible" style={{ color: T.soft }}>{when(e)}</span>
+        <span className="pointer-events-none absolute left-1/2 top-1/2 w-[calc(100%-240px)] max-w-[560px] -translate-x-1/2 -translate-y-1/2 truncate text-center text-[13px] font-medium max-sm:hidden" style={{ color: T.soft }}>{when(e)}</span><span className="flex-1" />
         <button onClick={() => size(-1)} className={bar} title="Smaller text" aria-label="Smaller text"><span className="text-[13px] font-semibold">A−</span></button>
         <button onClick={() => size(1)} className={bar} title="Larger text" aria-label="Larger text"><span className="text-[16px] font-semibold">A+</span></button>
         {orig.length > 0 && <button onClick={() => set({ orig: s.orig === "off" ? "side" : "off" })} className={bar} title="The original"><Languages size={17} /></button>}

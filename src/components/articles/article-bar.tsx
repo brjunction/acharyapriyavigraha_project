@@ -17,9 +17,9 @@ export function ArticleBar({ title }: { title: string }) {
   const b = "flex h-8 items-center gap-1.5 rounded-md px-2.5 text-[13px] text-ink-2 hover:bg-band";
   return (
     <div className="sticky top-[52px] z-30 border-b border-line bg-white/95 backdrop-blur sm:top-[58px]">
-      <div className="mx-auto flex h-11 max-w-[1100px] items-center gap-1 px-3 sm:px-5">
+      <div className="relative mx-auto flex h-11 max-w-[1100px] items-center gap-1 px-3 sm:px-5">
         <Link href="/teachings/articles" className={b}><ArrowLeft size={15} /><span className="hidden sm:inline">Articles</span></Link>
-        <p className="min-w-0 flex-1 truncate px-2 text-center text-[12.5px] text-ink-3">{title}</p>
+        <p className="pointer-events-none absolute left-1/2 top-1/2 w-[calc(100%-240px)] max-w-[560px] -translate-x-1/2 -translate-y-1/2 truncate text-center text-[12.5px] text-ink-3">{title}</p><span className="flex-1" />
         <button onClick={() => { navigator.clipboard?.writeText(location.href); setDone(true); setTimeout(() => setDone(false), 1400); }} className={b} title="Copy link">{done ? <Check size={15} /> : <Link2 size={15} />}</button>
         <div ref={ref} className="relative"><button onClick={() => setOpen(!open)} className={b} title="Text"><Type size={15} /><span className="hidden sm:inline">Text</span></button>
           {open && <div className="absolute right-0 top-10 w-[230px] rounded-lg border border-line bg-white p-3 shadow-[0_10px_38px_-10px_rgba(0,0,0,0.25)]">

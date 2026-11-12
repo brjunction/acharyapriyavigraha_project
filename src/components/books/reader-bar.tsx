@@ -20,9 +20,9 @@ export function ReaderBar({ book, chapter, prev, next, toc }: { book: { title: s
   return (
     <>
       <div className="sticky top-[52px] z-30 border-b border-line bg-white/95 backdrop-blur sm:top-[58px]">
-        <div className="mx-auto flex h-11 max-w-[1100px] items-center gap-1 px-3 sm:px-5">
+        <div className="relative mx-auto flex h-11 max-w-[1100px] items-center gap-1 px-3 sm:px-5">
           <button onClick={() => setContents(true)} className={btn}><List size={15} /><span className="hidden sm:inline">Contents</span></button>
-          <p className="min-w-0 flex-1 truncate px-2 text-center text-[12.5px] text-ink-3"><Link href={book.href} className="hover:text-ink">{book.title}</Link><span className="mx-1.5">/</span><span className="text-ink-2">{chapter}</span></p>
+          <span className="flex-1" /><p className="pointer-events-none absolute left-1/2 top-1/2 w-[calc(100%-240px)] max-w-[560px] -translate-x-1/2 -translate-y-1/2 truncate text-center text-[12.5px] text-ink-3"><Link href={book.href} className="pointer-events-auto hover:text-ink">{book.title}</Link><span className="mx-1.5">/</span><span className="text-ink-2">{chapter}</span></p>
           <div ref={ref} className="relative">
             <button onClick={() => setAa(!aa)} className={btn} aria-label="Text settings"><Type size={15} /><span className="hidden sm:inline">Text</span></button>
             {aa && <div className="absolute right-0 top-10 w-[260px] rounded-lg border border-line bg-white p-3 shadow-[0_10px_38px_-10px_rgba(0,0,0,0.25)]">

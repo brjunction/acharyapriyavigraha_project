@@ -1,8 +1,8 @@
 "use client";
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Search, X, BookOpen, Languages, LayoutGrid, List as ListIcon, ArrowRight } from "lucide-react";
+import { Search, X, BookOpen, Languages, LayoutGrid, List as ListIcon, ArrowRight, ChevronDown, Check, Building2, Ruler, RotateCcw } from "lucide-react";
 import { langName, langNative } from "@/lib/content/book-langs";
 
 export type LibBook = { slug: string; title: string; subtitle: string | null; author: string | null; category: string | null; cover_url: string | null; language: string; description: string | null; chapters: number; work?: string | null; size?: string | null; publisher?: string | null; words?: number };
@@ -55,11 +55,13 @@ export function BookLibrary({ books, shelves: meta }: { books: LibBook[]; shelve
       <div className="mx-auto max-w-[1240px] px-4 pb-20 sm:px-6">
         <div className="sticky top-[52px] z-20 -mx-4 flex flex-wrap items-center gap-2 border-b border-line bg-white/95 px-4 py-3 backdrop-blur sm:top-[58px] sm:-mx-6 sm:px-6">
           <label className="relative min-w-[200px] flex-1"><Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-3" /><input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search titles, authors and descriptions" className="h-9 w-full rounded-md border border-line bg-white pl-9 pr-8 text-[13.5px] outline-none focus:border-ink/40" />{q && <button onClick={() => setQ("")} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-ink-3"><X size={14} /></button>}</label>
-          <label className="relative flex h-9 items-center gap-1.5 rounded-md border border-line px-2.5 text-[13px] text-ink-2"><Languages size={15} className="text-ink-3" /><select value={lang} onChange={(e) => pickLang(e.target.value)} className="appearance-none bg-transparent pr-1 outline-none"><option value="">All languages</option>{langs.map(([l, n]) => <option key={l} value={l}>{langNative(l)}{langNative(l) !== langName(l) ? ` (${langName(l)})` : ""} · {n}</option>)}</select></label>
-          {pubs.length > 0 && <label className="relative flex h-9 items-center rounded-md border border-line px-2.5 text-[13px] text-ink-2"><select value={pub} onChange={(e) => setPub(e.target.value)} className="max-w-[190px] appearance-none truncate bg-transparent pr-1 outline-none" aria-label="Publication"><option value="">All publications</option>{pubs.map(([p, n]) => <option key={p} value={p}>{p} · {n}</option>)}</select></label>}
-          <label className="relative flex h-9 items-center rounded-md border border-line px-2.5 text-[13px] text-ink-2"><select value={len} onChange={(e) => setLen(e.target.value)} className="appearance-none bg-transparent pr-1 outline-none" aria-label="Length"><option value="">Any length</option>{LENGTHS.map(([k, l]) => <option key={k} value={k}>{l}</option>)}</select></label>
-          <div className="flex rounded-md border border-line p-0.5">{([["grid", LayoutGrid], ["list", ListIcon]] as const).map(([v, I]) => <button key={v} onClick={() => pickView(v)} className={`flex size-8 items-center justify-center rounded ${view === v ? "bg-band text-ink" : "text-ink-3"}`} aria-label={v}><I size={15} /></button>)}</div>
+          <Pick icon={Languages} label="Language" all="All languages" value={lang} onChange={pickLang} options={langs.map(([l, n]) => ({ v: l, l: langNative(l), sub: langNative(l) !== langName(l) ? langName(l) : "", n }))} />
+          {pubs.length > 0 && <Pick icon={Building2} label="Publication" all="All publications" value={pub} onChange={setPub} options={pubs.map(([p, n]) => ({ v: p, l: p, n }))} />}
+          <Pick icon={Ruler} label="Length" all="Any length" value={len} onChange={setLen} options={LENGTHS.map(([k, l]) => ({ v: k, l, n: works.filter((w) => (!pub || w.all.some((x) => pubOf(x) === pub)) && (!lang || w.all.some((x) => x.language === lang)) && LENGTHS.find((y) => y[0] === k)![2](w.main.words || 0)).length }))} />
+          {(q || lang || pub || len || shelf) && <button onClick={() => { setQ(""); pickLang(""); setPub(""); setLen(""); setShelf(""); }} className="flex h-9 items-center gap-1.5 rounded-full px-2.5 text-[13px] text-saffron transition hover:bg-saffron/[0.07]"><RotateCcw size={14} />Reset</button>}
+          <div className="ml-auto flex rounded-md border border-line p-0.5">{([["grid", LayoutGrid], ["list", ListIcon]] as const).map(([v, I]) => <button key={v} onClick={() => pickView(v)} className={`flex size-8 items-center justify-center rounded ${view === v ? "bg-band text-ink" : "text-ink-3"}`} aria-label={v}><I size={15} /></button>)}</div>
         </div>
+        {(q || lang || pub || len || shelf) && <p className="mt-4 flex flex-wrap items-center gap-2 rounded-lg bg-band px-4 py-2.5 text-[13px] text-ink-2">Showing <b className="font-semibold text-ink">{list.length}</b> of {works.length} books, chosen by your filters.<button onClick={() => { setQ(""); pickLang(""); setPub(""); setLen(""); setShelf(""); }} className="font-medium text-saffron underline underline-offset-2">Show all books</button></p>}
 
         {recent.length > 0 && !q && !shelf && <section className="mt-8">
           <h2 className="mb-3 text-[13px] font-semibold text-ink">Continue reading</h2>
@@ -69,7 +71,7 @@ export function BookLibrary({ books, shelves: meta }: { books: LibBook[]; shelve
             <ArrowRight size={14} className="text-ink-3 transition group-hover:translate-x-0.5" /></Link>)}</div>
         </section>}
 
-        {!list.length ? <p className="py-20 text-center text-[13.5px] text-ink-3">No book matches. {(pub || len) && <button onClick={() => { setPub(""); setLen(""); }} className="mr-2 underline">Clear filters</button>}{lang && <button onClick={() => pickLang("")} className="underline">Show all languages</button>}</p> : groups.map(([g, xs]) => (
+        {!list.length ? <p className="py-20 text-center text-[13.5px] text-ink-3">No book matches these choices. <button onClick={() => { setQ(""); pickLang(""); setPub(""); setLen(""); setShelf(""); }} className="mr-2 font-medium text-saffron underline">Show all books</button>{lang && <button onClick={() => pickLang("")} className="underline">Show all languages</button>}</p> : groups.map(([g, xs]) => (
           <section key={g} className="mt-10">
             <div className="mb-5 flex items-baseline gap-2.5 border-b border-line pb-2"><span className="size-2.5 translate-y-[-1px] rounded-full" style={{ background: color(g) || "#c8c8c8" }} /><h2 className="text-[15px] font-semibold text-ink">{g}</h2><span className="text-[12px] text-ink-3">{xs.length}</span>{meta.find((m) => m.name === g)?.description && <span className="hidden truncate text-[12.5px] text-ink-3 sm:inline">— {meta.find((m) => m.name === g)?.description}</span>}</div>
             {view === "grid" ? <div className={`grid ${GRIDS[meta.find((m) => m.name === g)?.size || "small"] || GRIDS.small}`}>{xs.map(({ main: b, all }) => (
@@ -94,4 +96,21 @@ export function BookLibrary({ books, shelves: meta }: { books: LibBook[]; shelve
       </div>
     </div>
   );
+}
+
+/** A tidy filter button: shows what is chosen, opens a short list with counts; one tap on "All…" clears it. */
+function Pick({ icon: I, label, all, value, onChange, options }: { icon: any; label: string; all: string; value: string; onChange: (v: string) => void; options: { v: string; l: string; sub?: string; n?: number }[] }) {
+  const [open, setOpen] = useState(false); const ref = useRef<HTMLDivElement>(null); const cur = options.find((o) => o.v === value);
+  useEffect(() => { if (!open) return; const h = (e: MouseEvent) => { if (!ref.current?.contains(e.target as Node)) setOpen(false); }; const k = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false); document.addEventListener("mousedown", h); document.addEventListener("keydown", k); return () => { document.removeEventListener("mousedown", h); document.removeEventListener("keydown", k); }; }, [open]);
+  const row = (v: string, l: string, sub?: string, n?: number) => <button key={v || "all"} onClick={() => { onChange(v); setOpen(false); }} className={`flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-[13.5px] transition hover:bg-band ${value === v ? "font-medium text-ink" : "text-ink-2"}`}><span className="flex size-4 shrink-0 items-center justify-center text-saffron">{value === v && <Check size={15} />}</span><span className="min-w-0 flex-1 truncate">{l}{sub && <span className="ml-1.5 text-[12px] text-ink-3">{sub}</span>}</span>{n !== undefined && <span className="text-[12px] tabular-nums text-ink-3">{n}</span>}</button>;
+  return (
+    <div ref={ref} className="relative">
+      <button onClick={() => setOpen(!open)} aria-expanded={open} aria-label={label} className={`flex h-9 max-w-[230px] items-center gap-2 rounded-full border px-3.5 text-[13px] transition ${value ? "border-saffron/50 bg-saffron/[0.07] text-ink" : "border-line text-ink-2 hover:border-line-strong hover:bg-band/60"}`}>
+        <I size={15} className={value ? "text-saffron" : "text-ink-3"} /><span className="truncate">{cur ? cur.l : all}</span><ChevronDown size={14} className={`shrink-0 text-ink-3 transition ${open ? "rotate-180" : ""}`} />
+      </button>
+      {open && <div className="absolute left-0 top-11 z-40 w-[260px] overflow-hidden rounded-xl border border-line bg-white p-1.5 shadow-[0_18px_50px_-14px_rgba(60,30,0,0.28)] max-sm:fixed max-sm:inset-x-3 max-sm:top-auto max-sm:bottom-3 max-sm:w-auto">
+        <p className="px-3 pb-1 pt-1.5 text-[11.5px] font-semibold uppercase tracking-[0.08em] text-ink-3">{label}</p>
+        <div className="max-h-[320px] overflow-y-auto">{row("", all)}{options.map((o) => row(o.v, o.l, o.sub, o.n))}</div>
+      </div>}
+    </div>);
 }

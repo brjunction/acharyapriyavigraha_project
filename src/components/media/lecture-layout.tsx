@@ -116,10 +116,10 @@ function FullReader({ title, heads, s, set, panel, onClose, children }: { title:
   const ib = `flex h-10 min-w-10 items-center justify-center gap-1.5 rounded-full px-3 text-[13px] font-medium transition ${dark ? "text-white/80 hover:bg-white/10" : "text-black/70 hover:bg-black/[0.06]"}`;
   return (
     <div className={`rd fixed inset-0 z-[65] flex flex-col ${dark ? "rd-dark" : ""}`} style={{ background: s.style === "column" ? T.bg : desk, color: T.ink }}>
-      <div className="flex shrink-0 items-center gap-1 px-2 py-1.5 sm:px-4" style={{ borderBottom: `1px solid ${T.line}`, background: T.bg }}>
+      <div className="relative flex shrink-0 items-center gap-1 px-2 py-1.5 sm:px-4" style={{ borderBottom: `1px solid ${T.line}`, background: T.bg }}>
         <button onClick={onClose} className={ib} title="Close (Esc)"><X size={18} /></button>
         {heads.length > 0 && <button onClick={() => setPop(pop === "toc" ? "" : "toc")} className={ib}><List size={17} /><span className="max-sm:hidden">Contents</span></button>}
-        <span className="min-w-0 flex-1 truncate px-2 text-center text-[13px] font-medium" style={{ color: T.muted }}>{title}</span>
+        <span className="pointer-events-none absolute left-1/2 top-1/2 w-[calc(100%-240px)] max-w-[560px] -translate-x-1/2 -translate-y-1/2 truncate text-center text-[13px] font-medium max-sm:hidden" style={{ color: T.muted }}>{title}</span><span className="flex-1" />
         <button onClick={() => set({ size: Math.max(13, s.size - 1) })} className={ib} aria-label="Smaller text">A−</button>
         <button onClick={() => set({ size: Math.min(30, s.size + 1) })} className={`${ib} text-[16px]`} aria-label="Larger text">A+</button>
         <button onClick={() => setPop(pop === "style" ? "" : "style")} className={ib}><Type size={16} /><span className="max-sm:hidden">Style</span></button>

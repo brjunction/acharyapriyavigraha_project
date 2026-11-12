@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
-import { ArrowLeft, List, Search, Type, BookOpen, Columns2, Bookmark, BookmarkCheck, Maximize, Minimize, Keyboard, ChevronLeft, ChevronRight, X, Languages, PanelLeft, Focus, BookOpenText, Minus, Plus, Check, ChevronDown, Loader2, FileText } from "lucide-react";
+import { ArrowLeft, List, Search, Settings2, Type, BookOpen, Columns2, Bookmark, BookmarkCheck, Maximize, Minimize, Keyboard, ChevronLeft, ChevronRight, X, Languages, PanelLeft, Focus, BookOpenText, Minus, Plus, Check, ChevronDown, Loader2, FileText } from "lucide-react";
 import type { TocItem } from "@/lib/content/books-public";
 
 /* ------------------------------------------------------------------ settings */
@@ -66,7 +66,7 @@ export function Reader({ book, chapter, toc, prev, next, translations, parallel,
   const router = useRouter();
   const [s, setS] = useState<ReaderSettings>(DEF); const [ready, setReady] = useState(false);
   const [panel, setPanel] = useState<null | "contents" | "marks" | "search">(null);
-  const [pop, setPop] = useState<null | "text" | "mode" | "lang">(null); const [help, setHelp] = useState(false);
+  const [pop, setPop] = useState<null | "all">(null); const [help, setHelp] = useState(false);
   const [barHidden, setBarHidden] = useState(false); const [pct, setPct] = useState(0); const [full, setFull] = useState(false);
   const [marks, setMarks] = useState<Mark[]>([]);
   const scroller = useRef<HTMLDivElement>(null); const pager = useRef<HTMLDivElement>(null);
@@ -127,7 +127,7 @@ export function Reader({ book, chapter, toc, prev, next, translations, parallel,
         Home: () => mode === "pages" ? setPage(0) : el?.scrollTo({ top: 0 }), End: () => mode === "pages" ? setPage(pages - 1) : el?.scrollTo({ top: el.scrollHeight }),
         "1": () => set({ mode: "classic" }), "2": () => set({ mode: "focus" }), "3": () => set({ mode: "pages" }), "4": () => set({ mode: "sheet" }), "5": () => hasPar && set({ mode: "parallel" }),
         c: () => setPanel((p) => (p === "contents" ? null : "contents")), "/": () => setPanel("search"), s: () => setPanel("search"),
-        a: () => setPop((p) => (p === "text" ? null : "text")), l: () => hasPar && setPop((p) => (p === "lang" ? null : "lang")), m: () => setPop((p) => (p === "mode" ? null : "mode")),
+        a: () => setPop((p) => (p ? null : "all")), l: () => hasPar && setPop((p) => (p ? null : "all")), m: () => setPop((p) => (p ? null : "all")),
         "+": () => set({ size: Math.min(30, s.size + 1) }), "=": () => set({ size: Math.min(30, s.size + 1) }), "-": () => set({ size: Math.max(13, s.size - 1) }), "0": () => set({ size: DEF.size, leading: DEF.leading, width: DEF.width }),
         t: () => { const ks = Object.keys(THEMES) as Theme[]; set({ theme: ks[(ks.indexOf(s.theme) + 1) % ks.length] }); },
         b: toggleMark, f: toggleFull, "?": () => setHelp((x) => !x),
@@ -160,31 +160,32 @@ export function Reader({ book, chapter, toc, prev, next, translations, parallel,
       <link rel="stylesheet" href={FONT_CSS} precedence="default" />
       {/* top bar */}
       <div className={`absolute inset-x-0 top-0 z-20 transition-transform duration-300 ${barHidden ? "-translate-y-full" : ""}`} onMouseEnter={() => setBarHidden(false)}>
-        <div className="flex h-12 items-center gap-1 border-b px-2 backdrop-blur-xl backdrop-saturate-150 sm:px-3" style={{ background: T.panel, borderColor: T.line }}>
+        <div className="relative flex h-12 items-center gap-1 border-b px-2 backdrop-blur-xl backdrop-saturate-150 sm:px-3" style={{ background: T.panel, borderColor: T.line }}>
           <Link href={book.href} className={icon} title="Back to the book (Esc)"><ArrowLeft size={17} /></Link>
           <button onClick={() => setPanel(panel === "contents" ? null : "contents")} className={icon} title="Contents (C)"><List size={17} /></button>
-          <div className="min-w-0 flex-1 px-2 text-center font-sans leading-tight">
-            <p className="truncate text-[12px]" style={{ color: T.muted }}>{book.title}</p>
-            <p className="truncate text-[13px] font-medium">{chapter.title}</p>
+          {/* the title sits in the true centre of the bar, whatever is on either side */}
+          <div className="pointer-events-none absolute inset-y-0 left-1/2 flex w-[calc(100%-200px)] max-w-[560px] -translate-x-1/2 flex-col items-center justify-center text-center font-sans leading-tight">
+            <p className="w-full truncate text-[11.5px]" style={{ color: T.muted }}>{book.title}</p>
+            <p className="w-full truncate text-[13px] font-medium">{chapter.title}</p>
           </div>
-          <button onClick={() => set({ size: Math.max(13, s.size - 1) })} className={`${icon} font-sans text-[13px] font-semibold`} title="Smaller text (−)" aria-label="Smaller text">A−</button>
-          <button onClick={() => set({ size: Math.min(30, s.size + 1) })} className={`${icon} font-sans text-[16px] font-semibold`} title="Larger text (+)" aria-label="Larger text">A+</button>
-          <button onClick={() => setPanel("search")} className={`${icon} hidden sm:flex`} title="Search in this book (/)"><Search size={17} /></button>
-          {hasPar && <div className="relative"><button onClick={() => setPop(pop === "lang" ? null : "lang")} className={icon} title="Language (L)"><Languages size={17} /></button>{pop === "lang" && <Pop T={T} onClose={() => setPop(null)}>
-            <p className="px-2 pb-1 text-[11.5px] font-medium" style={{ color: T.muted }}>Read this book in</p>
-            {translations.map((t) => <Link key={t.slug} href={t.href} onClick={() => setPop(null)} className="flex items-center justify-between rounded-md px-2 py-1.5 text-[13px] hover:bg-black/5 [.rd-dark_&]:hover:bg-white/10"><span>{t.native}<span className="ml-1.5 text-[11.5px]" style={{ color: T.muted }}>{t.language}</span></span>{t.current && <Check size={14} />}</Link>)}
-            <div className="my-1 border-t" style={{ borderColor: T.line }} />
-            <p className="px-2 pb-1 text-[11.5px] font-medium" style={{ color: T.muted }}>Side by side with</p>
-            {translations.filter((t) => !t.current).map((t) => <button key={t.slug} onClick={() => { set({ mode: "parallel" }); setPop(null); router.replace(`${chapter.href}?with=${t.slug}`, { scroll: false }); }} className="flex w-full items-center justify-between rounded-md px-2 py-1.5 text-left text-[13px] hover:bg-black/5 [.rd-dark_&]:hover:bg-white/10">{t.native}{parallel?.slug === t.slug && <Check size={14} />}</button>)}
-          </Pop>}</div>}
-          <div className="relative"><button onClick={() => setPop(pop === "mode" ? null : "mode")} className={icon} title="Choose a reader (M)"><BookOpen size={17} /></button>{pop === "mode" && <Pop T={T} onClose={() => setPop(null)} wide>
-            <p className="px-2 pb-1.5 text-[11.5px] font-medium" style={{ color: T.muted }}>Reader</p>
-            {MODES.map(([k, l, d, I], i) => { const off = k === "parallel" && !hasPar; return <button key={k} disabled={off} onClick={() => { set({ mode: k }); setPop(null); }} className="flex w-full items-start gap-3 rounded-md px-2 py-2 text-left hover:bg-black/5 disabled:opacity-40 [.rd-dark_&]:hover:bg-white/10"><I size={17} className="mt-0.5 shrink-0" /><span className="min-w-0 flex-1"><span className="flex items-center justify-between text-[13px] font-medium">{l}<kbd className="font-sans text-[11px]" style={{ color: T.muted }}>{i + 1}</kbd></span><span className="block text-[12px]" style={{ color: T.muted }}>{off ? "Appears when this book has another language" : d}</span></span>{mode === k && <Check size={14} className="mt-1" />}</button>; })}
+          <span className="flex-1" />
+          <button onClick={() => setPanel(panel === "search" ? null : "search")} className={icon} title="Search in this book (/)" aria-label="Search"><Search size={17} /></button>
+          <div className="relative"><button onClick={() => setPop(pop === "all" ? null : "all")} className={icon} title="Settings (A)" aria-label="Settings"><Settings2 size={17} /></button>{pop === "all" && <Pop T={T} onClose={() => setPop(null)} wide>
+            <div className="max-h-[calc(100dvh-90px)] overflow-y-auto overscroll-contain">
+              <div className="flex items-center gap-2 px-1 pt-1"><span className="flex-1 text-[12px] font-medium" style={{ color: T.muted }}>Text size</span>
+                <button onClick={() => set({ size: Math.max(13, s.size - 1) })} className={`${icon} border text-[13px] font-semibold`} style={{ borderColor: T.line }} aria-label="Smaller text">A−</button><span className="w-7 text-center text-[12.5px] tabular-nums">{s.size}</span><button onClick={() => set({ size: Math.min(30, s.size + 1) })} className={`${icon} border text-[16px] font-semibold`} style={{ borderColor: T.line }} aria-label="Larger text">A+</button></div>
+              <div className="mt-2 grid grid-cols-3 gap-1 border-y py-2" style={{ borderColor: T.line }}>
+                {([[marked ? BookmarkCheck : Bookmark, marked ? "Marked" : "Bookmark", toggleMark], [full ? Minimize : Maximize, full ? "Exit full" : "Full screen", toggleFull], [Keyboard, "Shortcuts", () => { setPop(null); setHelp(true); }]] as [any, string, () => void][]).map(([I, l, f]) => <button key={l} onClick={f} className="flex flex-col items-center gap-1 rounded-md py-2 text-[11.5px] hover:bg-black/5 [.rd-dark_&]:hover:bg-white/10"><I size={17} />{l}</button>)}
+              </div>
+              <p className="px-2 pb-1 pt-3 text-[11.5px] font-medium" style={{ color: T.muted }}>Reader</p>
+              {MODES.map(([k, l, d, I]) => { const off = k === "parallel" && !hasPar; return <button key={k} disabled={off} onClick={() => set({ mode: k })} className="flex w-full items-start gap-3 rounded-md px-2 py-1.5 text-left hover:bg-black/5 disabled:opacity-40 [.rd-dark_&]:hover:bg-white/10"><I size={16} className="mt-0.5 shrink-0" /><span className="min-w-0 flex-1"><span className="block text-[13px] font-medium">{l}</span><span className="block text-[11.5px]" style={{ color: T.muted }}>{off ? "When this book has another language" : d}</span></span>{mode === k && <Check size={14} className="mt-1" />}</button>; })}
+              {hasPar && <><p className="px-2 pb-1 pt-3 text-[11.5px] font-medium" style={{ color: T.muted }}>Read this book in</p>
+                {translations.map((t) => <Link key={t.slug} href={t.href} onClick={() => setPop(null)} className="flex items-center justify-between rounded-md px-2 py-1.5 text-[13px] hover:bg-black/5 [.rd-dark_&]:hover:bg-white/10"><span>{t.native}<span className="ml-1.5 text-[11.5px]" style={{ color: T.muted }}>{t.language}</span></span>{t.current && <Check size={14} />}</Link>)}
+                <p className="px-2 pb-1 pt-2 text-[11.5px] font-medium" style={{ color: T.muted }}>Side by side with</p>
+                {translations.filter((t) => !t.current).map((t) => <button key={t.slug} onClick={() => { set({ mode: "parallel" }); setPop(null); router.replace(`${chapter.href}?with=${t.slug}`, { scroll: false }); }} className="flex w-full items-center justify-between rounded-md px-2 py-1.5 text-left text-[13px] hover:bg-black/5 [.rd-dark_&]:hover:bg-white/10">{t.native}{parallel?.slug === t.slug && <Check size={14} />}</button>)}</>}
+              <div className="mt-2 border-t pt-1" style={{ borderColor: T.line }}><TextSettings s={s} set={set} T={T} /></div>
+            </div>
           </Pop>}</div>
-          <div className="relative"><button onClick={() => setPop(pop === "text" ? null : "text")} className={icon} title="Text settings (A)"><Type size={17} /></button>{pop === "text" && <Pop T={T} onClose={() => setPop(null)} wide><TextSettings s={s} set={set} T={T} /></Pop>}</div>
-          <button onClick={toggleMark} className={`${icon} hidden sm:flex`} title="Bookmark (B)">{marked ? <BookmarkCheck size={17} /> : <Bookmark size={17} />}</button>
-          <button onClick={toggleFull} className={`${icon} hidden md:flex`} title="Full screen (F)">{full ? <Minimize size={17} /> : <Maximize size={17} />}</button>
-          <button onClick={() => setHelp(true)} className={`${icon} hidden md:flex`} title="Keyboard shortcuts (?)"><Keyboard size={17} /></button>
         </div>
         <div className="h-[2px]"><div className="h-full transition-[width] duration-150" style={{ width: `${pct}%`, background: T.ink, opacity: 0.55 }} /></div>
       </div>
