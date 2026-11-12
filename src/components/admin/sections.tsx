@@ -3,7 +3,7 @@ import { AiSettings } from "./ai-settings";
 import { isProtected } from "@/lib/protected";
 import { BLESSINGS } from "@/components/home/blessing";
 import { useEffect, useRef, useState } from "react";
-import { Upload, Trash2, Plus, Copy } from "lucide-react";
+import { Sparkles, Upload, Trash2, Plus, Copy } from "lucide-react";
 import { Btn, Field, Input, Modal, Select, Textarea, api, toast } from "./ui";
 
 const Head = ({ t, s, children }: { t: string; s: string; children?: React.ReactNode }) => (
@@ -21,7 +21,7 @@ export function MediaLibrary() {
   };
   return (
     <div>
-      <Head t="Pictures" s="Upload PNG or JPG pictures once, then use them on any page."><Btn kind="primary" busy={busy} onClick={() => ref.current?.click()}><Upload size={16} />Upload pictures</Btn></Head>
+      <Head t="Pictures" s="Upload PNG or JPG pictures once, then use them on any page."><a href="/admin/media/create" className="inline-flex h-9 items-center gap-2 rounded-md border border-zinc-200 bg-white px-3 text-[13px] font-medium hover:bg-zinc-50"><Sparkles size={16} />Create an image</a><Btn kind="primary" busy={busy} onClick={() => ref.current?.click()}><Upload size={16} />Upload pictures</Btn></Head>
       <input ref={ref} type="file" accept="image/*" multiple hidden onChange={(e) => up(e.target.files)} />
       {!items ? <p className="text-ink-3">Loading…</p> : !items.length ? <div className="card p-10 text-center text-ink-3">No pictures yet.</div> : (
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">{items.map((m) => (

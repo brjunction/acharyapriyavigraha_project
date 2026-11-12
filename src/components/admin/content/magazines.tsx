@@ -2,6 +2,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { Newspaper, Plus, Trash2, ExternalLink, Image as ImageIcon, ArrowUp, ArrowDown, ArrowLeft, Upload, FileText, X, Search, ListPlus } from "lucide-react";
 import { Btn, Badge, Card, Field, Input, Select, Textarea, PageHeader, Sheet, Empty, Modal, api, toast } from "../ui";
+import { useTicks, TickBar, DraftsButton, Tick } from "./bulk";
 import { MediaPicker } from "../media-picker";
 import { CoverCropper } from "./book-editor";
 
@@ -13,6 +14,7 @@ export function MagazinesPanel() {
   const [rows, setRows] = useState<M[] | null>(null); const [open, setOpen] = useState<string | null>(null); const [add, setAdd] = useState(false);
   const load = useCallback(() => api<M[]>("/api/admin/magazines").then(setRows).catch((e) => toast(e.message, true)), []);
   useEffect(() => { load(); }, [load]);
+  const t = useTicks();
   if (open) return <MagazineView id={open} onBack={() => { setOpen(null); load(); }} />;
   const move = async (i: number, d: number) => { if (!rows) return; const r = [...rows]; const [x] = r.splice(i, 1); r.splice(i + d, 0, x); setRows(r); await api("/api/admin/magazines", "POST", { order: r.map((m) => m.id) }); };
   return (
@@ -20,6 +22,7 @@ export function MagazinesPanel() {
       <PageHeader icon={Newspaper} title="Magazines" description="Each magazine has issues; each issue has a cover, the whole issue (PDF) and its articles, which readers can read here.">
         <a href="/teachings/magazines" target="_blank"><Btn><ExternalLink />View on website</Btn></a><a href="/admin/books/import?as=issue"><Btn><Upload />Import issues from files</Btn></a><Btn kind="primary" onClick={() => setAdd(true)}><Plus />Add a magazine</Btn>
       </PageHeader>
+      {rows && <TickBar kind="magazines" word={["magazine", "magazines"]} ids={t.ids} total={rows.length} onAll={() => t.tick(rows.map((m) => m.id), true)} onClear={t.clear} onDone={load} />}
       {rows && !rows.length ? <Empty icon={Newspaper} title="No magazines yet" text="Add a magazine such as Kṛṣṇa-kathāmṛta or the Gopāl Jiu magazine, then add its issues."><Btn kind="primary" onClick={() => setAdd(true)}><Plus />Add a magazine</Btn></Empty> :
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{rows?.map((m, i) => (
           <Card key={m.id} className="overflow-hidden">
@@ -27,7 +30,7 @@ export function MagazinesPanel() {
               <span className="block aspect-[3/4] w-20 shrink-0 overflow-hidden rounded bg-zinc-100">{m.cover ? /* eslint-disable-next-line @next/next/no-img-element */ <img src={m.cover} alt="" className="h-full w-full object-cover" /> : <span className="flex h-full items-center justify-center text-zinc-300"><Newspaper className="size-6" /></span>}</span>
               <span className="min-w-0"><span className="block text-[14px] font-semibold">{m.title}</span><span className="block truncate text-[12px] text-zinc-500">{m.publisher || "—"}</span><span className="mt-2 flex flex-wrap gap-1.5"><Badge tone="outline">{m.n_issues} issues</Badge><Badge tone="outline">{m.n_articles} articles</Badge>{m.status !== "published" && <Badge>Hidden</Badge>}</span></span>
             </button>
-            <div className="flex justify-end gap-1 border-t border-zinc-100 px-2 py-1.5"><Btn size="icon" kind="soft" disabled={i === 0} onClick={() => move(i, -1)} title="Move earlier"><ArrowUp /></Btn><Btn size="icon" kind="soft" disabled={i === rows.length - 1} onClick={() => move(i, 1)} title="Move later"><ArrowDown /></Btn></div>
+            <div className="flex items-center justify-end gap-1 border-t border-zinc-100 px-2 py-1.5"><span className="mr-auto pl-1"><Tick on={t.has(m.id)} label={`Tick ${m.title}`} onChange={(v) => t.tick([m.id], v)} /></span><Btn size="icon" kind="soft" disabled={i === 0} onClick={() => move(i, -1)} title="Move earlier"><ArrowUp /></Btn><Btn size="icon" kind="soft" disabled={i === rows.length - 1} onClick={() => move(i, 1)} title="Move later"><ArrowDown /></Btn></div>
           </Card>))}</div>}
       {add && <NewMag onClose={() => setAdd(false)} onDone={(id) => { setAdd(false); setOpen(id); }} />}
     </div>
@@ -44,7 +47,9 @@ function MagazineView({ id, onBack }: { id: string; onBack: () => void }) {
   const [crop, setCrop] = useState(false); const [issue, setIssue] = useState<string | null>(null); const [many, setMany] = useState(false);
   const load = useCallback(() => api<{ magazine: M; issues: I[] }>(`/api/admin/magazines/${id}`).then((r) => { setD(r); setM((x) => x || r.magazine); }).catch((e) => toast(e.message, true)), [id]);
   useEffect(() => { load(); }, [load]);
+  const t = useTicks();
   if (!d || !m) return <p className="p-6 text-zinc-500">Opening…</p>;
+  const drafts = d.issues.filter((x) => x.status !== "published").length;
   const set = (k: keyof M, v: any) => setM({ ...m, [k]: v });
   const save = async () => { setBusy(true); try { await api(`/api/admin/magazines/${id}`, "PATCH", m); toast("Saved."); } catch (e: any) { toast(e.message, true); } finally { setBusy(false); } };
   const newIssue = async () => { const r = await api<{ id: string }>(`/api/admin/magazines/${id}/issues`, "POST", { number: `Issue ${d.issues.length + 1}` }); await load(); setIssue(r.id); };
@@ -62,13 +67,16 @@ function MagazineView({ id, onBack }: { id: string; onBack: () => void }) {
           <div className="flex justify-between"><Btn size="sm" kind="danger" onClick={async () => { if (!confirm("Delete this magazine and all its issues? The articles stay.")) return; await api(`/api/admin/magazines/${id}`, "DELETE"); onBack(); }}><Trash2 />Delete</Btn><Btn kind="primary" busy={busy} onClick={save}>Save</Btn></div>
         </Card>
         <div>
-          <div className="mb-3 flex items-center gap-2"><p className="flex-1 text-[15px] font-semibold">Issues <span className="font-normal text-zinc-400">{d.issues.length}</span></p><a href={`/admin/books/import?as=issue&magazine=${id}`}><Btn size="sm"><Upload />Import from files</Btn></a><Btn size="sm" onClick={() => setMany(true)}><ListPlus />Add many</Btn><Btn size="sm" kind="primary" onClick={newIssue}><Plus />Add an issue</Btn></div>
+          <div className="mb-3 flex items-center gap-2">{d.issues.length > 0 && (() => { const on = d.issues.filter((x) => t.has(x.id)).length; return <Tick on={on === d.issues.length} mixed={on > 0 && on < d.issues.length} label="Tick every issue" onChange={(v) => t.tick(d.issues.map((x) => x.id), v)} />; })()}<p className="flex-1 text-[15px] font-semibold">Issues <span className="font-normal text-zinc-400">{d.issues.length}</span>{drafts > 0 && <span className="ml-2 text-[12px] font-normal text-amber-700">{drafts} drafts</span>}</p><DraftsButton kind="issues" n={drafts} word="issues" extra={{ magazine_id: id }} onDone={load} /><a href={`/admin/books/import?as=issue&magazine=${id}`}><Btn size="sm"><Upload />Import from files</Btn></a><Btn size="sm" onClick={() => setMany(true)}><ListPlus />Add many</Btn><Btn size="sm" kind="primary" onClick={newIssue}><Plus />Add an issue</Btn></div>
+          <TickBar kind="issues" word={["issue", "issues"]} ids={t.ids} total={d.issues.length} onAll={() => t.tick(d.issues.map((x) => x.id), true)} onClear={t.clear} onDone={load} note="Publishing an issue publishes its articles too." />
           {!d.issues.length ? <Empty icon={Newspaper} title="No issues yet" text="Add the first issue: its number, date, cover, and the PDF of the whole issue." /> :
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 xl:grid-cols-5">{d.issues.map((x) => (
-              <button key={x.id} onClick={() => setIssue(x.id)} className="group text-left">
-                <span className="block aspect-[3/4] overflow-hidden rounded-md border border-zinc-200 bg-zinc-50 transition group-hover:border-zinc-400">{x.cover ? /* eslint-disable-next-line @next/next/no-img-element */ <img src={x.cover} alt="" className="h-full w-full object-cover" /> : <span className="flex h-full flex-col items-center justify-center gap-1 p-2 text-center text-[12px] text-zinc-400"><Newspaper className="size-5" />No cover</span>}</span>
+              <button key={x.id} onClick={() => (t.ids.length ? t.tick([x.id], !t.has(x.id)) : setIssue(x.id))} className="group relative text-left">
+                <Tick on={t.has(x.id)} label={`Tick ${x.title || x.number || "this issue"}`} onChange={(v) => t.tick([x.id], v)} className={`absolute left-2 top-2 z-10 shadow-sm ${t.ids.length ? "" : "opacity-0 group-hover:opacity-100 focus-visible:opacity-100"}`} />
+                {x.status !== "published" && <span className="absolute right-2 top-2 z-10 rounded bg-white/95 px-1.5 py-0.5 text-[10.5px] font-medium text-amber-800 shadow-sm">Draft</span>}
+                <span className={`block aspect-[3/4] overflow-hidden rounded-md border border-zinc-200 bg-zinc-50 transition group-hover:border-zinc-400 ${t.has(x.id) ? "ring-2 ring-zinc-900 ring-offset-2" : ""}`}>{x.cover ? /* eslint-disable-next-line @next/next/no-img-element */ <img src={x.cover} alt="" className="h-full w-full object-cover" /> : <span className="flex h-full flex-col items-center justify-center gap-1 p-2 text-center text-[12px] text-zinc-400"><Newspaper className="size-5" />No cover</span>}</span>
                 <span className="mt-1.5 block truncate text-[13px] font-medium">{x.number && x.title ? `${x.number} · ${x.title}` : x.title || x.number}</span>
-                <span className="block text-[11.5px] text-zinc-500">{[x.day, `${x.n_articles} articles`, x.pdf_url ? "PDF" : null, x.status !== "published" ? "hidden" : null].filter(Boolean).join(" · ")}</span>
+                <span className="block text-[11.5px] text-zinc-500">{[x.day, `${x.n_articles} articles`, x.pdf_url ? "PDF" : null, ].filter(Boolean).join(" · ")}</span>
               </button>))}</div>}
         </div>
       </div>

@@ -48,6 +48,7 @@ export const ADMIN_GROUPS: AdminGroup[] = [
     { href: "/admin/menus", label: "Menus", icon: PanelsTopLeft, desc: "The top menus" },
     { href: "/admin/announcements", label: "Announcements", icon: Megaphone, desc: "Messages on top of the site" },
     { href: "/admin/media", label: "Pictures & files", icon: Images, desc: "Everything uploaded" },
+    { href: "/admin/media/create", label: "Create an image", icon: Image, desc: "Paint a picture with Gemini" },
   ] },
   { key: "settings", icon: Settings, label: "Settings", desc: "People and site settings", color: "#5f6368", links: [
     { href: "/admin/users", label: "People & roles", icon: Users, desc: "Who can edit" },

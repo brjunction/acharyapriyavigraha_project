@@ -1107,27 +1107,18 @@ a.sutra-xref:hover { background: color-mix(in srgb, var(--accent) 24%, transpare
 .hnv .lift { transition: transform .35s ease, box-shadow .35s ease; }
 .hnv .lift:hover { transform: translateY(-2px); box-shadow: 0 10px 24px -14px rgba(60,30,0,.35); }
 
-/* Home page: the nav bar is clear over the hero, light text; the hero runs up under it */
-.site-header.home-float + main { margin-top: -52px; }
-@media (min-width: 640px) { .site-header.home-float + main { margin-top: -58px; } }
-.site-header.home-float + main .hero-red { padding-top: 52px; }
-@media (min-width: 640px) { .site-header.home-float + main .hero-red { padding-top: 58px; } }
-.site-header.home-float:not(.nav-clear) + main .hero-red { padding-top: 52px; }
-/* Over the dark hero the bar is clear, so everything in it turns white and solid enough to read at a glance. */
-.nav-clear nav > button, .nav-clear nav > button svg { color: #fff !important; font-weight: 600; }
-.nav-clear nav > button { text-shadow: 0 1px 2px rgba(40,10,0,.35); }
-.nav-clear nav > button:hover, .nav-clear nav > button[aria-expanded="true"] { background: rgba(255,255,255,.16) !important; }
-.nav-clear nav > button > span.absolute { background: #fff !important; }
-.nav-clear .logo-box { background: #fff; color: #851813; border-color: rgba(255,255,255,.9); box-shadow: 0 6px 16px -8px rgba(40,10,0,.5); }
-.nav-clear button[aria-label="Search"] { background: #fff; border-color: #fff; color: #5a2a12; box-shadow: 0 6px 16px -10px rgba(40,10,0,.5); }
-.nav-clear button[aria-label="Search"] span { color: #6b4a36; }
-.nav-clear button[aria-label="Search"] kbd { color: #6b4a36; background: #f6eee4; border-color: #e7d8c6; }
-.nav-clear [role="radiogroup"], .nav-clear .mode-switch { background: rgba(255,255,255,.18) !important; border-color: rgba(255,255,255,.55) !important; }
-.nav-clear [role="radiogroup"] button:not([aria-checked="true"]), .nav-clear .mode-switch button:not([aria-pressed="true"]) { color: #fff !important; font-weight: 600; }
-.nav-clear button[aria-label="Open menu"] { background: #fff !important; color: #851813 !important; box-shadow: 0 6px 16px -10px rgba(40,10,0,.5) !important; --tw-ring-color: transparent !important; }
-/* The home bar changes between clear and white smoothly: colours fade with the background instead of jumping. */
-.site-header.home-float .logo-box, .site-header.home-float nav > button, .site-header.home-float nav > button svg,
-.site-header.home-float button[aria-label="Search"], .site-header.home-float button[aria-label="Search"] *, .site-header.home-float button[aria-label="Open menu"],
-.site-header.home-float [role="radiogroup"], .site-header.home-float [role="radiogroup"] button, .site-header.home-float .mode-switch, .site-header.home-float .mode-switch button {
-  transition: color .45s cubic-bezier(.22,.8,.24,1), background-color .45s cubic-bezier(.22,.8,.24,1), border-color .45s cubic-bezier(.22,.8,.24,1), box-shadow .45s cubic-bezier(.22,.8,.24,1), text-shadow .45s ease;
-}
+/* Life timeline (chapters view): moments fade in gently once, as they come into view. */
+.tlc-in { opacity: 0; transform: translateY(10px); transition: opacity .6s cubic-bezier(.22,.8,.24,1), transform .6s cubic-bezier(.22,.8,.24,1); }
+.tlc-in.tlc-seen { opacity: 1; transform: none; }
+.tlc-panel { animation: tlc-panel .22s cubic-bezier(.22,.8,.24,1); }
+@keyframes tlc-panel { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .tlc-in { opacity: 1; transform: none; transition: none; } .tlc-panel { animation: none; } }
+.no-scrollbar { scrollbar-width: none; } .no-scrollbar::-webkit-scrollbar { display: none; }
+/* Resources → Gauḍīya Paramparā Protection: a white card with a slowly moving warm edge */
+.pp-card { background: linear-gradient(120deg, #e9c48a, #d9782c, #c0392b, #b8860b, #e9c48a); background-size: 300% 300%; animation: pp-edge 12s ease-in-out infinite; box-shadow: 0 14px 34px -22px rgba(150,60,0,.55); }
+@keyframes pp-edge { 0%, 100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+.pp-wash { background: radial-gradient(120% 70% at 0% 0%, rgba(233,196,138,.22), transparent 60%), radial-gradient(90% 60% at 100% 0%, rgba(217,120,44,.08), transparent 60%); }
+.pp-badge { background: linear-gradient(150deg, #e08a3c, #b5530f 55%, #8a3b0a); }
+.pp-row { animation: pp-rise .45s cubic-bezier(.22,.8,.24,1) backwards; }
+@keyframes pp-rise { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .pp-card, .pp-row { animation: none; } }

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Search, Link2, Check, MapPin, Users, Headphones, ChevronDown, Sparkles, Rows3, CalendarRange, X, GitCommitHorizontal, LayoutGrid, Film } from "lucide-react";
 import { LineView, CardsView, FilmView } from "./views";
+import { TimelineChapters } from "./chapters";
 import { KINDS, kindOf, when, eraOf, type Era, type LifeEvent } from "@/lib/content/timeline-shared";
 
 const fold = (s: string) => s.normalize("NFKD").replace(/[̀-ͯ]/g, "").toLowerCase();
@@ -48,20 +49,8 @@ export function LifeTimeline({ eras, events, recordings }: { eras: Era[]; events
   const open = (e: LifeEvent) => { setView("story"); setQ(""); setKinds([]); setTimeout(() => go(`e-${e.slug}`), 60); };
 
   const chapterOf = (e: LifeEvent) => { const k = eras.findIndex((x) => x.id === eraOf(eras, e.year)?.id); return k < 0 ? null : `Chapter ${k + 1} · ${eras[k].title}`; };
-  if (!adv) return (
-    <div className="bg-white">
-      <section className="mx-auto max-w-[1100px] px-5 pb-16 pt-10 sm:px-8 sm:pt-14">
-        <div className="mb-8 flex flex-wrap items-end justify-between gap-4 border-b border-line pb-6">
-          <div>
-            <h1 className="text-[30px] font-semibold leading-[1.1] tracking-[-0.02em] text-ink sm:text-[40px]">His life, year by year</h1>
-            <p className="mt-2 max-w-2xl text-[15.5px] leading-relaxed text-ink-2">The life of Śrī Śrīmad Gour Govinda Swāmī Gurudeva, one moment at a time.</p>
-          </div>
-          <button onClick={() => toggleAdv(true)} className="flex h-11 items-center gap-2 rounded-full border border-line-strong px-5 text-[14px] font-medium text-ink-2 transition hover:border-ink hover:text-ink"><Search size={16} />Search & more views</button>
-        </div>
-        {events.length ? <FilmView events={events} simple chapterOf={chapterOf} /> : <p className="py-20 text-center text-[15px] text-ink-3">The moments of his life are being added.</p>}
-      </section>
-    </div>
-  );
+  // The default: one calm page in chapters, with a Sections panel. “Search & more views” keeps every other layout (One by one, Line, Pictures, Highlights…).
+  if (!adv) return <TimelineChapters eras={eras} events={events} onMore={() => toggleAdv(true)} />;
 
   return (
     <div className="bg-white">

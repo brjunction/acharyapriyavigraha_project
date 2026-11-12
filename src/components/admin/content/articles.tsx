@@ -5,6 +5,7 @@ import { FileText, Plus, Search, Trash2, ExternalLink, ArrowLeft, Image as Image
 import { AiAssist } from "../ai-assist";
 import { Btn, Badge, Card, Field, Input, Select, Textarea, PageHeader, Empty, Modal, api, toast, cn } from "../ui";
 import { MediaPicker } from "../media-picker";
+import { useTicks, TickBar, DraftsButton, Tick } from "./bulk";
 
 const NotionEditor = dynamic(() => import("../notion/editor"), { ssr: false });
 type Row = { id: string; slug: string; title: string; subtitle: string | null; author: string | null; series: string | null; series_part: number | null; section: string | null; date: string | null; status: string; cover: string | null; blocks: number };
@@ -18,6 +19,7 @@ export function ArticlesPanel() {
   const load = useCallback(() => { const u = new URLSearchParams(Object.fromEntries(Object.entries(f).filter(([, v]) => v))); api<Data>(`/api/admin/articles?${u}`).then(setData).catch((e) => toast(e.message, true)); }, [f]);
   useEffect(() => { load(); }, [load]);
   const pick = (k: string, v: string) => setF((p) => ({ ...p, [k]: p[k] === v ? "" : v }));
+  const tk = useTicks();
   if (edit) return <ArticleEditor id={edit} lists={data} issue={issueFor} onClose={() => { setEdit(null); setIssueFor(null); history.replaceState(null, "", location.pathname); load(); }} />;
   const Facet = ({ k, title, icon: I, items }: { k: string; title: string; icon: any; items: F[] }) => (
     <div className="mb-4"><p className="mb-1 flex items-center gap-1.5 px-2 text-[11.5px] font-medium uppercase tracking-wide text-zinc-500"><I className="size-3.5" />{title}</p>
@@ -38,16 +40,20 @@ export function ArticlesPanel() {
         <div>
           <div className="mb-3 flex flex-wrap items-center gap-2">
             <div className="relative min-w-[220px] flex-1"><Search className="absolute left-2.5 top-2.5 size-4 text-zinc-400" /><Input value={q} onChange={(e) => { setQ(e.target.value); clearTimeout(t.current); t.current = setTimeout(() => setF((p) => ({ ...p, q: e.target.value })), 300); }} placeholder="Search titles and text (no diacritics needed)" className="pl-8" /></div>
+            {data && data.rows.length > 0 && (() => { const on = data.rows.filter((r) => tk.has(r.id)).length; return <Tick on={on === data.rows.length} mixed={on > 0 && on < data.rows.length} label="Tick every article shown" onChange={(v) => tk.tick(data.rows.map((r) => r.id), v)} />; })()}
             <Select value={f.status || ""} onChange={(e) => setF((p) => ({ ...p, status: e.target.value }))} className="!w-auto"><option value="">Live and hidden</option><option value="published">Live</option><option value="draft">Hidden</option></Select>
           </div>
+          <div className="mb-3 flex flex-wrap items-center gap-2"><DraftsButton kind="articles" n={(data?.rows || []).filter((r) => r.status !== "published").length && !active.length && !f.q && !f.status ? (data?.rows || []).filter((r) => r.status !== "published").length : 0} word="articles" onDone={load} /></div>
+          <TickBar kind="articles" word={["article", "articles"]} ids={tk.ids} total={data?.rows.length || 0} onAll={() => tk.tick((data?.rows || []).map((r) => r.id), true)} onClear={tk.clear} onDone={load} />
           {active.length > 0 && <div className="mb-3 flex flex-wrap gap-1.5">{active.map(([k, v]) => <Badge key={k} tone="outline">{v}<button onClick={() => pick(k, v)}><X /></button></Badge>)}</div>}
           {data && !data.rows.length ? <Empty icon={FileText} title={active.length || f.q ? "Nothing matches" : "No articles yet"} text="Write the first one. Give it an author, and a series if it belongs to one."><Btn kind="primary" onClick={() => setEdit("new")}><Plus />New article</Btn></Empty> :
             <Card className="divide-y divide-zinc-100">{data?.rows.map((r) => (
-              <button key={r.id} onClick={() => setEdit(r.id)} className="flex w-full items-center gap-3 px-4 py-3 text-left hover:bg-zinc-50">
+              <div key={r.id} role="button" tabIndex={0} onKeyDown={(e) => e.key === "Enter" && setEdit(r.id)} onClick={() => (tk.ids.length ? tk.tick([r.id], !tk.has(r.id)) : setEdit(r.id))} className={cn("flex w-full cursor-pointer items-center gap-3 px-4 py-3 text-left hover:bg-zinc-50", tk.has(r.id) && "bg-zinc-50")}>
+                <Tick on={tk.has(r.id)} label={`Tick ${r.title}`} onChange={(v) => tk.tick([r.id], v)} />
                 {r.cover ? /* eslint-disable-next-line @next/next/no-img-element */ <img src={r.cover} alt="" className="size-10 shrink-0 rounded-md object-cover" /> : <span className="flex size-10 shrink-0 items-center justify-center rounded-md bg-zinc-100 text-zinc-400"><FileText className="size-4" /></span>}
                 <span className="min-w-0 flex-1"><span className="block truncate text-[13.5px] font-medium">{r.title}</span><span className="block truncate text-[12px] text-zinc-500">{[r.author, r.series && `${r.series}${r.series_part ? ` · part ${r.series_part}` : ""}`, r.section].filter(Boolean).join(" · ") || "No author yet"}</span></span>
                 {!r.blocks && <Badge tone="outline">Empty</Badge>}{r.status !== "published" && <Badge>Hidden</Badge>}
-              </button>))}</Card>}
+              </div>))}</Card>}
         </div>
       </div>
       {authorsOpen && <AuthorsManager onClose={() => { setAuthorsOpen(false); load(); }} />}

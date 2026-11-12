@@ -1,6 +1,7 @@
 "use client";
 /* His Diary — a full-screen diary reader (the website's own menu and footer step aside).
-   Views: Diary pages (default — the entry laid out as pages you turn, two facing pages on wide screens, one on a phone),
+   Views: Calendar (default — the month's calendar beside one clean sheet; days with entries are links, and the same day in
+   other years is listed), Diary pages (the entry laid out as pages you turn, two facing pages on wide screens, one on a phone),
    Scroll (one long page), Compact (dense, for reading quickly), and Book format (the book reader, chosen from the menu).
    Reading panel: page colours, many fonts, size (A− / A+ always at hand), spacing, width, the original beside or below.
    Everything chosen is remembered on this device. */
@@ -41,9 +42,9 @@ const FONTS: Record<string, [string, string]> = {
   merri: ["Merriweather", "Merriweather, Georgia, serif"],
 };
 const FONT_LINK = "https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;600&family=Atkinson+Hyperlegible:wght@400;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=Literata:opsz,wght@7..72,400;7..72,600&family=Gentium+Book+Plus:wght@400;700&family=EB+Garamond:wght@400;600&family=Crimson+Pro:wght@400;600&family=Lora:wght@400;600&family=Merriweather:wght@400;700&family=Noto+Serif+Devanagari:wght@400;600&family=Noto+Sans+Oriya:wght@400;600&family=Noto+Serif+Bengali:wght@400;600&display=swap";
-type View = "pages" | "scroll" | "compact";
+type View = "calendar" | "pages" | "scroll" | "compact";
 type S = { view: View; theme: string; font: string; size: number; lead: number; width: "narrow" | "normal" | "wide"; orig: "off" | "side" | "below" };
-const DEF: S = { view: "pages", theme: "ivory", font: "inter", size: 16, lead: 1.75, width: "normal", orig: "off" };
+const DEF: S = { view: "calendar", theme: "ivory", font: "inter", size: 16, lead: 1.75, width: "normal", orig: "off" };
 const SIZES = [13, 14, 15, 16, 17, 18, 20, 22, 24, 27, 30];
 
 export function DiaryJournal({ e, list }: { e: JPage; list: JEntry[] }) {
@@ -75,6 +76,16 @@ export function DiaryJournal({ e, list }: { e: JPage; list: JEntry[] }) {
   const curVol = e.volume ? `Volume ${e.volume}` : e.date ? e.date.slice(0, 4) : "Undated";
   const found = q.trim().length > 1 ? list.filter((x) => when(x).toLowerCase().includes(q.toLowerCase()) || (x.date || "").includes(q)).slice(0, 60) : null;
 
+  // Calendar view: the month of this entry, with the days that have a page; and the same day in other years.
+  const month = e.date?.slice(0, 7) || null;
+  const monthDays = useMemo(() => { const m = new Map<number, JEntry>(); if (month) list.forEach((x) => { if (x.date?.startsWith(month)) m.set(Number(x.date.slice(8, 10)), x); }); return m; }, [list, month]);
+  const months = useMemo(() => Array.from(new Set(list.map((x) => x.date?.slice(0, 7)).filter(Boolean) as string[])), [list]);
+  const mi = month ? months.indexOf(month) : -1; const pm = mi > 0 ? months[mi - 1] : null; const nm = mi >= 0 && mi < months.length - 1 ? months[mi + 1] : null;
+  const firstOf = (m: string) => list.find((x) => x.date?.startsWith(m));
+  const sameDay = e.date ? list.filter((x) => x.slug !== e.slug && x.date?.slice(5) === e.date!.slice(5)) : [];
+  const grid = useMemo(() => { if (!month) return []; const [y, m] = month.split("-").map(Number); const lead = new Date(Date.UTC(y, m - 1, 1)).getUTCDay(); const n = new Date(Date.UTC(y, m, 0)).getUTCDate(); return [...Array(lead).fill(0), ...Array.from({ length: n }, (_, k) => k + 1)]; }, [month]);
+  const today = e.date ? Number(e.date.slice(8, 10)) : 0;
+  const monthLabel = (m: string) => `${MON[Number(m.slice(5, 7)) - 1]} ${m.slice(0, 4)}`;
   const head = (
     <header className="mb-[1.6em] text-center" style={{ breakInside: "avoid" }}>
       <p className="text-[0.66em] font-semibold uppercase tracking-[0.24em]" style={{ color: T.soft }}>{[weekday(e), e.place].filter(Boolean).join(" · ") || "His Diary"}</p>
@@ -94,7 +105,7 @@ export function DiaryJournal({ e, list }: { e: JPage; list: JEntry[] }) {
   const maxW = s.width === "narrow" ? 560 : s.width === "wide" ? 860 : 680;
   const bar = `flex h-10 min-w-10 items-center justify-center gap-1.5 rounded-full px-3 text-[13px] font-medium transition ${T.dark ? "text-white/80 hover:bg-white/10" : "text-black/70 hover:bg-black/[0.06]"}`;
   const seg = (on: boolean) => `rounded-md px-2 py-1.5 text-[12.5px] ${on ? "bg-white font-medium text-zinc-900 shadow-sm" : "text-zinc-500"}`;
-  const VIEWS: [View | "book", string, string][] = [["pages", "Diary pages", "Turn the pages, like the diary itself"], ["scroll", "Scroll", "The whole page in one long column"], ["compact", "Compact", "Dense and plain, to read quickly"], ["book", "Book format", "In the book reader, with its own tools"]];
+  const VIEWS: [View | "book", string, string][] = [["calendar", "Calendar", "The month beside the page; every written day one tap away"], ["pages", "Diary pages", "Turn the pages, like the diary itself"], ["scroll", "Scroll", "The whole page in one long column"], ["compact", "Compact", "Dense and plain, to read quickly"], ["book", "Book format", "In the book reader, with its own tools"]];
 
   return (
     <div className="fixed inset-0 z-[55] flex flex-col" style={{ background: T.desk, color: T.ink }}>
@@ -113,7 +124,35 @@ export function DiaryJournal({ e, list }: { e: JPage; list: JEntry[] }) {
 
       {/* the page(s) */}
       <div className="relative min-h-0 flex-1">
-        {s.view === "pages" ? (
+        {s.view === "calendar" ? (
+          <div className="absolute inset-0 overflow-y-auto">
+            <div className="mx-auto grid max-w-[1180px] gap-6 px-3 py-4 sm:px-6 sm:py-8 lg:grid-cols-[280px_1fr] lg:gap-10">
+              {month && <aside className="order-2 lg:order-1 lg:sticky lg:top-8 lg:self-start">
+                <div className="rounded-2xl p-4" style={{ background: T.page, boxShadow: "0 18px 40px -26px rgba(40,20,0,.5), 0 0 0 1px rgba(0,0,0,.04)" }}>
+                  <div className="mb-3 flex items-center justify-between gap-2">
+                    {pm ? <Link href={`/gurudeva/diaries/${firstOf(pm)!.slug}`} aria-label={monthLabel(pm)} title={monthLabel(pm)} className="rounded-full p-1.5 hover:bg-black/5"><ChevronLeft size={16} /></Link> : <span className="size-7" />}
+                    <p className="text-[14px] font-semibold">{monthLabel(month)}</p>
+                    {nm ? <Link href={`/gurudeva/diaries/${firstOf(nm)!.slug}`} aria-label={monthLabel(nm)} title={monthLabel(nm)} className="rounded-full p-1.5 hover:bg-black/5"><ChevronRight size={16} /></Link> : <span className="size-7" />}
+                  </div>
+                  <div className="grid grid-cols-7 gap-1 text-center text-[12px] tabular-nums">
+                    {["S", "M", "T", "W", "T", "F", "S"].map((d, k) => <span key={k} className="pb-1 text-[10.5px] font-semibold" style={{ color: T.soft }}>{d}</span>)}
+                    {grid.map((d, k) => { const x = d ? monthDays.get(d) : undefined; return !d ? <span key={k} /> : x ? (
+                      <Link key={k} href={`/gurudeva/diaries/${x.slug}`} aria-current={d === today ? "page" : undefined} className={`flex aspect-square items-center justify-center rounded-full font-medium transition ${d === today ? "bg-[#c2621d] text-white" : "hover:bg-black/[0.07]"}`} style={d === today ? undefined : { boxShadow: `inset 0 0 0 1px ${T.soft}55` }}>{d}</Link>
+                    ) : <span key={k} className="flex aspect-square items-center justify-center opacity-35">{d}</span>; })}
+                  </div>
+                  <p className="mt-3 text-[11.5px]" style={{ color: T.soft }}>{monthDays.size} {monthDays.size === 1 ? "page" : "pages"} this month</p>
+                </div>
+                {sameDay.length > 0 && <div className="mt-4 rounded-2xl px-4 py-3 max-lg:hidden" style={{ background: T.page, boxShadow: "0 0 0 1px rgba(0,0,0,.04)" }}>
+                  <p className="mb-1.5 text-[11.5px] font-semibold uppercase tracking-[0.12em]" style={{ color: T.soft }}>The same day, other years</p>
+                  {sameDay.map((x) => <Link key={x.slug} href={`/gurudeva/diaries/${x.slug}`} className="block py-1 text-[13px] hover:underline">{when(x)}</Link>)}
+                </div>}
+              </aside>}
+              <article className="order-1 mx-auto w-full rounded-[10px] px-6 py-10 lg:order-2 sm:px-14 sm:py-14" style={{ maxWidth: maxW + 140, background: T.page, boxShadow: "0 24px 60px -28px rgba(40,20,0,.5), 0 0 0 1px rgba(0,0,0,.04)", fontFamily: F, fontSize: s.size, lineHeight: s.lead }}>
+                {textBlock}
+              </article>
+            </div>
+          </div>
+        ) : s.view === "pages" ? (
           <div className="absolute inset-0 flex items-center justify-center px-2 py-3 sm:px-6 sm:py-6" onTouchStart={(ev) => { touch.current = ev.touches[0].clientX; }} onTouchEnd={(ev) => { if (touch.current === null) return; const dx = ev.changedTouches[0].clientX - touch.current; touch.current = null; if (Math.abs(dx) > 50) turn(dx < 0 ? 1 : -1); }}>
             <div className="relative h-full w-full overflow-hidden rounded-[6px] shadow-[0_24px_60px_-28px_rgba(40,20,0,.55),0_0_0_1px_rgba(0,0,0,.04)]" style={{ maxWidth: two ? maxW * 2 + 120 : maxW + 60, background: T.page }}>
               {two && <span aria-hidden className="pointer-events-none absolute inset-y-0 left-1/2 z-10 w-16 -translate-x-1/2" style={{ background: T.dark ? "linear-gradient(90deg,transparent,rgba(0,0,0,.35),transparent)" : "linear-gradient(90deg,transparent,rgba(90,50,10,.13) 48%,rgba(90,50,10,.2) 50%,rgba(90,50,10,.13) 52%,transparent)" }} />}
