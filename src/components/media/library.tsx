@@ -77,15 +77,18 @@ function AdvancedLibrary({ items, mode }: { items: MediaItem[]; mode: Mode }) {
   return (
     <div className="mx-auto max-w-[1240px] px-4 pb-16 pt-5 sm:px-6">
       {/* Toolbar: search, then one drop-down per filter — no sidebar */}
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="flex flex-wrap items-center gap-2 max-sm:[&>div.filters]:w-full">
         <label className="relative w-full sm:w-72"><Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-3" /><input value={q} onChange={(e) => setQ(e.target.value)} placeholder={`Search ${noun}…`} className="h-9 w-full rounded-md border border-line-strong bg-white pl-9 pr-8 text-[13px] shadow-[0_1px_2px_rgba(0,0,0,0.04)] outline-none focus:border-ink/40 focus:ring-[3px] focus:ring-ink/10" />{q && <button onClick={() => setQ("")} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-ink-3"><X size={14} /></button>}</label>
-        {facets.map((f) => <FilterButton key={f.k} f={f} label={sel[f.k]?.length ? chip(f) : ""} items={items.filter((l) => pass(l, f.k))} value={sel[f.k] || []} onChange={(v) => setSel((s) => ({ ...s, [f.k]: v }))} />)}
-        {mode !== "kirtan" && transcribed > 0 && <button onClick={() => setText(!text)} className={`flex h-9 items-center gap-1.5 rounded-md border px-3 text-[13px] ${text ? "border-ink bg-ink text-white" : "border-dashed border-line-strong text-ink-2 hover:bg-band"}`}><FileText size={14} />Has transcription</button>}
-        {(active.length > 0 || text || q) && <button onClick={clearAll} className="flex h-9 items-center gap-1 px-2 text-[13px] text-ink-3 hover:text-ink">Reset<X size={13} /></button>}
+        <div className="filters -mx-4 flex items-center gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0 sm:pb-0">
+          {facets.map((f) => <FilterButton key={f.k} f={f} label={sel[f.k]?.length ? chip(f) : ""} items={items.filter((l) => pass(l, f.k))} value={sel[f.k] || []} onChange={(v) => setSel((s) => ({ ...s, [f.k]: v }))} />)}
+          {mode !== "kirtan" && transcribed > 0 && <button role="switch" aria-checked={text} onClick={() => setText(!text)} className={`flex h-9 shrink-0 items-center gap-2 whitespace-nowrap rounded-md border px-3 text-[13px] transition ${text ? "border-saffron/60 bg-saffron-soft text-ink" : "border-dashed border-line-strong text-ink-2 hover:bg-band"}`}>
+            <span className={`relative h-4 w-7 shrink-0 rounded-full transition ${text ? "bg-saffron" : "bg-line-strong"}`}><span className={`absolute top-0.5 size-3 rounded-full bg-white shadow transition-all ${text ? "left-[14px]" : "left-0.5"}`} /></span>With transcription</button>}
+          {(active.length > 0 || text || q) && <button onClick={clearAll} className="flex h-9 shrink-0 items-center gap-1 px-2 text-[13px] text-ink-3 hover:text-ink">Reset<X size={13} /></button>}
+        </div>
       </div>
-      <div className="mt-4 flex items-center justify-between gap-3 pb-1">
-        <p className="text-[13px] text-ink-3"><b className="font-medium text-ink">{list.length.toLocaleString()}</b> {noun}</p>
-        <span className="flex items-center gap-1.5">{mode === "audio" && <Link href="/teachings/audio/chart" title="Every recording on one page, year by year" className="flex h-9 items-center gap-1.5 rounded-md border border-line px-3 text-[12.5px] font-medium text-ink-2 hover:border-saffron hover:text-saffron"><TableProperties size={14} />Systematic chart</Link>}<Pick icon={Rows3} value={group} onChange={(v) => setGroup(v as any)} options={GROUPS.filter(([g]) => g !== "scripture" || mode !== "kirtan")} /><Pick icon={ArrowDownUp} value={sort} onChange={(v) => setSort(v as any)} options={SORTS} /></span>
+      <div className="mt-4 flex flex-wrap items-center justify-between gap-x-3 gap-y-2 pb-1">
+        <p className="whitespace-nowrap text-[13px] text-ink-3"><b className="font-medium text-ink">{list.length.toLocaleString()}</b> {noun}</p>
+        <span className="flex max-w-full items-center gap-1.5 overflow-x-auto [scrollbar-width:none]">{mode === "audio" && <Link href="/teachings/audio/chart" title="Every recording on one page, year by year" className="flex h-8 items-center gap-1.5 rounded-lg border border-line bg-white px-2.5 text-[12.5px] text-ink-2 hover:border-line-strong hover:text-ink" aria-label="Systematic chart"><TableProperties size={14} /><span className="max-sm:hidden">Systematic chart</span></Link>}<Pick icon={Rows3} value={group} onChange={(v) => setGroup(v as any)} options={GROUPS.filter(([g]) => g !== "scripture" || mode !== "kirtan")} /><Pick icon={ArrowDownUp} value={sort} onChange={(v) => setSort(v as any)} options={SORTS} /></span>
       </div>
       <div ref={AP.top} />
       {mode !== "video" && list.length > 0 && <div className="hidden grid-cols-[32px_minmax(0,1fr)_110px_150px_110px_64px] gap-x-3 border-b border-line py-2 text-[12px] font-medium text-ink-3 md:grid"><span /><span>Title</span><span>Date</span><span>Place</span><span>Verse</span><span className="text-right">Length</span></div>}
@@ -105,8 +108,8 @@ function FilterButton({ f, label, items, value, onChange }: { f: Facet; label: s
   const [open, setOpen] = useState(false); const ref = useRef<HTMLDivElement>(null);
   useEffect(() => { if (!open) return; const h = (e: MouseEvent) => { if (!ref.current?.contains(e.target as Node)) setOpen(false); }; const k = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false); document.addEventListener("mousedown", h); document.addEventListener("keydown", k); return () => { document.removeEventListener("mousedown", h); document.removeEventListener("keydown", k); }; }, [open]);
   return (
-    <div ref={ref} className="relative">
-      <button onClick={() => setOpen(!open)} className={`flex h-9 items-center gap-1.5 rounded-md border px-3 text-[13px] transition ${label ? "border-line-strong bg-white text-ink" : "border-dashed border-line-strong text-ink-2 hover:bg-band"}`}>
+    <div ref={ref} className="relative shrink-0">
+      <button onClick={() => setOpen(!open)} className={`flex h-9 items-center gap-1.5 whitespace-nowrap rounded-md border px-3 text-[13px] transition ${label ? "border-line-strong bg-white text-ink" : "border-dashed border-line-strong text-ink-2 hover:bg-band"}`}>
         {f.title}{label && <><span className="mx-0.5 h-4 w-px bg-line-strong" /><span className="max-w-[160px] truncate rounded bg-band px-1.5 text-[12px] font-medium">{label}</span></>}<ChevronDown size={13} className="text-ink-3" />
       </button>
       {open && <div className="absolute left-0 top-[calc(100%+6px)] z-30 w-[280px] rounded-lg border border-line bg-white p-1.5 shadow-[0_10px_38px_-10px_rgba(0,0,0,0.25)]">
@@ -152,7 +155,7 @@ function Row({ l, mode }: { l: MediaItem; mode: Mode }) {
       <PlayButton l={l} size={30} />
       <div className="min-w-0">
         <Link href={l.href || `/teachings/audio/${l.slug}`} className="line-clamp-2 text-[14px] leading-snug text-ink hover:underline md:line-clamp-1">{l.title}</Link>
-        <p className="mt-0.5 flex items-center gap-1.5 truncate text-[12px] text-ink-3"><span>{mode === "kirtan" ? [l.singer, l.author && `by ${l.author}`].filter(Boolean).join(" · ") || l.type : l.type}</span>{l.transcribed && <span className="inline-flex items-center gap-0.5 rounded border border-line px-1 text-[10.5px] text-ink-2"><FileText size={10} />Text</span>}<span className="md:hidden">· {date(l.date)}{where ? ` · ${where}` : ""}</span></p>
+        <p className="mt-0.5 flex items-center gap-1.5 truncate text-[12px] text-ink-3"><span>{mode === "kirtan" ? [l.singer, l.author && `by ${l.author}`].filter(Boolean).join(" · ") || l.type : l.type}</span>{l.transcribed && <span title="Transcription available" aria-label="Transcription available" className="inline-flex shrink-0 text-saffron"><FileText size={13} /></span>}<span className="md:hidden">· {date(l.date)}{where ? ` · ${where}` : ""}</span></p>
       </div>
       <span className="hidden text-[12.5px] tabular-nums text-ink-2 md:block">{date(l.date)}</span>
       <span className="hidden truncate text-[12.5px] text-ink-2 md:block">{where || "—"}</span>
@@ -230,16 +233,16 @@ function BasicAudio({ items }: { items: MediaItem[] }) {
         <Search size={17} className="shrink-0 text-ink-3" />
         <input value={typed} onChange={(e) => { setTyped(e.target.value); if (!e.target.value) setQ(""); }} placeholder="Search lectures — type a word" aria-label="Search lectures" className="h-10 min-w-0 flex-1 bg-transparent text-[14px] text-ink outline-none placeholder:text-ink-3" />
         {typed && <button type="button" onClick={() => { setTyped(""); setQ(""); }} aria-label="Clear" className="p-2 text-ink-3"><X size={16} /></button>}
-        <button className="h-10 shrink-0 rounded-full bg-saffron px-5 text-[13.5px] font-semibold text-white hover:brightness-110">Search</button>
+        <button aria-label="Search" title="Search" className="flex size-10 shrink-0 items-center justify-center rounded-full bg-saffron text-white hover:brightness-110"><Search size={18} /></button>
       </form>
 
       <p className="mb-2.5 mt-5 text-center text-[13px] font-medium text-ink-3 sm:text-left">Or find lectures by</p>
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
+      <div className="grid grid-cols-3 gap-2 sm:grid-cols-5 sm:gap-3">
         {BASIC.map((b) => { const I = b.icon; const on = open === b.k; const v = pick[b.k]; return (
           <button key={b.k} onClick={() => setOpen(on ? null : b.k)} aria-expanded={on}
-            className={`flex items-center gap-3 rounded-2xl px-3.5 py-3 text-left transition last:max-sm:col-span-2 ${on ? "bg-ink text-white" : v ? "bg-saffron-soft text-ink ring-2 ring-saffron" : "bg-band text-ink hover:bg-saffron-soft"}`}>
-            <span className={`flex size-10 shrink-0 items-center justify-center rounded-full ${on ? "bg-white/15" : "bg-white text-saffron"}`}><I size={19} /></span>
-            <span className="min-w-0"><span className="block text-[14px] font-semibold">{b.title}</span>{v && <span className="block truncate text-[12px] opacity-80">{v}</span>}</span>
+            className={`flex min-w-0 flex-col items-center gap-1.5 rounded-xl px-2 py-2.5 text-center transition sm:flex-row sm:gap-3 sm:rounded-2xl sm:px-3.5 sm:py-3 sm:text-left ${on ? "bg-ink text-white" : v ? "bg-saffron-soft text-ink ring-2 ring-saffron" : "bg-band text-ink hover:bg-saffron-soft"}`}>
+            <span className={`flex size-8 shrink-0 items-center justify-center rounded-full sm:size-10 ${on ? "bg-white/15" : "bg-white text-saffron"}`}><I size={16} className="sm:hidden" /><I size={19} className="max-sm:hidden" /></span>
+            <span className="w-full min-w-0"><span className="block text-[12.5px] font-semibold sm:text-[14px]">{b.title}</span>{v && <span className="block truncate text-[11px] opacity-80 sm:text-[12px]">{v}</span>}</span>
           </button>); })}
       </div>
 
