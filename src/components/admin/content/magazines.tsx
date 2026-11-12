@@ -18,7 +18,7 @@ export function MagazinesPanel() {
   return (
     <div>
       <PageHeader icon={Newspaper} title="Magazines" description="Each magazine has issues; each issue has a cover, the whole issue (PDF) and its articles, which readers can read here.">
-        <a href="/teachings/magazines" target="_blank"><Btn><ExternalLink />View on website</Btn></a><Btn kind="primary" onClick={() => setAdd(true)}><Plus />Add a magazine</Btn>
+        <a href="/teachings/magazines" target="_blank"><Btn><ExternalLink />View on website</Btn></a><a href="/admin/books/import?as=issue"><Btn><Upload />Import issues from files</Btn></a><Btn kind="primary" onClick={() => setAdd(true)}><Plus />Add a magazine</Btn>
       </PageHeader>
       {rows && !rows.length ? <Empty icon={Newspaper} title="No magazines yet" text="Add a magazine such as Kṛṣṇa-kathāmṛta or the Gopāl Jiu magazine, then add its issues."><Btn kind="primary" onClick={() => setAdd(true)}><Plus />Add a magazine</Btn></Empty> :
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{rows?.map((m, i) => (
@@ -62,7 +62,7 @@ function MagazineView({ id, onBack }: { id: string; onBack: () => void }) {
           <div className="flex justify-between"><Btn size="sm" kind="danger" onClick={async () => { if (!confirm("Delete this magazine and all its issues? The articles stay.")) return; await api(`/api/admin/magazines/${id}`, "DELETE"); onBack(); }}><Trash2 />Delete</Btn><Btn kind="primary" busy={busy} onClick={save}>Save</Btn></div>
         </Card>
         <div>
-          <div className="mb-3 flex items-center gap-2"><p className="flex-1 text-[15px] font-semibold">Issues <span className="font-normal text-zinc-400">{d.issues.length}</span></p><Btn size="sm" onClick={() => setMany(true)}><ListPlus />Add many</Btn><Btn size="sm" kind="primary" onClick={newIssue}><Plus />Add an issue</Btn></div>
+          <div className="mb-3 flex items-center gap-2"><p className="flex-1 text-[15px] font-semibold">Issues <span className="font-normal text-zinc-400">{d.issues.length}</span></p><a href={`/admin/books/import?as=issue&magazine=${id}`}><Btn size="sm"><Upload />Import from files</Btn></a><Btn size="sm" onClick={() => setMany(true)}><ListPlus />Add many</Btn><Btn size="sm" kind="primary" onClick={newIssue}><Plus />Add an issue</Btn></div>
           {!d.issues.length ? <Empty icon={Newspaper} title="No issues yet" text="Add the first issue: its number, date, cover, and the PDF of the whole issue." /> :
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 xl:grid-cols-5">{d.issues.map((x) => (
               <button key={x.id} onClick={() => setIssue(x.id)} className="group text-left">

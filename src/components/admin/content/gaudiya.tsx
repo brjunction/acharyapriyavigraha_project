@@ -32,6 +32,7 @@ export function GaudiyaPanel() {
       <Card className="p-0">
         <div className="flex flex-wrap items-center gap-2 border-b border-zinc-100 p-3">
           <p className="mr-auto text-[13px] font-medium">{books ? `${books.length} books` : "Loading…"}{unmatched > 0 && <span className="ml-2 text-[12px] font-normal text-amber-700">{unmatched} without an ācārya</span>}</p>
+          {(books || []).some((b) => b.status !== "published") && <Btn size="sm" kind="primary" onClick={async () => { const n = (books || []).filter((b) => b.status !== "published").length; if (!confirm(`Publish all ${n} drafts of the Gauḍīya library now? They appear on the website at once.`)) return; try { const r = await api<{ n: number }>("/api/admin/books/bulk", "POST", { op: "publish", library: "gaudiya" }); toast(`${r.n} books published.`); load(); } catch (e: any) { toast(e.message, true); } }}>Publish all {(books || []).filter((b) => b.status !== "published").length} drafts</Btn>}
           <label className="relative"><Search className="absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-zinc-400" /><Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Find a book" className="!h-8 w-[200px] pl-8" /></label>
           <Select value={who} onChange={(e) => setWho(e.target.value)} className="!h-8 !w-[220px]"><option value="">Every ācārya</option><option value="-">Without an ācārya</option>{as.map((a) => <option key={a.slug} value={a.slug}>{a.title}</option>)}</Select>
         </div>
