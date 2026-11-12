@@ -35,7 +35,7 @@ export function LectureRow({ l, index }: { l: Lecture; index?: number }) {
         </p>
       </div>
       <div className="hidden items-center gap-1.5 md:flex">
-        {l.transcribed && <span title="Transcription available" aria-label="Transcription available" className="flex items-center text-saffron"><FileText size={13} /></span>}
+        {l.transcribed && <span title="This recording has a transcription to read">· Transcribed</span>}
         {l.languages.length > 1 && <span title="Translations available" className="flex items-center gap-1 rounded-full bg-band px-2 py-0.5 text-[11.5px] text-ink-2"><Languages size={12} />{l.languages.length}</span>}
       </div>
       <span className="w-auto shrink-0 whitespace-nowrap text-right text-[11.5px] sm:w-[4.6rem] sm:text-[12.5px] tabular text-ink-3">{fmtDur(l.duration)}</span>

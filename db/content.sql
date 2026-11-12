@@ -195,3 +195,7 @@ alter table book_nodes add column if not exists published_at timestamptz;
 
 -- 12 Nov 2026 · what a Gauḍīya book is shown as: 'book' (the library), 'scripture' (/gaudiya/scriptures) or 'songs' (/gaudiya/padyavali)
 alter table books add column if not exists kind text not null default 'book';
+
+-- 12 Nov 2026 · Gauḍīya library categories (like the index of Gauḍīya Grantha Mandira); a book's category is books.subject (the category's slug)
+create table if not exists gaudiya_categories (id uuid primary key default gen_random_uuid(), slug text not null unique, name text not null, description text, parent_id uuid references gaudiya_categories(id) on delete cascade, position int not null default 0);
+alter table books add column if not exists subject text;

@@ -155,7 +155,7 @@ function Row({ l, mode }: { l: MediaItem; mode: Mode }) {
       <PlayButton l={l} size={30} />
       <div className="min-w-0">
         <Link href={l.href || `/teachings/audio/${l.slug}`} className="line-clamp-2 text-[14px] leading-snug text-ink hover:underline md:line-clamp-1">{l.title}</Link>
-        <p className="mt-0.5 flex items-center gap-1.5 truncate text-[12px] text-ink-3"><span>{mode === "kirtan" ? [l.singer, l.author && `by ${l.author}`].filter(Boolean).join(" · ") || l.type : l.type}</span>{l.transcribed && <span title="Transcription available" aria-label="Transcription available" className="inline-flex shrink-0 text-saffron"><FileText size={13} /></span>}<span className="md:hidden">· {date(l.date)}{where ? ` · ${where}` : ""}</span></p>
+        <p className="mt-0.5 flex items-center gap-1.5 truncate text-[12px] text-ink-3"><span>{mode === "kirtan" ? [l.singer, l.author && `by ${l.author}`].filter(Boolean).join(" · ") || l.type : l.type}</span>{l.transcribed && <span title="This recording has a transcription to read">· Transcribed</span>}<span className="md:hidden">· {date(l.date)}{where ? ` · ${where}` : ""}</span></p>
       </div>
       <span className="hidden text-[12.5px] tabular-nums text-ink-2 md:block">{date(l.date)}</span>
       <span className="hidden truncate text-[12.5px] text-ink-2 md:block">{where || "—"}</span>
