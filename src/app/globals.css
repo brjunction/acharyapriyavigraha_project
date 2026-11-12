@@ -727,19 +727,19 @@ html[data-motion="reduce"] .bless-word, html[data-motion="reduce"] .bless-rise, 
 
 /* The hero lotus: each ring turns very slowly its own way, breathes, and unfolds once on arrival; a warm light pulses behind. */
 @keyframes lx-turn { to { transform: rotate(360deg); } }
-.lx-spin { animation: lx-turn 140s linear infinite; }
-.lx-spin.lx-ccw { animation-direction: reverse; }
+.lx-spin { animation: none; }
+
 /* rings turn in alternate directions, each at its own calm pace */
-.lx-spin.lx-s1 { animation-duration: 240s; } .lx-spin.lx-s2 { animation-duration: 190s; } .lx-spin.lx-s3 { animation-duration: 150s; } .lx-spin.lx-s4 { animation-duration: 120s; }
+
 .lx-flower { }
 /* the lotus closes a little and opens again, ring after ring, slowly */
-.lx-breathe { animation: lx-breathe 11s cubic-bezier(.37,0,.63,1) infinite; }
+.lx-breathe { animation: none; }
 @keyframes lx-breathe { 0%, 100% { transform: scale(1); } 50% { transform: scale(.87); } }
 .lx-bloom { }
 @keyframes lx-bloom { 0%, 100% { transform: scale(1) rotate(0deg); } 50% { transform: scale(.94) rotate(6deg); } }
-.lx-open { animation: lx-open 2.6s cubic-bezier(.2,.8,.2,1) both; }
-@keyframes lx-open { from { opacity: 0; transform: scale(.8) rotate(-8deg); } to { opacity: 1; transform: none; } }
-.lx-aura { background: radial-gradient(closest-side, rgba(255,226,170,.5), rgba(255,190,110,.18) 55%, transparent); animation: lx-aura 10s ease-in-out infinite alternate; }
+.lx-open { animation: lx-open 1.6s cubic-bezier(.2,.8,.2,1) both; }
+@keyframes lx-open { from { opacity: 0; transform: scale(.94); } to { opacity: 1; transform: none; } }
+.lx-aura { background: radial-gradient(closest-side, rgba(255,226,170,.5), rgba(255,190,110,.18) 55%, transparent); opacity: .55; }
 @keyframes lx-aura { from { opacity: .65; transform: scale(.94); } to { opacity: 1; transform: scale(1.04); } }
 .lx-portrait { animation: lx-portrait 1.4s cubic-bezier(.2,.8,.2,1) .3s both; }
 @keyframes lx-portrait { from { opacity: 0; transform: scale(.9); } to { opacity: 1; transform: none; } }
@@ -1113,10 +1113,15 @@ a.sutra-xref:hover { background: color-mix(in srgb, var(--accent) 24%, transpare
 .site-header.home-float + main .hero-red { padding-top: 52px; }
 @media (min-width: 640px) { .site-header.home-float + main .hero-red { padding-top: 58px; } }
 .site-header.home-float:not(.nav-clear) + main .hero-red { padding-top: 52px; }
-.nav-clear nav > button, .nav-clear nav > button svg { color: #fff3dc !important; }
-.nav-clear nav > button:hover { background: rgba(255,255,255,.12) !important; }
-.nav-clear nav > button > span.absolute { background: #ffd98a !important; }
-.nav-clear button[aria-label="Search"] { background: rgba(255,255,255,.12); border-color: rgba(255,255,255,.28); color: #fff3dc; }
-.nav-clear button[aria-label="Search"] span, .nav-clear button[aria-label="Search"] kbd { color: rgba(255,243,220,.75); background: transparent; border-color: rgba(255,255,255,.25); }
-.nav-clear [role="radiogroup"], .nav-clear .mode-switch { background: rgba(255,255,255,.12) !important; border-color: rgba(255,255,255,.25) !important; }
-.nav-clear [role="radiogroup"] button:not([aria-checked="true"]), .nav-clear .mode-switch button:not([aria-pressed="true"]) { color: rgba(255,243,220,.8) !important; }
+/* Over the dark hero the bar is clear, so everything in it turns white and solid enough to read at a glance. */
+.nav-clear nav > button, .nav-clear nav > button svg { color: #fff !important; font-weight: 600; }
+.nav-clear nav > button { text-shadow: 0 1px 2px rgba(40,10,0,.35); }
+.nav-clear nav > button:hover, .nav-clear nav > button[aria-expanded="true"] { background: rgba(255,255,255,.16) !important; }
+.nav-clear nav > button > span.absolute { background: #fff !important; }
+.nav-clear .logo-box { background: #fff; color: #851813; border-color: rgba(255,255,255,.9); box-shadow: 0 6px 16px -8px rgba(40,10,0,.5); }
+.nav-clear button[aria-label="Search"] { background: #fff; border-color: #fff; color: #5a2a12; box-shadow: 0 6px 16px -10px rgba(40,10,0,.5); }
+.nav-clear button[aria-label="Search"] span { color: #6b4a36; }
+.nav-clear button[aria-label="Search"] kbd { color: #6b4a36; background: #f6eee4; border-color: #e7d8c6; }
+.nav-clear [role="radiogroup"], .nav-clear .mode-switch { background: rgba(255,255,255,.18) !important; border-color: rgba(255,255,255,.55) !important; }
+.nav-clear [role="radiogroup"] button:not([aria-checked="true"]), .nav-clear .mode-switch button:not([aria-pressed="true"]) { color: #fff !important; font-weight: 600; }
+.nav-clear button[aria-label="Open menu"] { background: #fff !important; color: #851813 !important; box-shadow: 0 6px 16px -10px rgba(40,10,0,.5) !important; --tw-ring-color: transparent !important; }
