@@ -191,8 +191,8 @@ function Editor({ id, songs, onClose, onSaved }: { id: string; songs: boolean; o
             </Field>
             <Field label="Place"><Pick kind="place" base={[]} value={a.place || ""} onChange={(v) => set("place", v)} empty="Unknown" addLabel="place" /></Field>
           </div>
-          <Field label="MP3 link" hint="Paste the Archive.org link of the file (archive.org/download/…) or any direct MP3 link. Press Test to listen and fill in the length.">
-            <div className="flex gap-2"><Input value={a.audio_url || ""} onChange={(e) => set("audio_url", e.target.value)} placeholder="https://archive.org/download/…/lecture.mp3" /><Btn onClick={test} disabled={!a.audio_url}>{playing ? <Pause /> : <Play />}{playing ? "Stop" : "Test"}</Btn></div>
+          <Field label="MP3 link" hint="Paste the direct MP3 link: ISKCON Desire Tree (audio.iskcondesiretree.com/…), Archive.org (archive.org/download/…) or any other. Press Test to listen and fill in the length.">
+            <div className="flex gap-2"><Input value={a.audio_url || ""} onChange={(e) => set("audio_url", e.target.value)} placeholder="https://audio.iskcondesiretree.com/…/lecture.mp3" /><Btn onClick={test} disabled={!a.audio_url}>{playing ? <Pause /> : <Play />}{playing ? "Stop" : "Test"}</Btn></div>
             {a.duration_sec ? <p className="mt-1 text-[12px] text-zinc-500">Length {durText(a.duration_sec)}</p> : null}
           </Field>
           <Field label="Short summary" hint="Two or three lines shown in lists and search results."><Textarea value={a.summary || ""} onChange={(e) => set("summary", e.target.value)} /></Field>

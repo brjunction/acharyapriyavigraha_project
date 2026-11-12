@@ -28,7 +28,7 @@ const SECS: Omit<FSec, "groups">[] = [
 /** Old Studio setting names → sections. */
 const OLD: Record<string, string> = { "menu:gurudeva": "gurudeva", audios: "lectures", transcripts: "transcriptions", kirtans: "kirtans", books: "books", excerpts: "compilations", videos: "videos", pages: "pages" };
 const EXK: [string, string][] = [["quote", "Quotes"], ["verse", "Verses"], ["story", "Stories & anecdotes"], ["instruction", "Instructions"], ["desire", "Desires"], ["nectar", "Nectar drops"], ["analogy", "Analogies"], ["qa", "Questions & answers"], ["memory", "Memories"], ["glorification", "Glorifications"], ["prayer", "Prayers"]];
-const ARCH = ["memories", "glorifications", "letters", "gallery", "places", "belongings", "disciples", "projects", "parampara", "prabhupada"];
+const ARCH = ["memories", "glorifications", "letters", "gallery", "places", "belongings", "disciples", "projects", "prabhupada"];
 const q = async <T,>(p: Promise<T[]>): Promise<T[]> => { try { return await p; } catch { return []; } };
 const yearsOf = (rows: { y: number; n: number }[]) => rows.map((r) => ({ key: r.y ? String(r.y) : "undated", title: r.y ? String(r.y) : "Undated", count: r.n }));
 
@@ -47,7 +47,7 @@ async function buildNav(): Promise<FSec[]> {
     q(sql`select collection, count(*)::int n from archive_items where status = 'published' group by 1`),
     q(sql`select count(*)::int n from life_events where status = 'published'`),
     q(sql`select coalesce(section, 'Other articles') s, count(*)::int n from articles where status = 'published' group by 1 order by 1`),
-    q(sql`select id, title, jsonb_array_length(issues) n from magazines where status = 'published' order by position, title`),
+    q(sql`select m.id, m.title, (select count(*)::int from magazine_issues i where i.magazine_id = m.id and i.status = 'published') n from magazines m where m.status = 'published' order by m.position, m.title`),
     getMenus().catch(() => []),
   ]) as any[][];
   const groups: Record<string, FGroup[]> = {
@@ -70,7 +70,7 @@ async function buildNav(): Promise<FSec[]> {
     .sort((a, b) => (conf(a.key)?.position ?? 99) - (conf(b.key)?.position ?? 99) || SECS.findIndex((x) => x.key === a.key) - SECS.findIndex((x) => x.key === b.key));
 }
 /** The whole contents, cached for ten minutes (and refreshed when the Studio publishes). */
-export const nav = unstable_cache(buildNav, ["webfolio-nav-v2"], { revalidate: 600, tags: ["webfolio"] });
+export const nav = unstable_cache(buildNav, ["webfolio-nav-v3"], { revalidate: 600, tags: ["webfolio"] });
 
 /* ------------------------------------------------------------------ Group pages: everything of one group on one page */
 export type Block = { id: string; title: string; sub?: string; href?: string; text?: string; doc?: any[]; badge?: string; audio?: string };
@@ -104,8 +104,15 @@ export async function groupPage(sec: string, g: string): Promise<Page | null> {
     return { title: sect === "all" ? "Articles" : sect, intro: `${rows.length} articles.`, blocks: rows.map((r) => ({ id: r.slug, title: r.title, sub: [r.author && `By ${r.author}`, r.series, date(r.date)].filter(Boolean).join(" · "), text: [r.subtitle, r.summary].filter(Boolean).join("\n\n"), doc: r.body })) };
   }
   if (sec === "magazines") {
-    const rows = (await q(sql`select id, title, publisher, description, url, issues from magazines where status = 'published' and (${g} = 'all' or id::text = ${g}) order by position, title`)) as any[];
-    return { title: rows.length === 1 ? rows[0].title : "Magazines", blocks: rows.flatMap((m) => [{ id: `m-${m.id}`, title: m.title, sub: m.publisher || "", text: m.description || "", href: m.url || undefined }, ...((m.issues || []) as any[]).map((x, i) => ({ id: `i-${m.id}-${i}`, title: x.title || x.name || `Issue ${i + 1}`, sub: [x.date, x.number].filter(Boolean).join(" · "), text: x.summary || x.description || "", href: x.url || undefined }))]) };
+    // The magazine, then each issue (newest first) with the articles in it, in their order.
+    const mags = (await q(sql`select id, coalesce(slug, id::text) slug, title, publisher, description from magazines where status = 'published' and (${g} = 'all' or id::text = ${g}) order by position, title`)) as any[];
+    const ids = mags.map((m) => m.id);
+    const issues = (await q(sql`select id, magazine_id, slug, number, title, date, year, description from magazine_issues where status = 'published' and magazine_id = any(${ids}::uuid[]) order by coalesce(year, 0) desc, date desc nulls last, position`)) as any[];
+    const arts = (await q(sql`select slug, title, author, issue_id, summary from articles where status = 'published' and issue_id = any(${issues.map((i) => i.id)}::uuid[]) order by issue_id, issue_position nulls last, title`)) as any[];
+    return { title: mags.length === 1 ? mags[0].title : "Magazines", intro: mags.length === 1 ? `${issues.length} issues.` : undefined,
+      blocks: mags.flatMap((m) => [{ id: `m-${m.slug}`, title: m.title, sub: m.publisher || "", text: m.description || "", href: `/teachings/magazines/${m.slug}` },
+        ...issues.filter((i) => i.magazine_id === m.id).flatMap((i) => [{ id: `i-${i.slug || i.id}`, title: i.title || i.number || "Issue", sub: [i.number && i.title ? i.number : "", date(i.date) || i.year].filter(Boolean).join(" · "), text: i.description || "", href: `/teachings/magazines/${m.slug}/${i.slug || i.id}` },
+          ...arts.filter((x) => x.issue_id === i.id).map((x) => ({ id: x.slug, title: x.title, sub: x.author ? `By ${x.author}` : "", text: x.summary || "", href: `/teachings/articles/${x.slug}` }))])]) };
   }
   if (sec === "website") {
     const m = ((await getMenus().catch(() => [])) as any[]).find((x) => x.key === g); if (!m) return null;

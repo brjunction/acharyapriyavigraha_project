@@ -5,49 +5,58 @@ import { ContinueReading } from "@/components/webfolio/continue";
 import { ArrowRight, Search, MonitorDown, WifiOff, Keyboard, Moon } from "lucide-react";
 
 export const revalidate = 600;
+/* WebFolio home: like the first pages of a book — the title, one search, then the contents: every section with its
+   parts, numbered, each part one tap away. Installing and the reading tips sit quietly at the side. */
 export default async function Home() {
-  const n = await nav(); const total = (k: string) => n.find((s) => s.key === k)?.groups.reduce((a, g) => a + (g.count || 0), 0) || 0;
-  const stats: [string, number][] = [["Lectures", total("lectures")], ["Transcriptions", total("transcriptions")], ["Books", n.find((s) => s.key === "books")?.groups.length || 0], ["Compilation entries", total("compilations")]];
+  const n = await nav(); const sum = (k: string) => n.find((s) => s.key === k)?.groups.reduce((a, g) => a + (g.count || 0), 0) || 0;
+  const facts = [["lectures", sum("lectures")], ["transcriptions", sum("transcriptions")], ["books", n.find((s) => s.key === "books")?.groups.length || 0], ["diary pages", n.find((s) => s.key === "gurudeva")?.groups.filter((g) => g.key.startsWith("diary-")).reduce((a, g) => a + (g.count || 0), 0) || 0]] as const;
   return (
-    <div className="px-5 pb-16 pt-10 sm:px-10 lg:pt-14">
-      <div className="mx-auto max-w-[1080px]">
-        <section className="text-center">
-          <span className="inline-flex items-center gap-2 rounded-full border border-zinc-200 px-3 py-1 text-[12px] font-medium text-zinc-600"><span className="size-1.5 rounded-full bg-[#34a853]" />Read, search and keep — even offline</span>
-          <h1 className="mx-auto mt-5 max-w-[760px] text-[26px] font-semibold leading-[1.15] tracking-[-0.03em] text-zinc-950 sm:text-[34px]">The teachings of Śrīla Gurudeva, as one book.</h1>
-          <p className="mx-auto mt-3 max-w-[560px] text-[14.5px] leading-relaxed text-zinc-600 sm:text-[15.5px]">Every lecture, transcription, book, compilation and page of His Diary — one contents, one search.</p>
-          <form action="/webfolio/search" className="mx-auto mt-7 flex h-12 max-w-[600px] items-center gap-3 rounded-full border border-zinc-200 bg-white pl-5 pr-2 shadow-[0_1px_6px_rgba(32,33,36,.14)] transition focus-within:shadow-[0_2px_12px_rgba(32,33,36,.24)]">
-            <Search size={19} className="shrink-0 text-zinc-400" /><input name="q" placeholder="Search every word — try “Gopāl Jiu”" className="h-full min-w-0 flex-1 bg-transparent text-[15px] text-zinc-950 outline-none placeholder:text-zinc-400" />
-            <button className="h-9 rounded-full bg-[#1a73e8] px-5 text-[13.5px] font-semibold text-white transition hover:bg-[#1765cc]">Search</button>
+    <div className="px-5 pb-20 pt-10 sm:px-10 lg:pt-14">
+      <div className="mx-auto max-w-[1120px]">
+        <header className="max-w-[720px]">
+          <p className="text-[12px] font-medium uppercase tracking-[0.18em] text-zinc-500">The WebFolio</p>
+          <h1 className="mt-3 text-[28px] font-semibold leading-[1.15] tracking-[-0.02em] text-zinc-950 sm:text-[34px]">The teachings of Śrīla Gurudeva, as one book.</h1>
+          <p className="mt-3 text-[15px] leading-relaxed text-zinc-600">{facts.some(([, v]) => v) ? `${facts.filter(([, v]) => v).map(([l, v]) => `${v.toLocaleString()} ${l}`).join(" · ")}. ` : ""}One contents, one search, and it works offline once installed.</p>
+          <form action="/webfolio/search" className="mt-6 flex h-12 max-w-[620px] items-center gap-3 rounded-xl border border-zinc-300 bg-white pl-4 pr-1.5 transition focus-within:border-zinc-900">
+            <Search size={18} className="shrink-0 text-zinc-400" /><input name="q" placeholder="Search every word" className="h-full min-w-0 flex-1 bg-transparent text-[15px] text-zinc-950 outline-none placeholder:text-zinc-400" />
+            <kbd className="hidden rounded border border-zinc-200 px-1.5 py-0.5 text-[11px] text-zinc-500 sm:block">Ctrl K</kbd>
+            <button className="h-9 rounded-lg bg-zinc-900 px-4 text-[13.5px] font-medium text-white transition hover:bg-zinc-700">Search</button>
           </form>
-          <dl className="mx-auto mt-10 grid max-w-[760px] grid-cols-2 gap-px overflow-hidden rounded-2xl border border-zinc-200 bg-zinc-200 sm:grid-cols-4">{stats.map(([l, v]) => <div key={l} className="bg-white px-4 py-4"><dd className="text-[20px] font-semibold tabular-nums tracking-tight text-zinc-950">{v.toLocaleString()}</dd><dt className="text-[12.5px] text-zinc-500">{l}</dt></div>)}</dl>
-        </section>
+        </header>
 
-        <ContinueReading />
+        <div className="mt-12 grid gap-12 lg:grid-cols-[minmax(0,1fr)_300px]">
+          <section aria-labelledby="contents">
+            <h2 id="contents" className="border-b border-zinc-900 pb-2 text-[13px] font-semibold uppercase tracking-[0.16em] text-zinc-900">Contents</h2>
+            <ol>
+              {n.map((s, i) => { const c = s.groups.reduce((a, g) => a + (g.count || 0), 0); return (
+                <li key={s.key} className="grid grid-cols-[28px_minmax(0,1fr)] gap-x-3 border-b border-zinc-200 py-5 sm:grid-cols-[36px_minmax(0,1fr)_auto]">
+                  <span className="pt-0.5 text-[13px] tabular-nums text-zinc-400">{String(i + 1).padStart(2, "0")}</span>
+                  <div className="min-w-0">
+                    <Link href={`/webfolio/${s.key}`} className="group inline-flex items-center gap-2.5"><SecIcon s={s} size={15} /><span className="text-[17px] font-semibold text-zinc-950 group-hover:underline">{s.title}</span></Link>
+                    <p className="mt-1 text-[13.5px] text-zinc-500">{s.desc}</p>
+                    {s.groups.length > 0 && <p className="mt-2.5 flex flex-wrap gap-x-3 gap-y-1 text-[13px]">
+                      {s.groups.slice(0, 8).map((g) => <Link key={g.key} href={`/webfolio/${s.key}/${g.key}`} className="text-zinc-700 underline-offset-2 hover:text-zinc-950 hover:underline">{g.title.replace(/^His Diary, /, "Diary ")}</Link>)}
+                      {s.groups.length > 8 && <Link href={`/webfolio/${s.key}`} className="text-zinc-500 hover:text-zinc-950">+{s.groups.length - 8} more</Link>}
+                    </p>}
+                  </div>
+                  <span className="col-start-2 mt-2 text-[12.5px] tabular-nums text-zinc-500 sm:col-start-3 sm:mt-0.5 sm:text-right">{s.groups.length} parts{c ? <><br className="max-sm:hidden" /><span className="sm:hidden"> · </span>{c.toLocaleString()} entries</> : null}</span>
+                </li>); })}
+            </ol>
+          </section>
 
-        <section className="mt-14">
-          <div className="mb-4 flex items-end justify-between"><h2 className="text-[20px] font-semibold tracking-tight text-zinc-950">Contents</h2><p className="text-[13px] text-zinc-500">{n.length} sections</p></div>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {n.map((s) => { const c = s.groups.reduce((a, g) => a + (g.count || 0), 0); return (
-              <Link key={s.key} href={`/webfolio/${s.key}`} className="group relative overflow-hidden rounded-2xl border border-zinc-200 bg-white p-5 transition duration-200 hover:-translate-y-0.5 hover:border-zinc-300 hover:shadow-[0_14px_34px_-18px_rgba(0,0,0,.35)]">
-                <span aria-hidden className="absolute inset-x-0 top-0 h-1 opacity-0 transition group-hover:opacity-100" style={{ background: s.color }} />
-                <div className="flex items-start justify-between"><SecIcon s={s} size={18} /><ArrowRight size={17} className="text-zinc-300 transition group-hover:translate-x-0.5 group-hover:text-zinc-900" /></div>
-                <h3 className="mt-4 text-[16px] font-semibold text-zinc-950">{s.title}</h3>
-                <p className="mt-1 text-[13.5px] leading-relaxed text-zinc-600">{s.desc}</p>
-                <div className="mt-4 flex flex-wrap gap-1.5">{s.groups.slice(0, 4).map((g) => <span key={g.key} className="rounded-full bg-zinc-100 px-2 py-0.5 text-[11.5px] text-zinc-600">{g.title.replace(/^His Diary, /, "")}</span>)}{s.groups.length > 4 && <span className="px-1 text-[11.5px] text-zinc-400">+{s.groups.length - 4}</span>}</div>
-                <p className="mt-4 border-t border-zinc-100 pt-3 text-[12px] text-zinc-500">{s.groups.length} parts{c ? ` · ${c.toLocaleString()} entries` : ""}</p>
-              </Link>); })}
-          </div>
-        </section>
-
-        <section className="mt-14 grid gap-4 md:grid-cols-[1.3fr_1fr]">
-          <Link href="/webfolio/download" className="group flex flex-col justify-between rounded-2xl bg-zinc-950 p-6 text-white transition hover:bg-zinc-900 [.folio[data-theme=dark]_&]:bg-[#1f2a44]">
-            <div><MonitorDown size={22} className="text-[#8ab4f8]" /><h3 className="mt-4 text-[19px] font-semibold">Install the WebFolio</h3><p className="mt-1.5 max-w-sm text-[13.5px] leading-relaxed text-white/70">On Windows, Mac or your phone. Keep every text on your device and save lectures to listen without internet.</p></div>
-            <span className="mt-6 inline-flex w-fit items-center gap-1.5 rounded-full bg-white px-4 py-2 text-[13px] font-semibold text-zinc-950">Download <ArrowRight size={14} /></span>
-          </Link>
-          <div className="grid gap-3">
-            {[[Keyboard, "Ctrl K or F2", "Search from anywhere"], [Moon, "Light, sepia or dark", "With fonts, size and width — the Aa button"], [WifiOff, "Works offline", "Once installed, every page opens without internet"]].map(([I, t, d]: any) => <div key={t} className="flex items-center gap-3 rounded-2xl border border-zinc-200 p-4"><span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-zinc-100 text-zinc-700"><I size={18} /></span><div><p className="text-[14px] font-semibold text-zinc-950">{t}</p><p className="text-[12.5px] text-zinc-500">{d}</p></div></div>)}
-          </div>
-        </section>
+          <aside className="space-y-4 lg:pt-[42px]">
+            <ContinueReading />
+            <Link href="/webfolio/download" className="group block rounded-xl border border-zinc-200 p-5 transition hover:border-zinc-400">
+              <MonitorDown size={20} className="text-zinc-700" />
+              <p className="mt-3 text-[15px] font-semibold text-zinc-950">Install the WebFolio</p>
+              <p className="mt-1 text-[13px] leading-relaxed text-zinc-600">On Windows, Mac or your phone. Every text stays on your device; save lectures to listen without internet.</p>
+              <span className="mt-3 inline-flex items-center gap-1 text-[13px] font-medium text-zinc-900">Download <ArrowRight size={14} className="transition group-hover:translate-x-0.5" /></span>
+            </Link>
+            <ul className="divide-y divide-zinc-200 rounded-xl border border-zinc-200">
+              {([[Keyboard, "Ctrl K or F2", "Search from anywhere"], [Moon, "Light, sepia or dark", "Fonts, size and width: the Aa button"], [WifiOff, "Works offline", "Once installed, every page opens without internet"]] as const).map(([I, t, d]) => <li key={t} className="flex items-start gap-3 p-4"><I size={16} className="mt-0.5 shrink-0 text-zinc-500" /><div><p className="text-[13.5px] font-medium text-zinc-950">{t}</p><p className="text-[12.5px] text-zinc-500">{d}</p></div></li>)}
+            </ul>
+          </aside>
+        </div>
       </div>
     </div>
   );

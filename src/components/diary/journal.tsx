@@ -76,16 +76,8 @@ export function DiaryJournal({ e, list }: { e: JPage; list: JEntry[] }) {
   const curVol = e.volume ? `Volume ${e.volume}` : e.date ? e.date.slice(0, 4) : "Undated";
   const found = q.trim().length > 1 ? list.filter((x) => when(x).toLowerCase().includes(q.toLowerCase()) || (x.date || "").includes(q)).slice(0, 60) : null;
 
-  // Calendar view: the month of this entry, with the days that have a page; and the same day in other years.
-  const month = e.date?.slice(0, 7) || null;
-  const monthDays = useMemo(() => { const m = new Map<number, JEntry>(); if (month) list.forEach((x) => { if (x.date?.startsWith(month)) m.set(Number(x.date.slice(8, 10)), x); }); return m; }, [list, month]);
-  const months = useMemo(() => Array.from(new Set(list.map((x) => x.date?.slice(0, 7)).filter(Boolean) as string[])), [list]);
-  const mi = month ? months.indexOf(month) : -1; const pm = mi > 0 ? months[mi - 1] : null; const nm = mi >= 0 && mi < months.length - 1 ? months[mi + 1] : null;
-  const firstOf = (m: string) => list.find((x) => x.date?.startsWith(m));
+  // Calendar view: a full calendar beside the page (days, months, years); and the same day in other years.
   const sameDay = e.date ? list.filter((x) => x.slug !== e.slug && x.date?.slice(5) === e.date!.slice(5)) : [];
-  const grid = useMemo(() => { if (!month) return []; const [y, m] = month.split("-").map(Number); const lead = new Date(Date.UTC(y, m - 1, 1)).getUTCDay(); const n = new Date(Date.UTC(y, m, 0)).getUTCDate(); return [...Array(lead).fill(0), ...Array.from({ length: n }, (_, k) => k + 1)]; }, [month]);
-  const today = e.date ? Number(e.date.slice(8, 10)) : 0;
-  const monthLabel = (m: string) => `${MON[Number(m.slice(5, 7)) - 1]} ${m.slice(0, 4)}`;
   const head = (
     <header className="mb-[1.6em] text-center" style={{ breakInside: "avoid" }}>
       <p className="text-[0.66em] font-semibold uppercase tracking-[0.24em]" style={{ color: T.soft }}>{[weekday(e), e.place].filter(Boolean).join(" · ") || "His Diary"}</p>
@@ -127,21 +119,8 @@ export function DiaryJournal({ e, list }: { e: JPage; list: JEntry[] }) {
         {s.view === "calendar" ? (
           <div className="absolute inset-0 overflow-y-auto">
             <div className="mx-auto grid max-w-[1180px] gap-6 px-3 py-4 sm:px-6 sm:py-8 lg:grid-cols-[280px_1fr] lg:gap-10">
-              {month && <aside className="order-2 lg:order-1 lg:sticky lg:top-8 lg:self-start">
-                <div className="rounded-2xl p-4" style={{ background: T.page, boxShadow: "0 18px 40px -26px rgba(40,20,0,.5), 0 0 0 1px rgba(0,0,0,.04)" }}>
-                  <div className="mb-3 flex items-center justify-between gap-2">
-                    {pm ? <Link href={`/gurudeva/diaries/${firstOf(pm)!.slug}`} aria-label={monthLabel(pm)} title={monthLabel(pm)} className="rounded-full p-1.5 hover:bg-black/5"><ChevronLeft size={16} /></Link> : <span className="size-7" />}
-                    <p className="text-[14px] font-semibold">{monthLabel(month)}</p>
-                    {nm ? <Link href={`/gurudeva/diaries/${firstOf(nm)!.slug}`} aria-label={monthLabel(nm)} title={monthLabel(nm)} className="rounded-full p-1.5 hover:bg-black/5"><ChevronRight size={16} /></Link> : <span className="size-7" />}
-                  </div>
-                  <div className="grid grid-cols-7 gap-1 text-center text-[12px] tabular-nums">
-                    {["S", "M", "T", "W", "T", "F", "S"].map((d, k) => <span key={k} className="pb-1 text-[10.5px] font-semibold" style={{ color: T.soft }}>{d}</span>)}
-                    {grid.map((d, k) => { const x = d ? monthDays.get(d) : undefined; return !d ? <span key={k} /> : x ? (
-                      <Link key={k} href={`/gurudeva/diaries/${x.slug}`} aria-current={d === today ? "page" : undefined} className={`flex aspect-square items-center justify-center rounded-full font-medium transition ${d === today ? "bg-[#c2621d] text-white" : "hover:bg-black/[0.07]"}`} style={d === today ? undefined : { boxShadow: `inset 0 0 0 1px ${T.soft}55` }}>{d}</Link>
-                    ) : <span key={k} className="flex aspect-square items-center justify-center opacity-35">{d}</span>; })}
-                  </div>
-                  <p className="mt-3 text-[11.5px]" style={{ color: T.soft }}>{monthDays.size} {monthDays.size === 1 ? "page" : "pages"} this month</p>
-                </div>
+              {e.date && <aside className="order-2 lg:order-1 lg:sticky lg:top-8 lg:self-start">
+                <DiaryCalendar list={list} at={e.date!} T={T} />
                 {sameDay.length > 0 && <div className="mt-4 rounded-2xl px-4 py-3 max-lg:hidden" style={{ background: T.page, boxShadow: "0 0 0 1px rgba(0,0,0,.04)" }}>
                   <p className="mb-1.5 text-[11.5px] font-semibold uppercase tracking-[0.12em]" style={{ color: T.soft }}>The same day, other years</p>
                   {sameDay.map((x) => <Link key={x.slug} href={`/gurudeva/diaries/${x.slug}`} className="block py-1 text-[13px] hover:underline">{when(x)}</Link>)}
@@ -212,4 +191,57 @@ export function DiaryJournal({ e, list }: { e: JPage; list: JEntry[] }) {
       </aside></div>}
     </div>
   );
+}
+
+/** The diary calendar: Days (a month, written days are links), Months (the twelve months of a year, with pages in each)
+    and Years (every year of the diary). ‹ › step through; the month and year can also be chosen directly. */
+function DiaryCalendar({ list, at, T }: { list: JEntry[]; at: string; T: { page: string; soft: string } }) {
+  const [mode, setMode] = useState<"days" | "months" | "years">("days");
+  const [y, setY] = useState(Number(at.slice(0, 4))); const [m, setM] = useState(Number(at.slice(5, 7)));
+  useEffect(() => { setY(Number(at.slice(0, 4))); setM(Number(at.slice(5, 7))); setMode("days"); }, [at]);
+  const byDay = useMemo(() => { const x = new Map<string, JEntry>(); list.forEach((e) => e.date && !x.has(e.date.slice(0, 10)) && x.set(e.date.slice(0, 10), e)); return x; }, [list]);
+  const count = useMemo(() => { const c = new Map<string, number>(); list.forEach((e) => { if (!e.date) return; const ym = e.date.slice(0, 7), yy = e.date.slice(0, 4); c.set(ym, (c.get(ym) || 0) + 1); c.set(yy, (c.get(yy) || 0) + 1); }); return c; }, [list]);
+  const years = useMemo(() => Array.from(new Set(list.map((e) => e.date?.slice(0, 4)).filter(Boolean) as string[])).map(Number).sort((a, b) => a - b), [list]);
+  const pad = (n: number) => String(n).padStart(2, "0"); const ym = `${y}-${pad(m)}`;
+  const step = (d: number) => { if (mode === "days") { const t = (y * 12 + (m - 1)) + d; setY(Math.floor(t / 12)); setM((t % 12) + 1); } else if (mode === "months") setY(y + d); else setY(y + d * 12); };
+  const first = new Date(Date.UTC(y, m - 1, 1)).getUTCDay(); const days = new Date(Date.UTC(y, m, 0)).getUTCDate();
+  const firstOfMonth = (k: string) => list.find((e) => e.date?.startsWith(k));
+  const decade = Math.floor(y / 12) * 12;
+  const cell = "flex items-center justify-center rounded-full transition";
+  const away = ym !== at.slice(0, 7);
+  return (
+    <div className="rounded-2xl p-4" style={{ background: T.page, boxShadow: "0 18px 40px -26px rgba(40,20,0,.5), 0 0 0 1px rgba(0,0,0,.04)" }}>
+      <div className="mb-3 flex items-center gap-1">
+        <button onClick={() => step(-1)} aria-label="Earlier" className="rounded-full p-1.5 hover:bg-black/5"><ChevronLeft size={16} /></button>
+        <div className="flex min-w-0 flex-1 items-center justify-center gap-1 text-[14px] font-semibold">
+          {mode === "days" && <button onClick={() => setMode("months")} className="rounded-md px-1.5 py-0.5 hover:bg-black/5">{MON[m - 1]}</button>}
+          {mode !== "years" ? <button onClick={() => setMode(mode === "days" ? "months" : "years")} className="rounded-md px-1.5 py-0.5 tabular-nums hover:bg-black/5">{y}</button>
+            : <span className="tabular-nums">{decade}–{decade + 11}</span>}
+        </div>
+        <button onClick={() => step(1)} aria-label="Later" className="rounded-full p-1.5 hover:bg-black/5"><ChevronRight size={16} /></button>
+      </div>
+      <div className="mb-3 grid grid-cols-3 rounded-lg bg-black/[0.05] p-0.5 text-[12px]" role="group" aria-label="Show">
+        {([["days", "Days"], ["months", "Months"], ["years", "Years"]] as const).map(([k, l]) => <button key={k} onClick={() => setMode(k)} aria-pressed={mode === k} className={`rounded-md py-1 transition ${mode === k ? "bg-white font-medium shadow-sm" : "opacity-70 hover:opacity-100"}`}>{l}</button>)}
+      </div>
+      {mode === "days" && <div className="grid grid-cols-7 gap-1 text-center text-[12.5px] tabular-nums">
+        {["S", "M", "T", "W", "T", "F", "S"].map((d, k) => <span key={k} className="pb-1 text-[10.5px] font-semibold" style={{ color: T.soft }}>{d}</span>)}
+        {Array.from({ length: first }).map((_, k) => <span key={`b${k}`} />)}
+        {Array.from({ length: days }, (_, k) => k + 1).map((d) => { const key = `${ym}-${pad(d)}`; const x = byDay.get(key); const on = key === at.slice(0, 10);
+          return x ? <Link key={d} href={`/gurudeva/diaries/${x.slug}`} aria-current={on ? "page" : undefined} className={`${cell} aspect-square font-medium ${on ? "bg-[#c2621d] text-white" : "hover:bg-black/[0.07]"}`} style={on ? undefined : { boxShadow: `inset 0 0 0 1px ${T.soft}66` }}>{d}</Link>
+            : <span key={d} className={`${cell} aspect-square opacity-30`}>{d}</span>; })}
+      </div>}
+      {mode === "months" && <div className="grid grid-cols-3 gap-1.5 text-[12.5px]">
+        {MON.map((n, k) => { const key = `${y}-${pad(k + 1)}`; const c = count.get(key) || 0; const on = key === at.slice(0, 7);
+          return <button key={n} onClick={() => { setM(k + 1); setMode("days"); }} className={`flex flex-col items-center rounded-lg py-2 transition hover:bg-black/[0.07] ${on ? "bg-[#c2621d] text-white hover:bg-[#c2621d]" : c ? "" : "opacity-35"}`}><span className="font-medium">{n.slice(0, 3)}</span><span className="text-[10.5px] tabular-nums opacity-75">{c ? `${c} ${c === 1 ? "page" : "pages"}` : "–"}</span></button>; })}
+      </div>}
+      {mode === "years" && <div className="grid grid-cols-3 gap-1.5 text-[12.5px]">
+        {Array.from({ length: 12 }, (_, k) => decade + k).map((yy) => { const c = count.get(String(yy)) || 0; const on = String(yy) === at.slice(0, 4);
+          return <button key={yy} onClick={() => { setY(yy); setMode("months"); }} className={`flex flex-col items-center rounded-lg py-2 tabular-nums transition hover:bg-black/[0.07] ${on ? "bg-[#c2621d] text-white hover:bg-[#c2621d]" : c ? "" : "opacity-35"}`}><span className="font-medium">{yy}</span><span className="text-[10.5px] opacity-75">{c ? `${c} pages` : "–"}</span></button>; })}
+      </div>}
+      <div className="mt-3 flex items-center justify-between gap-2 text-[11.5px]" style={{ color: T.soft }}>
+        <span>{mode === "days" ? `${count.get(ym) || 0} pages in ${MON[m - 1]}` : mode === "months" ? `${count.get(String(y)) || 0} pages in ${y}` : `${list.length} pages, ${years[0] ?? ""}–${years[years.length - 1] ?? ""}`}</span>
+        {mode === "days" && !count.get(ym) && firstOfMonth(String(y)) ? <Link href={`/gurudeva/diaries/${firstOfMonth(String(y))!.slug}`} className="underline">First page of {y}</Link>
+          : away || mode !== "days" ? <button onClick={() => { setY(Number(at.slice(0, 4))); setM(Number(at.slice(5, 7))); setMode("days"); }} className="underline">This page</button> : null}
+      </div>
+    </div>);
 }

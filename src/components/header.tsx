@@ -3,7 +3,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { ChevronDown, ChevronRight, ChevronLeft, Search, Menu, X, ArrowRight, Flower2 as Lotus } from "lucide-react";
+import { ChevronDown, ChevronRight, ChevronLeft, Search, Menu, X, ArrowRight } from "lucide-react";
 import { ACCENT, type NavMenu } from "@/lib/nav";
 import { simpleMenus, ADV_KEY, type SimpleMenu, type SimpleTab } from "@/lib/simple-nav";
 import { useMenus, useSimpleCfg } from "./menus-context";
@@ -183,36 +183,7 @@ function FeatureCard({ f, onClick, here, compact = false }: { f: SimpleMenu["fea
 
 const cardCols = (n: number) => (n <= 4 ? Math.max(n, 1) : n === 6 || n === 5 || n === 9 ? 3 : 4);
 
-const PP = "Paramparā protection";
 /** The most important group of the Resources menu, shown large: what it is, and every page of it at once. */
-/* Gauḍīya Paramparā Protection, at the top of Resources: a white card with a slowly moving gold edge; each of its places
-   is a row with its own coloured icon and a line about it; the rows rise in one after another. */
-const PP_COLORS = ["#b5530f", "#c0392b", "#b8860b", "#0f7c8c", "#7b4fc0", "#3d5bb8", "#4f8a2b", "#8a5a3a"];
-function ParamparaBanner({ tab, onNavigate, mobile }: { tab: SimpleTab; onNavigate: () => void; mobile?: boolean }) {
-  return (
-    <div className="pp-card relative rounded-2xl p-[1.5px]">
-      <div className="relative overflow-hidden rounded-[15px] bg-white">
-        <span aria-hidden className="pp-wash pointer-events-none absolute inset-0" />
-        <div className="relative flex items-center gap-3 px-4 pb-2 pt-4">
-          <span className="pp-badge flex size-9 shrink-0 items-center justify-center rounded-xl text-white shadow-[0_6px_14px_-6px_rgba(150,60,0,.6)]"><Lotus size={18} strokeWidth={1.8} /></span>
-          <span className="min-w-0 flex-1">
-            <span className="flex flex-wrap items-baseline gap-x-2"><span className="text-[15px] font-semibold tracking-[-0.01em] text-ink">Gauḍīya Paramparā Protection</span><span className="text-[11px] font-medium uppercase tracking-[0.14em] text-[#b5530f]">Most important</span></span>
-            <span className="mt-0.5 block text-[12.5px] leading-snug text-ink-3">The books, songs, lives and teachings of our ācāryas, kept faithfully in one place.</span>
-          </span>
-        </div>
-        <div className={`relative grid gap-x-2 gap-y-0.5 p-2 ${mobile ? "grid-cols-1" : "grid-cols-2"}`}>
-          {tab.items.map((f, k) => { const c = PP_COLORS[k % PP_COLORS.length]; return (
-            <Link key={f.href} href={f.href} onClick={onNavigate} className="pp-row group flex min-w-0 items-center gap-3 rounded-xl px-2 py-2 transition-colors duration-200 hover:bg-[color-mix(in_srgb,var(--c)_8%,white)]"
-              style={{ ["--c" as string]: c, animationDelay: `${80 + k * 45}ms` }}>
-              <span className="flex size-8 shrink-0 items-center justify-center rounded-[9px] text-white shadow-[0_3px_8px_-3px_var(--c)] transition-transform duration-200 group-hover:scale-[1.06]" style={{ background: `linear-gradient(160deg, color-mix(in srgb, ${c} 82%, white), ${c})` }}><f.icon size={16} strokeWidth={2} /></span>
-              <span className="min-w-0 flex-1"><span className="block truncate text-[13.5px] font-medium text-ink">{f.label}</span>{f.note && <span className="block truncate text-[12px] text-ink-3">{f.note}</span>}</span>
-              <ChevronRight size={15} className="shrink-0 -translate-x-1 text-[var(--c)] opacity-0 transition duration-200 group-hover:translate-x-0 group-hover:opacity-100" />
-            </Link>); })}
-        </div>
-      </div>
-    </div>);
-}
-
 /** Simple panel: first only the groups (His life, Remembrance…) as a few tiles; a click opens that group's pages, with a way back. */
 function SimplePanel({ menu, onNavigate, onEverything }: { menu: SimpleMenu; onNavigate: () => void; onEverything: () => void }) {
   const here = usePathname(); const router = useRouter();
@@ -220,11 +191,10 @@ function SimplePanel({ menu, onNavigate, onEverything }: { menu: SimpleMenu; onN
   // Opening a group swaps the tiles for a shorter list; the panel keeps its height so it never shrinks out from under the mouse (which closed it).
   const box = useRef<HTMLDivElement>(null); const [minH, setMinH] = useState<number | undefined>(undefined);
   const openTab = (k: number) => { setMinH(box.current?.offsetHeight); setTi(k); };
-  const pp = menu.tabs.find((x) => x.title === PP); const tabs = menu.tabs.filter((x) => x !== pp); const t = tabs[ti];
+  const tabs = menu.tabs; const t = tabs[ti];
   return (
     <div ref={box} style={{ minHeight: ti >= 0 ? minH : undefined }} className={`acc-${menu.accent} mega-enter flex flex-col overflow-hidden rounded-3xl border border-line bg-surface shadow-[var(--shadow-lg)]`}>
-      {!t && pp && <div className="p-4 pb-0"><ParamparaBanner tab={pp} onNavigate={onNavigate} /></div>}
-      {!t ? (
+      {!t ? (!tabs.length ? null :
         <div className="grid gap-3 p-4" style={{ gridTemplateColumns: `repeat(${tabs.length <= 5 ? tabs.length : 3}, minmax(0, 1fr))` }}>
           {tabs.map((x, k) => (
             <button key={x.title} onClick={() => { if (x.items.length === 1) { router.push(x.items[0].href); onNavigate(); } else openTab(k); }} className={`acc-${x.acc} sm-card group flex flex-col items-center gap-3 rounded-2xl bg-acc-tint px-3 pb-5 pt-6 text-center ring-1 ring-transparent transition duration-200 hover:-translate-y-1 hover:bg-white hover:shadow-[0_14px_30px_-16px_rgba(0,0,0,.35)] hover:ring-[var(--acc)]/35`} style={{ animationDelay: `${k * 50}ms` }}>
@@ -232,7 +202,7 @@ function SimplePanel({ menu, onNavigate, onEverything }: { menu: SimpleMenu; onN
                 {x.img ? /* eslint-disable-next-line @next/next/no-img-element */ <img src={x.img} alt="" className="h-full w-full object-cover" style={x.pos ? { objectPosition: x.pos } : undefined} /> : <x.icon size={30} strokeWidth={1.5} />}
               </span>
               <span className="text-[15px] font-semibold leading-snug text-ink group-hover:text-[var(--acc)]">{x.title}</span>
-              <span className="-mt-2 flex items-center gap-1 text-[12px] text-ink-3">{x.items.length} {x.items.length === 1 ? "page" : "pages"}<ChevronRight size={13} className="transition group-hover:translate-x-0.5" /></span>
+              <span className="-mt-2 flex items-center gap-1 text-[12px] text-ink-3">{x.items.length === 1 ? (x.items[0].note || "Open") : `${x.items.length} pages`}<ChevronRight size={13} className="transition group-hover:translate-x-0.5" /></span>
             </button>))}
         </div>
       ) : (
@@ -257,12 +227,10 @@ function SimplePanel({ menu, onNavigate, onEverything }: { menu: SimpleMenu; onN
 function MobileTabs({ menu, onClose }: { menu: SimpleMenu; onClose: () => void }) {
   const here = usePathname(); const router = useRouter();
   const [o, setO] = useState(-1);
-  const pp = menu.tabs.find((x) => x.title === PP);
   if (menu.tabs.length === 1) return <div className="grid grid-cols-2 gap-2">{menu.tabs[0].items.map((f, k) => <div key={f.href} className="sm-card" style={{ animationDelay: `${k * 35}ms` }}><FeatureCard f={f} onClick={onClose} here={here} compact /></div>)}</div>;
   return (
     <div className="space-y-2">
-      {pp && <ParamparaBanner tab={pp} onNavigate={onClose} mobile />}
-      {menu.tabs.map((t, k) => t === pp ? null : (
+      {menu.tabs.map((t, k) => (
         <div key={t.title} className={`acc-${t.acc} overflow-hidden rounded-2xl ${k === o ? "bg-acc-tint" : "border border-line bg-white"}`}>
           <button onClick={() => { if (t.items.length === 1) { router.push(t.items[0].href); onClose(); } else setO(k === o ? -1 : k); }} aria-expanded={k === o} className="flex w-full items-center gap-3 px-3 py-2.5 text-left">
             <span className="flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-full bg-white text-[var(--acc)] ring-1 ring-line">{t.img ? /* eslint-disable-next-line @next/next/no-img-element */ <img src={t.img} alt="" className="h-full w-full object-cover" style={t.pos ? { objectPosition: t.pos } : undefined} /> : <t.icon size={20} strokeWidth={1.6} />}</span>

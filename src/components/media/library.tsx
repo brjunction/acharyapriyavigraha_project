@@ -3,7 +3,7 @@ import { Pager, usePages } from "@/components/ui/pager";
 /* One library for audio lectures, kīrtanas and videos: filters on the left (each can open into its parts), dense rows on the right. */
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Search, X, ChevronDown, ChevronRight, SlidersHorizontal, FileText, PlayCircle, ArrowDownUp, Rows3, BookOpen, CalendarDays, MapPin, Tag, Mic, TableProperties } from "lucide-react";
+import { Timer, ArrowUp, ArrowDown, Search, X, ChevronDown, ChevronRight, SlidersHorizontal, FileText, PlayCircle, ArrowDownUp, Rows3, BookOpen, CalendarDays, MapPin, Tag, Mic, TableProperties } from "lucide-react";
 import type { Lecture } from "@/lib/data";
 import { PlayButton } from "@/components/lecture";
 import { TextSizeControl, TextScaler } from "@/components/text-scale";
@@ -25,6 +25,9 @@ function scripturePath(s?: string): string[] | null {
 }
 const scrLabel = (p: string[]) => { const [b] = p; if (p.length === 1) return BOOK[b] || "Other scriptures"; if (b === "CC") return p.length === 2 ? `${p[1]}-līlā` : `Chapter ${p[2]}`; if (b === "SB") return p.length === 2 ? `Canto ${p[1]}` : `Chapter ${p[2]}`; return `Chapter ${p[1]}`; };
 const LILA = ["Ādi", "Adi", "Madhya", "Antya"];
+/** Length of a recording, in four plain groups. */
+const LENGTHS = ["Under 30 minutes", "30 minutes to 1 hour", "1 to 2 hours", "Over 2 hours"];
+const lengthOf = (sec: number): string[] | null => (!sec ? null : [sec < 1800 ? LENGTHS[0] : sec < 3600 ? LENGTHS[1] : sec < 7200 ? LENGTHS[2] : LENGTHS[3]]);
 
 function facetsFor(mode: Mode, items: MediaItem[]): Facet[] {
   const f: Facet[] = [
@@ -36,6 +39,7 @@ function facetsFor(mode: Mode, items: MediaItem[]): Facet[] {
     { k: "series", title: mode === "video" ? "Channel / series" : "Series", get: (l) => (l.series ? [l.series] : null) },
     { k: "topic", title: "Topic", get: (l) => (l.topics?.length ? l.topics.map((t) => t) : null) },
     { k: "language", title: "Language", get: (l) => (l.languages?.length ? [l.languages[0]] : null) },
+    { k: "length", title: "Length", open: true, get: (l) => lengthOf(l.duration), order: (a, b) => LENGTHS.indexOf(a) - LENGTHS.indexOf(b) },
   ];
   return f.filter((x) => items.some((l) => x.get(l)));
 }
@@ -43,7 +47,7 @@ function facetsFor(mode: Mode, items: MediaItem[]): Facet[] {
 const paths = (fc: Facet, l: MediaItem): string[][] => { const v = fc.get(l); if (!v) return []; return fc.k === "topic" ? v.map((t) => [t]) : [v]; };
 const under = (p: string[], sel: string[]) => sel.every((s, i) => p[i] === s);
 
-const SORTS = [["new", "Newest first"], ["old", "Oldest first"], ["title", "Title A–Z"], ["long", "Longest first"]] as const;
+const SORTS = [["new", "Newest first"], ["old", "Oldest first"], ["title", "Title A–Z"], ["long", "Longest first"], ["short", "Shortest first"]] as const;
 const GROUPS = [["none", "No grouping"], ["year", "By year"], ["place", "By place"], ["scripture", "By scripture"]] as const;
 const dur = (s: number) => (!s ? "" : s >= 3600 ? `${Math.floor(s / 3600)}:${String(Math.floor((s % 3600) / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}` : `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`);
 const date = (d: string) => { if (!d) return "Undated"; const [y, m, dd] = d.split("-").map(Number); return dd ? `${dd} ${MONTHS[m - 1].slice(0, 3)} ${y}` : m ? `${MONTHS[m - 1].slice(0, 3)} ${y}` : String(y); };
@@ -58,7 +62,7 @@ function AdvancedLibrary({ items, mode }: { items: MediaItem[]; mode: Mode }) {
 
   const pass = (l: MediaItem, skip?: string) => (!q || fold(`${l.title} ${l.place} ${l.country} ${l.scripture ?? ""} ${l.topics.join(" ")} ${l.date} ${l.series ?? ""} ${l.type} ${l.singer ?? ""} ${l.song ?? ""}`).includes(fold(q)))
     && (!text || l.transcribed) && facets.every((f) => f.k === skip || !sel[f.k]?.length || paths(f, l).some((p) => under(p, sel[f.k])));
-  const list = useMemo(() => items.filter((l) => pass(l)).sort((a, b) => sort === "new" ? b.date.localeCompare(a.date) : sort === "old" ? (a.date || "9").localeCompare(b.date || "9") : sort === "title" ? a.title.localeCompare(b.title) : b.duration - a.duration), [items, sel, q, text, sort]); // eslint-disable-line
+  const list = useMemo(() => items.filter((l) => pass(l)).sort((a, b) => sort === "new" ? b.date.localeCompare(a.date) : sort === "old" ? (a.date || "9").localeCompare(b.date || "9") : sort === "title" ? a.title.localeCompare(b.title) : sort === "short" ? (a.duration || 1e9) - (b.duration || 1e9) : b.duration - a.duration), [items, sel, q, text, sort]); // eslint-disable-line
   const active = facets.filter((f) => sel[f.k]?.length);
   const transcribed = items.filter((l) => l.transcribed).length;
   const noun = mode === "video" ? "videos" : mode === "kirtan" ? "recordings" : "lectures";
@@ -91,7 +95,7 @@ function AdvancedLibrary({ items, mode }: { items: MediaItem[]; mode: Mode }) {
         <span className="flex max-w-full items-center gap-1.5 overflow-x-auto [scrollbar-width:none]">{mode === "audio" && <Link href="/teachings/audio/chart" title="Every recording on one page, year by year" className="flex h-8 items-center gap-1.5 rounded-lg border border-line bg-white px-2.5 text-[12.5px] text-ink-2 hover:border-line-strong hover:text-ink" aria-label="Systematic chart"><TableProperties size={14} /><span className="max-sm:hidden">Systematic chart</span></Link>}<Pick icon={Rows3} value={group} onChange={(v) => setGroup(v as any)} options={GROUPS.filter(([g]) => g !== "scripture" || mode !== "kirtan")} /><Pick icon={ArrowDownUp} value={sort} onChange={(v) => setSort(v as any)} options={SORTS} /></span>
       </div>
       <div ref={AP.top} />
-      {mode !== "video" && list.length > 0 && <div className="hidden grid-cols-[32px_minmax(0,1fr)_110px_150px_110px_64px] gap-x-3 border-b border-line py-2 text-[12px] font-medium text-ink-3 md:grid"><span /><span>Title</span><span>Date</span><span>Place</span><span>Verse</span><span className="text-right">Length</span></div>}
+      {mode !== "video" && list.length > 0 && <div className="hidden grid-cols-[32px_minmax(0,1fr)_110px_150px_110px_64px] gap-x-3 border-b border-line py-2 text-[12px] font-medium text-ink-3 md:grid"><span /><SortHead on={sort === "title"} onClick={() => setSort("title")}>Title</SortHead><SortHead on={sort === "new" || sort === "old"} dir={sort === "old" ? "up" : "down"} onClick={() => setSort(sort === "new" ? "old" : "new")}>Date</SortHead><span>Place</span><span>Verse</span><SortHead right on={sort === "long" || sort === "short"} dir={sort === "short" ? "up" : "down"} onClick={() => setSort(sort === "long" ? "short" : "long")}>Length</SortHead></div>}
       {!list.length ? <p className="py-20 text-center text-[13.5px] text-ink-3">Nothing matches. Remove a filter to see more.</p> : (() => { const a = (AP.page - 1) * PER, b = AP.page * PER; let pos = 0; return groups.map(([g, xs]) => { const show = xs.slice(Math.max(0, a - pos), Math.max(0, b - pos)); pos += xs.length; if (!show.length) return null; return (
         <div key={g || "all"}>
           {g && <div className="sticky top-[52px] z-10 flex items-baseline gap-2 border-b border-line bg-white/95 pb-2 pt-5 backdrop-blur sm:top-[58px]"><h2 className="text-[14px] font-semibold text-ink">{g}</h2><span className="text-[12px] text-ink-3">{xs.length}</span></div>}
@@ -148,6 +152,12 @@ function FacetBox({ f, items, value, onChange }: { f: Facet; items: MediaItem[];
   );
 }
 
+/** A column heading that sorts the list; tapping again turns the order round. */
+function SortHead({ on, dir = "down", right, onClick, children }: { on: boolean; dir?: "up" | "down"; right?: boolean; onClick: () => void; children: React.ReactNode }) {
+  const I = dir === "up" ? ArrowUp : ArrowDown;
+  return <button type="button" onClick={onClick} aria-pressed={on} title={`Sort by ${String(children).toLowerCase()}`} className={`group flex items-center gap-1 text-left transition hover:text-ink ${right ? "justify-end" : ""} ${on ? "text-ink" : ""}`}>{children}<I size={12} className={on ? "opacity-100" : "opacity-0 group-hover:opacity-50"} /></button>;
+}
+
 function Row({ l, mode }: { l: MediaItem; mode: Mode }) {
   const where = [l.place, l.country && l.country !== "India" ? l.country : ""].filter(Boolean).join(", ");
   return (
@@ -155,7 +165,7 @@ function Row({ l, mode }: { l: MediaItem; mode: Mode }) {
       <PlayButton l={l} size={30} />
       <div className="min-w-0">
         <Link href={l.href || `/teachings/audio/${l.slug}`} className="line-clamp-2 text-[14px] leading-snug text-ink hover:underline md:line-clamp-1">{l.title}</Link>
-        <p className="mt-0.5 flex items-center gap-1.5 truncate text-[12px] text-ink-3"><span>{mode === "kirtan" ? [l.singer, l.author && `by ${l.author}`].filter(Boolean).join(" · ") || l.type : l.type}</span>{l.transcribed && <span title="This recording has a transcription to read">· Transcribed</span>}<span className="md:hidden">· {date(l.date)}{where ? ` · ${where}` : ""}</span></p>
+        <p className="mt-0.5 flex items-center gap-1.5 truncate text-[12px] text-ink-3"><span>{mode === "kirtan" ? [l.singer, l.author && `by ${l.author}`].filter(Boolean).join(" · ") || l.type : l.type}</span>{l.transcribed && <span title="Transcription available to read" aria-label="Transcription available" className="inline-flex shrink-0 items-center text-ink-3"><FileText size={13} strokeWidth={1.8} /></span>}<span className="md:hidden">· {date(l.date)}{where ? ` · ${where}` : ""}</span></p>
       </div>
       <span className="hidden text-[12.5px] tabular-nums text-ink-2 md:block">{date(l.date)}</span>
       <span className="hidden truncate text-[12.5px] text-ink-2 md:block">{where || "—"}</span>
@@ -199,13 +209,14 @@ export function MediaLibrary({ items, mode }: { items: MediaItem[]; mode: Mode }
   );
 }
 
-type BKey = "book" | "year" | "place" | "topic" | "type";
+type BKey = "book" | "year" | "place" | "topic" | "type" | "length";
 const BASIC: { k: BKey; title: string; icon: typeof BookOpen; get: (l: MediaItem) => string[] }[] = [
   { k: "book", title: "Book", icon: BookOpen, get: (l) => { const p = scripturePath(l.scripture); return p ? [BOOK[p[0]] || "Other scriptures"] : []; } },
   { k: "year", title: "Year", icon: CalendarDays, get: (l) => (l.date ? [l.date.slice(0, 4)] : []) },
   { k: "place", title: "Place", icon: MapPin, get: (l) => (l.place ? [l.place] : l.country ? [l.country] : []) },
   { k: "topic", title: "Topic", icon: Tag, get: (l) => l.topics || [] },
   { k: "type", title: "Kind", icon: Mic, get: (l) => (l.type ? [l.type] : []) },
+  { k: "length", title: "Length", icon: Timer, get: (l) => lengthOf(l.duration) || [] },
 ];
 
 function BasicAudio({ items }: { items: MediaItem[] }) {
@@ -221,7 +232,7 @@ function BasicAudio({ items }: { items: MediaItem[] }) {
     const b = BASIC.find((x) => x.k === open)!; const m = new Map<string, number>();
     items.filter((l) => match(l, open)).forEach((l) => b.get(l).forEach((v) => m.set(v, (m.get(v) || 0) + 1)));
     const e = [...m.entries()];
-    return open === "year" ? e.sort((a, c) => c[0].localeCompare(a[0])) : open === "book" ? e.sort((a, c) => c[1] - a[1]) : e.sort((a, c) => c[1] - a[1] || a[0].localeCompare(c[0]));
+    return open === "length" ? e.sort((a, c) => LENGTHS.indexOf(a[0]) - LENGTHS.indexOf(c[0])) : open === "year" ? e.sort((a, c) => c[0].localeCompare(a[0])) : open === "book" ? e.sort((a, c) => c[1] - a[1]) : e.sort((a, c) => c[1] - a[1] || a[0].localeCompare(c[0]));
   }, [open, items, q, pick]); // eslint-disable-line
   const any = q || Object.values(pick).some(Boolean);
   const results = useRef<HTMLDivElement>(null);
@@ -237,7 +248,7 @@ function BasicAudio({ items }: { items: MediaItem[] }) {
       </form>
 
       <p className="mb-2.5 mt-5 text-center text-[13px] font-medium text-ink-3 sm:text-left">Or find lectures by</p>
-      <div className="grid grid-cols-3 gap-2 sm:grid-cols-5 sm:gap-3">
+      <div className="grid grid-cols-3 gap-2 sm:grid-cols-6 sm:gap-3">
         {BASIC.map((b) => { const I = b.icon; const on = open === b.k; const v = pick[b.k]; return (
           <button key={b.k} onClick={() => setOpen(on ? null : b.k)} aria-expanded={on}
             className={`flex min-w-0 flex-col items-center gap-1.5 rounded-xl px-2 py-2.5 text-center transition sm:flex-row sm:gap-3 sm:rounded-2xl sm:px-3.5 sm:py-3 sm:text-left ${on ? "bg-ink text-white" : v ? "bg-saffron-soft text-ink ring-2 ring-saffron" : "bg-band text-ink hover:bg-saffron-soft"}`}>

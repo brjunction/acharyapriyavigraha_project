@@ -5,12 +5,11 @@ import { revalidatePath } from "next/cache";
 /* Many books at once.
    { op: "publish" | "hide", ids } or { op, library } (every book of that library that is not already so)
    { op: "delete", ids }                        — admins only; chapters go with the book
-   { op: "set", ids, fields: { category, author, publisher, language, layout, library, acharya, kind, subject, year } }
+   { op: "set", ids, fields: { category, author, publisher, language, layout, year } }
    Only the fields named here can be changed; a field sent as "" is cleared. */
 const SET: Record<string, { max: number; values?: string[]; required?: boolean }> = {
   category: { max: 120 }, author: { max: 200 }, publisher: { max: 200 }, language: { max: 12, required: true }, year: { max: 12 },
-  layout: { max: 40, required: true }, library: { max: 20, values: ["main", "gaudiya"], required: true },
-  acharya: { max: 160 }, kind: { max: 20, values: ["book", "scripture", "songs"], required: true }, subject: { max: 160 },
+  layout: { max: 40, required: true }, 
 };
 const isId = (x: unknown) => typeof x === "string" && /^[0-9a-f-]{36}$/i.test(x);
 
@@ -49,10 +48,6 @@ export async function POST(req: Request) {
         language  = case when ${has("language")}  then ${vals.language ?? null}  else language  end,
         year      = case when ${has("year")}      then ${vals.year ?? null}      else year      end,
         layout    = case when ${has("layout")}    then ${vals.layout ?? null}    else layout    end,
-        library   = case when ${has("library")}   then ${vals.library ?? null}   else library   end,
-        acharya   = case when ${has("acharya")}   then ${vals.acharya ?? null}   else acharya   end,
-        kind      = case when ${has("kind")}      then ${vals.kind ?? null}      else kind      end,
-        subject   = case when ${has("subject")}   then ${vals.subject ?? null}   else subject   end,
         updated_at = now()
       where id = any(${ids}::uuid[]) returning id`;
     revalidatePath("/", "layout"); return json({ ok: true, n: r.length });
@@ -60,6 +55,6 @@ export async function POST(req: Request) {
 
   const status = b.op === "publish" ? "published" : b.op === "hide" ? "draft" : null; if (!status) return fail("Unknown action.");
   const r = ids.length ? await sql`update books set status = ${status}, updated_at = now() where id = any(${ids}::uuid[]) returning id`
-    : b.library === "main" || b.library === "gaudiya" ? await sql`update books set status = ${status}, updated_at = now() where library = ${b.library} and status <> ${status} returning id` : [];
+    : b.library === "main" ? await sql`update books set status = ${status}, updated_at = now() where library = ${b.library} and status <> ${status} returning id` : [];
   revalidatePath("/", "layout"); return json({ ok: true, n: r.length });
 }

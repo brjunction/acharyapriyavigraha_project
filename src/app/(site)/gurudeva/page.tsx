@@ -11,7 +11,7 @@ const ABOUT: Record<string, [string, string]> = {
   "/gurudeva/who-is-srila-gurudeva": ["His life, and the books about him", ""], "/gurudeva/radha-gopal-jiu": ["Śrī Gopāl Jiu of Gaḍeigiri", ""], "/gurudeva/timeline": ["His life, year by year", "life_events"],
   "/gurudeva/diaries": ["His prayers to Śrī Gopāl Jiu", "diary_entries"], "/gurudeva/memories": ["Disciples and friends remembering him", "memories"], "/gurudeva/glorifications": ["Vyāsa-pūjā offerings and poems", "glorifications"],
   "/gurudeva/letters": ["With Śrīla Prabhupāda, disciples and others", "letters"], "/gurudeva/gallery": ["Photographs by occasion", "gallery"], "/gurudeva/places-of-remembrance": ["Everything related to Śrīla Gurudeva", "places"],
-  "/gurudeva/personal-belongings": ["Things he used, and their stories", "belongings"], "/gurudeva/srila-prabhupada": ["His beloved spiritual master", ""], "/gurudeva/guru-parampara": ["The disciplic succession", "parampara"],
+  "/gurudeva/personal-belongings": ["Things he used, and their stories", "belongings"], "/gurudeva/srila-prabhupada": ["His beloved spiritual master", ""],
   "/gurudeva/disciples": ["His initiated disciples", "disciples"], "/gurudeva/projects": ["Bhubaneswar, temples and initiatives", "projects"],
 };
 

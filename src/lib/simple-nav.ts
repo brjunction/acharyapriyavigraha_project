@@ -43,23 +43,18 @@ export const SIMPLE_DEFAULTS: { key: string; label: string; intro: string; icon:
     { group: "His words", href: "/teachings/instructions", label: "Instructions", note: "Guidance for sādhana and life", icon: "ListChecks" },
     { group: "His words", href: "/teachings/stories", label: "Stories", note: "Stories he told", icon: "BookHeart" },
     { group: "Tattva", href: "/tattva", label: "Tattva", note: "Every subject of his teachings, topic by topic", icon: "Network" }] },
-  { key: "resources", label: "Resources", intro: "Tools, downloads and the paramparā", icon: "Download", accent: "gold", featured: [
-    { group: "Paramparā protection", href: "/gaudiya", label: "Gauḍīya library", note: "Books of all our ācāryas", icon: "Library" },
-    { group: "Paramparā protection", href: "/gaudiya/padyavali", label: "Padyāvalī", note: "Songs of the ācāryas", icon: "Music" },
-    { group: "Paramparā protection", href: "/gaudiya/parampara", label: "Guru-paramparā", note: "From Śrī Kṛṣṇa to Śrīla Gurudeva", icon: "GitBranch" },
-    { group: "Paramparā protection", href: "/gaudiya/biographies", label: "Biographies", note: "Gaura-pārṣadas and ācāryas", icon: "UserRound" },
+  { key: "about", label: "About", intro: "The archive, tools, downloads, contact", icon: "Info", accent: "leaf", featured: [
+    { group: "Taptajīvanam", href: "/about", label: "About this website", note: "Why and how this archive exists", icon: "Archive" },
+    { group: "Taptajīvanam", href: "/about/founder", label: "Śrīla Guru Mahārāja", note: "Founder of Taptajīvanam", icon: "/photos/haladhara-sm.webp" },
+    { group: "Taptajīvanam", href: "/thank-list", label: "Our Thank List", note: "Everyone who built this archive", icon: "HeartHandshake" },
+    { group: "Taptajīvanam", href: "/about/contact", label: "Contact", note: "Write to us or call", icon: "Phone" },
     { group: "Tools", href: "/resources/script-converter", label: "Script converter", note: "IAST, Devanāgarī, Bengali, Odia, Balaram font", icon: "Languages" },
     { group: "Tools", href: "/resources/vaishnava-calendar", label: "Calendar", note: "Festivals and fasting days", icon: "CalendarDays" },
     { group: "Downloads", href: "/resources/windows-app", label: "Windows app", note: "The WebFolio on your computer", icon: "Download" }] },
-  { key: "about", label: "About", intro: "Archive, contact, resources", icon: "Info", accent: "leaf", featured: [
-    { href: "/about", label: "About this website", note: "Why and how this archive exists", icon: "Archive" },
-    { href: "/about/founder", label: "Śrīla Guru Mahārāja", note: "Founder of Taptajīvanam", icon: "/photos/haladhara-sm.webp" },
-    { href: "/thank-list", label: "Our Thank List", note: "Everyone who built this archive", icon: "HeartHandshake" },
-    { href: "/about/contact", label: "Contact", note: "Write to us or call", icon: "Phone" }] },
 ];
 /** Where to centre each photo, so no head is cut. */
 /** The picture or icon of each group in the Simple menu. */
-const TAB_ICON: Record<string, LucideIcon> = { Tools: Wrench, Downloads: Download, "Paramparā protection": GitBranch, "Elsewhere online": Globe,  "Apps & links": Smartphone, "His life": UserRound, Remembrance: Image, "Lineage & disciples": GitBranch, Projects: Building2, Read: BookOpen, "His words": Quote, Listen: Headphones, Watch: Clapperboard, About: Info, "News & updates": Megaphone };
+const TAB_ICON: Record<string, LucideIcon> = { Tools: Wrench, Downloads: Download, "Paramparā protection": GitBranch, "Elsewhere online": Globe,  "Apps & links": Smartphone, "His life": UserRound, Remembrance: Image, "Lineage & disciples": GitBranch, Projects: Building2, Read: BookOpen, "His words": Quote, Listen: Headphones, Watch: Clapperboard, About: Info, "Taptajīvanam": Info, "News & updates": Megaphone };
 const POS: Record<string, string> = { "/photos/gurudeva-writing.webp": "18% 22%", "/photos/menu-seated-1.webp": "50% 30%", "/photos/menu-garland.webp": "50% 25%", "/photos/gurudeva-portrait.webp": "50% 30%" };
 /** Colours for the groups inside a Simple menu, in order. */
 export const GROUP_ACC = ["saffron", "rose", "teal", "indigo", "leaf", "gold", "plum"];
@@ -69,8 +64,8 @@ export function groupsOf(m: SimpleMenu): { title: string; acc: string; items: Si
   return out;
 }
 /** Where “See everything” goes in the Advanced menu. */
-export const ADV_KEY: Record<string, string> = { gurudeva: "gurudeva", listen: "teachings", read: "teachings", resources: "resources", about: "about" };
-const FALLBACK: Record<string, LucideIcon> = { gurudeva: Lotus as unknown as LucideIcon, listen: Headphones, read: BookOpen, resources: Download, about: Info };
+export const ADV_KEY: Record<string, string> = { gurudeva: "gurudeva", listen: "teachings", read: "teachings", about: "about" };
+const FALLBACK: Record<string, LucideIcon> = { gurudeva: Lotus as unknown as LucideIcon, listen: Headphones, read: BookOpen, about: Info };
 const pick = (v: string | undefined, fb: LucideIcon): { icon: LucideIcon; img?: string } => (isImgIcon(v) ? { icon: fb, img: v } : { icon: (v && ICONS[v]) || fb });
 
 export function simpleMenus(menus: NavMenu[], cfg?: SimpleCfg | null): SimpleMenu[] {
@@ -80,7 +75,7 @@ export function simpleMenus(menus: NavMenu[], cfg?: SimpleCfg | null): SimpleMen
   const teach = m("teachings")?.groups ?? [];
   // Teachings groups not named "Hear & watch" go to Read, so a group added later is never lost.
   const listenTeach = teach.filter((g) => g.title === "Hear & watch").flatMap((g) => g.links);
-  const yt = groups("resources").filter((l) => /youtube/i.test(l.href + l.label));
+  const yt = groups("about").filter((l) => /youtube/i.test(l.href + l.label));
   const G = (k: string, only?: string[]) => (m(k)?.groups ?? []).filter((g) => !only || only.includes(g.title));
   const T = (title: string, links: NavLink[]) => ({ title, links });
   const GROUPS: Record<string, { title: string; links: NavLink[] }[]> = {
@@ -89,13 +84,10 @@ export function simpleMenus(menus: NavMenu[], cfg?: SimpleCfg | null): SimpleMen
     listen: [T("Hear & watch", listenTeach)],
     // Tattva is one card only; its topics open on the Tattva page.
     read: [...teach.filter((g) => g.title !== "Hear & watch").map((g) => T(g.title, g.links.filter((l) => l.href !== "/teachings/transcriptions"))), T("Other languages", top("translations", "Translations"))],
-    // About stays short: the archive itself, then news, paramparā, and one group for the app and other websites.
-    // Resources: tools, downloads, the paramparā; the YouTube channels and other websites with them.
-    resources: (() => { const res = G("resources").map((g) => T(g.title, g.links.filter((l) => !yt.includes(l)))); const by = (t: string) => res.find((g) => g.title === t)?.links || [];
-      const known = ["Tools", "Downloads", "Paramparā protection", "Elsewhere online", "News & updates"];
-      return [T("Paramparā protection", by("Paramparā protection")), T("Tools", by("Tools")), T("Downloads", by("Downloads")), T("Elsewhere online", by("Elsewhere online")), ...res.filter((g) => !known.includes(g.title))]; })(),
-    // About stays short: the archive itself, then news.
-    about: [...G("about"), T("News & updates", G("resources", ["News & updates"]).flatMap((g) => g.links))],
+    // About: the archive itself, then tools, downloads, other places online (without the YouTube channels, reached from Videos) and news.
+    about: (() => { const ab = G("about").map((g) => T(g.title, g.links.filter((l) => !yt.includes(l)))); const by = (t: string) => ab.find((g) => g.title === t)?.links || [];
+      const known = ["Taptajīvanam", "Connect", "Tools", "Downloads", "Elsewhere online", "News & updates"];
+      return [T("Taptajīvanam", [...by("Taptajīvanam"), ...by("Connect")]), T("Tools", by("Tools")), T("Downloads", by("Downloads")), T("Elsewhere online", by("Elsewhere online")), T("News & updates", by("News & updates")), ...ab.filter((g) => !known.includes(g.title))]; })(),
   };
   return SIMPLE_DEFAULTS.map((d) => {
     const c = cfg?.[d.key] || {};
@@ -104,7 +96,7 @@ export function simpleMenus(menus: NavMenu[], cfg?: SimpleCfg | null): SimpleMen
     const featured: SimpleLink[] = feat.map((f) => { const ic = pick(f.icon, iconOf(f.href) ?? (f.href === "/tattva" ? Network : f.href === "/translations" ? Languages : LayoutGrid)); return { href: f.href, label: f.label, note: f.note || undefined, group: f.group || undefined, ...ic, pos: ic.img ? POS[ic.img] : undefined }; });
     const fh = new Set(featured.map((f) => f.href)); const seen = new Set<string>(fh);
     const groups: SimpleGroup[] = GROUPS[d.key].map((g) => ({ title: g.title, links: g.links.filter((l) => !seen.has(l.href) && seen.add(l.href)).map((l) => ({ href: l.href, label: l.label, icon: l.icon })) })).filter((g) => g.links.length);
-    const href = d.key === "gurudeva" ? m("gurudeva")?.href || "/gurudeva" : d.key === "about" ? "/about" : d.key === "resources" ? "/resources" : "/teachings";
+    const href = d.key === "gurudeva" ? m("gurudeva")?.href || "/gurudeva" : d.key === "about" ? "/about" : "/teachings";
     // Tabs: the groups chosen in the dashboard, with every other page of the full menu added to the group it belongs with — so Simple has everything, a little at a time.
     const tabs: SimpleTab[] = [];
     const tabOf = (t: string) => { let x = tabs.find((y) => y.title === t); if (!x) { x = { title: t, acc: tabs.length === 0 ? d.accent : GROUP_ACC.filter((a) => a !== d.accent)[(tabs.length - 1) % 6], items: [], icon: TAB_ICON[t] || Sparkles }; tabs.push(x); } return x; };

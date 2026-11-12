@@ -68,20 +68,6 @@ export const COLLECTIONS: Record<string, Collection> = {
     fields: ["cover", "summary", "chapters", "links"],
     labels: { cover: ["Picture"], summary: ["About it", "A few lines"], chapters: ["Drop-down sections (optional)", "e.g. How it started — only if needed"], links: ["Website and YouTube", "Label | link, e.g. Website | https://…"] },
   },
-  parampara: {
-    key: "parampara", label: "Guru-paramparā", singular: "ācārya", base: "/gurudeva/guru-parampara", layout: "chain", icon: "GitBranch", sort: "position",
-    intro: "The disciplic succession from Lord Kṛṣṇa, through Śrī Caitanya Mahāprabhu and the Gosvāmīs, to Śrīla Prabhupāda and Śrīla Gurudeva.",
-    sections: [["origin", "From Lord Kṛṣṇa", ""], ["mahaprabhu", "Śrī Caitanya Mahāprabhu & the Gosvāmīs", ""], ["acaryas", "The ācāryas", ""], ["modern", "Śrīla Prabhupāda and Śrīla Gurudeva", ""]],
-    fields: ["subtitle", "date_label", "place", "cover", "summary", "body", "links"],
-    labels: { subtitle: ["Known as", "e.g. Founder of the Gauḍīya Vaiṣṇava sampradāya"], date_label: ["Period", "Optional"], summary: ["A few lines about him"] },
-  },
-  biographies: {
-    key: "biographies", label: "Biographies", singular: "biography", base: "/gaudiya/acharyas", layout: "people", icon: "BookUser", sort: "position",
-    intro: "The lives of the associates of Śrī Caitanya Mahāprabhu, the ācāryas, and other great Vaiṣṇavas. (The ācāryas of the Guru-paramparā have their biographies there.)",
-    sections: [["gaura-parsadas", "Associates of Śrī Caitanya Mahāprabhu", "Gaura-pārṣadas"], ["acaryas", "Ācāryas", "Teachers of the Gauḍīya line"], ["vaisnavas", "Other Vaiṣṇavas", ""]],
-    fields: ["subtitle", "date_label", "place", "cover", "summary", "body", "links"],
-    labels: { subtitle: ["Known as", "e.g. One of the Six Gosvāmīs of Vṛndāvana"], date_label: ["Period", "Optional"], summary: ["A few lines about him or her"], body: ["Biography"] },
-  },
   prabhupada: {
     key: "prabhupada", label: "Śrīla Prabhupāda resources", singular: "resource", base: "/gurudeva/srila-prabhupada", layout: "links", icon: "Crown", sort: "position",
     intro: "Books, biography, audio and websites of Śrīla Prabhupāda.",
@@ -90,7 +76,7 @@ export const COLLECTIONS: Record<string, Collection> = {
     labels: { subtitle: ["Short description"], links: ["Link", "Label | https://…"] },
   },
 };
-export const ARCHIVE_ORDER = ["memories", "glorifications", "gallery", "places", "belongings", "letters", "disciples", "projects", "parampara", "prabhupada"];
+export const ARCHIVE_ORDER = ["memories", "glorifications", "gallery", "places", "belongings", "letters", "disciples", "projects", "prabhupada"];
 export const coll = (k: string) => COLLECTIONS[k];
 export const has = (c: Collection, f: FieldKey) => c.fields.includes(f);
 export const labelOf = (c: Collection, f: FieldKey, fallback: string) => c.labels?.[f]?.[0] || fallback;

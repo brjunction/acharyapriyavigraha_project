@@ -41,15 +41,6 @@ export const RESOURCES: Record<string, RPage> = {
     { title: "Vaiṣṇava bhajans", url: `${HNV}/songs`, desc: "By author, book and type — in any script", tag: "Songs" },
     { title: "Kīrtanas sung by Śrīla Gurudeva", url: "/teachings/kirtans", desc: "His own recordings, on this website" },
   ] }] },
-  "gaudiya-siddhanta": { title: "Gauḍīya siddhānta", intro: "The philosophy in brief. Links will be added here.", groups: [{ links: [{ title: "Coming soon", url: "#", desc: "Selected readings on Gauḍīya siddhānta", soon: true }, { title: "Tattva on this website", url: "/tattva", desc: "Everything Śrīla Gurudeva said, by subject" }] }] },
-  "gaudiya-verses": { title: "Gauḍīya verses", intro: "The most quoted verses. Links will be added here.", groups: [{ links: [{ title: "Coming soon", url: "#", desc: "The verses most quoted by the ācāryas", soon: true }, { title: "Verses Śrīla Gurudeva loved", url: "/teachings/verses", desc: "With his explanations" }] }] },
-  "holy-places": { title: "Gauḍīya holy places", intro: "Dhāmas and tīrthas of the Gauḍīya Vaiṣṇavas.", groups: [{ links: [
-    { title: "Śrī Vṛndāvana-dhāma", url: "https://www.google.com/maps/search/?api=1&query=Vrindavan", desc: "The land of Kṛṣṇa’s pastimes" },
-    { title: "Śrī Navadvīpa-dhāma (Māyāpur)", url: "https://www.google.com/maps/search/?api=1&query=Mayapur", desc: "The birthplace of Śrī Caitanya Mahāprabhu" },
-    { title: "Śrī Jagannātha Purī", url: "https://www.google.com/maps/search/?api=1&query=Jagannath+Temple+Puri", desc: "Where Mahāprabhu spent His last years" },
-    { title: "Gaḍeigiri", url: "https://www.google.com/maps/search/?api=1&query=Gadeigiri+Odisha", desc: "Home of Śrī Gopāl Jiu" },
-    { title: "Bhubaneswar", url: "https://www.google.com/maps/search/?api=1&query=ISKCON+Bhubaneswar", desc: "Śrī Śrī Kṛṣṇa-Balarāma and the samādhi of Śrīla Gurudeva" },
-  ] }] },
 };
 
 /** What has changed on the website. New updates are added from Studio › Announcements. */

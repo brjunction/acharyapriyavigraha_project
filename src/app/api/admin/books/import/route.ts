@@ -6,7 +6,7 @@ import { revalidatePath } from "next/cache";
 import { articleSearch, articleSlug } from "@/lib/content/articles";
 
 export const maxDuration = 120;
-const LIBS = ["main", "gaudiya"];
+const LIBS = ["main"];
 /** Saving a fetched book, in steps so that even very large books go through:
     { op: "start", book: { title, author, category, language, cover_url, status, library, acharya, layout, source }, into? } → { id, slug }   (into = replace the chapters of an existing book)
     { op: "nodes", book_id, nodes: [{ key, parent, title, blocks }] } → { map: { key: id } }      (parent = an id from an earlier answer, or a key of this same batch)

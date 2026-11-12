@@ -16,7 +16,6 @@ export const ADMIN_GROUPS: AdminGroup[] = [
     { href: "/admin/archive/letters", label: "Letters", icon: Mail, desc: "With Śrīla Prabhupāda, disciples and others" },
     { href: "/admin/archive/disciples", label: "Disciples", icon: IdCard, desc: "Biographies and their memories" },
     { href: "/admin/archive/projects", label: "Projects", icon: Landmark, desc: "Bhubaneswar, temples, initiatives" },
-    { href: "/admin/archive/parampara", label: "Guru-paramparā", icon: GitBranch, desc: "The ācāryas of the succession" },
     { href: "/admin/archive/prabhupada", label: "Śrīla Prabhupāda", icon: Crown, desc: "Links and resources" },
   ] },
   { key: "teachings", icon: BookOpen, label: "His Teachings", desc: "Audio, video, books and writings", color: "#1a73e8", links: [
@@ -29,12 +28,6 @@ export const ADMIN_GROUPS: AdminGroup[] = [
     { href: "/admin/magazines", label: "Magazines", icon: Newspaper, desc: "Gopāl Jiu magazine and others" },
     { href: "/admin/compilations", label: "Compilations", icon: Quote, desc: "Quotes, stories, analogies…" },
     { href: "/admin/topics", label: "Tattva topics", icon: Network, desc: "Subjects that link everything together" },
-  ] },
-  { key: "gaudiya", icon: Library, label: "Gauḍīya library", desc: "The ācāryas: their books, biographies and the paramparā", color: "#8a4b0f", links: [
-    { href: "/admin/gaudiya", label: "Overview & books", icon: Library, desc: "Every Gauḍīya book, sorted by ācārya" },
-    { href: "/admin/books/import?library=gaudiya", label: "Import books", icon: BookOpen, desc: "EPUB or Word files, one or a ZIP of many" },
-    { href: "/admin/archive/biographies", label: "Biographies", icon: BookUser, desc: "Gaura-pārṣadas, ācāryas and Vaiṣṇavas" },
-    { href: "/admin/archive/parampara", label: "Guru-paramparā", icon: GitBranch, desc: "The succession and their biographies" },
   ] },
   { key: "webfolio", icon: BookMarked, label: "WebFolio", desc: "The whole archive as one book, and the pages you write for it", color: "#137333", links: [
     { href: "/admin/webfolio", label: "Sections & order", icon: BookMarked, desc: "What the WebFolio contains, and in which order" },
