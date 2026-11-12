@@ -32,7 +32,7 @@ export function BlessingSection() {
     <section className="reveal relative overflow-hidden bg-white pb-14 sm:pb-24">
       <div className="mx-auto max-w-6xl px-4 pt-12 sm:px-5 sm:pt-20">
         <div className="grid grid-cols-2 items-center gap-x-3 lg:grid-cols-[270px_1fr_270px] lg:gap-x-8">
-          <div className="order-2 lg:order-1">{person("/legacy/prabhupada.webp", "Śrīla A.C. Bhaktivedanta Swami Prabhupāda", "Śrīla Prabhupāda", "Founder-ācārya of ISKCON", "l")}</div>
+          <div className="order-2 lg:order-1">{person("/legacy/prabhupada.webp", "Śrī Śrīmad A.C. Bhaktivedanta Swami Prabhupāda", "Śrīla Prabhupāda", "Founder-ācārya of ISKCON", "l")}</div>
           <div className="order-1 col-span-2 pb-8 text-center lg:order-2 lg:col-span-1 lg:self-center lg:pb-10">
             <p className="mb-4 text-[11px] uppercase tracking-[0.32em] text-ink-3 sm:text-[12px]">Śrīla Prabhupāda on Śrīla Gurudeva</p>
             <h2 className="text-[36px] leading-[1.1] text-ink sm:text-[54px]"><span className="bless-word mr-1 inline-block align-top text-[0.9em] leading-none text-saffron" style={{ animationDelay: "0.1s" }}>“</span>{["Kṛṣṇa", "sent", "him."].map((w, i) => <span key={i} className="bless-word inline-block " style={{ animationDelay: `${0.2 + i * 0.18}s` }}>{w}&nbsp;</span>)}<span className="bless-word inline-block align-top text-[0.9em] leading-none text-saffron" style={{ animationDelay: "0.8s" }}>”</span></h2>

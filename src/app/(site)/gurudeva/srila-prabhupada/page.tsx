@@ -2,7 +2,7 @@ import { ArrowUpRight } from "lucide-react";
 import { CutOut } from "@/components/motifs";
 import { PrabhupadaWords } from "@/components/gurudeva/prabhupada-words";
 
-export const metadata = { title: "Śrīla Prabhupāda", description: "Śrīla A.C. Bhaktivedanta Swami Prabhupāda, the beloved spiritual master of Śrī Śrīmad Gour Govinda Swāmī Gurudeva — and what he said about him." };
+export const metadata = { title: "Śrīla Prabhupāda", description: "Śrī Śrīmad A.C. Bhaktivedanta Swami Prabhupāda, the beloved spiritual master of Śrī Śrīmad Gour Govinda Swāmī Gurudeva — and what he said about him." };
 
 const STEPS: [string, string, string][] = [
   ["September 1974", "Vṛndāvana", "Śrīla Gurudeva met Śrīla Prabhupāda at ISKCON’s centre in Vṛndāvana, and was soon initiated as Gour Govinda Dāsa."],
@@ -25,10 +25,10 @@ export default function Page() {
         <div className="mx-auto grid max-w-[1100px] items-end gap-8 px-4 pt-10 sm:px-6 lg:grid-cols-[1.3fr_1fr]">
           <div className="pb-10 lg:pb-16">
             <p className="mb-2 text-[10.5px] font-medium uppercase tracking-[0.25em] text-saffron sm:text-[11.5px]">His beloved spiritual master</p>
-            <h1 className="text-[28px] leading-[1.15] text-ink sm:text-[38px]">Śrīla A.C. Bhaktivedanta Swami Prabhupāda</h1>
+            <h1 className="text-[28px] leading-[1.15] text-ink sm:text-[38px]">Śrī Śrīmad A.C. Bhaktivedanta Swami Prabhupāda</h1>
             <p className="mt-4 max-w-xl text-[14px] leading-relaxed text-ink-2 sm:text-[15px]">The founder-ācārya of ISKCON, who carried Śrī Caitanya Mahāprabhu’s message to every part of the world. Śrīla Gurudeva gave him his whole life, and Śrīla Prabhupāda said of him, “Kṛṣṇa sent him.”</p>
           </div>
-          <CutOut src="/legacy/prabhupada.webp" alt="Śrīla A.C. Bhaktivedanta Swami Prabhupāda" fade={0} className="mx-auto w-[240px] sm:w-[300px]" />
+          <CutOut src="/legacy/prabhupada.webp" alt="Śrī Śrīmad A.C. Bhaktivedanta Swami Prabhupāda" fade={0} className="mx-auto w-[240px] sm:w-[300px]" />
         </div>
       </section>
       <div className="mx-auto grid max-w-[1100px] gap-12 px-4 py-12 sm:px-6 lg:grid-cols-[320px_minmax(0,1fr)]">

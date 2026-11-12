@@ -70,7 +70,7 @@ export function KrishnaSentOpening() {
         </div>
         {/* Śrīla Prabhupāda and Śrīla Gurudeva, side by side, plain */}
         <div className="op-up mx-auto grid w-full max-w-[340px] grid-cols-2 items-end gap-2 sm:max-w-[480px] sm:gap-4" style={{ transitionDelay: ".15s" }} aria-label="Śrīla Prabhupāda and Śrīla Gurudeva">
-          {([["/legacy/prabhupada.webp", "Śrīla A.C. Bhaktivedanta Swami Prabhupāda"], ["/legacy/gurudeva.webp", "Śrī Śrīmad Gour Govinda Swāmī Gurudeva"]] as const).map(([src, alt]) => (
+          {([["/legacy/prabhupada.webp", "Śrī Śrīmad A.C. Bhaktivedanta Swami Prabhupāda"], ["/legacy/gurudeva.webp", "Śrī Śrīmad Gour Govinda Swāmī Gurudeva"]] as const).map(([src, alt]) => (
             /* eslint-disable-next-line @next/next/no-img-element */
             <img key={src} src={src} alt={alt} className="block aspect-[4/5] w-full object-contain object-bottom [mask-image:linear-gradient(to_bottom,#000_82%,transparent)]" loading="lazy" />
           ))}

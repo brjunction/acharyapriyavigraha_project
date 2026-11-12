@@ -86,8 +86,8 @@ export function OnPrabhupada({ kicker = "Śrīla Gurudeva on Śrīla Prabhupāda
             <span aria-hidden className="op-ring absolute left-1/2 top-[46%] -z-10 aspect-square w-[108%] rounded-full border border-dashed" style={{ borderColor: "rgba(133,53,0,.25)" }} />
             <span aria-hidden className="absolute left-1/2 top-[46%] -z-10 aspect-square w-[122%] -translate-x-1/2 -translate-y-1/2 rounded-full border border-[#e8c766]/40" />
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={portrait} alt="Śrīla A.C. Bhaktivedanta Swami Prabhupāda" className="gi-float relative mx-auto block w-full object-contain object-bottom [mask-image:linear-gradient(to_bottom,#000_80%,transparent)]" loading="lazy" />
-            <p className="relative -mt-4 text-center"><span className="inline-block rounded-full bg-white/90 px-4 py-1.5 text-[11.5px] font-semibold text-saffron-ink shadow-[0_10px_24px_-14px_rgba(120,60,10,.6)] ring-1 ring-[#efe2cb] backdrop-blur">Śrīla A.C. Bhaktivedanta Swami Prabhupāda</span></p>
+            <img src={portrait} alt="Śrī Śrīmad A.C. Bhaktivedanta Swami Prabhupāda" className="gi-float relative mx-auto block w-full object-contain object-bottom [mask-image:linear-gradient(to_bottom,#000_80%,transparent)]" loading="lazy" />
+            <p className="relative -mt-4 text-center"><span className="inline-block rounded-full bg-white/90 px-4 py-1.5 text-[11.5px] font-semibold text-saffron-ink shadow-[0_10px_24px_-14px_rgba(120,60,10,.6)] ring-1 ring-[#efe2cb] backdrop-blur">Śrī Śrīmad A.C. Bhaktivedanta Swami Prabhupāda</span></p>
           </div>
           <div style={{ ["--d" as any]: ".25s" }} className="gi-in min-w-0">
             <p className="text-[10.5px] font-semibold uppercase tracking-[0.22em] sm:text-[11px]" style={{ color: accent }}>{kicker}</p>

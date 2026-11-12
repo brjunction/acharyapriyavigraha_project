@@ -349,7 +349,7 @@ export function Blessing() {
       <Backdrop src="cream-mandala" o={0.35} pos="center" />
       <div className="relative grid grid-cols-2 items-end gap-x-3 gap-y-2 px-4 pt-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1.2fr)_minmax(0,1fr)] lg:px-10 lg:pt-10">
         <div className="order-2 self-end lg:order-1">
-          <CutOut src="/legacy/prabhupada.webp" alt="Śrīla A.C. Bhaktivedanta Swami Prabhupāda" fade={0} className="mx-auto w-full max-w-[340px]" />
+          <CutOut src="/legacy/prabhupada.webp" alt="Śrī Śrīmad A.C. Bhaktivedanta Swami Prabhupāda" fade={0} className="mx-auto w-full max-w-[340px]" />
         </div>
         <div className="order-1 col-span-2 pb-6 text-center lg:order-2 lg:col-span-1 lg:pb-14">
           <p className="kick-live text-[11px] font-semibold uppercase tracking-[0.18em] text-saffron">Śrīla Prabhupāda on Śrīla Gurudeva</p>

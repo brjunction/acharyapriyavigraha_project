@@ -21,7 +21,7 @@ const Letter = ({ left }: { left?: boolean }) => (
     <Source left={left}>Śrīla Prabhupāda’s letter to Śrīla Gurudeva · Māyāpur, 12 February 1976</Source>
   </div>
 );
-const SP_ALT = "Śrīla A.C. Bhaktivedanta Swami Prabhupāda", SG_ALT = "Śrī Śrīmad Gour Govinda Swāmī Gurudeva";
+const SP_ALT = "Śrī Śrīmad A.C. Bhaktivedanta Swami Prabhupāda", SG_ALT = "Śrī Śrīmad Gour Govinda Swāmī Gurudeva";
 
 export function Blessing({ v = "a" }: { v?: string }) {
   if (v === "b") return (
