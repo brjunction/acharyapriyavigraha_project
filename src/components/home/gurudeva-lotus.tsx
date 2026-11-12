@@ -1,6 +1,6 @@
 /* The home hero's lotus: a full, open lotus seen from above, in gold and ivory on the red, with Śrīla Gurudeva's
    round portrait at its heart. Four rings of pointed petals, each shaded from an ivory base to a saffron-gold tip,
-   with a fine rim and midrib. The flower unfolds once on arrival and then stays still (calm, per the design standard).
+   with a fine rim and midrib. The rings turn very slowly against each other, breathe, and unfold once on arrival.
    Everything stays inside its square, so nothing is cut on a phone. */
 
 const C = 300;
@@ -32,7 +32,7 @@ export function GurudevaLotus({ src, alt, focus = "center 28%" }: { src: string;
           <linearGradient id="lx-d" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stopColor="#ffffff" /><stop offset=".55" stopColor="#fff3e2" /><stop offset="1" stopColor="#ffb85f" /></linearGradient>
           <linearGradient id="lx-in" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stopColor="#fff" stopOpacity="0" /><stop offset=".55" stopColor="#fff" stopOpacity=".55" /><stop offset="1" stopColor="#fff" stopOpacity="0" /></linearGradient>
           <radialGradient id="lx-heart"><stop offset=".86" stopColor="#ffe7b0" /><stop offset="1" stopColor="#d98a32" /></radialGradient>
-          <filter id="lx-sh" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="2" stdDeviation="2" floodColor="#7a2606" floodOpacity=".22" /></filter>
+          <filter id="lx-sh" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="2" stdDeviation="3" floodColor="#7a2606" floodOpacity=".4" /></filter>
         </defs>
         <g className="lx-flower" style={{ transformOrigin: `${C}px ${C}px` }}>
         {RINGS.map((r, ri) => (
@@ -45,7 +45,7 @@ export function GurudevaLotus({ src, alt, focus = "center 28%" }: { src: string;
                   const L = r.L - r.r0;
                   return (
                     <g key={i} transform={`rotate(${a} ${C} ${C}) translate(${C} ${C - r.r0})`}>
-                      <path d={petal(L, r.W)} fill={`url(#${r.fill})`} stroke={r.stroke} strokeOpacity={ri ? 0.85 : 0.7} strokeWidth={ri ? 0.7 : 0.6} />
+                      <path d={petal(L, r.W)} fill={`url(#${r.fill})`} stroke={r.stroke} strokeOpacity={ri ? 0.85 : 0.7} strokeWidth={ri ? 0.9 : 0.8} />
                       {ri > 0 && <path d={inner(L, r.W)} fill="url(#lx-in)" />}
                       <path d={`M0,-6 L0,${f(-L * 0.9)}`} stroke={r.stroke} strokeOpacity={ri ? 0.55 : 0.6} strokeWidth=".7" strokeLinecap="round" />
                     </g>

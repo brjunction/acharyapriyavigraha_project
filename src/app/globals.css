@@ -727,19 +727,19 @@ html[data-motion="reduce"] .bless-word, html[data-motion="reduce"] .bless-rise, 
 
 /* The hero lotus: each ring turns very slowly its own way, breathes, and unfolds once on arrival; a warm light pulses behind. */
 @keyframes lx-turn { to { transform: rotate(360deg); } }
-.lx-spin { animation: none; }
-
+.lx-spin { animation: lx-turn 140s linear infinite; }
+.lx-spin.lx-ccw { animation-direction: reverse; }
 /* rings turn in alternate directions, each at its own calm pace */
-
+.lx-spin.lx-s1 { animation-duration: 240s; } .lx-spin.lx-s2 { animation-duration: 190s; } .lx-spin.lx-s3 { animation-duration: 150s; } .lx-spin.lx-s4 { animation-duration: 120s; }
 .lx-flower { }
 /* the lotus closes a little and opens again, ring after ring, slowly */
-.lx-breathe { animation: none; }
+.lx-breathe { animation: lx-breathe 11s cubic-bezier(.37,0,.63,1) infinite; }
 @keyframes lx-breathe { 0%, 100% { transform: scale(1); } 50% { transform: scale(.87); } }
 .lx-bloom { }
 @keyframes lx-bloom { 0%, 100% { transform: scale(1) rotate(0deg); } 50% { transform: scale(.94) rotate(6deg); } }
-.lx-open { animation: lx-open 1.6s cubic-bezier(.2,.8,.2,1) both; }
-@keyframes lx-open { from { opacity: 0; transform: scale(.94); } to { opacity: 1; transform: none; } }
-.lx-aura { background: radial-gradient(closest-side, rgba(255,226,170,.5), rgba(255,190,110,.18) 55%, transparent); opacity: .55; }
+.lx-open { animation: lx-open 2.6s cubic-bezier(.2,.8,.2,1) both; }
+@keyframes lx-open { from { opacity: 0; transform: scale(.8) rotate(-8deg); } to { opacity: 1; transform: none; } }
+.lx-aura { background: radial-gradient(closest-side, rgba(255,226,170,.5), rgba(255,190,110,.18) 55%, transparent); animation: lx-aura 10s ease-in-out infinite alternate; }
 @keyframes lx-aura { from { opacity: .65; transform: scale(.94); } to { opacity: 1; transform: scale(1.04); } }
 .lx-portrait { animation: lx-portrait 1.4s cubic-bezier(.2,.8,.2,1) .3s both; }
 @keyframes lx-portrait { from { opacity: 0; transform: scale(.9); } to { opacity: 1; transform: none; } }
