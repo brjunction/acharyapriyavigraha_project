@@ -163,8 +163,8 @@ export function Reader({ book, chapter, toc, prev, next, translations, parallel,
         <div className="relative flex h-12 items-center gap-1 border-b px-2 backdrop-blur-xl backdrop-saturate-150 sm:px-3" style={{ background: T.panel, borderColor: T.line }}>
           <Link href={book.href} className={icon} title="Back to the book (Esc)"><ArrowLeft size={17} /></Link>
           <button onClick={() => setPanel(panel === "contents" ? null : "contents")} className={icon} title="Contents (C)"><List size={17} /></button>
-          {/* the title sits in the true centre of the bar, whatever is on either side */}
-          <div className="pointer-events-none absolute inset-y-0 left-1/2 flex w-[calc(100%-200px)] max-w-[560px] -translate-x-1/2 flex-col items-center justify-center text-center font-sans leading-tight">
+          {/* the title sits over the centre of the text being read (beside the contents column when it is open) */}
+          <div className={`pointer-events-none absolute inset-y-0 left-1/2 flex w-[calc(100%-200px)] max-w-[560px] -translate-x-1/2 flex-col items-center justify-center text-center font-sans leading-tight ${mode === "classic" && s.sidebar ? "lg:left-[calc(50%+145px)] lg:w-[calc(100%-290px-220px)]" : ""}`}>
             <p className="w-full truncate text-[11.5px]" style={{ color: T.muted }}>{book.title}</p>
             <p className="w-full truncate text-[13px] font-medium">{chapter.title}</p>
           </div>
