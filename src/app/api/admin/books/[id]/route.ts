@@ -7,7 +7,7 @@ const COLS = ["title", "subtitle", "author", "category", "cover_url", "icon", "d
 export async function GET(_: Request, { params }: { params: Promise<{ id: string }> }) {
   const g = await guard("viewer"); if ("res" in g) return g.res; const { id } = await params;
   const b = (await sql`select * from books where id = ${id}`)[0]; if (!b) return fail("Not found", 404);
-  const nodes = await sql`select id, parent_id, kind, position, title, slug, status, (jsonb_array_length(blocks) > 0) as has_text from book_nodes where book_id = ${id} order by position`;
+  const nodes = await sql`select id, parent_id, kind, position, title, slug, status, (jsonb_array_length(coalesce(draft->'blocks', blocks)) > 0) as has_text, (draft is not null) as has_draft, coalesce(draft->>'title', title) as draft_title, jsonb_array_length(heads) as heads from book_nodes where book_id = ${id} order by position`;
   return json({ book: b, nodes });
 }
 export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {

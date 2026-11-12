@@ -8,7 +8,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
   const g = await guard("contributor"); if ("res" in g) return g.res; const { id } = await params; const b = await req.json();
   const title = String(b.title || "").trim() || "Untitled chapter"; const parent = b.parent_id || null;
   const pos = Number((await sql`select coalesce(max(position), -1) + 1 as p from book_nodes where book_id = ${id} and parent_id is not distinct from ${parent}`)[0].p);
-  const r = await sql`insert into book_nodes (book_id, parent_id, kind, position, title, slug) values (${id}, ${parent}, ${b.kind || "chapter"}, ${pos}, ${title}, ${await nodeSlug(id, parent, title)}) returning id`;
+  const r = await sql`insert into book_nodes (book_id, parent_id, kind, position, title, slug, status) values (${id}, ${parent}, ${b.kind || "chapter"}, ${pos}, ${title}, ${await nodeSlug(id, parent, title)}, 'draft') returning id`;
   revalidatePath("/books", "layout"); return json(r[0]);
 }
 /** Move: { id, parent_id, position } — positions of the siblings are renumbered. */

@@ -3,6 +3,7 @@ import { guard, json, fail } from "@/lib/api";
 import { slugify } from "@/lib/content/text";
 import { nodeSearch } from "@/lib/content/books";
 import { revalidatePath } from "next/cache";
+import { articleSearch, articleSlug } from "@/lib/content/articles";
 
 export const maxDuration = 120;
 const LIBS = ["main", "gaudiya"];
@@ -18,12 +19,12 @@ export async function POST(req: Request) {
     if (b.into) {
       const cur = (await sql`select id, slug from books where id = ${b.into}`)[0] as any; if (!cur) return fail("That book was not found.", 404);
       await sql`delete from book_nodes where book_id = ${cur.id}`;
-      await sql`update books set title = ${title}, author = ${k.author || null}, category = ${k.category || null}, language = ${k.language || "en"}, cover_url = coalesce(${k.cover_url || null}, cover_url), source = ${source}::jsonb, updated_at = now() where id = ${cur.id}`;
+      await sql`update books set title = ${title}, author = ${k.author || null}, category = ${k.category || null}, publisher = coalesce(${k.publisher || null}, publisher), language = ${k.language || "en"}, cover_url = coalesce(${k.cover_url || null}, cover_url), source = ${source}::jsonb, updated_at = now() where id = ${cur.id}`;
       return json({ id: cur.id, slug: cur.slug });
     }
     let s = slugify(title), n = 1; const base = s; while ((await sql`select 1 from books where slug = ${s}`).length) s = `${base}-${++n}`;
     const pos = Number((await sql`select coalesce(max(position), -1) + 1 as p from books where library = ${library} and category is not distinct from ${k.category || null}`)[0].p);
-    const r = await sql`insert into books (slug, title, author, category, language, cover_url, status, layout, library, acharya, position, source) values (${s}, ${title}, ${k.author || null}, ${k.category || null}, ${k.language || "en"}, ${k.cover_url || null}, ${status}, ${k.layout || "classic"}, ${library}, ${k.acharya || null}, ${pos}, ${source}::jsonb) returning id, slug`;
+    const r = await sql`insert into books (slug, title, author, category, publisher, language, cover_url, status, layout, library, acharya, position, source) values (${s}, ${title}, ${k.author || null}, ${k.category || null}, ${k.publisher || null}, ${k.language || "en"}, ${k.cover_url || null}, ${status}, ${k.layout || "classic"}, ${library}, ${k.acharya || null}, ${pos}, ${source}::jsonb) returning id, slug`;
     return json(r[0]);
   }
   if (b.op === "nodes") {
@@ -39,6 +40,19 @@ export async function POST(req: Request) {
       map[String(n.key)] = r[0].id as string;
     }
     return json({ map });
+  }
+  /* A magazine issue: { op: "issue", magazine_id, issue: { number, title, date, cover, status }, articles: [{ title, author, blocks }] } — one issue, its articles in order. */
+  if (b.op === "issue") {
+    const m = (await sql`select id from magazines where id = ${b.magazine_id || null}`)[0] as any; if (!m) return fail("Choose the magazine.");
+    const x = b.issue || {}; const label = String(x.number || x.title || "issue").trim(); let slug = slugify(label), k = 1; const base = slug;
+    while ((await sql`select 1 from magazine_issues where magazine_id = ${m.id} and slug = ${slug}`).length) slug = `${base}-${++k}`;
+    const day = /^\d{4}-\d{2}-\d{2}$/.test(String(x.date || "")) ? x.date : null; const status = x.status === "published" ? "published" : "draft";
+    const pos = Number((await sql`select coalesce(max(position), 0) + 1 as n from magazine_issues where magazine_id = ${m.id}`)[0].n);
+    const iss = (await sql`insert into magazine_issues (magazine_id, slug, number, title, date, year, cover, position, status) values (${m.id}, ${slug}, ${x.number || null}, ${x.title || null}, ${day}, ${day ? Number(day.slice(0, 4)) : x.year ? Number(x.year) || null : null}, ${x.cover || null}, ${pos}, ${status}) returning id, slug`)[0] as any;
+    const arts: any[] = Array.isArray(b.articles) ? b.articles.slice(0, 200) : [];
+    for (const [i, a] of arts.entries()) { const t = String(a.title || "").trim().slice(0, 300) || `Article ${i + 1}`; const body = Array.isArray(a.blocks) ? a.blocks : [];
+      const row = { title: t, author: a.author || null, body, date: day, status }; await sql`insert into articles (slug, search, title, author, body, date, status, issue_id, issue_position, section) values (${await articleSlug(t)}, ${articleSearch(row)}, ${t}, ${a.author || null}, ${JSON.stringify(body)}::jsonb, ${day}, ${status}, ${iss.id}, ${i + 1}, ${a.section || null})`; }
+    revalidatePath("/teachings/magazines", "layout"); revalidatePath("/teachings/articles", "layout"); return json({ id: iss.id, slug: iss.slug, articles: arts.length });
   }
   if (b.op === "finish") { revalidatePath("/books", "layout"); revalidatePath("/", "layout"); return json({ ok: true }); }
   return fail("Unknown step.");

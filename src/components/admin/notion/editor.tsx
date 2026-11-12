@@ -1,4 +1,5 @@
 "use client";
+import { useEffect, useRef } from "react";
 import { setTitle } from "./page-titles";
 import "@blocknote/core/fonts/inter.css";
 import "@blocknote/mantine/style.css";
@@ -73,10 +74,12 @@ const formIsolation = createExtension({
   prosemirrorPlugins: [new Plugin({ props: { handleDOMEvents: Object.fromEntries(["mousedown", "mouseup", "click", "dblclick", "touchstart", "keydown", "keypress", "keyup", "beforeinput", "input", "paste", "cut", "copy", "focus", "blur", "drop", "dragstart"].map((n) => [n, (_v: any, e: Event) => mine(e)])) } })],
 });
 
-export default function NotionEditor({ initial, pageId, onChange, editable = true }: { initial: any[]; pageId: string; onChange: (blocks: any[]) => void; editable?: boolean }) {
+export default function NotionEditor({ initial, pageId, onChange, editable = true, onReady, onDirty }: { initial: any[]; pageId: string; onChange?: (blocks: any[]) => void; editable?: boolean; onReady?: (e: Editor) => void; onDirty?: () => void }) {
   const editor = useCreateBlockNote({ schema, initialContent: initial?.length ? initial : undefined, uploadFile: upload, extensions: [formIsolation] }) as Editor;
+  const ready = useRef(false); useEffect(() => { if (!ready.current) { ready.current = true; onReady?.(editor); } }, [editor, onReady]);
   return (
-    <BlockNoteView editor={editor} editable={editable} theme="light" slashMenu={false} className="tj-editor" onChange={() => onChange(editor.document as any[])}>
+    // onDirty: only "something changed" — the document is read when it is saved, so long chapters stay smooth while typing
+    <BlockNoteView editor={editor} editable={editable} theme="light" slashMenu={false} className="tj-editor" onChange={() => (onDirty ? onDirty() : onChange?.(editor.document as any[]))}>
       <SuggestionMenuController triggerCharacter="/" getItems={async (q) => filterSuggestionItems([...getDefaultReactSlashMenuItems(editor), ...customItems(editor, pageId)], q)} />
       <SuggestionMenuController triggerCharacter="@" getItems={async (q) => mentionItems(editor, pageId, q)} />
     </BlockNoteView>

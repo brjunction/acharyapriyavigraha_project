@@ -5,7 +5,9 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Search, X, BookOpen, Languages, LayoutGrid, List as ListIcon, ArrowRight } from "lucide-react";
 import { langName, langNative } from "@/lib/content/book-langs";
 
-export type LibBook = { slug: string; title: string; subtitle: string | null; author: string | null; category: string | null; cover_url: string | null; language: string; description: string | null; chapters: number; work?: string | null; size?: string | null };
+export type LibBook = { slug: string; title: string; subtitle: string | null; author: string | null; category: string | null; cover_url: string | null; language: string; description: string | null; chapters: number; work?: string | null; size?: string | null; publisher?: string | null; words?: number };
+const pubOf = (b: LibBook) => (b.publisher || "").trim();
+const LENGTHS: [string, string, (w: number) => boolean][] = [["short", "Short (under an hour)", (w) => w < 12000], ["medium", "Medium", (w) => w >= 12000 && w < 45000], ["long", "Long books", (w) => w >= 45000]];
 export type Shelf = { name: string; color: string | null; description: string | null; size?: string | null };
 const GRIDS: Record<string, string> = { small: "grid-cols-3 gap-x-4 gap-y-6 sm:grid-cols-5 lg:grid-cols-8", medium: "grid-cols-2 gap-x-5 gap-y-8 sm:grid-cols-4 lg:grid-cols-6", large: "grid-cols-2 gap-x-6 gap-y-9 sm:grid-cols-3 lg:grid-cols-5" };
 const SCALE: Record<string, string> = { small: "w-[78%]", medium: "w-[90%]", large: "w-full" };
@@ -15,7 +17,7 @@ const shelfOf = (b: LibBook) => b.category || "Books";
 /** The library: reading language, shelves, search, and every book once (with its other languages beside it). */
 export function BookLibrary({ books, shelves: meta }: { books: LibBook[]; shelves: Shelf[] }) {
   const sp = useSearchParams(); const router = useRouter();
-  const [q, setQ] = useState(""); const shelf = sp.get("shelf") || ""; const [lang, setLang] = useState(""); const [view, setView] = useState<"grid" | "list">("grid");
+  const [q, setQ] = useState(""); const shelf = sp.get("shelf") || ""; const [lang, setLang] = useState(""); const [view, setView] = useState<"grid" | "list">("grid"); const [pub, setPub] = useState(""); const [len, setLen] = useState("");
   const [recent, setRecent] = useState<{ slug: string; href: string; title: string; book: string; cover: string | null; index: number; total: number }[]>([]);
   useEffect(() => { try { setLang(localStorage.getItem("tj_book_lang") || ""); setView((localStorage.getItem("tj_book_view") as any) || "grid"); setRecent(JSON.parse(localStorage.getItem("tj_last_books") || "[]").slice(0, 4)); } catch {} }, []);
   const pickLang = (l: string) => { setLang(l); try { localStorage.setItem("tj_book_lang", l); } catch {} };
@@ -29,9 +31,11 @@ export function BookLibrary({ books, shelves: meta }: { books: LibBook[]; shelve
     const g: Record<string, LibBook[]> = {}; books.forEach((b) => (g[b.work || b.slug] ||= []).push(b));
     return Object.values(g).map((xs) => ({ main: xs.find((x) => x.language === lang) || xs.find((x) => x.language === "en") || xs[0], all: xs }));
   }, [books, lang]);
-  const list = works.filter(({ main, all }) => (!lang || all.some((x) => x.language === lang)) && (!shelf || shelfOf(main) === shelf) && (!q || all.some((b) => fold(`${b.title} ${b.subtitle || ""} ${b.author || ""} ${b.description || ""}`).includes(fold(q)))));
+  const pubs = useMemo(() => { const m: Record<string, number> = {}; books.forEach((b) => { const p = pubOf(b); if (p) m[p] = (m[p] || 0) + 1; }); return Object.entries(m).sort((a, b) => a[0].localeCompare(b[0])); }, [books]);
+  const lenOk = (b: LibBook) => { const L = LENGTHS.find((x) => x[0] === len); return !L || L[2](b.words || 0); };
+  const list = works.filter(({ main, all }) => (!pub || all.some((x) => pubOf(x) === pub)) && (!len || lenOk(main)) && (!lang || all.some((x) => x.language === lang)) && (!shelf || shelfOf(main) === shelf) && (!q || all.some((b) => fold(`${b.title} ${b.subtitle || ""} ${b.author || ""} ${b.description || ""}`).includes(fold(q)))));
   const order = [...meta.map((m) => m.name), ...Array.from(new Set(books.map(shelfOf))).filter((s) => !meta.some((m) => m.name === s))].filter((s) => books.some((b) => shelfOf(b) === s));
-  const groups: [string, typeof list][] = shelf || q ? [[shelf || "Results", list]] : order.map((s) => [s, list.filter((w) => shelfOf(w.main) === s)] as [string, typeof list]).filter(([, xs]) => xs.length);
+  const groups: [string, typeof list][] = shelf || q || pub || len ? [[shelf || pub || (len ? LENGTHS.find((x) => x[0] === len)![1] : "") || "Results", list]] : order.map((s) => [s, list.filter((w) => shelfOf(w.main) === s)] as [string, typeof list]).filter(([, xs]) => xs.length);
 
   return (
     <div className="bg-white">
@@ -52,6 +56,8 @@ export function BookLibrary({ books, shelves: meta }: { books: LibBook[]; shelve
         <div className="sticky top-[52px] z-20 -mx-4 flex flex-wrap items-center gap-2 border-b border-line bg-white/95 px-4 py-3 backdrop-blur sm:top-[58px] sm:-mx-6 sm:px-6">
           <label className="relative min-w-[200px] flex-1"><Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-3" /><input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search titles, authors and descriptions" className="h-9 w-full rounded-md border border-line bg-white pl-9 pr-8 text-[13.5px] outline-none focus:border-ink/40" />{q && <button onClick={() => setQ("")} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-ink-3"><X size={14} /></button>}</label>
           <label className="relative flex h-9 items-center gap-1.5 rounded-md border border-line px-2.5 text-[13px] text-ink-2"><Languages size={15} className="text-ink-3" /><select value={lang} onChange={(e) => pickLang(e.target.value)} className="appearance-none bg-transparent pr-1 outline-none"><option value="">All languages</option>{langs.map(([l, n]) => <option key={l} value={l}>{langNative(l)}{langNative(l) !== langName(l) ? ` (${langName(l)})` : ""} · {n}</option>)}</select></label>
+          {pubs.length > 0 && <label className="relative flex h-9 items-center rounded-md border border-line px-2.5 text-[13px] text-ink-2"><select value={pub} onChange={(e) => setPub(e.target.value)} className="max-w-[190px] appearance-none truncate bg-transparent pr-1 outline-none" aria-label="Publication"><option value="">All publications</option>{pubs.map(([p, n]) => <option key={p} value={p}>{p} · {n}</option>)}</select></label>}
+          <label className="relative flex h-9 items-center rounded-md border border-line px-2.5 text-[13px] text-ink-2"><select value={len} onChange={(e) => setLen(e.target.value)} className="appearance-none bg-transparent pr-1 outline-none" aria-label="Length"><option value="">Any length</option>{LENGTHS.map(([k, l]) => <option key={k} value={k}>{l}</option>)}</select></label>
           <div className="flex rounded-md border border-line p-0.5">{([["grid", LayoutGrid], ["list", ListIcon]] as const).map(([v, I]) => <button key={v} onClick={() => pickView(v)} className={`flex size-8 items-center justify-center rounded ${view === v ? "bg-band text-ink" : "text-ink-3"}`} aria-label={v}><I size={15} /></button>)}</div>
         </div>
 
@@ -63,7 +69,7 @@ export function BookLibrary({ books, shelves: meta }: { books: LibBook[]; shelve
             <ArrowRight size={14} className="text-ink-3 transition group-hover:translate-x-0.5" /></Link>)}</div>
         </section>}
 
-        {!list.length ? <p className="py-20 text-center text-[13.5px] text-ink-3">No book matches. {lang && <button onClick={() => pickLang("")} className="underline">Show all languages</button>}</p> : groups.map(([g, xs]) => (
+        {!list.length ? <p className="py-20 text-center text-[13.5px] text-ink-3">No book matches. {(pub || len) && <button onClick={() => { setPub(""); setLen(""); }} className="mr-2 underline">Clear filters</button>}{lang && <button onClick={() => pickLang("")} className="underline">Show all languages</button>}</p> : groups.map(([g, xs]) => (
           <section key={g} className="mt-10">
             <div className="mb-5 flex items-baseline gap-2.5 border-b border-line pb-2"><span className="size-2.5 translate-y-[-1px] rounded-full" style={{ background: color(g) || "#c8c8c8" }} /><h2 className="text-[15px] font-semibold text-ink">{g}</h2><span className="text-[12px] text-ink-3">{xs.length}</span>{meta.find((m) => m.name === g)?.description && <span className="hidden truncate text-[12.5px] text-ink-3 sm:inline">— {meta.find((m) => m.name === g)?.description}</span>}</div>
             {view === "grid" ? <div className={`grid ${GRIDS[meta.find((m) => m.name === g)?.size || "small"] || GRIDS.small}`}>{xs.map(({ main: b, all }) => (

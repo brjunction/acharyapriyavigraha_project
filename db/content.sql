@@ -187,3 +187,8 @@ alter table books add column if not exists library text not null default 'main';
 alter table books add column if not exists acharya text;
 alter table books add column if not exists source jsonb not null default '{}';
 create index if not exists books_library on books(library, status);
+
+-- 12 Nov 2026 · book editor: edits are drafts until published; headings inside a page that show in the book's contents
+alter table book_nodes add column if not exists draft jsonb;
+alter table book_nodes add column if not exists heads jsonb not null default '[]';
+alter table book_nodes add column if not exists published_at timestamptz;

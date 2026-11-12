@@ -6,7 +6,7 @@ export const getBook = cache(async (slug: string) => {
   if (!hasDb()) return null;
   try {
     const b = (await sql`select * from books where slug = ${slug} and status = 'published'`)[0] as any; if (!b) return null;
-    const nodes = (await sql`select id, book_id, parent_id, kind, position, title, slug, status from book_nodes where book_id = ${b.id} and status = 'published' order by position`) as Node[];
+    const nodes = (await sql`select id, book_id, parent_id, kind, position, title, slug, status, heads from book_nodes where book_id = ${b.id} and status = 'published' order by position`) as Node[];
     // hide nodes whose parent is hidden
     const ok = new Set<string>(); const all = new Set(nodes.map((n) => n.id));
     const visible = nodes.filter((n) => !n.parent_id || all.has(n.parent_id)); visible.forEach((n) => ok.add(n.id));
@@ -30,5 +30,6 @@ export type TocItem = { id: string; title: string; href: string; num: string; de
 export function tocOf(slug: string, nodes: Node[], flat: Node[]): TocItem[] {
   const num = numbering(nodes); const by = Object.fromEntries(nodes.map((n) => [n.id, n]));
   const depth = (n: Node) => { let d = 0, c = n; while (c.parent_id && by[c.parent_id]) { d++; c = by[c.parent_id]; } return d; };
-  return flat.map((n) => ({ id: n.id, title: n.title, href: hrefOf(slug, nodes, n), num: num[n.id], depth: depth(n), part: n.kind === "part", parent: n.parent_id }));
+  return flat.flatMap((n) => { const href = hrefOf(slug, nodes, n); const d = depth(n); const hs = Array.isArray((n as any).heads) ? ((n as any).heads as { id: string; text: string }[]) : [];
+    return [{ id: n.id, title: n.title, href, num: num[n.id], depth: d, part: n.kind === "part", parent: n.parent_id }, ...hs.map((h) => ({ id: `${n.id}#${h.id}`, title: h.text, href: `${href}#${h.id}`, num: "", depth: d + 1, part: false, parent: n.id }))]; });
 }
