@@ -91,19 +91,18 @@ export function TimelineChapters({ eras, events, recordings = {}, advanced, onMo
 
   return (
     <div className="bg-[#fcfaf7]">
-      <section className="mx-auto max-w-[1180px] px-5 pt-10 sm:px-8 sm:pt-12">
-        <div className="flex flex-wrap items-end justify-between gap-4">
-          <div className="tl-rise">
-            <p className="text-[11.5px] font-medium uppercase tracking-[0.2em] text-saffron">His life</p>
-            <h1 className="mt-1.5 text-[28px] font-semibold leading-[1.1] tracking-[-0.02em] text-ink sm:text-[34px]">Life timeline</h1>
-            <p className="mt-2 max-w-2xl text-[15px] leading-relaxed text-ink-2">Śrī Śrīmad Gour Govinda Swāmī Gurudeva, {Math.floor(tOf(all[0]))}–{Math.floor(tOf(all[all.length - 1]))}: {all.length} moments in {eras.length} chapters.</p>
+      <section className="mx-auto max-w-[1180px] px-5 pt-5 sm:px-8 sm:pt-6">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="tl-rise min-w-0">
+                        <h1 className="text-[20px] font-semibold leading-tight tracking-[-0.01em] text-ink sm:text-[22px]">Life timeline</h1>
+            <p className="mt-0.5 text-[13px] text-ink-3">Śrī Śrīmad Gour Govinda Swāmī Gurudeva, {Math.floor(tOf(all[0]))}–{Math.floor(tOf(all[all.length - 1]))}: {all.length} moments in {eras.length} chapters.</p>
           </div>
-          <div className="inline-flex rounded-full bg-white p-1 text-[13px] shadow-[0_1px_2px_rgba(0,0,0,.06),0_0_0_1px_rgba(0,0,0,.05)]" role="group" aria-label="View">{([[false, "Simple"], [true, "Advanced"]] as const).map(([v, l]) => <button key={l} onClick={() => onMode(v)} aria-pressed={advanced === v} className={`h-8 rounded-full px-4 transition ${advanced === v ? "bg-ink font-medium text-white" : "text-ink-2 hover:text-ink"}`}>{l}</button>)}</div>
+          <div className="inline-flex rounded-full bg-white p-1 text-[13px] shadow-[0_1px_2px_rgba(0,0,0,.06),0_0_0_1px_rgba(0,0,0,.05)]" role="group" aria-label="View">{([[false, "Simple"], [true, "Advanced"]] as const).map(([v, l]) => <button key={l} onClick={() => onMode(v)} aria-pressed={advanced === v} className={`h-7 rounded-full px-3.5 transition ${advanced === v ? "bg-ink font-medium text-white" : "text-ink-2 hover:text-ink"}`}>{l}</button>)}</div>
         </div>
       </section>
 
       {/* The ruler */}
-      <div className="sticky top-[52px] z-30 mt-6 border-y border-line/80 bg-white/95 shadow-[0_8px_24px_-20px_rgba(60,30,10,.5)] backdrop-blur sm:top-[58px]">
+      <div className="sticky top-[52px] z-30 mt-4 border-y border-line/80 bg-white/95 shadow-[0_8px_24px_-20px_rgba(60,30,10,.5)] backdrop-blur sm:top-[58px]">
         <div className="mx-auto max-w-[1180px] px-5 pb-2 pt-2.5 sm:px-8">
           <div className="flex items-center gap-3">
             <button onClick={() => go(cur - 1)} disabled={cur === 0} aria-label="Previous moment" className="flex size-9 shrink-0 items-center justify-center rounded-full bg-white text-ink-2 shadow-[0_1px_3px_rgba(0,0,0,.12)] transition hover:text-ink disabled:opacity-30"><ChevronLeft size={18} /></button>
@@ -147,22 +146,22 @@ export function TimelineChapters({ eras, events, recordings = {}, advanced, onMo
         </div>
       </div>
 
-      <div className={advanced ? "mx-auto grid max-w-[1180px] gap-8 px-5 sm:px-8 lg:grid-cols-[264px_minmax(0,1fr)]" : ""}>
-      {advanced && <aside className="space-y-4 pt-8 lg:sticky lg:top-[170px] lg:max-h-[calc(100dvh-190px)] lg:self-start lg:overflow-y-auto lg:pb-8 [scrollbar-width:thin]">
-        <label className="flex h-11 items-center gap-2 rounded-xl bg-white px-3.5 shadow-[0_1px_3px_rgba(0,0,0,.08),0_0_0_1px_rgba(0,0,0,.05)] focus-within:shadow-[0_0_0_2px_rgba(181,101,29,.35)]"><Search size={15} className="text-ink-3" /><input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search his life" className="min-w-0 flex-1 bg-transparent text-[14px] outline-none" />{q && <button onClick={() => setQ("")} aria-label="Clear"><X size={14} className="text-ink-3" /></button>}</label>
-        <div className="rounded-2xl bg-white p-3 shadow-[0_1px_3px_rgba(0,0,0,.06),0_0_0_1px_rgba(0,0,0,.04)]">
-          <p className="mb-1 px-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-3">Chapters</p>
-          <ul>{eras.map((e, i) => { const n = all.filter((x) => eraIx(x) === i).length; const on = eraIx(now) === i; return <li key={e.id}><button onClick={() => toTime(e.year_from)} className={`flex w-full items-center gap-2.5 rounded-lg px-1.5 py-1.5 text-left text-[13.5px] transition hover:bg-[#f7f2ea] ${on ? "bg-[#f7f2ea] font-medium text-ink" : "text-ink-2"}`}><span className="flex size-5 shrink-0 items-center justify-center rounded-md text-[10.5px] font-semibold text-white" style={{ background: eraC(i) }}>{i + 1}</span><span className="min-w-0 flex-1"><span className="block truncate">{e.title}</span><span className="block text-[11px] tabular-nums text-ink-3">{span(e)} · {n} {n === 1 ? "moment" : "moments"}</span></span></button></li>; })}</ul>
+      <div className={advanced ? "mx-auto grid max-w-[1180px] gap-8 px-5 sm:px-8 lg:grid-cols-[256px_minmax(0,1fr)] lg:gap-14" : ""}>
+      {advanced && <aside className="tl-side pt-8 lg:self-start lg:pb-8">
+        <div className="rounded-2xl bg-white p-4 shadow-[0_10px_30px_-22px_rgba(60,30,10,.45),0_0_0_1px_rgba(0,0,0,.05)]">
+          <label className="flex h-9 items-center gap-2 rounded-lg bg-[#f7f2ea] px-3 focus-within:ring-2 focus-within:ring-saffron/30"><Search size={14} className="text-ink-3" /><input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search his life" className="min-w-0 flex-1 bg-transparent text-[13.5px] outline-none" />{q && <button onClick={() => setQ("")} aria-label="Clear"><X size={13} className="text-ink-3" /></button>}</label>
+
+          <p className="mb-1 mt-4 text-[10.5px] font-semibold uppercase tracking-[0.14em] text-ink-3">Chapters</p>
+          <ul className="-mx-1.5">{eras.map((e, i) => { const n = all.filter((x) => eraIx(x) === i).length; const on = eraIx(now) === i; return <li key={e.id}><button onClick={() => toTime(e.year_from)} title={`${e.title} · ${span(e)} · ${n} ${n === 1 ? "moment" : "moments"}`} className={`flex w-full items-center gap-2 rounded-lg px-1.5 py-1 text-left text-[13px] transition hover:bg-[#f7f2ea] ${on ? "bg-[#f7f2ea] font-medium text-ink" : "text-ink-2"}`}><span className="flex size-[18px] shrink-0 items-center justify-center rounded-[5px] text-[10px] font-semibold text-white" style={{ background: eraC(i) }}>{i + 1}</span><span className="min-w-0 flex-1 truncate">{e.title}</span><span className="shrink-0 text-[11px] tabular-nums text-ink-3">{span(e)}</span></button></li>; })}</ul>
+
+          {usedKinds.length > 1 && <><p className="mb-1.5 mt-4 border-t border-line pt-3.5 text-[10.5px] font-semibold uppercase tracking-[0.14em] text-ink-3">Kind of moment</p>
+            <div className="flex flex-wrap gap-1">{usedKinds.map(([k, l, c]) => { const on = kinds.includes(k); return <button key={k} onClick={() => setKinds((s) => (on ? s.filter((x) => x !== k) : [...s, k]))} aria-pressed={on} className="flex items-center gap-1.5 rounded-full px-2 py-[3px] text-[12px] transition" style={on ? { background: c, color: "#fff" } : { background: `color-mix(in srgb, ${c} 9%, white)`, color: c }}><span className="size-1.5 rounded-full" style={{ background: on ? "#fff" : c }} />{l}</button>; })}</div></>}
+
+          {places.length > 1 && <><p className="mb-1.5 mt-4 border-t border-line pt-3.5 text-[10.5px] font-semibold uppercase tracking-[0.14em] text-ink-3">Place</p>
+            <select value={place} onChange={(e) => setPlace(e.target.value)} className="h-9 w-full rounded-lg bg-[#f7f2ea] px-2.5 text-[13px] outline-none"><option value="">Every place</option>{places.map(([p, n]) => <option key={p} value={p}>{p} ({n})</option>)}</select></>}
+
+          {filtered && <button onClick={() => { setQ(""); setKinds([]); setPlace(""); }} className="mt-4 w-full rounded-lg border border-line py-1.5 text-[12.5px] text-ink-2 hover:border-ink hover:text-ink">Show every moment</button>}
         </div>
-        {usedKinds.length > 1 && <div className="rounded-2xl bg-white p-3 shadow-[0_1px_3px_rgba(0,0,0,.06),0_0_0_1px_rgba(0,0,0,.04)]">
-          <p className="mb-2 px-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-3">Kind of moment</p>
-          <div className="flex flex-wrap gap-1.5 px-1">{usedKinds.map(([k, l, c]) => { const on = kinds.includes(k); return <button key={k} onClick={() => setKinds((s) => (on ? s.filter((x) => x !== k) : [...s, k]))} aria-pressed={on} className="flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[12.5px] transition" style={on ? { background: c, color: "#fff" } : { background: `color-mix(in srgb, ${c} 10%, white)`, color: c }}><span className="size-1.5 rounded-full" style={{ background: on ? "#fff" : c }} />{l}</button>; })}</div>
-        </div>}
-        {places.length > 1 && <div className="rounded-2xl bg-white p-3 shadow-[0_1px_3px_rgba(0,0,0,.06),0_0_0_1px_rgba(0,0,0,.04)]">
-          <p className="mb-2 px-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-3">Place</p>
-          <select value={place} onChange={(e) => setPlace(e.target.value)} className="h-9 w-full rounded-lg bg-[#f7f2ea] px-2.5 text-[13.5px] outline-none"><option value="">Every place</option>{places.map(([p, n]) => <option key={p} value={p}>{p} ({n})</option>)}</select>
-        </div>}
-        {filtered && <button onClick={() => { setQ(""); setKinds([]); setPlace(""); }} className="px-1 text-[13px] text-ink-2 underline underline-offset-2 hover:text-ink">Show every moment</button>}
       </aside>}
       <div>
       {advanced && <p className="pt-8 text-[13px] text-ink-3">{filtered ? `${list.length} of ${all.length} moments` : `${all.length} moments`}</p>}
