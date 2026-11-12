@@ -103,19 +103,24 @@ export const MENUS: NavMenu[] = [
   },
   {
     key: "resources", label: "Resources", href: "/resources", icon: Download, allLabel: "All resources",
-    intro: "Downloads, the mobile app, and good places elsewhere to read and learn.",
+    intro: "Tools, downloads, the Gauḍīya library and good places elsewhere to read and learn.",
     groups: [
       g("Tools", [
-        l("/resources/mobile-app", "Android / iOS app", "Coming soon — use the WebFolio meanwhile", Smartphone),
-        l("/resources/windows-app", "Windows app", "The WebFolio, installed on your computer", Download),
-        l("/webfolio", "WebFolio", "The whole archive as one searchable document", BookOpen),
+        l("/resources/script-converter", "Script converter", "IAST, Devanāgarī, Bengali, Odia and the Balaram font", Languages),
         l("/resources/vaishnava-calendar", "Gurudeva calendar", "Festivals and fasting days", CalendarDays),
+        l("/webfolio", "WebFolio", "The whole archive as one searchable document", BookOpen),
         l("https://www.harinamamrta-vyakaranam.com", "Gauḍīya glossary", "Harināmāmṛta-vyākaraṇam", BookA),
         l("https://www.harinamamrta-vyakaranam.com/tools/dictionary/search", "Sanskrit dictionary", "Harināmāmṛta-vyākaraṇam", GraduationCap),
       ]),
+      g("Downloads", [
+        l("/resources/windows-app", "Windows app", "The WebFolio, installed on your computer", Download),
+        l("/resources/mobile-app", "Android / iOS app", "Coming soon — use the WebFolio meanwhile", Smartphone),
+      ]),
       g("Paramparā protection", [
+        l("/gaudiya", "Gauḍīya library", "Books of all our ācāryas", Library),
+        l("/gaudiya/parampara", "Guru-paramparā", "From Śrī Kṛṣṇa to Śrīla Gurudeva", GitBranch),
+        l("/gaudiya/biographies", "Biographies", "Gaura-pārṣadas and ācāryas", UserRound),
         l("https://vedabase.io", "Śrīla Prabhupāda’s works", "On Vedabase", BookMarked),
-        l("/resources/acaryas-works", "Ācāryas’ works", "Previous ācāryas, with the full library", ScrollText),
         l("/resources/padyavali-bhajans", "Padyāvalī & bhajans", "Songs and verses of the paramparā", Music),
         l("/resources/gaudiya-siddhanta", "Gauḍīya siddhānta", "Philosophy in brief", Library),
         l("/resources/gaudiya-verses", "Gauḍīya verses", "The most quoted", Quote),
