@@ -68,7 +68,7 @@ export function Reader({ book, chapter, toc, prev, next, translations, parallel,
   const router = useRouter();
   const [s, setS] = useState<ReaderSettings>(DEF); const [ready, setReady] = useState(false);
   const [panel, setPanel] = useState<null | "contents" | "marks" | "search" | "books">(null);
-  const [pop, setPop] = useState<null | "all">(null); const [help, setHelp] = useState(false);
+  const [pop, setPop] = useState<null | "all">(null); const [canFull, setCanFull] = useState(false); useEffect(() => { setCanFull(!!(document.fullscreenEnabled || (document as any).webkitFullscreenEnabled)); }, []); const [help, setHelp] = useState(false);
   const [barHidden, setBarHidden] = useState(false); const [pct, setPct] = useState(0); const [full, setFull] = useState(false);
   const [marks, setMarks] = useState<Mark[]>([]);
   const scroller = useRef<HTMLDivElement>(null); const pager = useRef<HTMLDivElement>(null);
@@ -142,9 +142,9 @@ export function Reader({ book, chapter, toc, prev, next, translations, parallel,
 
   const textStyle: React.CSSProperties = { fontFamily: FONTS[s.font][1], fontSize: s.size, lineHeight: s.leading, textAlign: s.justify ? "justify" : undefined, hyphens: s.justify ? "auto" : undefined };
   const heading = (title: string, lang?: string) => (
-    <header className="mb-10 font-sans">
+    <header className="mb-10 font-sans" style={{ textAlign: "left", hyphens: "manual" }}>
       <p className="text-[12px] font-medium uppercase tracking-[0.12em]" style={{ color: T.muted }}>{chapter.label} {chapter.num}{lang ? ` · ${lang}` : ""}</p>
-      <h1 className="mt-2 text-[1.6em] font-semibold leading-[1.2] tracking-[-0.015em]" style={{ fontFamily: FONTS[s.font][1] }}>{title}</h1>
+      <h1 className="mt-2 text-[1.6em] font-semibold leading-[1.2] tracking-[-0.015em]" style={{ fontFamily: FONTS[s.font][1], textAlign: "left", textWrap: "balance", wordSpacing: "normal" } as React.CSSProperties}>{title}</h1>
     </header>
   );
   const end = (
@@ -155,7 +155,7 @@ export function Reader({ book, chapter, toc, prev, next, translations, parallel,
   );
 
   const desk = dark ? `color-mix(in srgb, ${T.bg} 70%, #000)` : `color-mix(in srgb, ${T.bg} 90%, #6b4a1c)`;
-  const icon = "flex size-9 items-center justify-center rounded-md transition hover:bg-black/[0.06] [.rd-dark_&]:hover:bg-white/10";
+  const icon = "flex size-8 shrink-0 items-center justify-center rounded-md sm:size-9 transition hover:bg-black/[0.06] [.rd-dark_&]:hover:bg-white/10";
 
   return (
     <div className={`rd fixed inset-0 z-[70] flex flex-col ${dark ? "rd-dark" : ""}`} style={{ background: T.bg, color: T.ink, ["--rd-ink" as any]: T.ink, ["--rd-muted" as any]: T.muted, ["--rd-line" as any]: T.line, ["--rd-bg" as any]: T.bg, visibility: ready ? "visible" : "hidden" }}>
@@ -167,18 +167,20 @@ export function Reader({ book, chapter, toc, prev, next, translations, parallel,
           <button onClick={() => setPanel(panel === "contents" ? null : "contents")} className={icon} title="Contents (C)"><List size={17} /></button>
           {library && <button onClick={() => setPanel(panel === "books" ? null : "books")} className={icon} title="All books — go to another book" aria-label="All books"><Library size={17} /></button>}
           {/* the title sits over the centre of the text being read (beside the contents column when it is open) */}
-          <div className={`pointer-events-none absolute inset-y-0 left-1/2 flex w-[calc(100%-200px)] max-w-[560px] -translate-x-1/2 flex-col items-center justify-center text-center font-sans leading-tight ${mode === "classic" && s.sidebar ? "lg:left-[calc(50%+145px)] lg:w-[calc(100%-290px-220px)]" : ""}`}>
+          <div className={`flex min-w-0 flex-1 flex-col justify-center px-1.5 text-left font-sans leading-tight sm:pointer-events-none sm:absolute sm:inset-y-0 sm:left-1/2 sm:w-[calc(100%-300px)] sm:max-w-[560px] sm:flex-none sm:-translate-x-1/2 sm:items-center sm:px-0 sm:text-center ${mode === "classic" && s.sidebar ? "lg:left-[calc(50%+145px)] lg:w-[calc(100%-290px-300px)]" : ""}`}>
             <p className="w-full truncate text-[11.5px]" style={{ color: T.muted }}>{book.title}</p>
             <p className="w-full truncate text-[13px] font-medium">{chapter.title}</p>
           </div>
-          <span className="flex-1" />
+          <span className="hidden flex-1 sm:block" />
           <button onClick={() => setPanel(panel === "search" ? null : "search")} className={icon} title="Search in this book (/)" aria-label="Search"><Search size={17} /></button>
+          <button onClick={toggleMark} className={icon} title="Bookmark (B)" aria-label="Bookmark" aria-pressed={marked}>{marked ? <BookmarkCheck size={17} /> : <Bookmark size={17} />}</button>
+          {canFull && <button onClick={toggleFull} className={icon} title="Full screen (F)" aria-label="Full screen">{full ? <Minimize size={17} /> : <Maximize size={17} />}</button>}
           <div className="relative"><button onClick={() => setPop(pop === "all" ? null : "all")} className={icon} title="Settings (A)" aria-label="Settings"><Settings2 size={17} /></button>{pop === "all" && <Pop T={T} onClose={() => setPop(null)} wide>
             <div className="max-h-[calc(100dvh-90px)] overflow-y-auto overscroll-contain">
               <div className="flex items-center gap-2 px-1 pt-1"><span className="flex-1 text-[12px] font-medium" style={{ color: T.muted }}>Text size</span>
                 <button onClick={() => set({ size: Math.max(13, s.size - 1) })} className={`${icon} border text-[13px] font-semibold`} style={{ borderColor: T.line }} aria-label="Smaller text">A−</button><span className="w-7 text-center text-[12.5px] tabular-nums">{s.size}</span><button onClick={() => set({ size: Math.min(30, s.size + 1) })} className={`${icon} border text-[16px] font-semibold`} style={{ borderColor: T.line }} aria-label="Larger text">A+</button></div>
-              <div className="mt-2 grid grid-cols-3 gap-1 border-y py-2" style={{ borderColor: T.line }}>
-                {([[marked ? BookmarkCheck : Bookmark, marked ? "Marked" : "Bookmark", toggleMark], [full ? Minimize : Maximize, full ? "Exit full" : "Full screen", toggleFull], [Keyboard, "Shortcuts", () => { setPop(null); setHelp(true); }]] as [any, string, () => void][]).map(([I, l, f]) => <button key={l} onClick={f} className="flex flex-col items-center gap-1 rounded-md py-2 text-[11.5px] hover:bg-black/5 [.rd-dark_&]:hover:bg-white/10"><I size={17} />{l}</button>)}
+              <div className="mt-2 grid gap-1 border-y py-1.5 max-sm:hidden" style={{ borderColor: T.line }}>
+                {([[Keyboard, "Keyboard shortcuts", () => { setPop(null); setHelp(true); }]] as [any, string, () => void][]).map(([I, l, f]) => <button key={l} onClick={f} className="flex items-center gap-2 rounded-md px-2 py-1.5 text-[12.5px] hover:bg-black/5 [.rd-dark_&]:hover:bg-white/10"><I size={16} />{l}</button>)}
               </div>
               <p className="px-2 pb-1 pt-3 text-[11.5px] font-medium" style={{ color: T.muted }}>Reader</p>
               {MODES.map(([k, l, d, I]) => { const off = k === "parallel" && !hasPar; return <button key={k} disabled={off} onClick={() => set({ mode: k })} className="flex w-full items-start gap-3 rounded-md px-2 py-1.5 text-left hover:bg-black/5 disabled:opacity-40 [.rd-dark_&]:hover:bg-white/10"><I size={16} className="mt-0.5 shrink-0" /><span className="min-w-0 flex-1"><span className="block text-[13px] font-medium">{l}</span><span className="block text-[11.5px]" style={{ color: T.muted }}>{off ? "When this book has another language" : d}</span></span>{mode === k && <Check size={14} className="mt-1" />}</button>; })}
