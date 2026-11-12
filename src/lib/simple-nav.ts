@@ -45,7 +45,6 @@ export const SIMPLE_DEFAULTS: { key: string; label: string; intro: string; icon:
     { group: "Tattva", href: "/tattva", label: "Tattva", note: "Every subject of his teachings, topic by topic", icon: "Network" }] },
   { key: "resources", label: "Resources", intro: "Tools, downloads and the paramparā", icon: "Download", accent: "gold", featured: [
     { group: "Paramparā protection", href: "/gaudiya", label: "Gauḍīya library", note: "Books of all our ācāryas", icon: "Library" },
-    { group: "Paramparā protection", href: "/gaudiya/scriptures", label: "Scriptures", note: "With the ācāryas’ commentaries", icon: "BookMarked" },
     { group: "Paramparā protection", href: "/gaudiya/padyavali", label: "Padyāvalī", note: "Songs of the ācāryas", icon: "Music" },
     { group: "Paramparā protection", href: "/gaudiya/parampara", label: "Guru-paramparā", note: "From Śrī Kṛṣṇa to Śrīla Gurudeva", icon: "GitBranch" },
     { group: "Paramparā protection", href: "/gaudiya/biographies", label: "Biographies", note: "Gaura-pārṣadas and ācāryas", icon: "UserRound" },
