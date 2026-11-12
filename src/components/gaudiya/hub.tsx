@@ -95,7 +95,7 @@ export function AcharyaHub({ books, acharyas, categories = [], base = "/gaudiya"
         </>) : (
           <LibraryBrowser categories={categories} defaultView="category" label={what === "library" ? "Library" : what[0].toUpperCase() + what.slice(1)} allLabel="Everything" storeKey={`tj:gaudiya:${base}`} books={lib(books, (b) => [b.kind, b.author || "Other books"])} />
         )}
-        <Credits />
+        {!a && base === "/gaudiya" && <Credits />}
       </div>
     </div>);
 }
