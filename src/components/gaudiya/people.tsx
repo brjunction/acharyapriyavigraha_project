@@ -12,7 +12,7 @@ export function People({ groups, empty }: { groups: [string, Person[]][]; empty:
   const shown = groups.map(([g, ps]) => [g, f ? ps.filter((p) => fold(`${p.title} ${p.subtitle || ""} ${p.summary || ""}`).includes(f)) : ps] as [string, Person[]]).filter(([, ps]) => ps.length);
   return (
     <div>
-      <label className="relative mb-8 block max-w-md"><Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-ink-3" /><input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Find a name" className="h-11 w-full rounded-full border border-line bg-white pl-10 pr-10 text-[14.5px] outline-none focus:border-ink/40" />{q && <button onClick={() => setQ("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-3" aria-label="Clear"><X size={16} /></button>}</label>
+      <label className="relative mb-8 mt-6 block max-w-md"><Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-ink-3" /><input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Find a name" className="h-11 w-full rounded-full border border-line bg-white pl-10 pr-10 text-[14.5px] outline-none focus:border-ink/40" />{q && <button onClick={() => setQ("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-3" aria-label="Clear"><X size={16} /></button>}</label>
       {!shown.length && <p className="rounded-xl border border-dashed border-line p-10 text-center text-[13.5px] text-ink-3">{q ? "No one by that name yet." : empty}</p>}
       {shown.map(([g, ps]) => (
         <section key={g} className="mb-10">

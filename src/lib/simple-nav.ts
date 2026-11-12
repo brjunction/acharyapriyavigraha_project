@@ -44,12 +44,14 @@ export const SIMPLE_DEFAULTS: { key: string; label: string; intro: string; icon:
     { group: "His words", href: "/teachings/stories", label: "Stories", note: "Stories he told", icon: "BookHeart" },
     { group: "Tattva", href: "/tattva", label: "Tattva", note: "Every subject of his teachings, topic by topic", icon: "Network" }] },
   { key: "resources", label: "Resources", intro: "Tools, downloads and the paramparā", icon: "Download", accent: "gold", featured: [
+    { group: "Paramparā protection", href: "/gaudiya", label: "Gauḍīya library", note: "Books of all our ācāryas", icon: "Library" },
+    { group: "Paramparā protection", href: "/gaudiya/scriptures", label: "Scriptures", note: "With the ācāryas’ commentaries", icon: "BookMarked" },
+    { group: "Paramparā protection", href: "/gaudiya/padyavali", label: "Padyāvalī", note: "Songs of the ācāryas", icon: "Music" },
+    { group: "Paramparā protection", href: "/gaudiya/parampara", label: "Guru-paramparā", note: "From Śrī Kṛṣṇa to Śrīla Gurudeva", icon: "GitBranch" },
+    { group: "Paramparā protection", href: "/gaudiya/biographies", label: "Biographies", note: "Gaura-pārṣadas and ācāryas", icon: "UserRound" },
     { group: "Tools", href: "/resources/script-converter", label: "Script converter", note: "IAST, Devanāgarī, Bengali, Odia, Balaram font", icon: "Languages" },
     { group: "Tools", href: "/resources/vaishnava-calendar", label: "Calendar", note: "Festivals and fasting days", icon: "CalendarDays" },
-    { group: "Downloads", href: "/resources/windows-app", label: "Windows app", note: "The WebFolio on your computer", icon: "Download" },
-    { group: "Paramparā protection", href: "/gaudiya", label: "Gauḍīya library", note: "Books of all our ācāryas", icon: "Library" },
-    { group: "Paramparā protection", href: "/gaudiya/parampara", label: "Guru-paramparā", note: "From Śrī Kṛṣṇa to Śrīla Gurudeva", icon: "GitBranch" },
-    { group: "Paramparā protection", href: "/gaudiya/biographies", label: "Biographies", note: "Gaura-pārṣadas and ācāryas", icon: "UserRound" }] },
+    { group: "Downloads", href: "/resources/windows-app", label: "Windows app", note: "The WebFolio on your computer", icon: "Download" }] },
   { key: "about", label: "About", intro: "Archive, contact, resources", icon: "Info", accent: "leaf", featured: [
     { href: "/about", label: "About this website", note: "Why and how this archive exists", icon: "Archive" },
     { href: "/about/founder", label: "Śrīla Guru Mahārāja", note: "Founder of Taptajīvanam", icon: "/photos/haladhara-sm.webp" },
@@ -92,7 +94,7 @@ export function simpleMenus(menus: NavMenu[], cfg?: SimpleCfg | null): SimpleMen
     // Resources: tools, downloads, the paramparā; the YouTube channels and other websites with them.
     resources: (() => { const res = G("resources").map((g) => T(g.title, g.links.filter((l) => !yt.includes(l)))); const by = (t: string) => res.find((g) => g.title === t)?.links || [];
       const known = ["Tools", "Downloads", "Paramparā protection", "Elsewhere online", "News & updates"];
-      return [T("Tools", by("Tools")), T("Downloads", by("Downloads")), T("Paramparā protection", by("Paramparā protection")), T("Elsewhere online", by("Elsewhere online")), ...res.filter((g) => !known.includes(g.title))]; })(),
+      return [T("Paramparā protection", by("Paramparā protection")), T("Tools", by("Tools")), T("Downloads", by("Downloads")), T("Elsewhere online", by("Elsewhere online")), ...res.filter((g) => !known.includes(g.title))]; })(),
     // About stays short: the archive itself, then news.
     about: [...G("about"), T("News & updates", G("resources", ["News & updates"]).flatMap((g) => g.links))],
   };

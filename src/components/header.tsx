@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { ChevronDown, ChevronRight, ChevronLeft, Search, Menu, X, ArrowRight } from "lucide-react";
 import { ACCENT, type NavMenu } from "@/lib/nav";
-import { simpleMenus, ADV_KEY, type SimpleMenu } from "@/lib/simple-nav";
+import { simpleMenus, ADV_KEY, type SimpleMenu, type SimpleTab } from "@/lib/simple-nav";
 import { useMenus, useSimpleCfg } from "./menus-context";
 import { LogoMark, Rosette } from "./motifs";
 import { usePrefs } from "./providers";
@@ -183,13 +183,38 @@ function FeatureCard({ f, onClick, here, compact = false }: { f: SimpleMenu["fea
 
 const cardCols = (n: number) => (n <= 4 ? Math.max(n, 1) : n === 6 || n === 5 || n === 9 ? 3 : 4);
 
+const PP = "Paramparā protection";
+/** The most important group of the Resources menu, shown large: what it is, and every page of it at once. */
+function ParamparaBanner({ tab, onNavigate, mobile }: { tab: SimpleTab; onNavigate: () => void; mobile?: boolean }) {
+  return (
+    <div className="pp-glow rounded-2xl p-4 sm:p-5">
+      <svg aria-hidden viewBox="0 0 200 120" className="pointer-events-none absolute -right-6 -top-4 -z-10 w-[190px] text-[#d9a24e] opacity-30">
+        {Array.from({ length: 7 }).map((_, i) => <ellipse key={i} cx="100" cy="118" rx="22" ry="86" fill="none" stroke="currentColor" strokeWidth="1.3" transform={`rotate(${-66 + i * 22} 100 118)`} />)}
+      </svg>
+      <div className={`flex gap-4 ${mobile ? "flex-col" : "items-start"}`}>
+        <div className={mobile ? "" : "w-[250px] shrink-0"}>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#a2560c]">Gauḍīya Paramparā Protection</p>
+          <p className="mt-1 text-[17px] font-semibold leading-snug text-ink">The complete resources of our paramparā</p>
+          <p className="mt-1.5 text-[13px] leading-relaxed text-ink-2">The books of the ācāryas, the scriptures with their commentaries, their songs, the Guru-paramparā and their lives — kept faithfully, in one place.</p>
+        </div>
+        <div className={`grid flex-1 gap-2 ${mobile ? "grid-cols-2" : "grid-cols-3"}`}>
+          {tab.items.map((f) => <Link key={f.href} href={f.href} onClick={onNavigate} className="group flex min-w-0 items-center gap-2.5 rounded-xl bg-white/80 p-2.5 ring-1 ring-[#e9cf9f] transition hover:-translate-y-0.5 hover:bg-white hover:shadow-[0_8px_20px_-10px_rgba(150,80,10,.45)]">
+            <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#fbe6c2] to-[#f2cf93] text-[#8a4b0f]"><f.icon size={17} strokeWidth={1.7} /></span>
+            <span className="min-w-0"><span className="line-clamp-2 block text-[13px] font-semibold leading-snug text-ink group-hover:text-[#a2560c]">{f.label}</span>{f.note && tab.items.length <= 6 && <span className="block truncate text-[11.5px] text-ink-3">{f.note}</span>}</span>
+          </Link>)}
+        </div>
+      </div>
+    </div>);
+}
+
 /** Simple panel: first only the groups (His life, Remembrance…) as a few tiles; a click opens that group's pages, with a way back. */
 function SimplePanel({ menu, onNavigate, onEverything }: { menu: SimpleMenu; onNavigate: () => void; onEverything: () => void }) {
   const here = usePathname(); const router = useRouter();
   const [ti, setTi] = useState(-1);
-  const tabs = menu.tabs; const t = tabs[ti];
+  const pp = menu.tabs.find((x) => x.title === PP); const tabs = menu.tabs.filter((x) => x !== pp); const t = tabs[ti];
   return (
     <div className={`acc-${menu.accent} mega-enter overflow-hidden rounded-3xl border border-line bg-surface shadow-[var(--shadow-lg)]`}>
+      {!t && pp && <div className="p-4 pb-0"><ParamparaBanner tab={pp} onNavigate={onNavigate} /></div>}
       {!t ? (
         <div className="grid gap-3 p-4" style={{ gridTemplateColumns: `repeat(${tabs.length <= 5 ? tabs.length : 3}, minmax(0, 1fr))` }}>
           {tabs.map((x, k) => (
@@ -223,10 +248,12 @@ function SimplePanel({ menu, onNavigate, onEverything }: { menu: SimpleMenu; onN
 function MobileTabs({ menu, onClose }: { menu: SimpleMenu; onClose: () => void }) {
   const here = usePathname(); const router = useRouter();
   const [o, setO] = useState(-1);
+  const pp = menu.tabs.find((x) => x.title === PP);
   if (menu.tabs.length === 1) return <div className="grid grid-cols-2 gap-2">{menu.tabs[0].items.map((f, k) => <div key={f.href} className="sm-card" style={{ animationDelay: `${k * 35}ms` }}><FeatureCard f={f} onClick={onClose} here={here} compact /></div>)}</div>;
   return (
     <div className="space-y-2">
-      {menu.tabs.map((t, k) => (
+      {pp && <ParamparaBanner tab={pp} onNavigate={onClose} mobile />}
+      {menu.tabs.map((t, k) => t === pp ? null : (
         <div key={t.title} className={`acc-${t.acc} overflow-hidden rounded-2xl ${k === o ? "bg-acc-tint" : "border border-line bg-white"}`}>
           <button onClick={() => { if (t.items.length === 1) { router.push(t.items[0].href); onClose(); } else setO(k === o ? -1 : k); }} aria-expanded={k === o} className="flex w-full items-center gap-3 px-3 py-2.5 text-left">
             <span className="flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-full bg-white text-[var(--acc)] ring-1 ring-line">{t.img ? /* eslint-disable-next-line @next/next/no-img-element */ <img src={t.img} alt="" className="h-full w-full object-cover" style={t.pos ? { objectPosition: t.pos } : undefined} /> : <t.icon size={20} strokeWidth={1.6} />}</span>

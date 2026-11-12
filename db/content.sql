@@ -192,3 +192,6 @@ create index if not exists books_library on books(library, status);
 alter table book_nodes add column if not exists draft jsonb;
 alter table book_nodes add column if not exists heads jsonb not null default '[]';
 alter table book_nodes add column if not exists published_at timestamptz;
+
+-- 12 Nov 2026 · what a Gauḍīya book is shown as: 'book' (the library), 'scripture' (/gaudiya/scriptures) or 'songs' (/gaudiya/padyavali)
+alter table books add column if not exists kind text not null default 'book';

@@ -4,6 +4,7 @@ import { ArrowLeft, ArrowRight, BookOpen, GitBranch, MapPin } from "lucide-react
 import { getAcharya, getGaudiyaBooks, getParampara, booksOf, SECTIONS } from "@/lib/gaudiya/data";
 import { Render } from "@/components/cms/doc";
 import { Portrait } from "@/components/gaudiya/portrait";
+import { Cover } from "@/components/gaudiya/cover";
 
 export const revalidate = 300;
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) { const { slug } = await params; const a = await getAcharya(slug); return a ? { title: `${a.title} · Gauḍīya Library`, description: a.summary || `${a.title}: his books and biography.` } : {}; }
@@ -17,7 +18,7 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
     <div className="bg-white">
       <section className="border-b border-line bg-gradient-to-b from-[#fdf6ea] to-white">
         <div className="mx-auto max-w-[1100px] px-4 pb-10 pt-8 sm:px-6">
-          <Link href="/gaudiya/acharyas" className="inline-flex items-center gap-1.5 text-[13px] text-ink-3 hover:text-ink"><ArrowLeft size={14} />All ācāryas</Link>
+          <span className="flex flex-wrap gap-x-5 gap-y-1 text-[13px]"><Link href="/gaudiya" className="inline-flex items-center gap-1.5 text-ink-3 hover:text-ink"><ArrowLeft size={14} />Gauḍīya library</Link><Link href="/gaudiya/biographies" className="text-ink-3 hover:text-ink">Biographies</Link></span>
           <div className="mt-6 flex flex-col items-start gap-6 sm:flex-row sm:items-center">
             <Portrait src={a.cover} name={a.title} size={112} ring />
             <div className="min-w-0">
@@ -34,7 +35,7 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
         {books.length > 0 && <section id="books" className="scroll-mt-28 pt-10">
           <h2 className="mb-4 text-[18px] font-semibold text-ink">Books</h2>
           <div className="grid grid-cols-2 gap-5 sm:grid-cols-4 lg:grid-cols-6">{books.map((b) => (
-            <Link key={b.slug} href={`/books/${b.slug}`} className="group"><span className="relative block aspect-[3/4] overflow-hidden rounded-[3px_8px_8px_3px] bg-gradient-to-br from-[#5a3418] to-[#2d1a0c] shadow-sm transition group-hover:-translate-y-1 group-hover:shadow-lg">{b.cover_url ? /* eslint-disable-next-line @next/next/no-img-element */ <img src={b.cover_url} alt="" className="h-full w-full object-cover" loading="lazy" /> : <span className="flex h-full items-center justify-center p-3 text-center text-[12.5px] leading-snug text-white/90">{b.title}</span>}</span>
+            <Link key={b.slug} href={`/books/${b.slug}`} className="group"><Cover src={b.cover_url} title={b.title} />
               <span className="mt-2 line-clamp-2 block text-[13px] font-medium leading-snug text-ink group-hover:text-saffron">{b.title}</span><span className="text-[11.5px] uppercase tracking-wide text-ink-3">{b.language}</span></Link>))}</div>
         </section>}
 

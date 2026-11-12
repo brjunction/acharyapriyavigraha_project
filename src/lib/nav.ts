@@ -118,10 +118,11 @@ export const MENUS: NavMenu[] = [
       ]),
       g("Paramparā protection", [
         l("/gaudiya", "Gauḍīya library", "Books of all our ācāryas", Library),
+        l("/gaudiya/scriptures", "Scriptures", "With the ācāryas’ commentaries", BookMarked),
+        l("/gaudiya/padyavali", "Padyāvalī", "Songs and bhajans of the ācāryas", Music),
         l("/gaudiya/parampara", "Guru-paramparā", "From Śrī Kṛṣṇa to Śrīla Gurudeva", GitBranch),
         l("/gaudiya/biographies", "Biographies", "Gaura-pārṣadas and ācāryas", UserRound),
         l("https://vedabase.io", "Śrīla Prabhupāda’s works", "On Vedabase", BookMarked),
-        l("/resources/padyavali-bhajans", "Padyāvalī & bhajans", "Songs and verses of the paramparā", Music),
         l("/resources/gaudiya-siddhanta", "Gauḍīya siddhānta", "Philosophy in brief", Library),
         l("/resources/gaudiya-verses", "Gauḍīya verses", "The most quoted", Quote),
         l("/resources/holy-places", "Gauḍīya holy places", "Dhāmas and tīrthas", MapPin),

@@ -806,3 +806,11 @@ html[data-motion="reduce"] .bless-word, html[data-motion="reduce"] .bless-rise, 
 /* Full-screen readers (His Diary): the website's own menu, footer and editing bar step aside */
 html.tj-immersive .site-header, html.tj-immersive footer, html.tj-immersive .home-foot { display: none !important; }
 html.tj-immersive body { overflow: hidden; }
+
+/* Paramparā protection: the most important group of the menu — a slow golden glow and a light that passes over it */
+@keyframes pp-pulse { 0%, 100% { box-shadow: 0 0 0 1px rgba(196,132,40,.45), 0 0 0 0 rgba(224,165,79,.35); } 50% { box-shadow: 0 0 0 1px rgba(196,132,40,.7), 0 0 0 7px rgba(224,165,79,0); } }
+@keyframes pp-shine { 0% { transform: translateX(-120%) skewX(-18deg); } 55%, 100% { transform: translateX(260%) skewX(-18deg); } }
+.pp-glow { position: relative; isolation: isolate; overflow: hidden; background: linear-gradient(160deg, #fff6e4, #fdeccd) !important; animation: pp-pulse 2.8s ease-in-out infinite; }
+.pp-glow::after { content: ""; position: absolute; inset: 0 auto 0 0; width: 40%; z-index: -1; background: linear-gradient(90deg, transparent, rgba(255,255,255,.75), transparent); animation: pp-shine 4.5s ease-in-out infinite; pointer-events: none; }
+.pp-badge { display: inline-flex; align-items: center; border-radius: 999px; background: linear-gradient(90deg, #b45309, #d4892d); color: #fff; font-size: 10.5px; font-weight: 600; letter-spacing: .04em; padding: 2px 8px; text-transform: uppercase; }
+@media (prefers-reduced-motion: reduce) { .pp-glow, .pp-glow::after { animation: none; } }

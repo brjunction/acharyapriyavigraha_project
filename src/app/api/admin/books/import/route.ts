@@ -24,7 +24,7 @@ export async function POST(req: Request) {
     }
     let s = slugify(title), n = 1; const base = s; while ((await sql`select 1 from books where slug = ${s}`).length) s = `${base}-${++n}`;
     const pos = Number((await sql`select coalesce(max(position), -1) + 1 as p from books where library = ${library} and category is not distinct from ${k.category || null}`)[0].p);
-    const r = await sql`insert into books (slug, title, author, category, publisher, language, cover_url, status, layout, library, acharya, position, source) values (${s}, ${title}, ${k.author || null}, ${k.category || null}, ${k.publisher || null}, ${k.language || "en"}, ${k.cover_url || null}, ${status}, ${k.layout || "classic"}, ${library}, ${k.acharya || null}, ${pos}, ${source}::jsonb) returning id, slug`;
+    const r = await sql`insert into books (slug, kind, title, author, category, publisher, language, cover_url, status, layout, library, acharya, position, source) values (${s}, ${["book", "scripture", "songs"].includes(k.kind) ? k.kind : "book"}, ${title}, ${k.author || null}, ${k.category || null}, ${k.publisher || null}, ${k.language || "en"}, ${k.cover_url || null}, ${status}, ${k.layout || "classic"}, ${library}, ${k.acharya || null}, ${pos}, ${source}::jsonb) returning id, slug`;
     return json(r[0]);
   }
   if (b.op === "nodes") {

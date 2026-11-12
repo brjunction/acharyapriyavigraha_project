@@ -5,7 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Library, Upload, BookUser, GitBranch, ExternalLink, Search } from "lucide-react";
 import { Badge, Card, Input, Select, PageHeader, Empty, api, toast } from "../ui";
 
-type B = { id: string; slug: string; title: string; author?: string; acharya?: string | null; library?: string; status: string; language?: string; chapters: number; cover_url?: string };
+type B = { id: string; kind?: string; slug: string; title: string; author?: string; acharya?: string | null; library?: string; status: string; language?: string; chapters: number; cover_url?: string };
 type A = { slug: string; title: string };
 const core = (s: string) => s.normalize("NFKD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/_/g, " ").replace(/\b(sri|srila|srimad|srimati|sripada)\b/g, " ").replace(/[^a-z ]+/g, " ").replace(/\s+/g, " ").trim();
 const guess = (b: B, as: A[]) => as.find((a) => b.acharya === a.slug) || as.find((a) => { const n = core(a.title); return [b.acharya, b.author].some((x) => { const c = x ? core(x) : ""; return c.length >= 4 && (c === n || c.includes(n) || n.includes(c)); }); });
@@ -37,6 +37,7 @@ export function GaudiyaPanel() {
               <span className="flex h-11 w-8 shrink-0 items-center justify-center overflow-hidden rounded-[2px_4px_4px_2px] bg-zinc-800">{b.cover_url && /* eslint-disable-next-line @next/next/no-img-element */ <img src={b.cover_url} alt="" className="h-full w-full object-cover" />}</span>
               <span className="min-w-0 flex-1"><Link href={`/admin/books/${b.id}`} className="block truncate text-[13.5px] font-medium hover:underline">{b.title}</Link><span className="text-[12px] text-zinc-500">{b.author || "—"} · {b.chapters} chapters · {(b.language || "").toUpperCase()}</span></span>
               {b.status !== "published" && <Badge>Draft</Badge>}
+              <Select value={b.kind || "book"} onChange={async (e) => { const kind = e.target.value; try { await api(`/api/admin/books/${b.id}/acharya`, "POST", { kind }); setBooks((xs) => xs && xs.map((x) => (x.id === b.id ? { ...x, kind } : x))); toast("Saved."); } catch (er: any) { toast(er.message, true); } }} className="!h-8 !w-[150px]" aria-label="Shown on"><option value="book">Library</option><option value="scripture">Scriptures</option><option value="songs">Padyāvalī</option></Select>
               <Select value={a?.slug || ""} onChange={(e) => setA(b, e.target.value)} className={`!h-8 !w-[240px] ${a ? "" : "!border-amber-300"}`} aria-label="Ācārya"><option value="">Choose the ācārya…</option>{as.map((x) => <option key={x.slug} value={x.slug}>{x.title}</option>)}</Select>
             </div>))}</div>}
       </Card>
