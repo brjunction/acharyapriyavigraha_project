@@ -20,10 +20,10 @@ export async function HomePage({ blessing }: { blessing?: string }) {
     db ? one(sql`select count(*)::int n from audios where status = 'published' and kind in ('kirtan','bhajan')`) : 0,
     db ? one(sql`select count(*)::int n from videos where status = 'published'`) : STATS.videos,
     db ? one(sql`select count(*)::int n from audios where status = 'published' and transcript_status = 'done'`) : STATS.transcriptions,
-    db ? one(sql`select count(*)::int n from books where status = 'published'`) : STATS.books,
+    db ? one(sql`select count(*)::int n from books where status = 'published' and library = 'main'`) : STATS.books,
     db ? one(sql`select count(*)::int n from excerpts where status = 'published'`) : 0,
     db ? rows<HomeLecture>(sql`select slug, title, to_char(date, 'YYYY-MM-DD') date, place, duration_sec, transcript_status from audios where status = 'published' and kind not in ('kirtan','bhajan') order by created_at desc limit 5`) : [],
-    db ? rows<HomeBook>(sql`select slug, title, cover_url, language from books where status = 'published' order by position, title limit 8`) : [],
+    db ? rows<HomeBook>(sql`select slug, title, cover_url, language from books where status = 'published' and library = 'main' order by position, title limit 8`) : [],
     getTopics().catch(() => []),
   ]);
   const topTopics = [...tps].sort((a, b) => b.total - a.total).slice(0, 24).map((t) => ({ name: t.name, slug: t.slug, total: t.total }));

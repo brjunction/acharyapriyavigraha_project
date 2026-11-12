@@ -181,3 +181,9 @@ create unique index if not exists audios_audio_url_key on audios(audio_url) wher
 alter table audios add column if not exists audio_direct2 text;
 alter table audios add column if not exists transcript_show text not null default 'best'; -- best | devotee | machine | both
 alter table suggestions add column if not exists original text, add column if not exists proposed text, add column if not exists fp text; -- an edit suggestion: the paragraph as it is, the visitor's version (bold/italic as ** *), and a hashed sender mark for spam control
+
+-- 12 Nov 2026 · book fetcher and the Gauḍīya library: which library a book belongs to ('main' = Śrīla Gurudeva's books, 'gaudiya'), its ācārya, and the file it was fetched from
+alter table books add column if not exists library text not null default 'main';
+alter table books add column if not exists acharya text;
+alter table books add column if not exists source jsonb not null default '{}';
+create index if not exists books_library on books(library, status);

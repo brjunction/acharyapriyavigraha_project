@@ -54,7 +54,7 @@ async function Block({ b, n, toc, ctx }: { b: DBlock; n: number; toc?: ReactNode
   switch (b.type) {
     case "paragraph": {
       const empty = !plainText(b.content).trim();
-      return <><p className="my-2.5 min-h-[1em] text-[15px] leading-[1.8] text-ink-2" style={style(p)}>{empty ? <br /> : <Inline c={b.content} />}</p><Kids b={b} /></>;
+      return <><p className="my-2.5 min-h-[1em] whitespace-pre-line text-[15px] leading-[1.8] text-ink-2" style={style(p)}>{empty ? <br /> : <Inline c={b.content} />}</p><Kids b={b} /></>;
     }
     case "heading": {
       const L = Math.min(6, Math.max(1, p.level || 2)); const Tag = `h${L}` as "h2"; const text = plainText(b.content);

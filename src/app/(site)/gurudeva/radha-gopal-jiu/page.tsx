@@ -10,7 +10,7 @@ export const revalidate = 300;
 export default async function Page() {
   const cms = await cmsOverride("/gurudeva/radha-gopal-jiu"); if (cms) return cms;
   let books: { slug: string; title: string; cover_url: string | null; language: string }[] = [];
-  if (hasDb()) { try { books = (await sql`select slug, title, cover_url, language from books where status = 'published' and (title ilike '%gopal jiu%' or title ilike '%gopāl jiu%') order by language = 'en' desc, title`) as any[]; } catch {} }
+  if (hasDb()) { try { books = (await sql`select slug, title, cover_url, language from books where status = 'published' and library = 'main' and (title ilike '%gopal jiu%' or title ilike '%gopāl jiu%') order by language = 'en' desc, title`) as any[]; } catch {} }
   const book = books[0];
   return (
     <div className="bg-white">

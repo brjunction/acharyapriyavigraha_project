@@ -16,11 +16,11 @@ export async function aiConfig(): Promise<AiConfig | null> {
 }
 
 /** Ask the chosen AI. Returns its text. */
-export async function askAI(cfg: AiConfig, system: string, prompt: string, maxTokens = 32000): Promise<string> {
+export async function askAI(cfg: AiConfig, system: string, prompt: string, maxTokens = 32000, image?: { type: string; base64: string }): Promise<string> {
   const signal = AbortSignal.timeout(280000);
   if (cfg.provider === "gemini") {
     const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(cfg.model)}:generateContent`, { method: "POST", signal, headers: { "content-type": "application/json", "x-goog-api-key": cfg.key },
-      body: JSON.stringify({ systemInstruction: { parts: [{ text: system }] }, contents: [{ role: "user", parts: [{ text: prompt }] }], generationConfig: { temperature: 0.2, maxOutputTokens: Math.min(maxTokens, 65000) } }) });
+      body: JSON.stringify({ systemInstruction: { parts: [{ text: system }] }, contents: [{ role: "user", parts: [...(image ? [{ inlineData: { mimeType: image.type, data: image.base64 } }] : []), { text: prompt }] }], generationConfig: { temperature: 0.2, maxOutputTokens: Math.min(maxTokens, 65000) } }) });
     const j = await r.json().catch(() => ({})); if (!r.ok) throw new Error(`Gemini: ${j?.error?.message || r.statusText}`);
     const text = (j.candidates?.[0]?.content?.parts || []).map((p: any) => p.text || "").join("");
     if (!text) throw new Error(`Gemini returned nothing${j.candidates?.[0]?.finishReason ? ` (${j.candidates[0].finishReason})` : ""}.`);
@@ -28,12 +28,12 @@ export async function askAI(cfg: AiConfig, system: string, prompt: string, maxTo
   }
   if (cfg.provider === "openai") {
     const r = await fetch("https://api.openai.com/v1/chat/completions", { method: "POST", signal, headers: { "content-type": "application/json", authorization: `Bearer ${cfg.key}` },
-      body: JSON.stringify({ model: cfg.model, temperature: 0.2, max_tokens: Math.min(maxTokens, 32000), messages: [{ role: "system", content: system }, { role: "user", content: prompt }] }) });
+      body: JSON.stringify({ model: cfg.model, temperature: 0.2, max_tokens: Math.min(maxTokens, 32000), messages: [{ role: "system", content: system }, { role: "user", content: image ? [{ type: "image_url", image_url: { url: `data:${image.type};base64,${image.base64}` } }, { type: "text", text: prompt }] : prompt }] }) });
     const j = await r.json().catch(() => ({})); if (!r.ok) throw new Error(`OpenAI: ${j?.error?.message || r.statusText}`);
     return j.choices?.[0]?.message?.content || "";
   }
   const r = await fetch("https://api.anthropic.com/v1/messages", { method: "POST", signal, headers: { "content-type": "application/json", "x-api-key": cfg.key, "anthropic-version": "2023-06-01" },
-    body: JSON.stringify({ model: cfg.model, max_tokens: Math.min(maxTokens, 32000), temperature: 0.2, system, messages: [{ role: "user", content: prompt }] }) });
+    body: JSON.stringify({ model: cfg.model, max_tokens: Math.min(maxTokens, 32000), temperature: 0.2, system, messages: [{ role: "user", content: image ? [{ type: "image", source: { type: "base64", media_type: image.type, data: image.base64 } }, { type: "text", text: prompt }] : prompt }] }) });
   const j = await r.json().catch(() => ({})); if (!r.ok) throw new Error(`Claude: ${j?.error?.message || r.statusText}`);
   return (j.content || []).map((c: any) => c.text || "").join("");
 }
@@ -58,3 +58,14 @@ export const TASKS: Record<string, { label: string; hint: string; system: string
     system: `You summarise lectures of Śrī Śrīmad Gour Govinda Swāmī (Śrīla Gurudeva) for an archive. Write two or three plain sentences describing what the lecture is about, in the third person ("Śrīla Gurudeva explains…"). Use only what is in the text; never invent quotes or facts. IAST diacritics. Answer with the summary only.` },
   custom: { label: "Your own instruction", hint: "Tell it what to do; the same rules about his words always apply.", system: `${RULES}\nTask: follow the editor's instruction below, within the rules above.` },
 };
+
+/** Reading one scanned page of a book exactly as printed. */
+export const OCR_SYSTEM = `You read one scanned page of a printed book for the Taptajīvanam archive and type it out exactly.
+Rules:
+- Type every word exactly as printed. Never add, summarise, translate, correct or skip anything. If a word cannot be read, write [?].
+- Keep diacritics exactly as printed (ā ī ū ṛ ṣ ṇ ś ṁ ḥ ṭ ḍ ñ ṅ). Text printed in Devanāgarī, Bengali or Oriya letters is typed in those letters.
+- Markdown only: a chapter title as "# Title", a smaller heading as "## Heading"; paragraphs separated by one empty line, each paragraph on ONE line (join the printed lines; rejoin words hyphenated at a line's end);
+  verses and centred lines of poetry as lines beginning with "> ", one printed line per line; *italic* and **bold** as printed; other centred text as <center>text</center>.
+- Leave out running headers, running footers and page numbers. Leave out pictures and their captions.
+- If the paragraph at the top continues from the previous page, simply begin with its words (no heading). If the page is empty or only a picture, answer with exactly: [empty]
+- Answer with the page's text only.`;

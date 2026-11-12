@@ -19,7 +19,7 @@ export function BooksPanel() {
   const cats = useMemo(() => Array.from(new Set((books || []).map((b) => b.category || "Books"))), [books]);
   return (
     <div>
-      <PageHeader icon={BookOpen} title="Books" description="Every book with its cover, shelf and chapters. Chapters can hold chapters, as deep as the book needs."><Btn onClick={() => setShelves(true)}>Shelves</Btn><Btn kind="primary" onClick={() => setNw(true)}><Plus />New book</Btn></PageHeader>
+      <PageHeader icon={BookOpen} title="Books" description="Every book with its cover, shelf and chapters. Chapters can hold chapters, as deep as the book needs."><Btn onClick={() => setShelves(true)}>Shelves</Btn><Link href="/admin/books/import" className="inline-flex h-9 items-center rounded-md border border-zinc-200 bg-white px-4 text-[13px] font-medium hover:bg-zinc-50">Import from PDF, EPUB or Word</Link><Btn kind="primary" onClick={() => setNw(true)}><Plus />New book</Btn></PageHeader>
       {shelves && <ShelvesManager onClose={() => setShelves(false)} />}
       {books && !books.length && <Empty icon={BookOpen} title="No books yet" text="Make the first book, then add its parts and chapters."><Btn kind="primary" onClick={() => setNw(true)}><Plus />New book</Btn></Empty>}
       {cats.map((c) => (
@@ -75,6 +75,7 @@ export function BookEditor({ id }: { id: string }) {
     <div className="flex min-h-screen">
       <aside className="sticky top-0 h-screen w-[300px] shrink-0 overflow-y-auto border-r border-zinc-200 bg-white p-3">
         <Link href="/admin/books" className="mb-3 flex items-center gap-1.5 px-1 text-[12.5px] text-zinc-500 hover:text-zinc-900"><ArrowLeft className="size-4" />All books</Link>
+        <Link href={`/admin/books/import?into=${id}`} className="mb-3 block px-1 text-[12px] text-zinc-500 underline hover:text-zinc-900">Replace this book’s chapters from a file</Link>
         <button onClick={() => setCur(null)} className={cn("mb-3 flex w-full items-center gap-3 rounded-lg border p-2.5 text-left", !cur ? "border-zinc-900 bg-zinc-50" : "border-zinc-200 hover:bg-zinc-50")}>
           <span className="flex h-14 w-10 shrink-0 items-center justify-center overflow-hidden rounded-[2px_6px_6px_2px] bg-zinc-800 text-[16.5px]">{book.cover_url ? /* eslint-disable-next-line @next/next/no-img-element */ <img src={book.cover_url} alt="" className="h-full w-full object-cover" /> : book.icon || "📖"}</span>
           <span className="min-w-0"><span className="block truncate text-[13px] font-semibold">{book.title}</span><span className="flex items-center gap-1 text-[11.5px] text-zinc-500"><Settings2 className="size-3" />Book details & layout</span></span>

@@ -1,0 +1,126 @@
+"use client";
+/* Studio → Books → Import: give PDF, EPUB or Word files (or a ZIP of them); each is read in the browser,
+   shown with its contents list to check and correct, and saved as a book with its chapters. */
+import Link from "next/link";
+import { useRef, useState } from "react";
+import { Upload, ArrowLeft, Trash2, ArrowUp, ArrowDown, ChevronLeft, ChevronRight, Scissors, Undo2, Sparkles } from "lucide-react";
+import { Btn, Badge, Card, Field, Input, Select, PageHeader, api, toast, cn } from "../ui";
+import type { Chapter, Fetched, Para } from "@/lib/fetcher/types";
+import { plain } from "@/lib/fetcher/types";
+import { openFile, kindOf, pagePicture, type Opened } from "@/lib/fetcher";
+import { chapterBlocks, mdToParas, parasToChapters } from "@/lib/fetcher/blocks";
+import { balaramToIast } from "@/lib/fetcher/balaram";
+
+type Item = { id: string; name: string; folder: string; bytes: Uint8Array; state: "waiting" | "working" | "saved" | "failed"; msg?: string; bookId?: string };
+type Meta = { title: string; author: string; category: string; language: string; library: string; status: string };
+const uid = () => Math.random().toString(36).slice(2, 10);
+const mapRuns = (cs: Chapter[], f: (t: string) => string): Chapter[] => cs.map((c) => ({ ...c, title: f(c.title), paras: c.paras.map((p) => ({ ...p, runs: p.runs.map((r) => ({ ...r, t: f(r.t) })) })) }));
+
+async function coverUrl(o: Opened): Promise<string | null> {
+  try { let blob: Blob | null = null;
+    if (o.book.cover?.bytes) blob = new Blob([o.book.cover.bytes.slice().buffer as ArrayBuffer], { type: o.book.cover.type || "image/jpeg" });
+    else if (o.pdf) blob = await (await fetch(await pagePicture(o.pdf.doc, 1, 800, 0.85))).blob();
+    if (!blob) return null;
+    if (blob.size > 3_500_000 || !/jpe?g|png|webp/.test(blob.type)) { const bmp = await createImageBitmap(blob); const c = document.createElement("canvas"); const k = Math.min(1, 900 / bmp.width); c.width = bmp.width * k; c.height = bmp.height * k; c.getContext("2d")!.drawImage(bmp, 0, 0, c.width, c.height); blob = await new Promise<Blob | null>((r) => c.toBlob(r, "image/jpeg", 0.85)); if (!blob) return null; }
+    const fd = new FormData(); fd.append("file", new File([blob], "cover.jpg", { type: blob.type })); return (await api<{ url: string }>("/api/admin/media", "POST", fd)).url;
+  } catch { return null; }
+}
+/** Saves one book: the book, then its chapters in batches small enough for any size of book. */
+async function saveBook(meta: Meta, chapters: Chapter[], o: Opened, into?: string | null) {
+  const cover_url = await coverUrl(o);
+  const { id } = await api<{ id: string }>("/api/admin/books/import", "POST", { op: "start", into: into || undefined, book: { ...meta, acharya: meta.library === "gaudiya" ? meta.author : null, cover_url, source: { file: o.book.source.name, kind: o.book.source.kind } } });
+  const ids: Record<string, string> = {}; const stack: { level: number; key: string }[] = []; let batch: any[] = [], size = 0;
+  const flush = async () => { if (!batch.length) return; const r = await api<{ map: Record<string, string> }>("/api/admin/books/import", "POST", { op: "nodes", book_id: id, nodes: batch.map((n) => ({ ...n, parent: n.parent ? ids[n.parent] || n.parent : null })) }); Object.assign(ids, r.map); batch = []; size = 0; };
+  let k = 0;
+  for (const c of chapters) { while (stack.length && stack[stack.length - 1].level >= c.level) stack.pop(); const parent = stack.length ? stack[stack.length - 1].key : null;
+    const blocks = chapterBlocks(c); const parts: any[][] = []; let cur: any[] = [], n = 0; for (const b of blocks) { const s = JSON.stringify(b).length; if (n + s > 900_000 && cur.length) { parts.push(cur); cur = []; n = 0; } cur.push(b); n += s; } parts.push(cur);
+    for (let i = 0; i < parts.length; i++) { const key = `k${k++}`; const s = JSON.stringify(parts[i]).length; if (size + s > 900_000 || batch.length >= 80) await flush(); batch.push({ key, parent, title: i ? `${c.title} (continued ${i + 1})` : c.title, blocks: parts[i] }); size += s; if (!i) stack.push({ level: c.level, key }); } }
+  await flush(); await api("/api/admin/books/import", "POST", { op: "finish", book_id: id }); return id;
+}
+
+export function BookImport() {
+  const [items, setItems] = useState<Item[]>([]); const [cur, setCur] = useState<string | null>(null); const [opened, setOpened] = useState<Opened | null>(null);
+  const [chapters, setCh] = useState<Chapter[]>([]); const [sel, setSel] = useState(0); const [meta, setMeta] = useState<Meta>({ title: "", author: "", category: "", language: "en", library: "main", status: "draft" });
+  const [busy, setBusy] = useState(""); const [find, setFind] = useState(""); const [rep, setRep] = useState(""); const [pat, setPat] = useState(""); const [limit, setLimit] = useState(150);
+  const hist = useRef<Chapter[][]>([]); const stop = useRef(false); const into = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("into") : null;
+  const [defs, setDefs] = useState({ library: "main", author: "Śrī Śrīmad Gour Govinda Swāmī Gurudeva", category: "" });
+  const change = (next: Chapter[]) => { hist.current.push(chapters); if (hist.current.length > 30) hist.current.shift(); setCh(next); };
+  const patch = (id: string, p: Partial<Item>) => setItems((xs) => xs.map((x) => (x.id === id ? { ...x, ...p } : x)));
+
+  const add = async (files: FileList | File[]) => { const out: Item[] = [];
+    for (const f of Array.from(files)) { const bytes = new Uint8Array(await f.arrayBuffer()); const kind = kindOf(f.name);
+      if (kind === "zip") { const { unzipSync } = await import("fflate"); const z = unzipSync(bytes, { filter: (e) => /\.(pdf|epub|docx)$/i.test(e.name) && !/\.sdr\/|__MACOSX|\/\._/.test(e.name) }); for (const [path, b] of Object.entries(z)) { const parts = path.split("/"); out.push({ id: uid(), name: parts[parts.length - 1], folder: parts.length > 1 ? parts[parts.length - 2] : "", bytes: b, state: "waiting" }); } }
+      else if (kind) out.push({ id: uid(), name: f.name, folder: "", bytes, state: "waiting" }); else toast(`${f.name}: give a PDF, EPUB, Word (.docx) or ZIP file.`, true); }
+    out.sort((a, b) => (a.folder + a.name).localeCompare(b.folder + b.name)); setItems((xs) => [...xs, ...out]); if (out.length === 1 && !cur) open(out[0]); };
+  const metaFor = (it: Item, b: Fetched): Meta => ({ title: b.title, author: defs.library === "gaudiya" ? (it.folder || b.author).replace(/_/g, " ") : b.author || defs.author, category: defs.category || (defs.library === "gaudiya" ? (it.folder || b.author).replace(/_/g, " ") : ""), language: b.language || "en", library: defs.library, status: "draft" });
+  const open = async (it: Item) => { setBusy("Reading the file…"); setCur(it.id); setOpened(null);
+    try { const o = await openFile(it.bytes, it.name, {}, (d, t) => setBusy(`Reading page ${d} of ${t}…`)); setOpened(o); setCh(o.book.chapters); hist.current = []; setSel(0); setLimit(150); setMeta(metaFor(it, o.book)); }
+    catch (e: any) { toast(e.message, true); setCur(null); } setBusy(""); };
+  const relayout = async (opt: any) => { if (!opened?.pdf) return; const { layoutPdf } = await import("@/lib/fetcher/layout"); const b = layoutPdf(opened.pdf.read, { ...opt, fileName: opened.book.source.name }); setOpened({ ...opened, book: b }); change(b.chapters); setSel(0); };
+  const save = async () => { const it = items.find((x) => x.id === cur); if (!it || !opened) return; if (into && !confirm("This replaces every chapter of the existing book with what is shown here. Continue?")) return; setBusy("Saving…");
+    try { const id = await saveBook(meta, chapters, opened, into); patch(it.id, { state: "saved", bookId: id, msg: `${chapters.length} chapters` }); toast("Saved. Open it under Books to fine-tune."); setCur(null); setOpened(null); } catch (e: any) { toast(e.message, true); } setBusy(""); };
+  const saveAll = async () => { if (!confirm(`Save all ${items.filter((x) => x.state === "waiting").length} waiting files as drafts, without checking each one? You can correct them afterwards under Books.`)) return; stop.current = false;
+    for (const it of items) { if (stop.current) break; if (it.state !== "waiting") continue; patch(it.id, { state: "working", msg: "Reading…" });
+      try { const o = await openFile(it.bytes, it.name); if (o.book.source.kind === "pdf-scan") { patch(it.id, { state: "failed", msg: "Scanned pages: open it and use “Read the pages with AI”." }); continue; } patch(it.id, { msg: "Saving…" }); const id = await saveBook(metaFor(it, o.book), o.book.chapters, o); o.pdf?.doc?.destroy?.(); patch(it.id, { state: "saved", bookId: id, msg: `${o.book.chapters.length} chapters` }); }
+      catch (e: any) { patch(it.id, { state: "failed", msg: String(e.message).slice(0, 140) }); } } };
+  const ocr = async () => { if (!opened?.pdf) return; const total = opened.pdf.doc.numPages; if (!confirm(`Read all ${total} pages with the AI set in Settings? Each page is one AI request, so this uses your AI key's quota and takes some minutes.`)) return; stop.current = false; const pages: Para[][] = []; let done = 0, next = 1, failed = 0;
+    const worker = async () => { while (next <= total && !stop.current) { const n = next++; try { const image = await pagePicture(opened.pdf!.doc, n, 1500, 0.8); const r = await api<{ text: string }>("/api/admin/books/ocr", "POST", { image, page: n }); pages[n] = mdToParas(r.text, n); } catch (e: any) { failed++; pages[n] = []; if (failed === 1) toast(e.message, true); if (failed > 5) stop.current = true; } setBusy(`Reading page ${++done} of ${total} with AI… (press Stop to end)`); } };
+    setBusy("Starting…"); await Promise.all([worker(), worker(), worker()]); change(parasToChapters(pages.flat().filter(Boolean))); setSel(0); setBusy(""); toast(failed ? `${failed} pages could not be read.` : "All pages read. Please check the contents list."); };
+
+  // tools on the contents list and the text
+  const upd = (i: number, p: Partial<Chapter>) => change(chapters.map((c, k) => (k === i ? { ...c, ...p } : c)));
+  const move = (i: number, d: number) => { const j = i + d; if (j < 0 || j >= chapters.length) return; const n = [...chapters]; [n[i], n[j]] = [n[j], n[i]]; change(n); setSel(j); };
+  const joinUp = (i: number) => { if (!i) return; const n = [...chapters]; n[i - 1] = { ...n[i - 1], paras: [...n[i - 1].paras, { kind: "h", level: 2, runs: [{ t: n[i].title }] }, ...n[i].paras] }; n.splice(i, 1); change(n); setSel(i - 1); };
+  const splitAt = (i: number, k: number) => { const c = chapters[i]; const p = c.paras[k]; const n = [...chapters]; n[i] = { ...c, paras: c.paras.slice(0, k) }; n.splice(i + 1, 0, { title: plain(p.runs).replace(/\n/g, " ").slice(0, 140) || "New chapter", level: c.level, paras: c.paras.slice(k + 1) }); change(n); setSel(i + 1); };
+  const setPara = (i: number, k: number, p: Partial<Para> | null) => upd(i, { paras: p ? chapters[i].paras.map((x, j) => (j === k ? { ...x, ...p } : x)) : chapters[i].paras.filter((_, j) => j !== k) });
+  const rx = (s: string) => { try { return new RegExp(s, "i"); } catch { return null; } };
+  const count = find ? chapters.reduce((n, c) => n + c.paras.reduce((m, p) => m + p.runs.reduce((q, r) => q + r.t.split(find).length - 1, 0), 0) + c.title.split(find).length - 1, 0) : 0;
+  const byPattern = () => { const re = rx(pat); if (!re || !pat) return toast("Write what chapter lines look like, for example: ^Chapter", true); const all: Para[] = chapters.flatMap((c) => [{ kind: "h" as const, level: 1, runs: [{ t: c.title }] }, ...c.paras]); const out: Chapter[] = []; let c: Chapter | null = null;
+    for (const p of all) { const t = plain(p.runs); if (t.length < 200 && re.test(t)) { c = { title: t.replace(/\n/g, " "), level: 1, paras: [] }; out.push(c); } else if (c) c.paras.push(p); else { c = { title: "Opening", level: 1, paras: [p] }; out.push(c); } } if (out.length < 2) return toast("No lines match that.", true); change(out); setSel(0); };
+  const c = chapters[sel]; const item = items.find((x) => x.id === cur); const waiting = items.filter((x) => x.state === "waiting").length;
+
+  if (item && opened) return (
+    <div>
+      <div className="mb-4 flex flex-wrap items-center gap-2"><button onClick={() => { setCur(null); setOpened(null); }} className="flex items-center gap-1 text-[13px] text-zinc-500 hover:text-zinc-900"><ArrowLeft className="size-4" />All files</button><span className="min-w-0 flex-1 truncate text-[13px] text-zinc-500">{item.name}</span>
+        <Btn size="sm" disabled={!hist.current.length} onClick={() => { const p = hist.current.pop(); if (p) setCh(p); }}><Undo2 />Undo</Btn><Btn kind="primary" busy={!!busy} onClick={save}>{into ? "Replace the book’s chapters" : meta.status === "published" ? "Save and publish" : "Save as draft"}</Btn></div>
+      {busy && <p className="mb-3 flex items-center gap-3 rounded-md bg-amber-50 px-3 py-2 text-[13px] text-amber-900">{busy}{/AI/.test(busy) && <button className="underline" onClick={() => (stop.current = true)}>Stop</button>}</p>}
+      <div className="grid gap-4 lg:grid-cols-[300px_minmax(0,340px)_minmax(0,1fr)]">
+        <div className="space-y-4">
+          <Card className="space-y-3 p-4"><Field label="Title"><Input value={meta.title} onChange={(e) => setMeta({ ...meta, title: e.target.value })} /></Field><Field label="Author"><Input value={meta.author} onChange={(e) => setMeta({ ...meta, author: e.target.value })} /></Field>
+            <Field label="Shelf"><Input value={meta.category} onChange={(e) => setMeta({ ...meta, category: e.target.value })} /></Field>
+            <div className="grid grid-cols-2 gap-2"><Field label="Library"><Select value={meta.library} onChange={(e) => setMeta({ ...meta, library: e.target.value })}><option value="main">Śrīla Gurudeva</option><option value="gaudiya">Gauḍīya library</option></Select></Field><Field label="Language"><Select value={meta.language} onChange={(e) => setMeta({ ...meta, language: e.target.value })}><option value="en">English</option><option value="hi">Hindi</option><option value="or">Odia</option><option value="bn">Bengali</option><option value="sa">Sanskrit</option></Select></Field></div>
+            <Field label="When saved"><Select value={meta.status} onChange={(e) => setMeta({ ...meta, status: e.target.value })}><option value="draft">Keep as draft</option><option value="published">Publish at once</option></Select></Field></Card>
+          <Card className="p-4"><p className="mb-2 text-[12px] font-semibold text-zinc-500">What the fetcher found</p><ul className="space-y-1.5 text-[12.5px] leading-snug text-zinc-700">{opened.book.notes.map((n) => <li key={n.key} className={cn(/scan|no-chapters|legacy/.test(n.key) && "text-amber-800")}>{n.text}</li>)}</ul>
+            {opened.pdf && <div className="mt-3 flex flex-wrap gap-1.5 border-t border-zinc-100 pt-3"><Btn size="sm" onClick={ocr}><Sparkles />Read the pages with AI</Btn><Btn size="sm" onClick={() => relayout({ magazine: "yes" })}>It is a magazine</Btn><Btn size="sm" onClick={() => relayout({ magazine: "no" })}>Not a magazine</Btn><Btn size="sm" onClick={() => relayout({ convertBalaram: "yes" })}>Fix Balaram letters</Btn><Btn size="sm" onClick={() => relayout({ convertBalaram: "no" })}>Leave letters</Btn><Btn size="sm" onClick={() => relayout({ keepHeaders: true })}>Keep page headers</Btn></div>}</Card>
+          <Card className="space-y-2 p-4"><p className="text-[12px] font-semibold text-zinc-500">Change the whole book at once</p>
+            <Input placeholder="Find" value={find} onChange={(e) => setFind(e.target.value)} /><Input placeholder="Replace with" value={rep} onChange={(e) => setRep(e.target.value)} /><Btn size="sm" disabled={!count} onClick={() => { change(mapRuns(chapters, (t) => t.split(find).join(rep))); toast(`${count} replaced.`); }}>Replace all{find ? ` (${count})` : ""}</Btn>
+            <Input placeholder="Chapters begin with… e.g. ^Chapter" value={pat} onChange={(e) => setPat(e.target.value)} /><div className="flex flex-wrap gap-1.5"><Btn size="sm" onClick={byPattern}>Cut chapters at these lines</Btn><Btn size="sm" onClick={() => { const re = rx(pat); if (!re || !pat) return; change(chapters.map((x) => ({ ...x, paras: x.paras.filter((p) => !re.test(plain(p.runs))) }))); }}>Delete these lines</Btn></div>
+            <div className="flex flex-wrap gap-1.5 border-t border-zinc-100 pt-2"><Btn size="sm" onClick={() => change(mapRuns(chapters, balaramToIast))}>Balaram → IAST everywhere</Btn><Btn size="sm" onClick={() => change(chapters.filter((x) => x.paras.length || chapters[chapters.indexOf(x) + 1]?.level > x.level))}>Remove empty chapters</Btn><Btn size="sm" onClick={() => change(chapters.map((x) => ({ ...x, level: 1 })))}>One level only</Btn></div></Card>
+        </div>
+        <Card className="max-h-[80vh] overflow-y-auto p-2"><p className="px-2 py-1.5 text-[12px] font-semibold text-zinc-500">Contents · {chapters.length}</p>
+          {chapters.map((x, i) => <div key={i} onClick={() => { setSel(i); setLimit(150); }} className={cn("group flex items-center gap-1 rounded-md py-0.5 pr-1", sel === i ? "bg-zinc-100" : "hover:bg-zinc-50")} style={{ paddingLeft: 4 + (x.level - 1) * 14 }}>
+            <input value={x.title} onChange={(e) => upd(i, { title: e.target.value })} className="h-7 min-w-0 flex-1 rounded border border-transparent bg-transparent px-1.5 text-[13px] outline-none focus:border-zinc-300 focus:bg-white" /><span className="text-[11px] tabular-nums text-zinc-400">{x.paras.length}</span>
+            {sel === i && <span className="flex shrink-0 text-zinc-500">{([[ChevronLeft, "Move out one level", () => upd(i, { level: Math.max(1, x.level - 1) })], [ChevronRight, "Put inside the one above", () => upd(i, { level: Math.min(4, x.level + 1) })], [ArrowUp, "Move up", () => move(i, -1)], [ArrowDown, "Move down", () => move(i, 1)], [Scissors, "Join with the chapter above", () => joinUp(i)], [Trash2, "Delete this chapter and its text", () => { change(chapters.filter((_, k) => k !== i)); setSel(Math.max(0, i - 1)); }]] as [any, string, () => void][]).map(([I, t, f]) => <button key={t} title={t} onClick={(e) => { e.stopPropagation(); f(); }} className="rounded p-0.5 hover:bg-zinc-200"><I className="size-3.5" /></button>)}</span>}
+          </div>)}</Card>
+        <Card className="max-h-[80vh] overflow-y-auto p-5">{c ? <><h2 className="mb-4 text-[18px] font-semibold text-zinc-900">{c.title}</h2>
+          {c.paras.slice(0, limit).map((p, k) => <div key={k} className="group relative">
+            <div className="absolute -top-3 right-0 z-10 hidden gap-1 rounded-md border border-zinc-200 bg-white p-0.5 text-[11.5px] shadow-sm group-hover:flex">{([["Start a chapter here", () => splitAt(sel, k)], ["Text", () => setPara(sel, k, { kind: "p" })], ["Heading", () => setPara(sel, k, { kind: "h", level: 2 })], ["Verse", () => setPara(sel, k, { kind: "verse", align: "center" })], ["Centre", () => setPara(sel, k, { align: p.align === "center" ? undefined : "center" })], ["Delete", () => setPara(sel, k, null)]] as [string, () => void][]).map(([t, f]) => <button key={t} onClick={f} className="rounded px-1.5 py-0.5 hover:bg-zinc-100">{t}</button>)}</div>
+            <p className={cn("my-2 whitespace-pre-line rounded px-1 text-[14px] leading-[1.7] text-zinc-800 group-hover:bg-amber-50/60", p.kind === "h" && "mt-5 text-[16px] font-semibold text-zinc-900", p.kind === "quote" && "border-l-2 border-amber-400 pl-3")} style={{ textAlign: p.kind === "verse" ? p.align || "center" : p.align }}>{p.runs.map((r, j) => <span key={j} style={{ fontWeight: r.b ? 600 : undefined, fontStyle: r.i ? "italic" : undefined, textDecoration: r.u ? "underline" : undefined }}>{r.t}</span>)}</p></div>)}
+          {c.paras.length > limit && <Btn size="sm" onClick={() => setLimit(limit + 400)}>Show more ({c.paras.length - limit} paragraphs left)</Btn>}{!c.paras.length && <p className="text-[13px] text-zinc-500">No text directly in this chapter.</p>}</> : <p className="text-[13px] text-zinc-500">No chapters.</p>}</Card>
+      </div>
+    </div>);
+
+  return (
+    <div>
+      <PageHeader icon={Upload} title="Import books" description="Give PDF, EPUB or Word files, or a ZIP of many. Each book is read here with its contents list, formatting and diacritics; you check it, then save."><Link href="/admin/books" className="text-[13px] text-zinc-500 hover:text-zinc-900">Back to Books</Link></PageHeader>
+      {into && <p className="mb-3 rounded-md bg-amber-50 px-3 py-2 text-[13px] text-amber-900">You are replacing the chapters of an existing book. Give the new file, check it, then save.</p>}
+      <Card className="mb-4 grid gap-3 p-4 sm:grid-cols-3"><Field label="These books belong to"><Select value={defs.library} onChange={(e) => setDefs({ ...defs, library: e.target.value, author: e.target.value === "main" ? "Śrī Śrīmad Gour Govinda Swāmī Gurudeva" : "" })}><option value="main">Śrīla Gurudeva’s books</option><option value="gaudiya">Gauḍīya library (ācāryas)</option></Select></Field>
+        <Field label="Author, when the file does not say" hint={defs.library === "gaudiya" ? "In a ZIP, each folder’s name is used as the ācārya." : undefined}><Input value={defs.author} onChange={(e) => setDefs({ ...defs, author: e.target.value })} /></Field><Field label="Shelf (optional)"><Input value={defs.category} onChange={(e) => setDefs({ ...defs, category: e.target.value })} /></Field></Card>
+      <label onDragOver={(e) => e.preventDefault()} onDrop={(e) => { e.preventDefault(); add(e.dataTransfer.files); }} className="flex cursor-pointer flex-col items-center gap-2 rounded-xl border-2 border-dashed border-zinc-300 bg-white p-10 text-center hover:border-zinc-400"><Upload className="size-6 text-zinc-400" /><span className="text-[14px] font-medium text-zinc-900">Drop files here, or click to choose</span><span className="text-[12.5px] text-zinc-500">PDF · EPUB · Word (.docx) · ZIP of many books</span><input type="file" multiple accept=".pdf,.epub,.docx,.txt,.zip" className="hidden" onChange={(e) => { if (e.target.files) add(e.target.files); e.target.value = ""; }} /></label>
+      {busy && <p className="mt-3 rounded-md bg-amber-50 px-3 py-2 text-[13px] text-amber-900">{busy}</p>}
+      {items.length > 0 && <Card className="mt-4 p-2"><div className="flex items-center justify-between px-2 py-1.5"><p className="text-[12px] font-semibold text-zinc-500">{items.length} files · {items.filter((x) => x.state === "saved").length} saved</p><span className="flex gap-2">{waiting > 1 && <Btn size="sm" kind="primary" onClick={saveAll}>Save all {waiting} as drafts</Btn>}{items.some((x) => x.state === "working") && <Btn size="sm" onClick={() => (stop.current = true)}>Stop</Btn>}</span></div>
+        {items.map((it) => <div key={it.id} className="flex items-center gap-2 rounded-md px-2 py-1.5 text-[13px] hover:bg-zinc-50"><span className="min-w-0 flex-1 truncate">{it.folder && <span className="text-zinc-400">{it.folder.replace(/_/g, " ")} / </span>}{it.name}</span>{it.msg && <span className="hidden max-w-[40%] truncate text-[12px] text-zinc-500 sm:block">{it.msg}</span>}
+          <Badge tone={it.state === "saved" ? "green" : it.state === "failed" ? "red" : it.state === "working" ? "amber" : "neutral"}>{it.state === "saved" ? "Saved" : it.state === "failed" ? "Needs attention" : it.state === "working" ? "Working" : "Waiting"}</Badge>
+          {it.bookId ? <Link href={`/admin/books/${it.bookId}`} className="text-[12.5px] text-zinc-600 underline">Open</Link> : <Btn size="sm" onClick={() => open(it)}>Check and save</Btn>}<button title="Remove from this list" onClick={() => setItems((xs) => xs.filter((x) => x.id !== it.id))} className="rounded p-1 text-zinc-400 hover:bg-zinc-200"><Trash2 className="size-3.5" /></button></div>)}</Card>}
+    </div>);
+}

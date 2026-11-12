@@ -21,7 +21,7 @@ const LIFE: [string, string][] = [
 
 export async function WhoIsGurudeva() {
   let books: { slug: string; title: string; cover_url: string | null; description: string | null; category: string | null }[] = [];
-  if (hasDb()) { try { books = (await sql`select slug, title, cover_url, description, category from books where status = 'published' order by position, title`) as any[]; } catch {} }
+  if (hasDb()) { try { books = (await sql`select slug, title, cover_url, description, category from books where status = 'published' and library = 'main' order by position, title`) as any[]; } catch {} }
   const about = ABOUT.map((a) => ({ ...a, book: books.find((b) => new RegExp(a.match).test(fold(b.title))) }));
   const more = books.filter((b) => /about|biograph|life/i.test(b.category || "") && !about.some((a) => a.book?.slug === b.slug));
   const books_ = [...about.map((a) => ({ title: a.book?.title || a.title, note: a.note, slug: a.book?.slug, cover: a.book?.cover_url })), ...more.map((b) => ({ title: b.title, note: b.description || "", slug: b.slug, cover: b.cover_url }))];

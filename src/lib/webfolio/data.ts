@@ -39,7 +39,7 @@ async function buildNav(): Promise<FSec[]> {
     q(sql`select coalesce(extract(year from date)::int, 0) y, count(*)::int n from audios where status = 'published' and kind not in ('kirtan','bhajan') group by 1 order by (coalesce(extract(year from date)::int, 0) = 0), 1`),
     q(sql`select coalesce(extract(year from date)::int, 0) y, count(*)::int n from audios where status = 'published' and kind not in ('kirtan','bhajan') and jsonb_array_length(transcript) > 0 group by 1 order by (coalesce(extract(year from date)::int, 0) = 0), 1`),
     q(sql`select coalesce(extract(year from date)::int, 0) y, count(*)::int n from audios where status = 'published' and kind in ('kirtan','bhajan') group by 1 order by (coalesce(extract(year from date)::int, 0) = 0), 1`),
-    q(sql`select slug, title, (select count(*)::int from book_nodes n where n.book_id = b.id and n.status = 'published') n from books b where status = 'published' order by category nulls last, position, title`),
+    q(sql`select slug, title, (select count(*)::int from book_nodes n where n.book_id = b.id and n.status = 'published') n from books b where status = 'published' and library = 'main' order by category nulls last, position, title`),
     q(sql`select kind, count(*)::int n from excerpts where status = 'published' group by 1`),
     q(sql`select coalesce(year, extract(year from date)::int, 0) y, count(*)::int n from videos where status = 'published' group by 1 order by (coalesce(year, extract(year from date)::int, 0) = 0), 1`),
     q(sql`select path, title from pages where status = 'published' and parent_id is null and coalesce(settings->>'studio', 'on') <> 'off' order by position, title`),
