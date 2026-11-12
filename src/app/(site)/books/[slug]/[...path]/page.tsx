@@ -39,7 +39,7 @@ export default async function Chapter({ params, searchParams }: { params: Promis
         book={{ slug, title: book.title, href: `/books/${slug}`, language: book.language, cover: book.cover_url }}
         chapter={{ id: node.id, title: node.title, num: num[node.id], label: node.kind === "part" ? "Part" : "Chapter", href: hrefOf(slug, nodes, node), index: i, total: flat.length }}
         toc={tocOf(slug, nodes, flat)} prev={prev ? { href: hrefOf(slug, nodes, prev), title: prev.title } : null} next={next ? { href: hrefOf(slug, nodes, next), title: next.title } : null}
-        translations={translations} parallel={parallel}
+        translations={translations} parallel={parallel} home={book.library === "gaudiya" ? { href: "/gaudiya/books", label: "Gauḍīya books" } : { href: "/teachings/books", label: "All books" }}
       >
         <div className="book-body" lang={book.language}><Render doc={blocks} /></div>
       </Reader>

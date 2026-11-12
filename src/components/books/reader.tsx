@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
-import { ArrowLeft, List, Search, Settings2, Type, BookOpen, Columns2, Bookmark, BookmarkCheck, Maximize, Minimize, Keyboard, ChevronLeft, ChevronRight, X, Languages, PanelLeft, Focus, BookOpenText, Minus, Plus, Check, ChevronDown, Loader2, FileText } from "lucide-react";
+import { ArrowLeft, Home, Library, List, Search, Settings2, Type, BookOpen, Columns2, Bookmark, BookmarkCheck, Maximize, Minimize, Keyboard, ChevronLeft, ChevronRight, X, Languages, PanelLeft, Focus, BookOpenText, Minus, Plus, Check, ChevronDown, Loader2, FileText } from "lucide-react";
 import type { TocItem } from "@/lib/content/books-public";
 
 /* ------------------------------------------------------------------ settings */
@@ -56,16 +56,18 @@ type Tr = { slug: string; title: string; language: string; native: string; href:
 type Mark = { href: string; title: string; book: string; at: number };
 
 /* ------------------------------------------------------------------ reader */
-export function Reader({ book, chapter, toc, prev, next, translations, parallel, children, searchApi, extra }: {
+export function Reader({ book, chapter, toc, prev, next, translations, parallel, children, searchApi, extra, home = { href: "/teachings/books", label: "All books" }, library = true }: {
   book: { slug: string; title: string; href: string; language: string; cover?: string | null };
   chapter: { id: string; title: string; num: string; label: string; href: string; index: number; total: number };
   toc: TocItem[]; prev: Nav; next: Nav; translations: Tr[];
   parallel?: { title: string; language: string; native: string; slug: string; node: React.ReactNode } | null;
   children: React.ReactNode; searchApi?: string; extra?: React.ReactNode;
+  /** Where Home goes (the books homepage; the diary home for the diary); and whether the list of all books is offered. */
+  home?: { href: string; label: string }; library?: boolean;
 }) {
   const router = useRouter();
   const [s, setS] = useState<ReaderSettings>(DEF); const [ready, setReady] = useState(false);
-  const [panel, setPanel] = useState<null | "contents" | "marks" | "search">(null);
+  const [panel, setPanel] = useState<null | "contents" | "marks" | "search" | "books">(null);
   const [pop, setPop] = useState<null | "all">(null); const [help, setHelp] = useState(false);
   const [barHidden, setBarHidden] = useState(false); const [pct, setPct] = useState(0); const [full, setFull] = useState(false);
   const [marks, setMarks] = useState<Mark[]>([]);
@@ -161,8 +163,9 @@ export function Reader({ book, chapter, toc, prev, next, translations, parallel,
       {/* top bar */}
       <div className={`absolute inset-x-0 top-0 z-20 transition-transform duration-300 ${barHidden ? "-translate-y-full" : ""}`} onMouseEnter={() => setBarHidden(false)}>
         <div className="relative flex h-12 items-center gap-1 border-b px-2 backdrop-blur-xl backdrop-saturate-150 sm:px-3" style={{ background: T.panel, borderColor: T.line }}>
-          <Link href={book.href} className={icon} title="Back to the book (Esc)"><ArrowLeft size={17} /></Link>
+          <Link href={home.href} className={icon} title={`${home.label} (Esc)`} aria-label={home.label}><Home size={17} /></Link>
           <button onClick={() => setPanel(panel === "contents" ? null : "contents")} className={icon} title="Contents (C)"><List size={17} /></button>
+          {library && <button onClick={() => setPanel(panel === "books" ? null : "books")} className={icon} title="All books — go to another book" aria-label="All books"><Library size={17} /></button>}
           {/* the title sits over the centre of the text being read (beside the contents column when it is open) */}
           <div className={`pointer-events-none absolute inset-y-0 left-1/2 flex w-[calc(100%-200px)] max-w-[560px] -translate-x-1/2 flex-col items-center justify-center text-center font-sans leading-tight ${mode === "classic" && s.sidebar ? "lg:left-[calc(50%+145px)] lg:w-[calc(100%-290px-220px)]" : ""}`}>
             <p className="w-full truncate text-[11.5px]" style={{ color: T.muted }}>{book.title}</p>
@@ -242,12 +245,13 @@ export function Reader({ book, chapter, toc, prev, next, translations, parallel,
       {panel && <div className="absolute inset-0 z-30 bg-black/20" onClick={() => setPanel(null)}>
         <aside className="flex h-full w-[92%] max-w-[380px] flex-col border-r font-sans shadow-2xl backdrop-blur-2xl backdrop-saturate-150" style={{ background: T.panel, borderColor: T.line }} onClick={(e) => e.stopPropagation()}>
           <div className="flex items-center gap-1 border-b px-3 py-2" style={{ borderColor: T.line }}>
-            {([["contents", "Contents"], ["marks", "Bookmarks"], ["search", "Search"]] as const).map(([k, l]) => <button key={k} onClick={() => setPanel(k)} className={`rounded-md px-2.5 py-1.5 text-[13px] ${panel === k ? "bg-black/[0.07] font-medium [.rd-dark_&]:bg-white/10" : ""}`} style={panel === k ? undefined : { color: T.muted }}>{l}</button>)}
+            {([["contents", "Contents"], ...(library ? [["books", "Books"]] : []), ["marks", "Bookmarks"], ["search", "Search"]] as [typeof panel & string, string][]).map(([k, l]) => <button key={k} onClick={() => setPanel(k)} className={`rounded-md px-2.5 py-1.5 text-[13px] ${panel === k ? "bg-black/[0.07] font-medium [.rd-dark_&]:bg-white/10" : ""}`} style={panel === k ? undefined : { color: T.muted }}>{l}</button>)}
             <button onClick={() => setPanel(null)} className={`${icon} ml-auto`}><X size={16} /></button>
           </div>
           <div className="min-h-0 flex-1 overflow-y-auto [scrollbar-width:thin]">
             {panel === "contents" && <><Link href={book.href} className="flex items-center gap-3 border-b px-4 py-3" style={{ borderColor: T.line }}>{book.cover && /* eslint-disable-next-line @next/next/no-img-element */ <img src={book.cover} alt="" className="h-14 w-10 rounded-sm object-cover shadow" />}<span className="min-w-0"><span className="block truncate text-[14px] font-semibold">{book.title}</span><span className="text-[12px]" style={{ color: T.muted }}>{chapter.total} chapters · {Math.round(((chapter.index + 1) / chapter.total) * 100)}% through</span></span></Link><Contents toc={toc} current={chapter.id} T={T} onGo={() => setPanel(null)} suffix={parallel ? `?with=${parallel.slug}` : ""} /></>}
             {panel === "marks" && <div className="p-3">{marks.length ? marks.map((m) => <div key={m.href} className="group flex items-start gap-2 rounded-md px-2 py-2 hover:bg-black/5 [.rd-dark_&]:hover:bg-white/10"><Link href={m.href} onClick={() => setPanel(null)} className="min-w-0 flex-1"><span className="block truncate text-[13.5px] font-medium">{m.title}</span><span className="block truncate text-[12px]" style={{ color: T.muted }}>{m.book} · {new Date(m.at).toLocaleDateString()}</span></Link><button onClick={() => { const x = marks.filter((y) => y.href !== m.href); setMarks(x); try { localStorage.setItem("tj_marks", JSON.stringify(x)); } catch {} }} className="opacity-0 group-hover:opacity-60"><X size={14} /></button></div>) : <p className="px-2 py-8 text-center text-[13px]" style={{ color: T.muted }}>No bookmarks yet. Press <kbd>B</kbd> on any chapter.</p>}</div>}
+            {panel === "books" && <AllBooks T={T} current={book.slug} onGo={() => setPanel(null)} />}
             {panel === "search" && <BookSearch api={searchApi || `/api/books/search?book=${book.slug}&q=`} T={T} onGo={() => setPanel(null)} />}
           </div>
           <div className="border-t px-4 py-2.5 text-[11.5px]" style={{ borderColor: T.line, color: T.muted }}>Press <kbd className="rounded border px-1" style={{ borderColor: T.line }}>?</kbd> for keyboard shortcuts</div>
@@ -322,4 +326,21 @@ function BookSearch({ api, T, onGo }: { api: string; T: (typeof THEMES)[Theme]; 
       <div className="mt-1">{res?.map((r) => <Link key={r.href} href={r.href} onClick={onGo} className="block rounded-md px-2 py-2 hover:bg-black/5 [.rd-dark_&]:hover:bg-white/10"><span className="flex justify-between gap-2 text-[13px] font-medium"><span className="truncate">{r.title}</span><span className="shrink-0 text-[11.5px] font-normal" style={{ color: T.muted }}>{r.hits}×</span></span><span className="mt-0.5 line-clamp-3 block text-[12.5px] leading-relaxed" style={{ color: T.muted }}>{mark(r.snippet)}</span></Link>)}</div>
     </div>
   );
+}
+
+/** Every book of the library, by shelf, with a search: to go straight from one book to another. */
+function AllBooks({ T, current, onGo }: { T: (typeof THEMES)[Theme]; current: string; onGo: () => void }) {
+  const [all, setAll] = useState<{ slug: string; title: string; cover: string | null; shelf: string; language: string; library: string }[] | null>(null); const [q, setQ] = useState("");
+  useEffect(() => { fetch("/api/books/list").then((r) => r.json()).then(setAll).catch(() => setAll([])); }, []);
+  const fold = (x: string) => x.normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toLowerCase(); const f = fold(q.trim());
+  const shown = (all || []).filter((b) => !f || fold(`${b.title} ${b.shelf}`).includes(f)); const shelves = [...new Set(shown.map((b) => (b.library === "gaudiya" ? `Gauḍīya · ${b.shelf}` : b.shelf)))];
+  return (
+    <div className="p-3">
+      <label className="relative block"><Search size={15} className="absolute left-2.5 top-1/2 -translate-y-1/2" style={{ color: T.muted }} /><input autoFocus value={q} onChange={(e) => setQ(e.target.value)} placeholder="Find a book" className="h-9 w-full rounded-md border bg-transparent pl-8 pr-3 text-[13.5px] outline-none" style={{ borderColor: T.line }} /></label>
+      {!all ? <p className="flex items-center gap-2 px-2 py-6 text-[13px]" style={{ color: T.muted }}><Loader2 size={14} className="animate-spin" />Loading…</p> : !shown.length ? <p className="px-2 py-6 text-[13px]" style={{ color: T.muted }}>No book has that in its title.</p> :
+        shelves.map((sh) => <div key={sh} className="mt-3"><p className="px-2 pb-1 text-[11px] font-semibold uppercase tracking-[0.08em]" style={{ color: T.muted }}>{sh}</p>
+          {shown.filter((b) => (b.library === "gaudiya" ? `Gauḍīya · ${b.shelf}` : b.shelf) === sh).map((b) => <Link key={b.slug} href={`/books/${b.slug}`} onClick={onGo} className={`flex items-center gap-3 rounded-md px-2 py-1.5 hover:bg-black/5 [.rd-dark_&]:hover:bg-white/10 ${b.slug === current ? "bg-black/[0.06] [.rd-dark_&]:bg-white/10" : ""}`}>
+            <span className="flex h-11 w-8 shrink-0 items-center justify-center overflow-hidden rounded-[2px_4px_4px_2px] bg-gradient-to-br from-[#5a3418] to-[#2d1a0c] text-[10px] text-white/80">{b.cover ? /* eslint-disable-next-line @next/next/no-img-element */ <img src={b.cover} alt="" className="h-full w-full object-cover" loading="lazy" /> : b.title.charAt(0)}</span>
+            <span className="min-w-0 flex-1"><span className="line-clamp-2 text-[13.5px] leading-snug">{b.title}</span><span className="text-[11px] uppercase" style={{ color: T.muted }}>{b.language}{b.slug === current ? " · reading now" : ""}</span></span></Link>)}</div>)}
+    </div>);
 }
