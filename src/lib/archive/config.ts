@@ -75,6 +75,13 @@ export const COLLECTIONS: Record<string, Collection> = {
     fields: ["subtitle", "date_label", "place", "cover", "summary", "body", "links"],
     labels: { subtitle: ["Known as", "e.g. Founder of the Gauḍīya Vaiṣṇava sampradāya"], date_label: ["Period", "Optional"], summary: ["A few lines about him"] },
   },
+  biographies: {
+    key: "biographies", label: "Biographies", singular: "biography", base: "/gaudiya/acharyas", layout: "people", icon: "BookUser", sort: "position",
+    intro: "The lives of the associates of Śrī Caitanya Mahāprabhu, the ācāryas, and other great Vaiṣṇavas. (The ācāryas of the Guru-paramparā have their biographies there.)",
+    sections: [["gaura-parsadas", "Associates of Śrī Caitanya Mahāprabhu", "Gaura-pārṣadas"], ["acaryas", "Ācāryas", "Teachers of the Gauḍīya line"], ["vaisnavas", "Other Vaiṣṇavas", ""]],
+    fields: ["subtitle", "date_label", "place", "cover", "summary", "body", "links"],
+    labels: { subtitle: ["Known as", "e.g. One of the Six Gosvāmīs of Vṛndāvana"], date_label: ["Period", "Optional"], summary: ["A few lines about him or her"], body: ["Biography"] },
+  },
   prabhupada: {
     key: "prabhupada", label: "Śrīla Prabhupāda resources", singular: "resource", base: "/gurudeva/srila-prabhupada", layout: "links", icon: "Crown", sort: "position",
     intro: "Books, biography, audio and websites of Śrīla Prabhupāda.",

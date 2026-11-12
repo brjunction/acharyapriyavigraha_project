@@ -47,6 +47,7 @@ export function BookImport() {
   const [busy, setBusy] = useState(""); const [find, setFind] = useState(""); const [rep, setRep] = useState(""); const [pat, setPat] = useState(""); const [limit, setLimit] = useState(150);
   const hist = useRef<Chapter[][]>([]); const stop = useRef(false); const into = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("into") : null;
   const [defs, setDefs] = useState({ library: "main", author: "Śrī Śrīmad Gour Govinda Swāmī Gurudeva", category: "", publisher: "" });
+  useEffect(() => { if (new URLSearchParams(window.location.search).get("library") === "gaudiya") setDefs((d) => ({ ...d, library: "gaudiya", author: "" })); }, []);
   const change = (next: Chapter[]) => { hist.current.push(chapters); if (hist.current.length > 30) hist.current.shift(); setCh(next); };
   const patch = (id: string, p: Partial<Item>) => setItems((xs) => xs.map((x) => (x.id === id ? { ...x, ...p } : x)));
 

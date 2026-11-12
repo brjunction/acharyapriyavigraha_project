@@ -15,7 +15,7 @@ const fold = (s: string) => s.normalize("NFKD").replace(/[̀-ͯ]/g, "").toLowerC
 const shelfOf = (b: LibBook) => b.category || "Books";
 
 /** The library: reading language, shelves, search, and every book once (with its other languages beside it). */
-export function BookLibrary({ books, shelves: meta }: { books: LibBook[]; shelves: Shelf[] }) {
+export function BookLibrary({ books, shelves: meta, title = "Books", intro = "Read online, chapter by chapter — in any language they are published in.", shelfWord = "All books" }: { books: LibBook[]; shelves: Shelf[]; title?: string; intro?: string; shelfWord?: string }) {
   const sp = useSearchParams(); const router = useRouter();
   const [q, setQ] = useState(""); const shelf = sp.get("shelf") || ""; const [lang, setLang] = useState(""); const [view, setView] = useState<"grid" | "list">("grid"); const [pub, setPub] = useState(""); const [len, setLen] = useState("");
   const [recent, setRecent] = useState<{ slug: string; href: string; title: string; book: string; cover: string | null; index: number; total: number }[]>([]);
@@ -43,11 +43,11 @@ export function BookLibrary({ books, shelves: meta }: { books: LibBook[]; shelve
         <div className="mx-auto max-w-[1240px] px-4 pb-0 pt-5 sm:px-6">
           
           <div className="mt-2 flex flex-wrap items-end justify-between gap-4">
-            <div><h1 className="text-[24px] leading-tight text-ink sm:text-[26px]">Books</h1><p className="mt-1 text-[13.5px] text-ink-2">Read online, chapter by chapter — in any language they are published in.</p></div>
+            <div><h1 className="text-[24px] leading-tight text-ink sm:text-[26px]">{title}</h1><p className="mt-1 text-[13.5px] text-ink-2">{intro}</p></div>
             <p className="text-[12.5px] text-ink-3">{works.length} books · {langs.length} {langs.length === 1 ? "language" : "languages"}</p>
           </div>
           <div className="mt-4 flex gap-1 overflow-x-auto [scrollbar-width:none]">
-            {["", ...order].map((s) => <button key={s || "all"} onClick={() => setShelf(s)} className={`-mb-px flex shrink-0 items-center gap-2 border-b-2 px-3 py-2 text-[13px] transition ${shelf === s ? "border-ink font-medium text-ink" : "border-transparent text-ink-3 hover:text-ink"}`}>{s && <span className="size-2 rounded-full" style={{ background: color(s) || "#c8c8c8" }} />}{s || "All books"}</button>)}
+            {["", ...order].map((s) => <button key={s || "all"} onClick={() => setShelf(s)} className={`-mb-px flex shrink-0 items-center gap-2 border-b-2 px-3 py-2 text-[13px] transition ${shelf === s ? "border-ink font-medium text-ink" : "border-transparent text-ink-3 hover:text-ink"}`}>{s && <span className="size-2 rounded-full" style={{ background: color(s) || "#c8c8c8" }} />}{s || shelfWord}</button>)}
           </div>
         </div>
       </div>

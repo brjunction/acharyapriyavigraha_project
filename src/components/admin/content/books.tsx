@@ -8,24 +8,27 @@ import { Btn, Badge, Card, Field, Input, Select, Textarea, PageHeader, Empty, Mo
 import { MediaPicker } from "../media-picker";
 
 const NotionEditor = dynamic(() => import("../notion/editor"), { ssr: false, loading: () => <p className="p-6 text-zinc-500">Opening the editor…</p> });
-type B = { id: string; slug: string; title: string; subtitle?: string; author?: string; category?: string; cover_url?: string; icon?: string; status: string; layout: string; chapters: number };
+type B = { id: string; slug: string; title: string; subtitle?: string; author?: string; category?: string; cover_url?: string; icon?: string; status: string; layout: string; chapters: number; library?: string };
 type N = { id: string; parent_id: string | null; kind: string; position: number; title: string; slug: string; status: string; has_text: boolean };
 
 /* ------------------------------------------------------------------ bookshelf */
 export function BooksPanel() {
   const [books, setBooks] = useState<B[] | null>(null); const [nw, setNw] = useState(false); const [shelves, setShelves] = useState(false); const [f, setF] = useState({ title: "", author: "Śrī Śrīmad Gour Govinda Swāmī Gurudeva", category: "" });
+  const [lib, setLib] = useState("main");
   const load = () => api<B[]>("/api/admin/books").then(setBooks).catch((e) => toast(e.message, true));
   useEffect(() => { load(); }, []);
-  const cats = useMemo(() => Array.from(new Set((books || []).map((b) => b.category || "Books"))), [books]);
+  const mine = useMemo(() => (books || []).filter((b) => (b.library || "main") === lib), [books, lib]);
+  const cats = useMemo(() => Array.from(new Set(mine.map((b) => b.category || "Books"))), [mine]);
   return (
     <div>
-      <PageHeader icon={BookOpen} title="Books" description="Every book with its cover, shelf and chapters. Chapters can hold chapters, as deep as the book needs."><Btn onClick={() => setShelves(true)}>Shelves</Btn><Link href="/admin/books/import" className="inline-flex h-9 items-center rounded-md border border-zinc-200 bg-white px-4 text-[13px] font-medium hover:bg-zinc-50">Import from PDF, EPUB or Word</Link><Btn kind="primary" onClick={() => setNw(true)}><Plus />New book</Btn></PageHeader>
+      <PageHeader icon={BookOpen} title="Books" description="Every book with its cover, shelf and chapters. Chapters can hold chapters, as deep as the book needs."><Btn onClick={() => setShelves(true)}>Shelves</Btn><Link href={lib === "gaudiya" ? "/admin/books/import?library=gaudiya" : "/admin/books/import"} className="inline-flex h-9 items-center rounded-md border border-zinc-200 bg-white px-4 text-[13px] font-medium hover:bg-zinc-50">Import from PDF, EPUB or Word</Link><Btn kind="primary" onClick={() => setNw(true)}><Plus />New book</Btn></PageHeader>
       {shelves && <ShelvesManager onClose={() => setShelves(false)} />}
+      <div className="mb-5 inline-flex rounded-lg bg-zinc-100 p-0.5 text-[13px]">{([["main", "Śrīla Gurudeva’s books"], ["gaudiya", "Gauḍīya library"]] as const).map(([k, l]) => <button key={k} onClick={() => setLib(k)} className={cn("rounded-md px-3 py-1.5", lib === k ? "bg-white font-medium shadow-xs" : "text-zinc-600")}>{l} <span className="text-zinc-400">{(books || []).filter((b) => (b.library || "main") === k).length}</span></button>)}</div>
       {books && !books.length && <Empty icon={BookOpen} title="No books yet" text="Make the first book, then add its parts and chapters."><Btn kind="primary" onClick={() => setNw(true)}><Plus />New book</Btn></Empty>}
       {cats.map((c) => (
         <section key={c} className="mb-8">
           <h2 className="mb-3 text-[13px] font-semibold text-zinc-500">{c}</h2>
-          <div className="grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-5">{(books || []).filter((b) => (b.category || "Books") === c).map((b) => (
+          <div className="grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-5">{mine.filter((b) => (b.category || "Books") === c).map((b) => (
             <Link key={b.id} href={`/admin/books/${b.id}`} className="group">
               <div className="relative aspect-[3/4] overflow-hidden rounded-[3px_10px_10px_3px] border border-zinc-200 bg-gradient-to-br from-zinc-700 to-zinc-900 shadow-sm transition group-hover:-translate-y-1 group-hover:shadow-lg">
                 {b.cover_url ? /* eslint-disable-next-line @next/next/no-img-element */ <img src={b.cover_url} alt="" className="h-full w-full object-cover" /> : <div className="flex h-full flex-col items-center justify-center gap-3 p-4 text-center text-white"><span className="text-[26px]">{b.icon || "📖"}</span><span className="text-[13px] font-semibold leading-snug">{b.title}</span></div>}
