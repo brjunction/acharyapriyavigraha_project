@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { Library, Upload, BookUser, GitBranch, ExternalLink, Search, FolderTree, Trash2, Plus } from "lucide-react";
 import { Badge, Btn, Card, Input, Select, PageHeader, Empty, Modal, api, toast } from "../ui";
+import { BulkBar, Tick } from "./book-bulk";
 
 type B = { id: string; kind?: string; subject?: string | null; slug: string; title: string; author?: string; acharya?: string | null; library?: string; status: string; language?: string; chapters: number; cover_url?: string };
 type A = { slug: string; title: string };
@@ -14,7 +15,8 @@ const guess = (b: B, as: A[]) => as.find((a) => b.acharya === a.slug) || as.find
 export function GaudiyaPanel() {
   const [books, setBooks] = useState<B[] | null>(null); const [cats, setCats] = useState<Cat[]>([]); const [mgr, setMgr] = useState(false);
   const loadCats = () => api<Cat[]>("/api/admin/gaudiya/categories").then(setCats).catch(() => {});
-  useEffect(() => { loadCats(); }, []); const [as, setAs] = useState<A[]>([]); const [q, setQ] = useState(""); const [who, setWho] = useState("");
+  useEffect(() => { loadCats(); }, []); const [as, setAs] = useState<A[]>([]); const [q, setQ] = useState(""); const [who, setWho] = useState(""); const [sel, setSel] = useState<Set<string>>(new Set());
+  const tick = (ids: string[], v: boolean) => setSel((x) => { const y = new Set(x); ids.forEach((i) => (v ? y.add(i) : y.delete(i))); return y; });
   const load = () => api<B[]>("/api/admin/books").then((r) => setBooks(r.filter((b) => b.library === "gaudiya"))).catch((e) => toast(e.message, true));
   useEffect(() => { load(); Promise.all([api<any>("/api/admin/archive/parampara"), api<any>("/api/admin/archive/biographies")]).then(([p, b]) => { const rows = [...(p.items || p), ...(b.items || b)] as any[]; const seen = new Set<string>(); setAs(rows.filter((x) => !seen.has(x.slug) && seen.add(x.slug)).map((x) => ({ slug: x.slug, title: x.title }))); }).catch(() => {}); }, []);
   const rows = useMemo(() => (books || []).map((b) => ({ b, a: guess(b, as) })), [books, as]);
@@ -29,8 +31,10 @@ export function GaudiyaPanel() {
         {([["/admin/books/import?library=gaudiya", Upload, "Import books", "EPUB or Word — one, or a ZIP of many (each folder = one ācārya)"], ["/admin/archive/biographies", BookUser, "Biographies", "Gaura-pārṣadas, ācāryas and Vaiṣṇavas"], ["/admin/archive/parampara", GitBranch, "Guru-paramparā", "The succession; each ācārya’s life is written here"]] as const).map(([h, I, t, d]) => (
           <Link key={h} href={h} className="flex gap-3 rounded-xl border border-zinc-200 bg-white p-4 transition hover:border-zinc-300 hover:shadow-sm"><span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-amber-50 text-amber-800"><I className="size-[18px]" /></span><span><span className="block text-[14px] font-medium">{t}</span><span className="block text-[12.5px] text-zinc-500">{d}</span></span></Link>))}
       </div>
+      <BulkBar ids={[...sel]} total={shown.length} library="gaudiya" opt={{ cats, acharyas: as }} onAll={() => tick(shown.map((r) => r.b.id), true)} onClear={() => setSel(new Set())} onDone={() => { load(); loadCats(); }} />
       <Card className="p-0">
         <div className="flex flex-wrap items-center gap-2 border-b border-zinc-100 p-3">
+          {shown.length > 0 && (() => { const on = shown.filter((r) => sel.has(r.b.id)).length; return <Tick on={on === shown.length} mixed={on > 0 && on < shown.length} label="Tick every book shown" onChange={(v) => tick(shown.map((r) => r.b.id), v)} />; })()}
           <p className="mr-auto text-[13px] font-medium">{books ? `${books.length} books` : "Loading…"}{unmatched > 0 && <span className="ml-2 text-[12px] font-normal text-amber-700">{unmatched} without an ācārya</span>}</p>
           {(books || []).some((b) => b.status !== "published") && <Btn size="sm" kind="primary" onClick={async () => { const n = (books || []).filter((b) => b.status !== "published").length; if (!confirm(`Publish all ${n} drafts of the Gauḍīya library now? They appear on the website at once.`)) return; try { const r = await api<{ n: number }>("/api/admin/books/bulk", "POST", { op: "publish", library: "gaudiya" }); toast(`${r.n} books published.`); load(); } catch (e: any) { toast(e.message, true); } }}>Publish all {(books || []).filter((b) => b.status !== "published").length} drafts</Btn>}
           <label className="relative"><Search className="absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-zinc-400" /><Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Find a book" className="!h-8 w-[200px] pl-8" /></label>
@@ -38,7 +42,8 @@ export function GaudiyaPanel() {
         </div>
         {books && !books.length ? <Empty icon={Library} title="No Gauḍīya books yet" text="Import the first ones: EPUB or Word files, or a ZIP with one folder per ācārya." /> :
           <div className="divide-y divide-zinc-100">{shown.map(({ b, a }) => (
-            <div key={b.id} className="flex flex-wrap items-center gap-3 px-3 py-2">
+            <div key={b.id} className={`flex flex-wrap items-center gap-3 px-3 py-2 ${sel.has(b.id) ? "bg-zinc-50" : ""}`}>
+              <Tick on={sel.has(b.id)} label={`Tick “${b.title}”`} onChange={(v) => tick([b.id], v)} />
               <span className="flex h-11 w-8 shrink-0 items-center justify-center overflow-hidden rounded-[2px_4px_4px_2px] bg-zinc-800">{b.cover_url && /* eslint-disable-next-line @next/next/no-img-element */ <img src={b.cover_url} alt="" className="h-full w-full object-cover" />}</span>
               <span className="min-w-0 flex-1"><Link href={`/admin/books/${b.id}`} className="block truncate text-[13.5px] font-medium hover:underline">{b.title}</Link><span className="text-[12px] text-zinc-500">{b.author || "—"} · {b.chapters} chapters · {(b.language || "").toUpperCase()}</span></span>
               {b.status !== "published" && <Badge>Draft</Badge>}

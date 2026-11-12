@@ -6,6 +6,7 @@ import { BookOpen, Plus, ChevronRight, ArrowUp, ArrowDown, ArrowLeft, ArrowRight
 import { LAYOUTS } from "@/lib/content/book-layouts";
 import { Btn, Badge, Card, Field, Input, Select, Textarea, PageHeader, Empty, Modal, api, toast, cn } from "../ui";
 import { MediaPicker } from "../media-picker";
+import { BulkBar, Tick } from "./book-bulk";
 
 const NotionEditor = dynamic(() => import("../notion/editor"), { ssr: false, loading: () => <p className="p-6 text-zinc-500">Opening the editor…</p> });
 type B = { id: string; slug: string; title: string; subtitle?: string; author?: string; category?: string; cover_url?: string; icon?: string; status: string; layout: string; chapters: number; library?: string };
@@ -14,7 +15,8 @@ type N = { id: string; parent_id: string | null; kind: string; position: number;
 /* ------------------------------------------------------------------ bookshelf */
 export function BooksPanel() {
   const [books, setBooks] = useState<B[] | null>(null); const [nw, setNw] = useState(false); const [shelves, setShelves] = useState(false); const [f, setF] = useState({ title: "", author: "Śrī Śrīmad Gour Govinda Swāmī Gurudeva", category: "" });
-  const [lib, setLib] = useState("main");
+  const [lib, setLib] = useState("main"); const [sel, setSel] = useState<Set<string>>(new Set());
+  const tick = (ids: string[], v: boolean) => setSel((x) => { const y = new Set(x); ids.forEach((i) => (v ? y.add(i) : y.delete(i))); return y; });
   const load = () => api<B[]>("/api/admin/books").then(setBooks).catch((e) => toast(e.message, true));
   useEffect(() => { load(); }, []);
   const mine = useMemo(() => (books || []).filter((b) => (b.library || "main") === lib), [books, lib]);
@@ -23,19 +25,21 @@ export function BooksPanel() {
     <div>
       <PageHeader icon={BookOpen} title="Books" description="Every book with its cover, shelf and chapters. Chapters can hold chapters, as deep as the book needs."><Btn onClick={() => setShelves(true)}>Shelves</Btn><Link href={lib === "gaudiya" ? "/admin/books/import?library=gaudiya" : "/admin/books/import"} className="inline-flex h-9 items-center rounded-md border border-zinc-200 bg-white px-4 text-[13px] font-medium hover:bg-zinc-50">Import from PDF, EPUB or Word</Link><Btn kind="primary" onClick={() => setNw(true)}><Plus />New book</Btn></PageHeader>
       {shelves && <ShelvesManager onClose={() => setShelves(false)} />}
-      <div className="mb-5 flex flex-wrap items-center gap-3"><div className="inline-flex rounded-lg bg-zinc-100 p-0.5 text-[13px]">{([["main", "Śrīla Gurudeva’s books"], ["gaudiya", "Gauḍīya library"]] as const).map(([k, l]) => <button key={k} onClick={() => setLib(k)} className={cn("rounded-md px-3 py-1.5", lib === k ? "bg-white font-medium shadow-xs" : "text-zinc-600")}>{l} <span className="text-zinc-400">{(books || []).filter((b) => (b.library || "main") === k).length}</span></button>)}</div>{mine.some((b) => b.status !== "published") && <Btn size="sm" onClick={async () => { const n = mine.filter((b) => b.status !== "published").length; if (!confirm(`Publish all ${n} drafts here now?`)) return; try { const r = await api<{ n: number }>("/api/admin/books/bulk", "POST", { op: "publish", library: lib }); toast(`${r.n} books published.`); load(); } catch (e: any) { toast(e.message, true); } }}>Publish all {mine.filter((b) => b.status !== "published").length} drafts</Btn>}</div>
+      <div className="mb-5 flex flex-wrap items-center gap-3"><div className="inline-flex rounded-lg bg-zinc-100 p-0.5 text-[13px]">{([["main", "Śrīla Gurudeva’s books"], ["gaudiya", "Gauḍīya library"]] as const).map(([k, l]) => <button key={k} onClick={() => { setLib(k); setSel(new Set()); }} className={cn("rounded-md px-3 py-1.5", lib === k ? "bg-white font-medium shadow-xs" : "text-zinc-600")}>{l} <span className="text-zinc-400">{(books || []).filter((b) => (b.library || "main") === k).length}</span></button>)}</div>{mine.some((b) => b.status !== "published") && <Btn size="sm" onClick={async () => { const n = mine.filter((b) => b.status !== "published").length; if (!confirm(`Publish all ${n} drafts here now?`)) return; try { const r = await api<{ n: number }>("/api/admin/books/bulk", "POST", { op: "publish", library: lib }); toast(`${r.n} books published.`); load(); } catch (e: any) { toast(e.message, true); } }}>Publish all {mine.filter((b) => b.status !== "published").length} drafts</Btn>}</div>
       {books && !books.length && <Empty icon={BookOpen} title="No books yet" text="Make the first book, then add its parts and chapters."><Btn kind="primary" onClick={() => setNw(true)}><Plus />New book</Btn></Empty>}
-      {cats.map((c) => (
+      <BulkBar ids={[...sel]} total={mine.length} library={lib as "main" | "gaudiya"} opt={{ shelves: cats.filter((c) => c !== "Books") }} onAll={() => tick(mine.map((b) => b.id), true)} onClear={() => setSel(new Set())} onDone={load} />
+      {cats.map((c) => { const here = mine.filter((b) => (b.category || "Books") === c); const on = here.filter((b) => sel.has(b.id)).length; return (
         <section key={c} className="mb-8">
-          <h2 className="mb-3 text-[13px] font-semibold text-zinc-500">{c}</h2>
-          <div className="grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-5">{mine.filter((b) => (b.category || "Books") === c).map((b) => (
-            <Link key={b.id} href={`/admin/books/${b.id}`} className="group">
-              <div className="relative aspect-[3/4] overflow-hidden rounded-[3px_10px_10px_3px] border border-zinc-200 bg-gradient-to-br from-zinc-700 to-zinc-900 shadow-sm transition group-hover:-translate-y-1 group-hover:shadow-lg">
+          <h2 className="mb-3 flex items-center gap-2 text-[13px] font-semibold text-zinc-500"><Tick on={on === here.length && on > 0} mixed={on > 0 && on < here.length} label={`Tick every book on “${c}”`} onChange={(v) => tick(here.map((b) => b.id), v)} />{c} <span className="font-normal text-zinc-400">{here.length}</span></h2>
+          <div className="grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-5">{here.map((b) => (
+            <Link key={b.id} href={`/admin/books/${b.id}`} className="group relative" onClick={(e) => { if (sel.size) { e.preventDefault(); tick([b.id], !sel.has(b.id)); } }}>
+              <Tick on={sel.has(b.id)} label={`Tick “${b.title}”`} onChange={(v) => tick([b.id], v)} className={cn("absolute left-2 top-2 z-10 shadow-sm", sel.size ? "" : "opacity-0 group-hover:opacity-100 focus-visible:opacity-100")} />
+              <div className={cn("relative aspect-[3/4] overflow-hidden rounded-[3px_10px_10px_3px] border border-zinc-200 bg-gradient-to-br from-zinc-700 to-zinc-900 shadow-sm transition group-hover:-translate-y-1 group-hover:shadow-lg", sel.has(b.id) && "ring-2 ring-zinc-900 ring-offset-2")}>
                 {b.cover_url ? /* eslint-disable-next-line @next/next/no-img-element */ <img src={b.cover_url} alt="" className="h-full w-full object-cover" /> : <div className="flex h-full flex-col items-center justify-center gap-3 p-4 text-center text-white"><span className="text-[26px]">{b.icon || "📖"}</span><span className="text-[13px] font-semibold leading-snug">{b.title}</span></div>}
                 <span className="absolute inset-y-0 left-0 w-2 bg-gradient-to-r from-black/30 to-transparent" />{b.status !== "published" && <Badge className="absolute right-2 top-2">Draft</Badge>}</div>
               <p className="mt-2 truncate text-[13px] font-medium">{b.title}</p><p className="text-[12px] text-zinc-500">{b.chapters} chapters · {LAYOUTS.find((l) => l[0] === b.layout)?.[1]}</p>
             </Link>))}</div>
-        </section>))}
+        </section>); })}
       {nw && <Modal title="New book" onClose={() => setNw(false)}>
         <div className="space-y-4"><Field label="Title"><Input autoFocus value={f.title} onChange={(e) => setF({ ...f, title: e.target.value })} /></Field><Field label="Author"><Input value={f.author} onChange={(e) => setF({ ...f, author: e.target.value })} /></Field>
           <Field label="Shelf" hint="Books on the same shelf are shown together, e.g. “Gopal Jiu Publications”, “Translations”, “Magazines”."><Input list="shelves" value={f.category} onChange={(e) => setF({ ...f, category: e.target.value })} /><datalist id="shelves">{cats.map((c) => <option key={c} value={c} />)}</datalist></Field></div>
