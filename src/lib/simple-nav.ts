@@ -48,13 +48,13 @@ export const SIMPLE_DEFAULTS: { key: string; label: string; intro: string; icon:
     { group: "Taptajīvanam", href: "/about/founder", label: "Śrīla Guru Mahārāja", note: "Founder of Taptajīvanam", icon: "/photos/haladhara-sm.webp" },
     { group: "Taptajīvanam", href: "/thank-list", label: "Our Thank List", note: "Everyone who built this archive", icon: "HeartHandshake" },
     { group: "Taptajīvanam", href: "/about/contact", label: "Contact", note: "Write to us or call", icon: "Phone" },
-    { group: "Tools", href: "/resources/script-converter", label: "Script converter", note: "IAST, Devanāgarī, Bengali, Odia, Balaram font", icon: "Languages" },
-    { group: "Tools", href: "/resources/vaishnava-calendar", label: "Calendar", note: "Festivals and fasting days", icon: "CalendarDays" },
-    { group: "Downloads", href: "/resources/windows-app", label: "Windows app", note: "The WebFolio on your computer", icon: "Download" }] },
+    { group: "Tools & downloads", href: "/resources/script-converter", label: "Script converter", note: "IAST, Devanāgarī, Bengali, Odia, Balaram font", icon: "Languages" },
+    { group: "Tools & downloads", href: "/resources/vaishnava-calendar", label: "Calendar", note: "Festivals and fasting days", icon: "CalendarDays" },
+    { group: "Tools & downloads", href: "/resources/windows-app", label: "Windows app", note: "The WebFolio on your computer", icon: "Download" }] },
 ];
 /** Where to centre each photo, so no head is cut. */
 /** The picture or icon of each group in the Simple menu. */
-const TAB_ICON: Record<string, LucideIcon> = { Tools: Wrench, Downloads: Download, "Paramparā protection": GitBranch, "Elsewhere online": Globe,  "Apps & links": Smartphone, "His life": UserRound, Remembrance: Image, "Lineage & disciples": GitBranch, Projects: Building2, Read: BookOpen, "His words": Quote, Listen: Headphones, Watch: Clapperboard, About: Info, "Taptajīvanam": Info, "News & updates": Megaphone };
+const TAB_ICON: Record<string, LucideIcon> = { Tools: Wrench, Downloads: Download, "Paramparā protection": GitBranch, "Elsewhere online": Globe,  "Apps & links": Smartphone, "His life": UserRound, Remembrance: Image, "Lineage & disciples": GitBranch, Projects: Building2, Read: BookOpen, "His words": Quote, Listen: Headphones, Watch: Clapperboard, About: Info, "Taptajīvanam": Info, "Tools & downloads": Wrench, "News & updates": Megaphone };
 const POS: Record<string, string> = { "/photos/gurudeva-writing.webp": "18% 22%", "/photos/menu-seated-1.webp": "50% 30%", "/photos/menu-garland.webp": "50% 25%", "/photos/gurudeva-portrait.webp": "50% 30%" };
 /** Colours for the groups inside a Simple menu, in order. */
 export const GROUP_ACC = ["saffron", "rose", "teal", "indigo", "leaf", "gold", "plum"];
@@ -75,7 +75,6 @@ export function simpleMenus(menus: NavMenu[], cfg?: SimpleCfg | null): SimpleMen
   const teach = m("teachings")?.groups ?? [];
   // Teachings groups not named "Hear & watch" go to Read, so a group added later is never lost.
   const listenTeach = teach.filter((g) => g.title === "Hear & watch").flatMap((g) => g.links);
-  const yt = groups("about").filter((l) => /youtube/i.test(l.href + l.label));
   const G = (k: string, only?: string[]) => (m(k)?.groups ?? []).filter((g) => !only || only.includes(g.title));
   const T = (title: string, links: NavLink[]) => ({ title, links });
   const GROUPS: Record<string, { title: string; links: NavLink[] }[]> = {
@@ -84,10 +83,9 @@ export function simpleMenus(menus: NavMenu[], cfg?: SimpleCfg | null): SimpleMen
     listen: [T("Hear & watch", listenTeach)],
     // Tattva is one card only; its topics open on the Tattva page.
     read: [...teach.filter((g) => g.title !== "Hear & watch").map((g) => T(g.title, g.links.filter((l) => l.href !== "/teachings/transcriptions"))), T("Other languages", top("translations", "Translations"))],
-    // About: the archive itself, then tools, downloads, other places online (without the YouTube channels, reached from Videos) and news.
-    about: (() => { const ab = G("about").map((g) => T(g.title, g.links.filter((l) => !yt.includes(l)))); const by = (t: string) => ab.find((g) => g.title === t)?.links || [];
-      const known = ["Taptajīvanam", "Connect", "Tools", "Downloads", "Elsewhere online", "News & updates"];
-      return [T("Taptajīvanam", [...by("Taptajīvanam"), ...by("Connect")]), T("Tools", by("Tools")), T("Downloads", by("Downloads")), T("Elsewhere online", by("Elsewhere online")), T("News & updates", by("News & updates")), ...ab.filter((g) => !known.includes(g.title))]; })(),
+    // About: three groups — the archive itself; tools and downloads; news and updates.
+    about: (() => { const ab = [...G("about"), ...G("resources")]; const by = (...t: string[]) => ab.filter((g) => t.includes(g.title)).flatMap((g) => g.links);
+      return [T("Taptajīvanam", by("Taptajīvanam", "Connect")), T("Tools & downloads", by("Tools", "Downloads")), T("News & updates", by("News & updates"))]; })(),
   };
   return SIMPLE_DEFAULTS.map((d) => {
     const c = cfg?.[d.key] || {};

@@ -49,7 +49,7 @@ const SIZES = [13, 14, 15, 16, 17, 18, 20, 22, 24, 27, 30];
 
 export function DiaryJournal({ e, list }: { e: JPage; list: JEntry[] }) {
   const router = useRouter(); const [s, setS] = useState<S>(DEF); const [panel, setPanel] = useState<"" | "toc" | "style" | "view">(""); const [q, setQ] = useState("");
-  useEffect(() => { try { setS({ ...DEF, ...JSON.parse(localStorage.getItem("tj_diary_view") || "{}") }); } catch {} }, []);
+  useEffect(() => { try { setS({ ...DEF, ...JSON.parse(localStorage.getItem("tj_diary_view") || "{}"), view: "calendar" }); /* always opens in Calendar */ } catch {} }, []);
   const set = (p: Partial<S>) => setS((o) => { const n = { ...o, ...p }; try { localStorage.setItem("tj_diary_view", JSON.stringify(n)); } catch {} return n; });
   // full screen: the website's own menu and footer step aside while reading
   useEffect(() => { document.documentElement.classList.add("tj-immersive"); return () => document.documentElement.classList.remove("tj-immersive"); }, []);

@@ -101,27 +101,9 @@ export const MENUS: NavMenu[] = [
     ],
   },
   {
-    key: "translations", label: "Translations", href: "/translations", icon: Languages, layout: "flyout", dense: true, searchAll: true, allLabel: "All languages",
-    intro: "Every language has its own complete site. Pick a region, or search.",
-    feature: { title: "Every language", text: "Each language has its own complete site.", image: "/photos/menu-smile.webp", href: "/translations", cta: "All languages" },
-    groups: REGIONS.filter((r) => ALL_LANGUAGES.some((x) => x.region === r.key && x.code !== "en")).map((r) => g(r.title, ALL_LANGUAGES.filter((x) => x.region === r.key && x.code !== "en").map((x) => ({
-      href: `/${x.code}`, label: x.native, desc: `${x.name} · ${STATUS_LABEL[x.status]}`, icon: Globe, soon: x.status === "planned",
-    })))),
-  },
-  {
-    key: "about", label: "About", href: "/about", icon: Info, layout: "flyout", allLabel: "About overview",
-    intro: "The archive, its founder, tools, downloads and how to reach us.",
-    feature: { title: "About the archive", text: "Why and how this archive exists.", image: "/photos/menu-marigold.webp", href: "/about", cta: "About overview" },
+    key: "resources", label: "Resources", href: "/resources", icon: Download, allLabel: "All resources",
+    intro: "Tools, downloads, news and updates.",
     groups: [
-      // Kept short on purpose: mission, team, support, corrections and privacy are reached from the About page and the footer.
-      g("Taptajīvanam", [
-        l("/about", "About this website", "Why and how this archive exists", Archive),
-        l("/about/founder", "Śrīla Haladhara Swāmī Guru Mahārāja", "Founder of Taptajīvanam", UserRound),
-        l("/thank-list", "Our Thank List", "Everyone who built this archive", HeartHandshake),
-      ]),
-      g("Connect", [
-        l("/about/contact", "Contact", "taptajivanam@gmail.com · +91 96687 21555", Phone),
-      ]),
       g("Tools", [
         l("/resources/script-converter", "Script converter", "IAST, Devanāgarī, Bengali, Odia and the Balaram font", Languages),
         l("/resources/vaishnava-calendar", "Gurudeva calendar", "Festivals and fasting days", CalendarDays),
@@ -133,18 +115,35 @@ export const MENUS: NavMenu[] = [
         l("/resources/windows-app", "Windows app", "The WebFolio, installed on your computer", Download),
         l("/resources/mobile-app", "Android / iOS app", "Coming soon — use the WebFolio meanwhile", Smartphone),
       ]),
-      g("Elsewhere online", [
-        l("/resources/publication-websites", "Publication websites", "Gopal Jiu, Tattva Vicāra and more", Newspaper),
-        l("/resources/websites", "More websites", "Other places his teachings are found", Globe),
-        l("/resources/social-media", "Social media", "Instagram, Facebook, YouTube", Users2),
-        l("/resources/taptajivanam-youtube", "Taptajīvanam YouTube", "Lectures and shorts", Youtube),
-        l("https://www.youtube.com/results?search_query=Haladhara+Swami", "Haladhara Swāmī YouTube", "Śrīla Haladhara Swāmī Guru Mahārāja", Youtube),
-      ]),
       g("News & updates", [
         l("/resources/updates", "Taptajīvanam updates", "What’s new on the site", Megaphone),
         l("/resources/announcements", "Announcements", "Notices for everyone", Megaphone),
         l("/resources/programmes", "Programmes & schedules", "Festivals and events", CalendarRange),
         l("/resources/news", "News & information", "From the mission", Info),
+      ]),
+    ],
+  },
+  {
+    key: "translations", label: "Translations", href: "/translations", icon: Languages, layout: "flyout", dense: true, searchAll: true, allLabel: "All languages",
+    intro: "Every language has its own complete site. Pick a region, or search.",
+    feature: { title: "Every language", text: "Each language has its own complete site.", image: "/photos/menu-smile.webp", href: "/translations", cta: "All languages" },
+    groups: REGIONS.filter((r) => ALL_LANGUAGES.some((x) => x.region === r.key && x.code !== "en")).map((r) => g(r.title, ALL_LANGUAGES.filter((x) => x.region === r.key && x.code !== "en").map((x) => ({
+      href: `/${x.code}`, label: x.native, desc: `${x.name} · ${STATUS_LABEL[x.status]}`, icon: Globe, soon: x.status === "planned",
+    })))),
+  },
+  {
+    key: "about", label: "About", href: "/about", icon: Info, layout: "flyout", allLabel: "About overview",
+    intro: "The archive, its founder and how to reach us.",
+    feature: { title: "About the archive", text: "Why and how this archive exists.", image: "/photos/menu-marigold.webp", href: "/about", cta: "About overview" },
+    groups: [
+      // Kept short on purpose: mission, team, support, corrections and privacy are reached from the About page and the footer.
+      g("Taptajīvanam", [
+        l("/about", "About this website", "Why and how this archive exists", Archive),
+        l("/about/founder", "Śrīla Haladhara Swāmī Guru Mahārāja", "Founder of Taptajīvanam", UserRound),
+        l("/thank-list", "Our Thank List", "Everyone who built this archive", HeartHandshake),
+      ]),
+      g("Connect", [
+        l("/about/contact", "Contact", "taptajivanam@gmail.com · +91 96687 21555", Phone),
       ]),
     ],
   },
@@ -157,5 +156,5 @@ export function findLink(href: string): { menu: NavMenu; group: NavGroup; link: 
 
 /** Each menu has its own festival colour (see .acc-* in globals.css). */
 export const ACCENT: Record<string, "saffron" | "teal" | "indigo" | "rose" | "leaf" | "gold" | "plum"> = {
-  gurudeva: "saffron", teachings: "teal", tattva: "indigo", translations: "rose", about: "leaf",
+  gurudeva: "saffron", teachings: "teal", tattva: "indigo", resources: "plum", translations: "rose", about: "leaf",
 };

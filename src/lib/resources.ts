@@ -33,14 +33,6 @@ export const RESOURCES: Record<string, RPage> = {
   ] },
   "social-media": { title: "Social media", intro: "Follow Taptajīvanam for the daily offering of Śrīla Gurudeva’s words.", groups: [{ links: SOCIAL }] },
   "taptajivanam-youtube": { title: "Taptajīvanam YouTube", intro: "Lectures, kīrtanas and short clips.", groups: [{ links: [SOCIAL[0], { title: "Videos on this website", url: "/teachings/videos", desc: "Every video, sorted by year, place and type" }] }] },
-  "acaryas-works": { title: "Ācāryas’ works", intro: "The scriptures and the commentaries of the previous ācāryas, with every verse in any script.", groups: [{ links: [
-    { title: "Scriptures library", url: `${HNV}/scriptures`, desc: "Bhāgavatam, Gītā and more, with the ācāryas’ Sanskrit commentaries", tag: "Library" },
-    { title: "Śrīla Prabhupāda’s books", url: "https://vedabase.io", desc: "On Vedabase", tag: "Books" },
-  ] }] },
-  "padyavali-bhajans": { title: "Padyāvalī & bhajans", intro: "Songs of the ācāryas, with their translations.", groups: [{ links: [
-    { title: "Vaiṣṇava bhajans", url: `${HNV}/songs`, desc: "By author, book and type — in any script", tag: "Songs" },
-    { title: "Kīrtanas sung by Śrīla Gurudeva", url: "/teachings/kirtans", desc: "His own recordings, on this website" },
-  ] }] },
 };
 
 /** What has changed on the website. New updates are added from Studio › Announcements. */

@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { ChevronDown, ChevronRight, ChevronLeft, Search, Menu, X, ArrowRight } from "lucide-react";
 import { ACCENT, type NavMenu } from "@/lib/nav";
@@ -189,11 +189,13 @@ function SimplePanel({ menu, onNavigate, onEverything }: { menu: SimpleMenu; onN
   const here = usePathname(); const router = useRouter();
   const [ti, setTi] = useState(-1);
   // Opening a group swaps the tiles for a shorter list; the panel keeps its height so it never shrinks out from under the mouse (which closed it).
-  const box = useRef<HTMLDivElement>(null); const [minH, setMinH] = useState<number | undefined>(undefined);
-  const openTab = (k: number) => { setMinH(box.current?.offsetHeight); setTi(k); };
+  // The panel then shrinks to fit; a clear margin as tall as the difference stays below it until the mouse is back in.
+  const box = useRef<HTMLDivElement>(null); const was = useRef(0); const [bridge, setBridge] = useState(0);
+  const openTab = (k: number) => { was.current = box.current?.offsetHeight || 0; setTi(k); };
+  useLayoutEffect(() => { if (ti >= 0 && was.current && box.current) { setBridge(Math.max(0, was.current - box.current.offsetHeight)); was.current = 0; } else if (ti < 0) setBridge(0); }, [ti]);
   const tabs = menu.tabs; const t = tabs[ti];
   return (
-    <div ref={box} style={{ minHeight: ti >= 0 ? minH : undefined }} className={`acc-${menu.accent} mega-enter flex flex-col overflow-hidden rounded-3xl border border-line bg-surface shadow-[var(--shadow-lg)]`}>
+    <div><div ref={box} onMouseEnter={() => bridge && setBridge(0)} className={`acc-${menu.accent} mega-enter overflow-hidden rounded-3xl border border-line bg-surface shadow-[var(--shadow-lg)]`}>
       {!t ? (!tabs.length ? null :
         <div className="grid gap-3 p-4" style={{ gridTemplateColumns: `repeat(${tabs.length <= 5 ? tabs.length : 3}, minmax(0, 1fr))` }}>
           {tabs.map((x, k) => (
@@ -216,10 +218,10 @@ function SimplePanel({ menu, onNavigate, onEverything }: { menu: SimpleMenu; onN
           </div>
         </div>
       )}
-      <div className="mt-auto flex items-center justify-center border-t border-line px-4 py-2">
+      <div className="flex items-center justify-center border-t border-line px-4 py-2">
         <button onClick={onEverything} className="group flex items-center gap-1.5 rounded-full px-3 py-1 text-[12.5px] font-medium text-ink-3 hover:bg-band hover:text-ink">Use Advanced view for {menu.label}<ArrowRight size={14} className="transition group-hover:translate-x-0.5" /></button>
       </div>
-    </div>
+    </div>{bridge > 0 && <div aria-hidden style={{ height: bridge }} />}</div>
   );
 }
 
