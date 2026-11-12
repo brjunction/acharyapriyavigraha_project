@@ -1106,3 +1106,17 @@ a.sutra-xref:hover { background: color-mix(in srgb, var(--accent) 24%, transpare
 .hnv .acarya-dot { position: relative; z-index: 1; display: grid; place-items: center; width: 1.6rem; height: 1.6rem; margin-left: .3rem; flex: none; border-radius: 999px; font-size: .7rem; font-weight: 600; color: var(--color-ink); background: #f3dcae; box-shadow: 0 0 0 4px var(--bg); }
 .hnv .lift { transition: transform .35s ease, box-shadow .35s ease; }
 .hnv .lift:hover { transform: translateY(-2px); box-shadow: 0 10px 24px -14px rgba(60,30,0,.35); }
+
+/* Home page: the nav bar is clear over the hero, light text; the hero runs up under it */
+.site-header.home-float + main { margin-top: -52px; }
+@media (min-width: 640px) { .site-header.home-float + main { margin-top: -58px; } }
+.site-header.home-float + main .hero-red { padding-top: 52px; }
+@media (min-width: 640px) { .site-header.home-float + main .hero-red { padding-top: 58px; } }
+.site-header.home-float:not(.nav-clear) + main .hero-red { padding-top: 52px; }
+.nav-clear nav > button, .nav-clear nav > button svg { color: #fff3dc !important; }
+.nav-clear nav > button:hover { background: rgba(255,255,255,.12) !important; }
+.nav-clear nav > button > span.absolute { background: #ffd98a !important; }
+.nav-clear button[aria-label="Search"] { background: rgba(255,255,255,.12); border-color: rgba(255,255,255,.28); color: #fff3dc; }
+.nav-clear button[aria-label="Search"] span, .nav-clear button[aria-label="Search"] kbd { color: rgba(255,243,220,.75); background: transparent; border-color: rgba(255,255,255,.25); }
+.nav-clear [role="radiogroup"], .nav-clear .mode-switch { background: rgba(255,255,255,.12) !important; border-color: rgba(255,255,255,.25) !important; }
+.nav-clear [role="radiogroup"] button:not([aria-checked="true"]), .nav-clear .mode-switch button:not([aria-pressed="true"]) { color: rgba(255,243,220,.8) !important; }
