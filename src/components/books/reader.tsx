@@ -330,7 +330,7 @@ function BookSearch({ api, T, onGo }: { api: string; T: (typeof THEMES)[Theme]; 
 
 /** Every book of the library, by shelf, with a search: to go straight from one book to another. */
 function AllBooks({ T, current, onGo }: { T: (typeof THEMES)[Theme]; current: string; onGo: () => void }) {
-  const [all, setAll] = useState<{ slug: string; title: string; cover: string | null; shelf: string; language: string; library: string }[] | null>(null); const [q, setQ] = useState("");
+  const [all, setAll] = useState<{ slug: string; title: string; cover: string | null; first: string | null; shelf: string; language: string; library: string }[] | null>(null); const [q, setQ] = useState("");
   useEffect(() => { fetch("/api/books/list").then((r) => r.json()).then(setAll).catch(() => setAll([])); }, []);
   const fold = (x: string) => x.normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toLowerCase(); const f = fold(q.trim());
   const shown = (all || []).filter((b) => !f || fold(`${b.title} ${b.shelf}`).includes(f)); const shelves = [...new Set(shown.map((b) => (b.library === "gaudiya" ? `Gauḍīya · ${b.shelf}` : b.shelf)))];
@@ -339,7 +339,7 @@ function AllBooks({ T, current, onGo }: { T: (typeof THEMES)[Theme]; current: st
       <label className="relative block"><Search size={15} className="absolute left-2.5 top-1/2 -translate-y-1/2" style={{ color: T.muted }} /><input autoFocus value={q} onChange={(e) => setQ(e.target.value)} placeholder="Find a book" className="h-9 w-full rounded-md border bg-transparent pl-8 pr-3 text-[13.5px] outline-none" style={{ borderColor: T.line }} /></label>
       {!all ? <p className="flex items-center gap-2 px-2 py-6 text-[13px]" style={{ color: T.muted }}><Loader2 size={14} className="animate-spin" />Loading…</p> : !shown.length ? <p className="px-2 py-6 text-[13px]" style={{ color: T.muted }}>No book has that in its title.</p> :
         shelves.map((sh) => <div key={sh} className="mt-3"><p className="px-2 pb-1 text-[11px] font-semibold uppercase tracking-[0.08em]" style={{ color: T.muted }}>{sh}</p>
-          {shown.filter((b) => (b.library === "gaudiya" ? `Gauḍīya · ${b.shelf}` : b.shelf) === sh).map((b) => <Link key={b.slug} href={`/books/${b.slug}`} onClick={onGo} className={`flex items-center gap-3 rounded-md px-2 py-1.5 hover:bg-black/5 [.rd-dark_&]:hover:bg-white/10 ${b.slug === current ? "bg-black/[0.06] [.rd-dark_&]:bg-white/10" : ""}`}>
+          {shown.filter((b) => (b.library === "gaudiya" ? `Gauḍīya · ${b.shelf}` : b.shelf) === sh).map((b) => <Link key={b.slug} href={b.first ? `/books/${b.slug}/${b.first}` : `/books/${b.slug}`} onClick={onGo} className={`flex items-center gap-3 rounded-md px-2 py-1.5 hover:bg-black/5 [.rd-dark_&]:hover:bg-white/10 ${b.slug === current ? "bg-black/[0.06] [.rd-dark_&]:bg-white/10" : ""}`}>
             <span className="flex h-11 w-8 shrink-0 items-center justify-center overflow-hidden rounded-[2px_4px_4px_2px] bg-gradient-to-br from-[#5a3418] to-[#2d1a0c] text-[10px] text-white/80">{b.cover ? /* eslint-disable-next-line @next/next/no-img-element */ <img src={b.cover} alt="" className="h-full w-full object-cover" loading="lazy" /> : b.title.charAt(0)}</span>
             <span className="min-w-0 flex-1"><span className="line-clamp-2 text-[13.5px] leading-snug">{b.title}</span><span className="text-[11px] uppercase" style={{ color: T.muted }}>{b.language}{b.slug === current ? " · reading now" : ""}</span></span></Link>)}</div>)}
     </div>);
