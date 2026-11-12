@@ -430,15 +430,15 @@ export function Header() {
   const smenu = SIMPLE.find((m) => m.key === active);
   const pmenu = mode === "simple" && peek ? MENUS.find((m) => m.key === peek) : undefined;
   const pwide = pmenu && (pmenu.layout === "flyout" ? 1080 : pmenu.layout === "tiles" ? 880 : pmenu.groups.length >= 4 ? 1240 : pmenu.groups.length === 3 ? 980 : 780);
-  const home = path === "/"; const clear = home && !scrolled && !active && !mobile;
+  const home = path === "/"; const clear = home && !scrolled && !mobile;
   const wide = menu && (menu.layout === "flyout" ? 1080 : menu.layout === "tiles" ? 880 : menu.groups.length >= 4 ? 1240 : menu.groups.length === 3 ? 980 : 780);
 
   return (
     <header className={`site-header sticky top-0 z-50 ${home ? "home-float" : ""} ${clear ? "nav-clear" : ""}`}>
       {/* On the home page the bar is fully clear over the hero; once you scroll it becomes a white bar floating a little below the top, with margins and round corners. Elsewhere it is the usual glass bar. */}
-      <div className={`relative isolate transition-[margin,transform,border-radius,box-shadow,border-color] duration-300 ${home ? (clear ? "border-b border-transparent" : "mx-2 translate-y-2 rounded-2xl border border-line/80 shadow-[0_10px_30px_-16px_rgba(60,30,10,0.45)] sm:mx-4 lg:mx-auto lg:max-w-[1296px]") : `border-b border-line/70 ${scrolled ? "shadow-[0_6px_24px_-14px_rgba(60,30,10,0.45)]" : ""}`}`}>
+      <div className={`relative isolate transition-[transform,box-shadow,border-color] duration-500 ease-[cubic-bezier(.22,.8,.24,1)] ${home ? `mx-2 rounded-2xl border sm:mx-4 lg:mx-auto lg:max-w-[1296px] ${clear ? "translate-y-0 border-transparent shadow-none" : "translate-y-2 border-line/80 shadow-[0_10px_30px_-16px_rgba(60,30,10,0.45)]"}` : `border-b border-line/70 ${scrolled ? "shadow-[0_6px_24px_-14px_rgba(60,30,10,0.45)]" : ""}`}`}>
         {/* a translucent glass bar: the page shows softly through it (the blur sits on its own layer, so menus inside are not affected) */}
-        <span aria-hidden className={`pointer-events-none absolute inset-0 -z-10 bg-[var(--header-bg,#ffffff)]/[0.94] backdrop-blur-xl backdrop-saturate-150 transition-opacity duration-300 ${home ? "rounded-2xl" : ""} ${clear ? "opacity-0" : "opacity-100"}`} />
+        <span aria-hidden className={`pointer-events-none absolute inset-0 -z-10 bg-[var(--header-bg,#ffffff)]/[0.94] backdrop-blur-xl backdrop-saturate-150 transition-opacity duration-500 ease-[cubic-bezier(.22,.8,.24,1)] ${home ? "rounded-2xl" : ""} ${clear ? "opacity-0" : "opacity-100"}`} />
         <div className="mx-auto grid h-[52px] max-w-[1320px] sm:h-[58px] grid-cols-[auto_1fr_auto] items-center gap-2 px-4 sm:gap-3 sm:px-6">
           <Logo />
           {mode === "simple" ? (

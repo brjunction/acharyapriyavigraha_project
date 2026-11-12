@@ -1125,3 +1125,9 @@ a.sutra-xref:hover { background: color-mix(in srgb, var(--accent) 24%, transpare
 .nav-clear [role="radiogroup"], .nav-clear .mode-switch { background: rgba(255,255,255,.18) !important; border-color: rgba(255,255,255,.55) !important; }
 .nav-clear [role="radiogroup"] button:not([aria-checked="true"]), .nav-clear .mode-switch button:not([aria-pressed="true"]) { color: #fff !important; font-weight: 600; }
 .nav-clear button[aria-label="Open menu"] { background: #fff !important; color: #851813 !important; box-shadow: 0 6px 16px -10px rgba(40,10,0,.5) !important; --tw-ring-color: transparent !important; }
+/* The home bar changes between clear and white smoothly: colours fade with the background instead of jumping. */
+.site-header.home-float .logo-box, .site-header.home-float nav > button, .site-header.home-float nav > button svg,
+.site-header.home-float button[aria-label="Search"], .site-header.home-float button[aria-label="Search"] *, .site-header.home-float button[aria-label="Open menu"],
+.site-header.home-float [role="radiogroup"], .site-header.home-float [role="radiogroup"] button, .site-header.home-float .mode-switch, .site-header.home-float .mode-switch button {
+  transition: color .45s cubic-bezier(.22,.8,.24,1), background-color .45s cubic-bezier(.22,.8,.24,1), border-color .45s cubic-bezier(.22,.8,.24,1), box-shadow .45s cubic-bezier(.22,.8,.24,1), text-shadow .45s ease;
+}
