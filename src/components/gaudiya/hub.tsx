@@ -3,14 +3,14 @@
    and below it either the whole library or one ācārya's dashboard: a little about him, his biography, his books. Switching is instant (no reload). */
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { ChevronLeft, ChevronRight, LayoutGrid, Search, X, BookUser, GitBranch, Lock, Users } from "lucide-react";
+import { ChevronLeft, ChevronRight, LayoutGrid, Search, X, BookUser, GitBranch, Lock, Users, ExternalLink, BookOpen } from "lucide-react";
 import { Portal } from "@/components/ui/portal";
 import { Portrait } from "./portrait";
 import LibraryBrowser, { type LibBook } from "./library-browser";
 
 export type HubBook = { slug: string; title: string; author: string; acharya: string | null; kind: string; category: string; chapters: number; language: string; order: number; subject?: string | null };
 export type HubCategory = { slug: string; name: string; description: string | null; parent: string | null; position: number };
-export type HubAcharya = { slug: string; title: string; subtitle: string | null; cover: string | null; summary: string | null; inChain: boolean; order: number; group?: string };
+export type HubAcharya = { slug: string; title: string; subtitle: string | null; cover: string | null; summary: string | null; inChain: boolean; order: number; group?: string; links?: { label: string; url: string }[] };
 const OTHER: [string, string][] = [["gaura-parsadas", "Associates of Śrī Caitanya Mahāprabhu"], ["acaryas", "Ācāryas"], ["vaisnavas", "Other Vaiṣṇavas"]];
 const fold = (s: string) => s.normalize("NFKD").replace(/[̀-ͯ]/g, "").toLowerCase();
 const LANG: Record<string, string> = { en: "English", hi: "Hindi · हिन्दी", or: "Odia · ଓଡ଼ିଆ", bn: "Bengali · বাংলা", sa: "Sanskrit · संस्कृतम्", ru: "Russian" };
@@ -23,7 +23,7 @@ export function AcharyaHub({ books, acharyas, categories = [], base = "/gaudiya"
   const byName = (a: HubAcharya, b: HubAcharya) => a.title.replace(/^(Śrī Śrīmad|Śrīla|Śrīpāda|Śrī)\s+/, "").localeCompare(b.title.replace(/^(Śrī Śrīmad|Śrīla|Śrīpāda|Śrī)\s+/, ""));
   const chain = useMemo(() => acharyas.filter((a) => a.inChain).sort((a, b) => b.order - a.order), [acharyas]);   // locked: the succession, from Śrīla Gurudeva back to Śrī Kṛṣṇa
   const others = useMemo(() => acharyas.filter((a) => !a.inChain).sort(byName), [acharyas]); // eslint-disable-line
-  const withBooks = useMemo(() => [...chain, ...others].filter((a) => count[a.slug]), [chain, others, count]);
+  const withBooks = useMemo(() => [...chain, ...others].filter((a) => count[a.slug] || a.links?.length), [chain, others, count]);   // also those whose books are elsewhere (Vedabase, our own Books, their institute…)
   const [tab, setTab] = useState<"chain" | "others">("chain");
   useEffect(() => { const a = new URLSearchParams(location.search).get("a") || ""; setSel(a); const p = () => setSel(new URLSearchParams(location.search).get("a") || ""); addEventListener("popstate", p); return () => removeEventListener("popstate", p); }, []);
   const go = (slug: string) => { setSel(slug); setPanel(false); history.pushState(null, "", slug ? `${base}?a=${slug}` : base); window.scrollTo({ top: 0 }); };
@@ -47,7 +47,7 @@ export function AcharyaHub({ books, acharyas, categories = [], base = "/gaudiya"
             {edge.l && <span aria-hidden className="pointer-events-none absolute inset-y-0 left-0 z-[5] w-10 bg-gradient-to-r from-white to-transparent" />}
             <div ref={ref} onScroll={measure} className="flex gap-1.5 overflow-x-auto py-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
               <button onClick={() => go("")} aria-current={!sel ? "page" : undefined} className={chip(!sel)}>All</button>
-              {withBooks.map((x) => <button key={x.slug} onClick={() => go(x.slug)} aria-current={sel === x.slug ? "page" : undefined} className={chip(sel === x.slug)}>{short(x.title)}<span className={`text-[11px] tabular-nums ${sel === x.slug ? "text-white/70" : "text-ink-3"}`}>{count[x.slug]}</span></button>)}
+              {withBooks.map((x) => <button key={x.slug} onClick={() => go(x.slug)} aria-current={sel === x.slug ? "page" : undefined} className={chip(sel === x.slug)}>{short(x.title)}{count[x.slug] ? <span className={`text-[11px] tabular-nums ${sel === x.slug ? "text-white/70" : "text-ink-3"}`}>{count[x.slug]}</span> : null}</button>)}
             </div>
             {edge.r && <span aria-hidden className="pointer-events-none absolute inset-y-0 right-0 z-[5] w-10 bg-gradient-to-l from-white to-transparent" />}
             {edge.r && <button onClick={() => slide(1)} aria-label="Scroll right" className="absolute right-0 top-1/2 z-10 hidden size-8 -translate-y-1/2 items-center justify-center rounded-full bg-white shadow-[0_1px_6px_rgba(0,0,0,.18)] hover:bg-band sm:flex"><ChevronRight size={17} /></button>}
@@ -85,14 +85,26 @@ export function AcharyaHub({ books, acharyas, categories = [], base = "/gaudiya"
             </div>
             <div className="flex w-full shrink-0 flex-wrap gap-2 sm:w-auto sm:flex-col">
               <Link href={`/gaudiya/biographies/${a.slug}`} className="ui-btn ui-btn-primary"><BookUser size={15} />Read his biography</Link>
+              {a.links?.map((l) => /^https?:/.test(l.url) ? <a key={l.url} href={l.url} target="_blank" rel="noopener" className="ui-btn"><ExternalLink size={15} />{l.label}</a> : <Link key={l.url} href={l.url} className="ui-btn"><BookOpen size={15} />{l.label}</Link>)}
               {a.inChain && <Link href={`/gaudiya/parampara#${a.slug}`} className="ui-btn"><GitBranch size={15} />In the Guru-paramparā</Link>}
             </div>
           </section>
           {count[a.slug] ? <LibraryBrowser categories={categories} label="His books" allLabel="All his books" storeKey={`tj:gaudiya:${base}:a`} books={lib(books.filter((b) => b.acharya === a.slug), (b) => [b.kind, LANG[b.language] || b.language.toUpperCase()])} />
+            : a.links?.length ? <p className="rounded-xl border border-line bg-white p-6 text-center text-[14px] text-ink-2">His books are read at {a.links.map((l, i) => <span key={l.url}>{i ? " and " : ""}{/^https?:/.test(l.url) ? <a href={l.url} target="_blank" rel="noopener" className="font-medium text-saffron underline underline-offset-2">{l.label.replace(/^His books on /, "")}</a> : <Link href={l.url} className="font-medium text-saffron underline underline-offset-2">{l.label.replace(/^His books on /, "")}</Link>}</span>)}.</p>
             : <p className="rounded-xl border border-dashed border-line p-8 text-center text-[14px] text-ink-3">His books are being added.</p>}
         </>) : (
           <LibraryBrowser categories={categories} defaultView="category" label={what === "library" ? "Library" : what[0].toUpperCase() + what.slice(1)} allLabel="Everything" storeKey={`tj:gaudiya:${base}`} books={lib(books, (b) => [b.kind, b.author || "Other books"])} />
         )}
+        <Credits />
       </div>
     </div>);
+}
+
+/** Gratitude to those whose work made these texts available. */
+export function Credits() {
+  return (
+    <aside className="mt-10 rounded-xl border border-line bg-[#fcfaf7] px-5 py-4 text-[13px] leading-relaxed text-ink-2">
+      <p className="font-semibold text-ink">With gratitude</p>
+      <p className="mt-1">Many of the texts in this library come from <a href="https://grantha.jiva.org" target="_blank" rel="noopener" className="font-medium text-saffron underline underline-offset-2">Gauḍīya Grantha Mandira</a>, the great online library of Gauḍīya Vaiṣṇava literature. Our heartfelt thanks to <b className="font-medium text-ink">HG Hariparshad Prabhu</b>, and to all the devotees who typed, edited, proofread and preserved these books over many years.</p>
+    </aside>);
 }

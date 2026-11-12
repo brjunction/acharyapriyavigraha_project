@@ -7,5 +7,5 @@ export async function hubData(kind?: string): Promise<{ books: HubBook[]; achary
   const [all, as, chain, categories] = await Promise.all([getGaudiyaBooks(), getAcharyas(), getParampara(), getCategories()]);
   const books = all.filter((b) => !kind || (b.kind || "book") === kind).map((b, i) => { const a = as.find((x) => bookOf(b, x));
     return { slug: b.slug, title: b.title, author: a?.title || b.author || "", acharya: a?.slug || null, kind: KIND[b.kind || "book"] || "Books", category: b.category || "", chapters: b.chapters, language: b.language, order: i, subject: b.subject || null }; });
-  return { books, acharyas: as.map((a) => ({ slug: a.slug, title: a.title, subtitle: a.subtitle, cover: a.cover, summary: a.summary, inChain: chain.some((c) => c.slug === a.slug), order: chain.findIndex((c) => c.slug === a.slug), group: chain.some((c) => c.slug === a.slug) ? "parampara" : a.section || "vaisnavas" })), categories };
+  return { books, acharyas: as.map((a) => ({ slug: a.slug, title: a.title, subtitle: a.subtitle, cover: a.cover, summary: a.summary, links: Array.isArray(a.links) ? a.links.filter((l: any) => l?.url && l?.label) : [], inChain: chain.some((c) => c.slug === a.slug), order: chain.findIndex((c) => c.slug === a.slug), group: chain.some((c) => c.slug === a.slug) ? "parampara" : a.section || "vaisnavas" })), categories };
 }
