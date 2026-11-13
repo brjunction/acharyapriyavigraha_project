@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ChevronLeft, ChevronRight, FileDown, ExternalLink, Clock } from "lucide-react";
+import { ChevronLeft, ChevronRight, FileDown, ExternalLink, Clock, BookOpen } from "lucide-react";
 import { getIssue } from "@/lib/content/articles-public";
 import { WritingsHeader } from "@/components/articles/header";
 import { MagCover } from "@/components/articles/mag-cover";
@@ -18,13 +18,13 @@ export default async function Page({ params }: { params: Promise<{ mag: string; 
       <div className="mx-auto grid max-w-[1100px] gap-10 px-4 pb-20 pt-8 sm:px-6 md:grid-cols-[260px_minmax(0,1fr)]">
         <aside className="md:sticky md:top-24 md:self-start">
           <MagCover src={i.cover} label={label} className="mx-auto w-[180px] md:w-full" />
-          <div className="mt-4 grid gap-2">{i.pdf_url && <a href={i.pdf_url} target="_blank" rel="noreferrer" className="inline-flex h-9 items-center justify-center gap-2 rounded-md bg-ink text-[13px] font-medium text-white hover:bg-ink/90"><FileDown size={15} />Open the whole issue (PDF)</a>}{i.url && <a href={i.url} target="_blank" rel="noreferrer" className="inline-flex h-9 items-center justify-center gap-2 rounded-md border border-line text-[13px] text-ink-2 hover:bg-band"><ExternalLink size={14} />Where it is kept</a>}</div>
+          <div className="mt-4 grid gap-2">{i.pdf_url && <><Link href={`/teachings/magazines/${m.slug}/${i.slug}/read`} className="inline-flex h-9 items-center justify-center gap-2 rounded-md bg-ink text-[13px] font-medium text-white hover:bg-ink/90"><BookOpen size={15} />Read the issue as PDF</Link><a href={i.pdf_url} download className="inline-flex h-9 items-center justify-center gap-2 rounded-md border border-line text-[13px] text-ink hover:bg-band"><FileDown size={15} />Download the PDF</a></>}{i.url && <a href={i.url} target="_blank" rel="noreferrer" className="inline-flex h-9 items-center justify-center gap-2 rounded-md border border-line text-[13px] text-ink-2 hover:bg-band"><ExternalLink size={14} />Where it is kept</a>}</div>
           {i.description && <p className="mt-4 text-[13px] leading-relaxed text-ink-2">{i.description}</p>}
           <div className="mt-6 grid grid-cols-2 gap-2 text-[12px]">{older ? <Link href={`/teachings/magazines/${m.slug}/${older.slug}`} className="rounded-md border border-line p-2.5 hover:bg-band"><span className="flex items-center gap-1 text-ink-3"><ChevronLeft size={12} />Earlier</span><span className="mt-0.5 block truncate text-ink">{older.title || older.number}</span></Link> : <span />}{newer && <Link href={`/teachings/magazines/${m.slug}/${newer.slug}`} className="rounded-md border border-line p-2.5 text-right hover:bg-band"><span className="flex items-center justify-end gap-1 text-ink-3">Later<ChevronRight size={12} /></span><span className="mt-0.5 block truncate text-ink">{newer.title || newer.number}</span></Link>}</div>
         </aside>
         <div>
           <h2 className="border-b border-line pb-2 text-[15px] font-semibold text-ink">In this issue</h2>
-          {!articles.length && <p className="py-12 text-center text-[13.5px] text-ink-3">The contents of this issue are being added{i.pdf_url ? " — you can open the whole issue meanwhile" : ""}.</p>}
+          {!articles.length && <p className="py-12 text-center text-[13.5px] text-ink-3">The contents of this issue are being added{i.pdf_url ? " — meanwhile, read the whole issue as PDF" : ""}.</p>}
           <ol className="divide-y divide-line">{articles.map((a: any, k: number) => (
             <li key={a.slug}><Link href={`/teachings/articles/${a.slug}`} className="group flex gap-4 py-4">
               <span className="w-6 shrink-0 pt-0.5 text-right text-[13px] tabular-nums text-ink-3">{k + 1}</span>

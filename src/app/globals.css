@@ -824,3 +824,31 @@ html.tj-immersive body { overflow: hidden; }
 @media (prefers-reduced-motion: reduce) { .tl-rise, .tl-pulse { animation: none; } }
 /* Life timeline, Advanced: the side panel stays in view only when the whole panel fits on the screen. */
 @media (min-width: 1024px) and (min-height: 760px) { .tl-side { position: sticky; top: 170px; } }
+/* ---- Pāṭha, the book reader */
+.pr-root { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+.pr-ib { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 999px; opacity: .82; transition: background .15s, opacity .15s; }
+.pr-ib:hover { opacity: 1; background: rgba(127,110,90,.14); } .pr-ib:disabled { opacity: .3; }
+.pr-flow { box-sizing: border-box; will-change: transform; overflow: visible; }
+.pr-flow .pr-sec { display: none; } .pr-flow .pr-sec.on { display: block; }
+.pr-flow .pr-end { display: block; height: 1px; }
+.pr-flow .pr-ch { font-family: inherit; font-size: 1.5em; font-weight: 600; line-height: 1.25; margin: 2.2em 0 1.4em; text-align: left; break-after: avoid; letter-spacing: -0.01em; }
+.pr-flow .pr-num { display: block; margin-bottom: .45em; font-size: .5em; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; color: var(--rd-muted); }
+.pr-flow .book-body p { margin: 0 0 var(--pr-para) !important; text-indent: var(--pr-indent); orphans: 2; widows: 2; }
+.pr-flow .book-body p, .pr-flow .book-body li { text-align: inherit !important; hyphens: inherit; font-weight: inherit !important; letter-spacing: inherit; word-spacing: inherit; }
+.pr-flow .book-body h1, .pr-flow .book-body h2, .pr-flow .book-body h3, .pr-flow .book-body h4 { break-after: avoid; text-indent: 0; text-align: left !important; }
+.pr-flow img, .pr-flow video, .pr-flow iframe { max-height: calc(var(--pr-h) - 3em); width: auto !important; max-width: 100%; object-fit: contain; break-inside: avoid; margin-inline: auto; }
+.pr-flow figure, .pr-flow table, .pr-flow blockquote, .pr-flow pre { break-inside: avoid; }
+.pr-fade { animation: pr-fade .32s ease; } @keyframes pr-fade { from { opacity: .15; } to { opacity: 1; } }
+.pr-sheet { animation: pr-sheet .26s cubic-bezier(.22,.8,.24,1); } @keyframes pr-sheet { from { transform: translateX(28px); opacity: 0; } to { transform: none; opacity: 1; } }
+.pr-range { accent-color: #b5651d; }
+::highlight(pr-find) { background: rgba(233,180,108,.45); }
+@media (prefers-reduced-motion: reduce) { .pr-fade, .pr-sheet { animation: none; } }
+/* ---- PDF reader: pdf.js text layer (invisible text over each page, for selecting and search matches) */
+.textLayer { position: absolute; text-align: initial; inset: 0; overflow: clip; opacity: 1; line-height: 1; text-size-adjust: none; forced-color-adjust: none; transform-origin: 0 0; caret-color: CanvasText; z-index: 0; }
+.textLayer :is(span, br) { color: transparent; position: absolute; white-space: pre; cursor: text; transform-origin: 0% 0%; }
+.textLayer > :not(.markedContent), .textLayer .markedContent span:not(.markedContent) { z-index: 1; }
+.textLayer span.markedContent { top: 0; height: 0; }
+.textLayer ::selection { background: rgba(0, 90, 220, .28); }
+.textLayer br::selection { background: transparent; }
+.textLayer .endOfContent { display: block; position: absolute; inset: 100% 0 0; z-index: 0; cursor: default; user-select: none; }
+.textLayer span.pdf-hit { background: rgba(255, 170, 0, .42); border-radius: 2px; }

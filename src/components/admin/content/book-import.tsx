@@ -1,6 +1,7 @@
 "use client";
 /* Studio → Books → Import: give PDF, EPUB or Word files (or a ZIP of them); each is read in the browser,
    shown with its contents list to check and correct, and saved as a book with its chapters. */
+import { keepSource } from "@/lib/content/book-source";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { Upload, ArrowLeft, Trash2, ArrowUp, ArrowDown, ChevronLeft, ChevronRight, Scissors, Undo2, Sparkles } from "lucide-react";
@@ -10,6 +11,12 @@ import { plain } from "@/lib/fetcher/types";
 import { openFile, kindOf, pagePicture, type Opened } from "@/lib/fetcher";
 import { chapterBlocks, mdToParas, parasToChapters } from "@/lib/fetcher/blocks";
 import { balaramToIast } from "@/lib/fetcher/balaram";
+
+/** Keep the file a book was made from, as a backup in the Studio. A failure here never stops the import. */
+const MIME: Record<string, string> = { docx: "application/vnd.openxmlformats-officedocument.wordprocessingml.document", epub: "application/epub+zip", pdf: "application/pdf", html: "text/html", htm: "text/html", txt: "text/plain", zip: "application/zip" };
+async function keepOriginal(bookId: string, it: { name: string; bytes: Uint8Array }) {
+  try { const ext = it.name.split(".").pop()?.toLowerCase() || ""; await keepSource(bookId, new Blob([it.bytes as BlobPart], { type: MIME[ext] || "application/octet-stream" }), it.name); return true; } catch { return false; }
+}
 
 type Item = { id: string; name: string; folder: string; bytes: Uint8Array; state: "waiting" | "working" | "saved" | "failed"; msg?: string; bookId?: string };
 type Meta = { title: string; author: string; category: string; publisher: string; language: string; library: string; status: string; kind?: string };
@@ -67,7 +74,7 @@ export function BookImport() {
       const r = await api<{ articles: number }>("/api/admin/books/import", "POST", { op: "issue", magazine_id: mag.magazine_id, issue: { number: mag.number || null, title: mag.number ? null : meta.title, date: mag.date || null, cover, status: meta.status }, articles: arts });
       patch(it.id, { state: "saved", msg: `Magazine issue · ${r.articles} articles` }); toast(`Saved as an issue with ${r.articles} articles. See Studio → Magazines.`); setCur(null); setOpened(null); } catch (e: any) { toast(e.message, true); } setBusy(""); };
   const save = async () => { if (mag.as === "issue") return saveIssue(); const it = items.find((x) => x.id === cur); if (!it || !opened) return; if (into && !confirm("This replaces every chapter of the existing book with what is shown here. Continue?")) return; setBusy("Saving…");
-    try { const id = await saveBook(meta, chapters, opened, into); patch(it.id, { state: "saved", bookId: id, msg: `${chapters.length} chapters` }); toast("Saved. Open it under Books to fine-tune."); setCur(null); setOpened(null); } catch (e: any) { toast(e.message, true); } setBusy(""); };
+    try { const id = await saveBook(meta, chapters, opened, into); await keepOriginal(id, it); patch(it.id, { state: "saved", bookId: id, msg: `${chapters.length} chapters` }); toast("Saved. Open it under Books to fine-tune."); setCur(null); setOpened(null); } catch (e: any) { toast(e.message, true); } setBusy(""); };
   const saveAll = async () => { const n = items.filter((x) => x.state === "waiting").length; const pub = defs.status === "published";
     if (defs.as === "issue" && !defs.magazine_id) return toast("Choose the magazine first.", true);
     if (!confirm(`Save all ${n} files ${defs.as === "issue" ? "as separate magazine issues" : "as books"}${pub ? " and publish them at once" : " as drafts"}, without checking each one? You can correct them afterwards.`)) return; stop.current = false;
@@ -76,7 +83,7 @@ export function BookImport() {
         if (defs.as === "issue") { const num = /(?:issue|no\.?|number|#|bindu)\s*[-_ ]?(\d{1,4})/i.exec(`${it.name} ${o.book.title}`)?.[1] || /(\d{1,4})(?!.*\d)/.exec(it.name.replace(/\.[a-z]+$/i, ""))?.[1] || ""; const cover = await coverUrl(o);
           const r = await api<{ articles: number }>("/api/admin/books/import", "POST", { op: "issue", magazine_id: defs.magazine_id, issue: { number: num ? `Issue ${num}` : null, title: num ? null : o.book.title, cover, status: defs.status }, articles: o.book.chapters.filter((c) => c.paras.length).map((c) => ({ title: c.title, author: o.book.author || null, blocks: chapterBlocks(c) })) });
           o.pdf?.doc?.destroy?.(); patch(it.id, { state: "saved", msg: `${num ? `Issue ${num}` : o.book.title} · ${r.articles} articles` }); continue; }
-        const id = await saveBook(metaFor(it, o.book), o.book.chapters, o); o.pdf?.doc?.destroy?.(); patch(it.id, { state: "saved", bookId: id, msg: `${o.book.chapters.length} chapters` }); }
+        const id = await saveBook(metaFor(it, o.book), o.book.chapters, o); await keepOriginal(id, it); o.pdf?.doc?.destroy?.(); patch(it.id, { state: "saved", bookId: id, msg: `${o.book.chapters.length} chapters` }); }
       catch (e: any) { patch(it.id, { state: "failed", msg: String(e.message).slice(0, 140) }); } } };
   const ocr = async () => { if (!opened?.pdf) return; const total = opened.pdf.doc.numPages; if (!confirm(`Read all ${total} pages with the AI set in Settings? Each page is one AI request, so this uses your AI key's quota and takes some minutes.`)) return; stop.current = false; const pages: Para[][] = []; let done = 0, next = 1, failed = 0;
     const worker = async () => { while (next <= total && !stop.current) { const n = next++; try { const image = await pagePicture(opened.pdf!.doc, n, 1500, 0.8); const r = await api<{ text: string }>("/api/admin/books/ocr", "POST", { image, page: n }); pages[n] = mdToParas(r.text, n); } catch (e: any) { failed++; pages[n] = []; if (failed === 1) toast(e.message, true); if (failed > 5) stop.current = true; } setBusy(`Reading page ${++done} of ${total} with AI… (press Stop to end)`); } };

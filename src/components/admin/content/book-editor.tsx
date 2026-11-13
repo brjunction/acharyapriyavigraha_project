@@ -1,9 +1,10 @@
 "use client";
 /* One book in the Studio, made simple: a list of chapters you can read like a contents page, a quiet writing screen, and the book's details with a cover you can crop. */
+import { keepSource } from "@/lib/content/book-source";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ArrowLeft, ChevronLeft, ChevronRight, Plus, Trash2, ExternalLink, FileUp, Image as ImageIcon, X, Check, Upload, Link2, Pencil, MoreHorizontal, Undo2, Redo2, Bold, Italic, Underline, RemoveFormatting, AlignLeft, AlignCenter, AlignRight, AlignJustify } from "lucide-react";
+import { ArrowLeft, ChevronLeft, ChevronRight, Plus, Trash2, ExternalLink, FileUp, Image as ImageIcon, X, Check, Upload, Link2, Pencil, MoreHorizontal, Undo2, Redo2, Bold, Italic, Underline, RemoveFormatting, AlignLeft, AlignCenter, AlignRight, AlignJustify, FileText, Download } from "lucide-react";
 import { LAYOUTS } from "@/lib/content/book-layouts";
 import { BOOK_LANGS, langName } from "@/lib/content/book-langs";
 import { AiAssist } from "../ai-assist";
@@ -145,8 +146,9 @@ function Chapters({ bookId, order, num, depth, nodes, onOpen, onChanged }: { boo
 
 /** A Word file → chapters (Heading 1) and sub-chapters (Heading 2), with their text. */
 function WordImport({ bookId, onClose, onDone }: { bookId: string; onClose: () => void; onDone: () => void }) {
-  const [parts, setParts] = useState<{ level: number; title: string; html: string }[] | null>(null); const [prog, setProg] = useState(""); const [busy, setBusy] = useState(false);
+  const [parts, setParts] = useState<{ level: number; title: string; html: string }[] | null>(null); const [prog, setProg] = useState(""); const [busy, setBusy] = useState(false); const [file, setFile] = useState<File | null>(null);
   const read = async (f: File) => {
+    setFile(f);
     try {
       // @ts-expect-error browser build has no types
       const mammoth = (await import("mammoth/mammoth.browser.min.js")).default;
@@ -165,6 +167,7 @@ function WordImport({ bookId, onClose, onDone }: { bookId: string; onClose: () =
       if (p.level === 1) lastTop = r.id;
       if (p.html.trim()) await api(`/api/admin/nodes/${r.id}`, "PATCH", { blocks: await ed.tryParseHTMLToBlocks(p.html.replace(/<img[^>]*>/g, "")) });
     }
+    if (file) { setProg("Keeping the Word file as a backup…"); try { await keepSource(bookId, file, file.name); } catch { toast("The chapters were added, but the Word file could not be kept as a backup.", true); } }
     toast(`${parts.length} chapters added.`); onDone();
   };
   return (
@@ -290,6 +293,7 @@ function Details({ book, onSaved }: { book: any; onSaved: () => void }) {
           <Field label="About the book" hint="Shown on the book’s first page"><Textarea rows={4} value={b.description || ""} onChange={(e) => set("description", e.target.value)} /></Field>
           <Field label="How the book is shown"><div className="grid gap-2 sm:grid-cols-2">{LAYOUTS.map(([k, l, d]) => <button key={k} onClick={() => set("layout", k)} className={cn("rounded-lg border p-3 text-left", b.layout === k ? "border-zinc-900 ring-1 ring-zinc-900" : "border-zinc-200 hover:bg-zinc-50")}><p className="text-[13px] font-medium">{l}</p><p className="text-[12px] text-zinc-500">{d}</p></button>)}</div></Field>
           <details className="text-[12.5px]"><summary className="cursor-pointer text-zinc-500">Web address</summary><Input className="mt-2" value={b.slug} onChange={(e) => set("slug", e.target.value)} /><p className="mt-1 text-zinc-400">taptajivanam.com/books/{b.slug}</p></details>
+          <Originals bookId={book.id} />
           <ToIssue bookId={book.id} />
           <div className="flex justify-between border-t border-zinc-200 pt-4"><Btn kind="danger" onClick={async () => { if (!confirm("Delete this whole book and all its chapters?")) return; await api(`/api/admin/books/${book.id}`, "DELETE"); window.location.href = "/admin/books"; }}><Trash2 />Delete book</Btn><Btn kind="primary" busy={busy} onClick={save}>Save details</Btn></div>
         </div>
@@ -298,6 +302,27 @@ function Details({ book, onSaved }: { book: any; onSaved: () => void }) {
       {pick && <MediaPicker onClose={() => setPick(false)} onPick={(i) => { if (i[0]) { set("cover_url", i[0].url); api(`/api/admin/books/${book.id}`, "PATCH", { ...b, cover_url: i[0].url }).then(onSaved); } setPick(false); }} />}
     </div>
   );
+}
+
+/** The original files this book was made from (Word, EPUB…), kept as a backup: download to edit, or add another. Studio only. */
+function Originals({ bookId }: { bookId: string }) {
+  const [rows, setRows] = useState<{ id: string; filename: string; size: number; created_at: string }[] | null>(null); const [busy, setBusy] = useState(""); const inp = useRef<HTMLInputElement>(null);
+  const load = useCallback(() => api<any[]>(`/api/admin/books/${bookId}/source`).then(setRows).catch(() => setRows([])), [bookId]);
+  useEffect(() => { load(); }, [load]);
+  const add = async (f?: File) => { if (!f) return; setBusy("0%"); try { await keepSource(bookId, f, f.name, (d) => setBusy(`${Math.round(d * 100)}%`)); toast("Kept as a backup."); load(); } catch (e: any) { toast(e.message, true); } finally { setBusy(""); if (inp.current) inp.current.value = ""; } };
+  const mb = (n: number) => (n > 1e6 ? `${(n / 1e6).toFixed(1)} MB` : `${Math.max(1, Math.round(n / 1e3))} KB`);
+  return (
+    <div className="rounded-lg border border-zinc-200 p-4">
+      <div className="flex items-center gap-2"><p className="flex-1 text-[13px] font-medium">Original files</p>
+        <input ref={inp} type="file" accept=".docx,.doc,.epub,.pdf,.odt,.rtf,.txt,.html,.zip" className="hidden" onChange={(e) => add(e.target.files?.[0])} />
+        <Btn size="sm" busy={!!busy} onClick={() => inp.current?.click()}><Upload />{busy ? `Keeping… ${busy}` : "Add a file"}</Btn></div>
+      <p className="mt-1 text-[12.5px] text-zinc-500">The Word or EPUB file this book was made from, kept as a backup. Only the Studio can see it; download it to edit and import again.</p>
+      {rows && rows.length > 0 && <ul className="mt-3 divide-y divide-zinc-100 rounded-md border border-zinc-100">{rows.map((r) => (
+        <li key={r.id} className="flex items-center gap-2 px-3 py-2 text-[13px]"><FileText className="size-4 shrink-0 text-zinc-400" /><span className="min-w-0 flex-1 truncate">{r.filename}</span><span className="shrink-0 text-[12px] text-zinc-500">{mb(r.size)} · {new Date(r.created_at).toLocaleDateString()}</span>
+          <a href={`/api/admin/books/${bookId}/source?sid=${r.id}`} className="inline-flex h-7 items-center gap-1 rounded-md border border-zinc-200 px-2 text-[12px] hover:bg-zinc-50"><Download className="size-3.5" />Download</a>
+          <button onClick={async () => { if (!confirm(`Remove ${r.filename} from the backups?`)) return; try { await api(`/api/admin/books/${bookId}/source?sid=${r.id}`, "DELETE"); load(); } catch (e: any) { toast(e.message, true); } }} aria-label="Remove" className="rounded p-1 text-zinc-400 hover:bg-zinc-100 hover:text-red-700"><Trash2 className="size-3.5" /></button></li>))}</ul>}
+      {rows && !rows.length && <p className="mt-2 text-[12.5px] text-zinc-400">No original file yet. Books imported from now on keep theirs automatically.</p>}
+    </div>);
 }
 
 /** A book that is really one issue of a magazine (Gopal Jiu, Kṛṣṇa Kathāmṛta…) moves to Magazines: each chapter becomes an article of that issue. */

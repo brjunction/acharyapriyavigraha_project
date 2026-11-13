@@ -1,6 +1,7 @@
 "use client";
+import { uploadPdf, coverFromPdf, guessIssue } from "@/lib/content/issue-pdf";
 import { useCallback, useEffect, useState } from "react";
-import { Newspaper, Plus, Trash2, ExternalLink, Image as ImageIcon, ArrowUp, ArrowDown, ArrowLeft, Upload, FileText, X, Search, ListPlus } from "lucide-react";
+import { Newspaper, Plus, Trash2, ExternalLink, Image as ImageIcon, ArrowUp, ArrowDown, ArrowLeft, Upload, FileText, X, Search, ListPlus, FileUp } from "lucide-react";
 import { Btn, Badge, Card, Field, Input, Select, Textarea, PageHeader, Sheet, Empty, Modal, api, toast } from "../ui";
 import { useTicks, TickBar, DraftsButton, Tick } from "./bulk";
 import { MediaPicker } from "../media-picker";
@@ -44,7 +45,7 @@ function NewMag({ onClose, onDone }: { onClose: () => void; onDone: (id: string)
 
 function MagazineView({ id, onBack }: { id: string; onBack: () => void }) {
   const [d, setD] = useState<{ magazine: M; issues: I[] } | null>(null); const [m, setM] = useState<M | null>(null); const [busy, setBusy] = useState(false);
-  const [crop, setCrop] = useState(false); const [issue, setIssue] = useState<string | null>(null); const [many, setMany] = useState(false);
+  const [crop, setCrop] = useState(false); const [issue, setIssue] = useState<string | null>(null); const [many, setMany] = useState(false); const [pdfs, setPdfs] = useState(false);
   const load = useCallback(() => api<{ magazine: M; issues: I[] }>(`/api/admin/magazines/${id}`).then((r) => { setD(r); setM((x) => x || r.magazine); }).catch((e) => toast(e.message, true)), [id]);
   useEffect(() => { load(); }, [load]);
   const t = useTicks();
@@ -67,7 +68,7 @@ function MagazineView({ id, onBack }: { id: string; onBack: () => void }) {
           <div className="flex justify-between"><Btn size="sm" kind="danger" onClick={async () => { if (!confirm("Delete this magazine and all its issues? The articles stay.")) return; await api(`/api/admin/magazines/${id}`, "DELETE"); onBack(); }}><Trash2 />Delete</Btn><Btn kind="primary" busy={busy} onClick={save}>Save</Btn></div>
         </Card>
         <div>
-          <div className="mb-3 flex items-center gap-2">{d.issues.length > 0 && (() => { const on = d.issues.filter((x) => t.has(x.id)).length; return <Tick on={on === d.issues.length} mixed={on > 0 && on < d.issues.length} label="Tick every issue" onChange={(v) => t.tick(d.issues.map((x) => x.id), v)} />; })()}<p className="flex-1 text-[15px] font-semibold">Issues <span className="font-normal text-zinc-400">{d.issues.length}</span>{drafts > 0 && <span className="ml-2 text-[12px] font-normal text-amber-700">{drafts} drafts</span>}</p><DraftsButton kind="issues" n={drafts} word="issues" extra={{ magazine_id: id }} onDone={load} /><a href={`/admin/books/import?as=issue&magazine=${id}`}><Btn size="sm"><Upload />Import from files</Btn></a><Btn size="sm" onClick={() => setMany(true)}><ListPlus />Add many</Btn><Btn size="sm" kind="primary" onClick={newIssue}><Plus />Add an issue</Btn></div>
+          <div className="mb-3 flex items-center gap-2">{d.issues.length > 0 && (() => { const on = d.issues.filter((x) => t.has(x.id)).length; return <Tick on={on === d.issues.length} mixed={on > 0 && on < d.issues.length} label="Tick every issue" onChange={(v) => t.tick(d.issues.map((x) => x.id), v)} />; })()}<p className="flex-1 text-[15px] font-semibold">Issues <span className="font-normal text-zinc-400">{d.issues.length}</span>{drafts > 0 && <span className="ml-2 text-[12px] font-normal text-amber-700">{drafts} drafts</span>}</p><DraftsButton kind="issues" n={drafts} word="issues" extra={{ magazine_id: id }} onDone={load} /><Btn size="sm" onClick={() => setPdfs(true)}><FileUp />Add issues from PDFs</Btn><a href={`/admin/books/import?as=issue&magazine=${id}`}><Btn size="sm"><Upload />Import text from files</Btn></a><Btn size="sm" onClick={() => setMany(true)}><ListPlus />Add many</Btn><Btn size="sm" kind="primary" onClick={newIssue}><Plus />Add an issue</Btn></div>
           <TickBar kind="issues" word={["issue", "issues"]} ids={t.ids} total={d.issues.length} onAll={() => t.tick(d.issues.map((x) => x.id), true)} onClear={t.clear} onDone={load} note="Publishing an issue publishes its articles too." />
           {!d.issues.length ? <Empty icon={Newspaper} title="No issues yet" text="Add the first issue: its number, date, cover, and the PDF of the whole issue." /> :
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 xl:grid-cols-5">{d.issues.map((x) => (
@@ -83,6 +84,7 @@ function MagazineView({ id, onBack }: { id: string; onBack: () => void }) {
       {crop && <CoverCropper onClose={() => setCrop(false)} onDone={(u) => { set("cover", u); setCrop(false); }} />}
       {issue && <IssueSheet id={issue} onClose={() => { setIssue(null); load(); }} />}
       {many && <ManyIssues magId={id} onClose={() => setMany(false)} onDone={() => { setMany(false); load(); }} />}
+      {pdfs && <PdfIssues magId={id} onClose={() => setPdfs(false)} onDone={() => { setPdfs(false); load(); }} />}
     </div>
   );
 }
@@ -99,7 +101,7 @@ function ManyIssues({ magId, onClose, onDone }: { magId: string; onClose: () => 
 
 function IssueSheet({ id, onClose }: { id: string; onClose: () => void }) {
   const [x, setX] = useState<any>(null); const [arts, setArts] = useState<any[]>([]); const [busy, setBusy] = useState(false); const [crop, setCrop] = useState(false); const [pick, setPick] = useState(false);
-  const [q, setQ] = useState(""); const [found, setFound] = useState<any[] | null>(null);
+  const [q, setQ] = useState(""); const [found, setFound] = useState<any[] | null>(null); const [pdfBusy, setPdfBusy] = useState("");
   const load = useCallback(() => api<any>(`/api/admin/issues/${id}`).then((r) => { setX((o: any) => o || { ...r.issue, date: r.issue.day || "" }); setArts(r.articles); }), [id]);
   useEffect(() => { load(); }, [load]);
   useEffect(() => { if (q.trim().length < 2) { setFound(null); return; } const h = setTimeout(() => api<any>(`/api/admin/articles?q=${encodeURIComponent(q)}`).then((r) => setFound(r.rows.slice(0, 12))), 250); return () => clearTimeout(h); }, [q]);
@@ -115,7 +117,11 @@ function IssueSheet({ id, onClose }: { id: string; onClose: () => void }) {
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-3"><Field label="Number"><Input value={x.number || ""} onChange={(e) => set("number", e.target.value)} placeholder="e.g. Issue 12" /></Field><Field label="Date"><Input type="date" value={x.date || ""} onChange={(e) => set("date", e.target.value)} /></Field></div>
           <Field label="Title (optional)"><Input value={x.title || ""} onChange={(e) => set("title", e.target.value)} placeholder="e.g. Gaura-pūrṇimā special" /></Field>
-          <Field label="The whole issue as a PDF" hint="A link to the PDF file. Upload it in Pictures & files, or paste a link."><Input value={x.pdf_url || ""} onChange={(e) => set("pdf_url", e.target.value)} placeholder="https://…/issue.pdf" /></Field>
+          <Field label="The whole issue as a PDF" hint="Paste a link to the PDF (Google Drive, Dropbox and direct links work), or upload the file. Readers open it in the PDF reader; the articles stay as text.">
+            <div className="flex gap-2"><Input value={x.pdf_url || ""} onChange={(e) => set("pdf_url", e.target.value)} placeholder="https://…/issue.pdf" />
+              <label className="inline-flex h-9 shrink-0 cursor-pointer items-center gap-1.5 rounded-md border border-zinc-200 bg-white px-3 text-[13px] hover:bg-zinc-50"><FileUp className="size-4" />{pdfBusy || "Upload"}<input type="file" accept="application/pdf,.pdf" className="hidden" onChange={async (e) => { const f = e.target.files?.[0]; if (!f) return; try { setPdfBusy("0%"); const u = await uploadPdf(f, (d) => setPdfBusy(`${Math.round(d * 100)}%`)); set("pdf_url", u); if (!x.cover) { setPdfBusy("Cover…"); const c = await coverFromPdf(f); setX((o: any) => ({ ...o, pdf_url: u, cover: c })); } toast("PDF uploaded. Save to keep it."); } catch (err: any) { toast(err.message, true); } finally { setPdfBusy(""); } }} /></label></div>
+            {x.pdf_url && <button type="button" onClick={async () => { try { setPdfBusy("Cover…"); const own = String(x.pdf_url).startsWith("/api/files/"); const c = await coverFromPdf(own ? x.pdf_url : `/api/magazines/pdf/${id}`); set("cover", c); toast("Cover made from page 1. Save to keep it."); } catch (err: any) { toast(err.message || "The cover could not be made from this link.", true); } finally { setPdfBusy(""); } }} className="mt-1.5 text-[12.5px] text-zinc-600 underline hover:text-zinc-900">Make the cover from page 1</button>}
+          </Field>
           <Field label="About this issue (optional)"><Textarea rows={2} value={x.description || ""} onChange={(e) => set("description", e.target.value)} /></Field>
           <Field label="Shown on the website"><Select value={x.status} onChange={(e) => set("status", e.target.value)}><option value="published">Yes</option><option value="draft">No, hidden</option></Select></Field>
         </div>
@@ -131,4 +137,37 @@ function IssueSheet({ id, onClose }: { id: string; onClose: () => void }) {
       {pick && <MediaPicker onClose={() => setPick(false)} onPick={(i) => { set("cover", i[0].url); setPick(false); }} />}
     </Sheet>
   );
+}
+
+/** Add issues from PDF files, many at once: each PDF is uploaded, its first page becomes the cover, and the number,
+    date and title are read from the file name and its first pages (all can be corrected before saving). */
+function PdfIssues({ magId, onClose, onDone }: { magId: string; onClose: () => void; onDone: () => void }) {
+  type Row = { f: File; number: string; title: string; date: string; state: string };
+  const [rows, setRows] = useState<Row[]>([]); const [busy, setBusy] = useState(false); const [publish, setPublish] = useState(true);
+  const add = async (fs: FileList | null) => { if (!fs) return; const list = Array.from(fs).filter((f) => /\.pdf$/i.test(f.name)); const got: Row[] = [];
+    for (const f of list) { const g = await guessIssue(f); got.push({ f, number: g.number, title: g.title, date: g.date, state: "" }); }
+    setRows((r) => [...r, ...got].sort((a, b) => (parseInt(a.number.replace(/\D/g, "")) || 0) - (parseInt(b.number.replace(/\D/g, "")) || 0))); };
+  const upd = (i: number, p: Partial<Row>) => setRows((r) => r.map((x, k) => (k === i ? { ...x, ...p } : x)));
+  const go = async () => {
+    setBusy(true); let ok = 0;
+    for (let i = 0; i < rows.length; i++) { const r = rows[i]; if (r.state === "Saved") continue;
+      try { upd(i, { state: "Uploading…" }); const url = await uploadPdf(r.f, (d) => upd(i, { state: `Uploading ${Math.round(d * 100)}%` }));
+        upd(i, { state: "Cover…" }); let cover = ""; try { cover = await coverFromPdf(r.f); } catch {}
+        await api(`/api/admin/magazines/${magId}/issues`, "POST", { number: r.number || null, title: r.title || null, date: r.date || null, cover: cover || null, pdf_url: url, status: publish ? "published" : "draft" });
+        upd(i, { state: "Saved" }); ok++; } catch (e: any) { upd(i, { state: `Failed: ${e.message}` }); } }
+    setBusy(false); toast(`${ok} ${ok === 1 ? "issue" : "issues"} added.`); if (ok === rows.length) onDone();
+  };
+  return (
+    <Modal wide title="Add issues from PDFs" description="Choose the PDF files (one file = one issue). The first page becomes the cover. Check the numbers, titles and dates, then add them." onClose={onClose}>
+      <label className="flex cursor-pointer flex-col items-center gap-1 rounded-lg border border-dashed border-zinc-300 p-6 text-center text-[13px] text-zinc-600 hover:border-zinc-500"><FileUp className="size-5" />Choose PDF files<span className="text-[12px] text-zinc-400">Many at once is fine</span><input type="file" multiple accept="application/pdf,.pdf" className="hidden" onChange={(e) => add(e.target.files)} /></label>
+      {rows.length > 0 && <div className="mt-4 max-h-[50vh] divide-y divide-zinc-100 overflow-y-auto rounded-lg border border-zinc-200">{rows.map((r, i) => (
+        <div key={i} className="grid items-center gap-2 px-3 py-2 sm:grid-cols-[110px_1fr_140px_120px]">
+          <Input value={r.number} onChange={(e) => upd(i, { number: e.target.value })} placeholder="Issue 634" className="!h-8" />
+          <Input value={r.title} onChange={(e) => upd(i, { title: e.target.value })} placeholder="Title" className="!h-8" />
+          <Input type="date" value={r.date} onChange={(e) => upd(i, { date: e.target.value })} className="!h-8" />
+          <span className={`truncate text-[12px] ${r.state.startsWith("Failed") ? "text-red-700" : r.state === "Saved" ? "text-emerald-700" : "text-zinc-500"}`} title={r.state}>{r.state || `${(r.f.size / 1e6).toFixed(1)} MB`}</span>
+        </div>))}</div>}
+      <div className="mt-4 flex items-center gap-3"><label className="mr-auto flex items-center gap-2 text-[13px]"><input type="checkbox" checked={publish} onChange={(e) => setPublish(e.target.checked)} />Show them on the website at once</label>
+        <Btn onClick={onClose}>Cancel</Btn><Btn kind="primary" busy={busy} disabled={!rows.length} onClick={go}>Add {rows.length || ""} {rows.length === 1 ? "issue" : "issues"}</Btn></div>
+    </Modal>);
 }

@@ -36,11 +36,11 @@ export async function related(a: any) {
   return { series, byAuthor, inIssue };
 }
 
-export type Mag = { id: string; slug: string; title: string; publisher: string | null; description: string | null; cover: string | null; url: string | null; n_issues: number; first: number | null; last: number | null; latest: { slug: string; label: string; cover: string | null }[] };
+export type Mag = { id: string; slug: string; title: string; publisher: string | null; description: string | null; cover: string | null; url: string | null; n_issues: number; first: number | null; last: number | null; latest: { slug: string; label: string; cover: string | null; pdf: boolean; date: string | null }[] };
 export const listMagazines = cache(async () => {
   if (!hasDb()) return [] as Mag[];
   const mags = await q<any>(sql`select m.id, coalesce(m.slug, m.id::text) slug, m.title, m.publisher, m.description, m.cover, m.url, (select count(*)::int from magazine_issues i where i.magazine_id = m.id and i.status = 'published') n_issues, (select min(year) from magazine_issues i where i.magazine_id = m.id and i.status = 'published') "first", (select max(year) from magazine_issues i where i.magazine_id = m.id and i.status = 'published') "last" from magazines m where m.status = 'published' order by m.position, m.title`);
-  const latest = await q<any>(sql`select magazine_id, slug, coalesce(title, number) label, cover from (select *, row_number() over (partition by magazine_id order by date desc nulls last, position desc) r from magazine_issues where status = 'published') x where r <= 6`);
+  const latest = await q<any>(sql`select magazine_id, slug, coalesce(title, number) label, cover, pdf_url is not null as pdf, to_char(date, 'YYYY-MM-DD') date from (select *, row_number() over (partition by magazine_id order by date desc nulls last, position desc) r from magazine_issues where status = 'published') x where r <= 6`);
   return mags.map((m) => ({ ...m, latest: latest.filter((l) => l.magazine_id === m.id) })) as Mag[];
 });
 export const getMagazine = cache(async (slug: string) => {

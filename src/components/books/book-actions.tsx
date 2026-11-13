@@ -17,6 +17,7 @@ export function BookActions({ slug, first, canParallel }: { slug: string; first:
           <Link href={last.href} className="inline-flex h-10 items-center gap-2 rounded-md bg-ink px-4 text-[13.5px] font-medium text-white hover:bg-ink/90"><BookOpen size={15} />Continue reading<ArrowRight size={14} /></Link>
           {first && <Link href={first} className="inline-flex h-10 items-center rounded-md border border-line-strong px-4 text-[13.5px] text-ink hover:bg-band">From the beginning</Link>}
         </> : first ? <Link href={first} className="inline-flex h-10 items-center gap-2 rounded-md bg-ink px-4 text-[13.5px] font-medium text-white hover:bg-ink/90"><BookOpen size={15} />Start reading</Link> : <span className="text-[13px] text-ink-3">The chapters of this book are being added.</span>}
+        {first && <Link href={`/books/${slug}/read`} className="inline-flex h-10 items-center gap-2 rounded-md border border-line-strong px-4 text-[13.5px] text-ink hover:bg-band" title="The whole book in pages, like a printed book"><BookOpenText size={15} />Read in Pāṭha</Link>}
       </div>
       {last && <p className="mt-2 text-[12.5px] text-ink-3">You stopped at <span className="text-ink-2">{last.title}</span> · {Math.round(((last.index + 1) / last.total) * 100)}% read</p>}
       {first && <div className="mt-6">

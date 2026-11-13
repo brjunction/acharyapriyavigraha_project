@@ -173,6 +173,7 @@ export function Reader({ book, chapter, toc, prev, next, translations, parallel,
           </div>
           <span className="hidden flex-1 sm:block" />
           <button onClick={() => setPanel(panel === "search" ? null : "search")} className={icon} title="Search in this book (/)" aria-label="Search"><Search size={17} /></button>
+          <Link href={`/books/${book.slug}/read?c=${chapter.id}`} className={`${icon} max-sm:hidden`} title="Read in Pāṭha: the whole book in pages" aria-label="Read in Pāṭha"><BookOpenText size={17} /></Link>
           <button onClick={toggleMark} className={icon} title="Bookmark (B)" aria-label="Bookmark" aria-pressed={marked}>{marked ? <BookmarkCheck size={17} /> : <Bookmark size={17} />}</button>
           {canFull && <button onClick={toggleFull} className={icon} title="Full screen (F)" aria-label="Full screen">{full ? <Minimize size={17} /> : <Maximize size={17} />}</button>}
           <div className="relative"><button onClick={() => setPop(pop === "all" ? null : "all")} className={icon} title="Settings (A)" aria-label="Settings"><Settings2 size={17} /></button>{pop === "all" && <Pop T={T} onClose={() => setPop(null)} wide>
