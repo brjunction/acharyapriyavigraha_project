@@ -10,7 +10,6 @@ const pubOf = (b: LibBook) => (b.publisher || "").trim();
 const LENGTHS: [string, string, (w: number) => boolean][] = [["short", "Short (under an hour)", (w) => w < 12000], ["medium", "Medium", (w) => w >= 12000 && w < 45000], ["long", "Long books", (w) => w >= 45000]];
 export type Shelf = { name: string; color: string | null; description: string | null; size?: string | null };
 const GRIDS: Record<string, string> = { small: "grid-cols-3 gap-x-4 gap-y-6 sm:grid-cols-5 lg:grid-cols-8", medium: "grid-cols-2 gap-x-5 gap-y-8 sm:grid-cols-4 lg:grid-cols-6", large: "grid-cols-2 gap-x-6 gap-y-9 sm:grid-cols-3 lg:grid-cols-5" };
-const SCALE: Record<string, string> = { small: "w-[78%]", medium: "w-[90%]", large: "w-full" };
 const fold = (s: string) => s.normalize("NFKD").replace(/[̀-ͯ]/g, "").toLowerCase();
 const shelfOf = (b: LibBook) => b.category || "Books";
 
@@ -75,7 +74,7 @@ export function BookLibrary({ books, shelves: meta, title = "Books", intro = "Re
             <div className="mb-5 flex items-baseline gap-2.5 border-b border-line pb-2"><span className="size-2.5 translate-y-[-1px] rounded-full" style={{ background: color(g) || "#c8c8c8" }} /><h2 className="text-[15px] font-semibold text-ink">{g}</h2><span className="text-[12px] text-ink-3">{xs.length}</span>{meta.find((m) => m.name === g)?.description && <span className="hidden truncate text-[12.5px] text-ink-3 sm:inline">— {meta.find((m) => m.name === g)?.description}</span>}</div>
             {view === "grid" ? <div className={`grid ${GRIDS[meta.find((m) => m.name === g)?.size || "small"] || GRIDS.small}`}>{xs.map(({ main: b, all }) => (
               <div key={b.slug} className="group">
-                <Link href={`/books/${b.slug}`} className={`block ${b.size ? SCALE[b.size] || "" : ""}`}>
+                <Link href={`/books/${b.slug}`} className="block">
                   <div className="relative aspect-[3/4] overflow-hidden rounded-[2px_6px_6px_2px] bg-band shadow-[0_1px_2px_rgba(0,0,0,0.08),0_10px_24px_-14px_rgba(0,0,0,0.35)] transition group-hover:-translate-y-0.5 group-hover:shadow-[0_1px_2px_rgba(0,0,0,0.08),0_16px_30px_-14px_rgba(0,0,0,0.4)]">
                     {b.cover_url ? /* eslint-disable-next-line @next/next/no-img-element */ <img src={b.cover_url} alt={b.title} loading="lazy" className="h-full w-full object-cover" /> : <div className="flex h-full flex-col items-center justify-center gap-2 bg-gradient-to-br from-[#5b3a1e] to-[#2b1a0c] p-3 text-center text-[#efe2c8]"><BookOpen size={20} /><span className="text-[12px] leading-snug">{b.title}</span></div>}
                     <span className="absolute inset-y-0 left-0 w-2 bg-gradient-to-r from-black/25 to-transparent" />
