@@ -43,7 +43,7 @@ export default async function Page() {
                   <p className="mt-1 text-[17px] font-medium text-ink">{top.label}</p>
                   <div className="mt-3 flex flex-wrap gap-2">
                     <Link href={`/teachings/magazines/${m.slug}/${top.slug}`} className="inline-flex h-9 items-center gap-1.5 rounded-md bg-ink px-4 text-[13px] font-medium text-white hover:bg-ink/90">Read this issue<ArrowRight size={14} /></Link>
-                    {top.pdf && <Link href={`/teachings/magazines/${m.slug}/${top.slug}/read`} className="inline-flex h-9 items-center gap-1.5 rounded-md border border-line-strong bg-white px-4 text-[13px] text-ink hover:bg-band"><BookOpen size={14} />As PDF</Link>}
+                    
                   </div>
                 </div>}
                 {m.latest.length > 1 && <>

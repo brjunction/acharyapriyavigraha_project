@@ -17,7 +17,7 @@ export async function pageLines(page: any, pageNo: number): Promise<Line[]> {
   const raws: Raw[] = []; const seen = new Set<string>();
   for (const it of c.items as any[]) {
     if (!it.str || !it.transform) continue; const [a, b, , d, e, f] = it.transform; if (Math.abs(b) > Math.abs(a) * 0.3) continue; // rotated text (spine, watermark)
-    const x = e - x0v, top = H - (f - y0v), z = Math.abs(d) || it.height || 10; if (x < -5 || x > W + 5 || top < -5 || top > H + 5) continue;
+    const x = e - x0v, top = H - (f - y0v), z = Math.abs(d) || it.height || 10; if (z < 5 || x < -5 || x > W + 5 || top < -5 || top > H + 5) continue;
     const key = `${it.str}|${Math.round(x)}|${Math.round(top)}`; if (it.str.trim().length > 1 && seen.has(key)) continue; seen.add(key); // an overprinted copy
     const font = nameOf(it.fontName); const p: Raw = { t: it.str, x, w: it.width || 0, z, font, top };
     if (/bold|black|heavy|semibold|demi/i.test(font)) p.b = 1; if (/italic|oblique|-it\b|ital/i.test(font)) p.i = 1;
@@ -32,6 +32,16 @@ export async function pageLines(page: any, pageNo: number): Promise<Line[]> {
   let gutter = 0;
   { const body = rows.filter((r) => r.ps.reduce((n, p) => n + p.t.trim().length, 0) > 25); if (body.length >= 12) { let best = 0;
       for (let gx = W * 0.36; gx <= W * 0.64; gx += 3) { let both = 0, clear = 0; for (const r of body) { const l = r.ps.some((p) => p.x + p.w < gx - 2 && p.t.trim()), rt = r.ps.some((p) => p.x > gx + 2 && p.t.trim()); const cross = r.ps.some((p) => p.x < gx - 3 && p.x + p.w > gx + 3 && p.t.trim()); if (!cross) clear++; if (l && rt && !cross) both++; } if (clear / body.length > 0.86 && both / body.length > 0.5 && both > best) { best = both; gutter = gx; } } } }
+  // columns whose lines do not share baselines (magazines: two stories side by side) — find the empty vertical band by how much text covers each x
+  if (!gutter) {
+    const B = Math.ceil(W) + 1; const cov = new Float64Array(B); let all = 0;
+    const text = raws.filter((p) => p.t.trim() && p.z >= 6 && p.w > 0);
+    for (const p of text) { const n = p.t.trim().length; all += n; const per = n / Math.max(1, p.w); for (let x = Math.max(0, Math.floor(p.x)); x < Math.min(B, Math.ceil(p.x + p.w)); x++) cov[x] += per; }
+    if (all > 400) { let bestX = 0, bestV = Infinity;
+      for (let x = Math.floor(W * 0.36); x <= Math.ceil(W * 0.64); x++) { const v = cov[x - 1] + cov[x] + cov[x + 1]; if (v < bestV) { bestV = v; bestX = x; } }
+      const leftN = text.filter((p) => p.x + p.w / 2 < bestX).reduce((n, p) => n + p.t.trim().length, 0), rightN = all - leftN;
+      const crossN = text.filter((p) => p.x < bestX - 3 && p.x + p.w > bestX + 3).reduce((n, p) => n + p.t.trim().length, 0);
+      if (leftN > all * 0.2 && rightN > all * 0.2 && crossN < all * 0.12) gutter = bestX; } }
   const mk = (ps: Raw[], top: number, col?: number): Line | null => {
     ps = ps.filter((p) => p.t.length).sort((p, q) => p.x - q.x); if (!ps.some((p) => p.t.trim())) return null;
     const cnt = new Map<number, number>(); for (const p of ps) { const k = Math.round(p.z * 2) / 2; cnt.set(k, (cnt.get(k) || 0) + p.t.trim().length); }

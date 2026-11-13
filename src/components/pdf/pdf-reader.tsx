@@ -14,7 +14,7 @@ type Tone = "light" | "sepia" | "night";
 type Size = { w: number; h: number };
 const PREF = "tj_pdf_pref";
 
-export function PdfReader({ src, title, sub, back, download, storeKey }: { src: string; title: string; sub?: string; back: { href: string; label: string }; download?: string | null; storeKey: string }) {
+export function PdfReader({ src, title, sub, back, download, storeKey, poster }: { src: string; title: string; sub?: string; back: { href: string; label: string }; download?: string | null; storeKey: string; poster?: string | null }) {
   const [doc, setDoc] = useState<any>(null); const [err, setErr] = useState(""); const [loadPct, setLoadPct] = useState(0);
   const [sizes, setSizes] = useState<Size[]>([]); const [n, setN] = useState(0);
   const [page, setPage] = useState(1); const [mode, setMode] = useState<Mode>("scroll"); const [fit, setFit] = useState<Fit>("width"); const [zoom, setZoom] = useState(1);
@@ -144,10 +144,12 @@ export function PdfReader({ src, title, sub, back, download, storeKey }: { src: 
 
         {/* pages */}
         <div ref={area} onTouchStart={onTS} onTouchMove={onTM} onTouchEnd={onTE} className="relative min-w-0 flex-1 overflow-auto overscroll-contain" style={{ touchAction: "pan-x pan-y" }}>
-          {!doc && <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-[13px]" style={{ color: C.muted }}><Loader2 className="animate-spin" size={20} />Opening the issue… {loadPct ? `${loadPct}%` : ""}</div>}
+          {!doc && <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 p-4 text-[12.5px]" style={{ color: C.muted }}>
+            {poster ? /* eslint-disable-next-line @next/next/no-img-element */ <img src={poster} alt="" className="max-h-[72vh] max-w-full rounded-[2px] bg-white shadow-[0_1px_3px_rgba(0,0,0,.18),0_14px_34px_-14px_rgba(0,0,0,.35)]" style={{ filter: C.filter }} /> : <Loader2 className="animate-spin" size={20} />}
+            <span className="flex items-center gap-2">{poster && <Loader2 className="animate-spin" size={13} />}Opening the issue…{loadPct ? ` ${loadPct}%` : ""}</span></div>}
           {doc && <div className={`flex min-w-fit flex-col items-center py-3 ${mode === "spread" ? "" : "gap-3"}`} style={{ transform: pinch !== 1 ? `scale(${pinch})` : undefined, transformOrigin: "center top" }}>
-            {mode === "spread" ? <div className="flex items-start gap-1">{shown.map((p) => <PageView key={p} doc={doc} p={p} size={sizes[p - 1] || base} scale={scale} filter={C.filter} hl={hl} eager />)}</div>
-              : shown.map((p) => <PageView key={p} doc={doc} p={p} size={sizes[p - 1] || base} scale={scale} filter={C.filter} hl={hl} eager={mode !== "scroll"} />)}
+            {mode === "spread" ? <div className="flex items-start gap-1">{shown.map((p) => <PageView key={p} doc={doc} p={p} size={sizes[p - 1] || base} scale={scale} filter={C.filter} hl={hl} eager poster={p === 1 ? poster : null} />)}</div>
+              : shown.map((p) => <PageView key={p} doc={doc} p={p} size={sizes[p - 1] || base} scale={scale} filter={C.filter} hl={hl} eager={mode !== "scroll" || p === 1} poster={p === 1 ? poster : null} />)}
           </div>}
           {doc && mode !== "scroll" && <>
             <button onClick={() => step(-1)} disabled={page <= 1} aria-label="Previous page" className="absolute left-2 top-1/2 hidden size-10 -translate-y-1/2 items-center justify-center rounded-full bg-black/[0.06] backdrop-blur hover:bg-black/[0.12] disabled:opacity-0 md:flex"><ChevronLeft size={20} /></button>
@@ -172,7 +174,7 @@ export function PdfReader({ src, title, sub, back, download, storeKey }: { src: 
 
 /** One page: drawn only when near the screen (scroll mode), sharp on high-density screens, with a text layer for
     selecting and for showing search matches. */
-function PageView({ doc, p, size, scale, filter, eager, hl: mark }: { doc: any; p: number; size: Size; scale: number; filter: string; eager?: boolean; hl: string }) {
+function PageView({ doc, p, size, scale, filter, eager, hl: mark, poster }: { doc: any; p: number; size: Size; scale: number; filter: string; eager?: boolean; hl: string; poster?: string | null }) {
   const host = useRef<HTMLDivElement>(null); const canvas = useRef<HTMLCanvasElement>(null); const tl = useRef<HTMLDivElement>(null);
   const [near, setNear] = useState(!!eager); const [drawn, setDrawn] = useState(false);
   const w = Math.floor(size.w * scale), h = Math.floor(size.h * scale);
@@ -193,7 +195,8 @@ function PageView({ doc, p, size, scale, filter, eager, hl: mark }: { doc: any; 
     <div ref={host} id={`pdfp-${p}`} data-p={p} className="relative shrink-0 bg-white shadow-[0_1px_3px_rgba(0,0,0,.18),0_8px_24px_-12px_rgba(0,0,0,.25)]" style={{ width: w, height: h, filter }}>
       <canvas ref={canvas} className={`block transition-opacity duration-200 ${drawn ? "opacity-100" : "opacity-0"}`} aria-label={`Page ${p}`} />
       <div ref={tl} className="textLayer absolute inset-0" />
-      {!drawn && near && <span className="absolute inset-0 flex items-center justify-center text-[12px] text-zinc-400">{p}</span>}
+      {!drawn && poster && /* eslint-disable-next-line @next/next/no-img-element */ <img src={poster} alt="" className="absolute inset-0 h-full w-full object-fill" />}
+      {!drawn && !poster && near && <span className="absolute inset-0 flex items-center justify-center text-[12px] text-zinc-400">{p}</span>}
     </div>);
 }
 function markIn(box: HTMLElement, q: string) {
