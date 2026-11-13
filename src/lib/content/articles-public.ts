@@ -36,10 +36,10 @@ export async function related(a: any) {
   return { series, byAuthor, inIssue };
 }
 
-export type Mag = { id: string; slug: string; title: string; publisher: string | null; description: string | null; cover: string | null; url: string | null; n_issues: number; first: number | null; last: number | null; latest: { slug: string; label: string; cover: string | null; pdf: boolean; date: string | null }[] };
+export type Mag = { id: string; slug: string; title: string; publisher: string | null; description: string | null; cover: string | null; url: string | null; subscribe_url: string | null; subscribe_email: string | null; n_issues: number; first: number | null; last: number | null; latest: { slug: string; label: string; cover: string | null; pdf: boolean; date: string | null }[] };
 export const listMagazines = cache(async () => {
   if (!hasDb()) return [] as Mag[];
-  const mags = await q<any>(sql`select m.id, coalesce(m.slug, m.id::text) slug, m.title, m.publisher, m.description, m.cover, m.url, (select count(*)::int from magazine_issues i where i.magazine_id = m.id and i.status = 'published') n_issues, (select min(year) from magazine_issues i where i.magazine_id = m.id and i.status = 'published') "first", (select max(year) from magazine_issues i where i.magazine_id = m.id and i.status = 'published') "last" from magazines m where m.status = 'published' order by m.position, m.title`);
+  const mags = await q<any>(sql`select m.id, coalesce(m.slug, m.id::text) slug, m.title, m.publisher, m.description, m.cover, m.url, m.subscribe_url, m.subscribe_email, (select count(*)::int from magazine_issues i where i.magazine_id = m.id and i.status = 'published') n_issues, (select min(year) from magazine_issues i where i.magazine_id = m.id and i.status = 'published') "first", (select max(year) from magazine_issues i where i.magazine_id = m.id and i.status = 'published') "last" from magazines m where m.status = 'published' order by m.position, m.title`);
   const latest = await q<any>(sql`select magazine_id, slug, case when number is not null and title is not null then number || ' · ' || title else coalesce(title, number) end label, cover, pdf_url is not null as pdf, to_char(date, 'YYYY-MM-DD') date from (select *, row_number() over (partition by magazine_id order by date desc nulls last, position desc) r from magazine_issues where status = 'published') x where r <= 6`);
   return mags.map((m) => ({ ...m, latest: latest.filter((l) => l.magazine_id === m.id) })) as Mag[];
 });
@@ -58,11 +58,11 @@ export async function getIssue(mag: string, issue: string) {
 
 /** Every published magazine with its issues — the library shown inside the PDF reader, to move from issue to issue. */
 export type ShelfIssue = { slug: string; label: string; cover: string | null; date: string | null };
-export type Shelf = { slug: string; title: string; issues: ShelfIssue[] }[];
+export type Shelf = { slug: string; title: string; subscribe?: string | null; email?: string | null; issues: ShelfIssue[] }[];
 export const readerShelf = cache(async (): Promise<Shelf> => {
   if (!hasDb()) return [];
-  const rows = await q<any>(sql`select m.slug mslug, m.id mid, m.title mtitle, i.slug, case when i.number is not null and i.title is not null then i.number || ' · ' || i.title else coalesce(i.title, i.number, 'Issue') end label, i.cover, to_char(i.date, 'YYYY-MM-DD') date
+  const rows = await q<any>(sql`select m.slug mslug, m.id mid, m.title mtitle, m.subscribe_url msub, m.subscribe_email mmail, i.slug, case when i.number is not null and i.title is not null then i.number || ' · ' || i.title else coalesce(i.title, i.number, 'Issue') end label, i.cover, to_char(i.date, 'YYYY-MM-DD') date
     from magazine_issues i join magazines m on m.id = i.magazine_id where i.status = 'published' and m.status = 'published' order by m.position nulls last, m.title, i.date desc nulls last, i.position desc`);
-  const out: Shelf = []; for (const r of rows) { const s = r.mslug || r.mid; let g = out.find((x) => x.slug === s); if (!g) out.push((g = { slug: s, title: r.mtitle, issues: [] })); g.issues.push({ slug: r.slug, label: r.label, cover: r.cover, date: r.date }); }
+  const out: Shelf = []; for (const r of rows) { const s = r.mslug || r.mid; let g = out.find((x) => x.slug === s); if (!g) out.push((g = { slug: s, title: r.mtitle, subscribe: r.msub, email: r.mmail, issues: [] })); g.issues.push({ slug: r.slug, label: r.label, cover: r.cover, date: r.date }); }
   return out;
 });

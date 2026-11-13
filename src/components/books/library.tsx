@@ -1,4 +1,5 @@
 "use client";
+import { ReadTabs } from "@/components/articles/header";
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -40,8 +41,8 @@ export function BookLibrary({ books, shelves: meta, title = "Books", intro = "Re
     <div className="bg-white">
       <div className="border-b border-line">
         <div className="mx-auto max-w-[1240px] px-4 pb-0 pt-5 sm:px-6">
-          
-          <div className="mt-2 flex flex-wrap items-end justify-between gap-4">
+          <ReadTabs at="/teachings/books" />
+          <div className="mt-4 flex flex-wrap items-end justify-between gap-4">
             <div><h1 className="text-[24px] leading-tight text-ink sm:text-[26px]">{title}</h1><p className="mt-1 text-[13.5px] text-ink-2">{intro}</p></div>
             <p className="text-[12.5px] text-ink-3">{works.length} books · {langs.length} {langs.length === 1 ? "language" : "languages"}</p>
           </div>

@@ -5,7 +5,7 @@
    light, sepia and night colours; full screen; download; remembers the page. Keys: ← → PageUp/Down, + −, Home/End, / F. */
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Library, ArrowLeft, ChevronLeft, ChevronRight, ZoomIn, ZoomOut, Search, PanelLeft, Maximize, Minimize, Download, X, Moon, Sun, Columns2, Square, Rows3, Loader2 } from "lucide-react";
+import { Bell, Library, ArrowLeft, ChevronLeft, ChevronRight, ZoomIn, ZoomOut, Search, PanelLeft, Maximize, Minimize, Download, X, Moon, Sun, Columns2, Square, Rows3, Loader2 } from "lucide-react";
 import { pdfjs } from "@/lib/fetcher";
 import type { Shelf } from "@/lib/content/articles-public";
 
@@ -147,6 +147,7 @@ export function PdfReader({ src, title, sub, back, download, storeKey, poster, t
               : <p className="px-2 py-6 text-center text-[12.5px]" style={{ color: C.muted }}>{tocState === "done" ? "No headings were found in this issue." : <span className="inline-flex items-center gap-2"><Loader2 size={13} className="animate-spin" />Reading the contents…</span>}</p>)}
             {side === "library" && shelf && <div>
               {shelf.length > 1 && <select value={shelfMag} onChange={(e) => setShelfMag(e.target.value)} className="mb-2 h-9 w-full rounded-lg px-2 text-[13px] outline-none" style={{ background: C.bg, color: C.ink }} aria-label="Magazine">{shelf.map((m) => <option key={m.slug} value={m.slug}>{m.title} ({m.issues.length})</option>)}</select>}
+              {(() => { const m = shelf.find((x) => x.slug === shelfMag) || shelf[0]; const href = m.subscribe || (m.email ? `mailto:${m.email}?subject=${encodeURIComponent(`Subscribe to ${m.title}`)}` : ""); return href ? <a href={href} target={m.subscribe ? "_blank" : undefined} rel="noreferrer" className="mb-2 flex items-center justify-center gap-2 rounded-lg py-2 text-[13px] font-medium" style={{ background: "#b5651d", color: "#fff" }}><Bell size={14} />Subscribe free to {m.title}</a> : null; })()}
               <ul className="grid gap-1">{(shelf.find((m) => m.slug === shelfMag) || shelf[0]).issues.map((i) => { const on = here && here.mag === shelfMag && here.issue === i.slug; return <li key={i.slug}><Link href={`/teachings/magazines/${shelfMag}/${i.slug}`} className="flex items-center gap-3 rounded-lg p-1.5 transition hover:bg-black/[0.05]" style={on ? { background: "rgba(181,101,29,.12)" } : undefined} aria-current={on ? "page" : undefined}>
                 <span className="h-[52px] w-[39px] shrink-0 overflow-hidden rounded-[2px] bg-black/[0.06] shadow-sm">{i.cover && /* eslint-disable-next-line @next/next/no-img-element */ <img src={i.cover} alt="" loading="lazy" className="h-full w-full object-cover" />}</span>
                 <span className="min-w-0"><span className="line-clamp-2 block text-[13px] font-medium leading-snug">{i.label}</span>{i.date && <span className="block text-[11.5px]" style={{ color: C.muted }}>{new Date(i.date).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}</span>}</span></Link></li>; })}</ul>

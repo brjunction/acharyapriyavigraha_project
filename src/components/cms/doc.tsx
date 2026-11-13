@@ -54,7 +54,10 @@ async function Block({ b, n, toc, ctx }: { b: DBlock; n: number; toc?: ReactNode
   switch (b.type) {
     case "paragraph": {
       const empty = !plainText(b.content).trim();
-      return <><p className="my-2.5 min-h-[1em] whitespace-pre-line text-[15px] leading-[1.8] text-ink-2" style={style(p)}>{empty ? <br /> : <Inline c={b.content} />}</p><Kids b={b} /></>;
+      // a verse: several short lines, all in italics (ślokas as typed in books) — set apart and centred in the readers
+      const lines = plainText(b.content).split("\n").filter((l) => l.trim()); const ital = Array.isArray(b.content) && b.content.every((r: any) => r.type !== "text" || !r.text.trim() || r.styles?.italic);
+      const verse = !empty && !p.textAlignment && lines.length >= 2 && ital && lines.every((l) => l.length <= 70);
+      return <><p className={`my-2.5 min-h-[1em] whitespace-pre-line text-[15px] leading-[1.8] text-ink-2${verse ? " vl" : ""}`} style={style(p)}>{empty ? <br /> : <Inline c={b.content} />}</p><Kids b={b} /></>;
     }
     case "heading": {
       const L = Math.min(6, Math.max(1, p.level || 2)); const Tag = `h${L}` as "h2"; const text = plainText(b.content);

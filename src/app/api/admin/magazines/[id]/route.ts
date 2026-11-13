@@ -14,7 +14,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
   const g = await guard("editor"); if ("res" in g) return g.res; const { id } = await params; const b = await req.json();
   const title = String(b.title || "").trim(); if (!title) return fail("Give the magazine a name.");
   const slug = b.slug ? slugify(b.slug) : null;
-  try { await sql`update magazines set title = ${title}, slug = coalesce(${slug}, slug, ${slugify(title)}), publisher = ${b.publisher || null}, description = ${b.description || null}, cover = ${b.cover || null}, url = ${b.url || null}, status = ${b.status || "published"}, updated_at = now() where id = ${id}`; } catch { return fail("Another magazine already uses that address."); }
+  try { await sql`update magazines set title = ${title}, slug = coalesce(${slug}, slug, ${slugify(title)}), publisher = ${b.publisher || null}, description = ${b.description || null}, cover = ${b.cover || null}, url = ${b.url || null}, subscribe_url = ${/^https?:\/\//.test(String(b.subscribe_url || "")) ? String(b.subscribe_url).slice(0, 500) : null}, subscribe_email = ${/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(b.subscribe_email || "").trim()) ? String(b.subscribe_email).trim().slice(0, 200) : null}, status = ${b.status || "published"}, updated_at = now() where id = ${id}`; } catch { return fail("Another magazine already uses that address."); }
   revalidatePath("/teachings/magazines", "layout"); return json({ ok: true });
 }
 export async function DELETE(_: Request, { params }: { params: Promise<{ id: string }> }) {

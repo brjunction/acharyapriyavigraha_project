@@ -2,6 +2,7 @@ import Link from "next/link";
 import { listMagazines, type Mag } from "@/lib/content/articles-public";
 import { WritingsHeader } from "@/components/articles/header";
 import { MagStack } from "@/components/articles/mag-cover";
+import { Subscribe } from "@/components/articles/subscribe";
 
 export const revalidate = 300;
 export const metadata = { title: "Magazines", description: "Śrī Kṛṣṇa Kathāmṛta Bindu and other magazines — every issue to read as it was printed." };
@@ -26,6 +27,7 @@ export default async function Page() {
               </Link>
               <span className="mt-1 block text-[13px] text-ink-3">{[m.n_issues ? `${m.n_issues} ${m.n_issues === 1 ? "issue" : "issues"}` : null, span(m)].filter(Boolean).join(" · ")}</span>
               {top && <Link href={`/teachings/magazines/${m.slug}/${top.slug}`} className="mt-2 block text-[13px] leading-snug text-ink-2 hover:text-ink"><span className="text-ink-3">Latest: </span>{top.label}{top.date ? <span className="text-ink-3"> · {day(top.date)}</span> : null}</Link>}
+              <Subscribe compact url={m.subscribe_url} email={m.subscribe_email} title={m.title} />
             </div>); })}
         </div>
       </div>

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getMagazine } from "@/lib/content/articles-public";
+import { Subscribe } from "@/components/articles/subscribe";
 import { WritingsHeader } from "@/components/articles/header";
 import { MagCover } from "@/components/articles/mag-cover";
 
@@ -16,6 +17,7 @@ export default async function Page({ params }: { params: Promise<{ mag: string }
     <>
       <WritingsHeader at="/teachings/magazines" title={m.title} intro={m.description || m.publisher || "All issues"} stats={[`${issues.length} issues`, (() => { const n = issues.reduce((k: number, i: any) => k + Number(i.n || 0), 0); return n ? `${n} articles` : ""; })()].filter(Boolean)} crumbs={[["/teachings/magazines", "Magazines"]]} />
       <div className="mx-auto max-w-[1240px] px-4 pb-20 sm:px-6">
+        {(m.subscribe_url || m.subscribe_email) && <div className="mt-6"><Subscribe url={m.subscribe_url} email={m.subscribe_email} title={m.title} /></div>}
         {years.length > 1 && <nav className="sticky top-[52px] z-20 -mx-4 flex gap-1 overflow-x-auto border-b border-line bg-white/95 px-4 py-2.5 backdrop-blur [scrollbar-width:none] sm:top-[58px] sm:-mx-6 sm:px-6">{years.map((y) => <a key={y} href={`#y-${y}`} className="shrink-0 rounded-md px-2.5 py-1 text-[13px] tabular-nums text-ink-2 hover:bg-band">{y || "Undated"}</a>)}</nav>}
         {!issues.length && <p className="py-20 text-center text-[13.5px] text-ink-3">Issues will appear here soon.</p>}
         {years.map((y) => (

@@ -7,7 +7,7 @@ import { useTicks, TickBar, DraftsButton, Tick } from "./bulk";
 import { MediaPicker } from "../media-picker";
 import { CoverCropper } from "./book-editor";
 
-type M = { id: string; slug: string | null; title: string; publisher: string | null; description: string | null; cover: string | null; url: string | null; status: string; n_issues: number; n_articles: number };
+type M = { id: string; slug: string | null; title: string; publisher: string | null; description: string | null; cover: string | null; url: string | null; subscribe_url?: string | null; subscribe_email?: string | null; status: string; n_issues: number; n_articles: number };
 type I = { id: string; slug: string; number: string | null; title: string | null; day: string | null; year: number | null; cover: string | null; pdf_url: string | null; url: string | null; description: string | null; status: string; n_articles: number };
 
 /** Magazines → issues → articles. Simple enough for anyone: pick a magazine, add issues, put articles in each issue. */
@@ -64,6 +64,8 @@ function MagazineView({ id, onBack }: { id: string; onBack: () => void }) {
           <Field label="Published by"><Input value={m.publisher || ""} onChange={(e) => set("publisher", e.target.value)} /></Field>
           <Field label="About it"><Textarea rows={3} value={m.description || ""} onChange={(e) => set("description", e.target.value)} /></Field>
           <Field label="Magazine website (optional)"><Input value={m.url || ""} onChange={(e) => set("url", e.target.value)} placeholder="https://…" /></Field>
+          <Field label="Subscribe page (optional)" hint="Where readers sign up — a “Subscribe” button appears on the magazine and in the reader."><Input value={m.subscribe_url || ""} onChange={(e) => set("subscribe_url", e.target.value)} placeholder="https://…" /></Field>
+          <Field label="Subscribe by email (optional)" hint="Readers can also write to this address to subscribe."><Input value={m.subscribe_email || ""} onChange={(e) => set("subscribe_email", e.target.value)} placeholder="name@example.org" /></Field>
           <Field label="Shown on the website"><Select value={m.status} onChange={(e) => set("status", e.target.value)}><option value="published">Yes</option><option value="draft">No, hidden</option></Select></Field>
           <div className="flex justify-between"><Btn size="sm" kind="danger" onClick={async () => { if (!confirm("Delete this magazine and all its issues? The articles stay.")) return; await api(`/api/admin/magazines/${id}`, "DELETE"); onBack(); }}><Trash2 />Delete</Btn><Btn kind="primary" busy={busy} onClick={save}>Save</Btn></div>
         </Card>

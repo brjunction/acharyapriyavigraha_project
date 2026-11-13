@@ -406,6 +406,7 @@ html.nav-hidden [class*="top-[52px]"], html.nav-hidden [class*="top-[58px]"], ht
 .rd-text .book-body [class*="bg-[#fdf6e8]"], .rd-text .book-body .card { background: color-mix(in srgb, var(--rd-ink) 4%, transparent) !important; border-color: var(--rd-line) !important; }
 .rd-text .book-body [class*="text-[#7a3a06]"], .rd-text .book-body .text-saffron { color: inherit !important; }
 .rd-text .book-body em { font-style: italic; }
+.book-body p.vl { text-align: center !important; text-indent: 0 !important; margin-block: 1.1em !important; }
 .rd-dark ::selection { background: rgba(255, 255, 255, 0.2); }
 /* Articles: the text follows the size and font chosen in the article bar */
 .rd-article p, .rd-article li, .rd-article blockquote { font-size: 1em !important; line-height: 1.8 !important; color: var(--ink) !important; font-family: inherit !important; }
@@ -834,7 +835,9 @@ html.tj-immersive body { overflow: hidden; }
 .pr-flow .pr-ch { font-family: inherit; font-size: 1.5em; font-weight: 600; line-height: 1.25; margin: 2.2em 0 1.4em; text-align: left; break-after: avoid; letter-spacing: -0.01em; }
 .pr-flow .pr-num { display: block; margin-bottom: .45em; font-size: .5em; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; color: var(--rd-muted); }
 .pr-flow .book-body p { margin: 0 0 var(--pr-para) !important; text-indent: var(--pr-indent); orphans: 2; widows: 2; }
-.pr-flow .book-body p, .pr-flow .book-body li { text-align: inherit !important; hyphens: inherit; font-weight: inherit !important; letter-spacing: inherit; word-spacing: inherit; }
+.pr-flow .book-body p, .pr-flow .book-body li { hyphens: inherit; font-weight: inherit; letter-spacing: inherit; word-spacing: inherit; }
+.pr-flow .book-body p:not([style*="text-align"]):not(.vl), .pr-flow .book-body li { text-align: inherit; }
+.pr-flow .book-body strong, .pr-flow .book-body b, .rd-text .book-body strong, .rd-text .book-body b { font-weight: 700; }
 .pr-flow .book-body h1, .pr-flow .book-body h2, .pr-flow .book-body h3, .pr-flow .book-body h4 { break-after: avoid; text-indent: 0; text-align: left !important; }
 .pr-flow img, .pr-flow video, .pr-flow iframe { max-height: calc(var(--pr-h) - 3em); width: auto !important; max-width: 100%; object-fit: contain; break-inside: avoid; margin-inline: auto; }
 .pr-flow figure, .pr-flow table, .pr-flow blockquote, .pr-flow pre { break-inside: avoid; }
