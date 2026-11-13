@@ -2,7 +2,7 @@ import { sql } from "@/lib/db";
 import { fold, slugify } from "./text";
 import { docText } from "@/components/cms/doc-text";
 
-export type Node = { id: string; book_id: string; parent_id: string | null; kind: string; position: number; title: string; slug: string; status: string };
+export type Node = { id: string; book_id: string; parent_id: string | null; kind: string; position: number; title: string; slug: string; status: string; page_mode?: string | null; empty?: boolean };
 export { LAYOUTS } from "./book-layouts";
 export async function nodeSlug(bookId: string, parentId: string | null, title: string, id?: string) {
   let s = slugify(title), n = 1;

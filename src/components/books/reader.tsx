@@ -319,14 +319,15 @@ function TextSettings({ s, set, T }: { s: ReaderSettings; set: (p: Partial<Reade
 function Contents({ toc, current, T, onGo, suffix = "" }: { toc: TocItem[]; current: string; T: (typeof THEMES)[Theme]; onGo?: () => void; suffix?: string }) {
   const kids = useMemo(() => { const m: Record<string, TocItem[]> = {}; toc.forEach((t) => (m[t.parent || ""] ||= []).push(t)); return m; }, [toc]);
   const chain = useMemo(() => { const by = Object.fromEntries(toc.map((t) => [t.id, t])); const out = new Set<string>(); let c = by[current]; while (c) { out.add(c.id); c = c.parent ? by[c.parent] : (undefined as any); } return out; }, [toc, current]);
-  const [open, setOpen] = useState<Set<string>>(chain);
+  const [open, setOpen] = useState<Set<string>>(() => new Set([...chain, ...toc.filter((t) => t.part).map((t) => t.id)]));
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => { ref.current?.querySelector("[data-current]")?.scrollIntoView({ block: "center" }); }, []);
   const row = (t: TocItem): React.ReactNode => { const ch = kids[t.id] || []; const o = open.has(t.id); const cur = t.id === current; return (
     <li key={t.id}>
       <div className={`flex items-start rounded-md ${cur ? "bg-black/[0.07] [.rd-dark_&]:bg-white/10" : "hover:bg-black/[0.04] [.rd-dark_&]:hover:bg-white/[0.06]"}`} {...(cur ? { "data-current": "" } : {})}>
         <button onClick={() => setOpen((s) => { const x = new Set(s); x.has(t.id) ? x.delete(t.id) : x.add(t.id); return x; })} className={`mt-[7px] flex size-5 shrink-0 items-center justify-center ${ch.length ? "" : "invisible"}`} style={{ color: T.muted }}><ChevronDown size={13} className={o ? "" : "-rotate-90"} /></button>
-        <Link href={t.href + suffix} onClick={onGo} className={`flex min-w-0 flex-1 gap-2 py-1.5 pr-2 text-[13px] leading-snug ${cur ? "font-medium" : ""}`}><span className="w-6 shrink-0 text-right text-[11px] tabular-nums" style={{ color: T.muted, paddingTop: 1 }}>{t.num}</span><span className={t.depth ? "" : "font-medium"} style={t.depth && !cur ? { opacity: 0.85 } : undefined}>{t.title}</span></Link>
+        {t.part && ch.length ? <button onClick={() => setOpen((s) => { const x = new Set(s); x.has(t.id) ? x.delete(t.id) : x.add(t.id); return x; })} className="flex min-w-0 flex-1 gap-2 py-1.5 pr-2 text-left text-[12px] font-semibold uppercase leading-snug tracking-[0.06em]" style={{ color: T.muted }}><span className="w-6 shrink-0 text-right text-[11px] tabular-nums" style={{ paddingTop: 1 }}>{t.num}</span><span>{t.title}</span></button>
+        : <Link href={t.href.includes("#") ? t.href.replace("#", `${suffix}#`) : t.href + suffix} onClick={onGo} className={`flex min-w-0 flex-1 gap-2 py-1.5 pr-2 text-[13px] leading-snug ${cur ? "font-medium" : ""}`}><span className="w-6 shrink-0 text-right text-[11px] tabular-nums" style={{ color: T.muted, paddingTop: 1 }}>{t.num}</span><span className={t.depth ? "" : "font-medium"} style={t.depth && !cur ? { opacity: 0.85 } : undefined}>{t.title}</span></Link>}
       </div>
       {o && ch.length > 0 && <ol className="ml-[22px] border-l pl-1" style={{ borderColor: T.line }}>{ch.map(row)}</ol>}
     </li>); };

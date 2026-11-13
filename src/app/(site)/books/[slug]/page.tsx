@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { ChevronRight, Languages } from "lucide-react";
-import { getBook, hrefOf, numbering, getTranslations } from "@/lib/content/books-public";
+import { getBook, hrefOf, numbering, getTranslations, isLabel, pagesOf } from "@/lib/content/books-public";
 import { Cover } from "@/components/cms/book-view";
 import { BookActions } from "@/components/books/book-actions";
 import { SITE } from "@/lib/cms/render";
@@ -23,7 +23,7 @@ export default async function BookHome({ params }: { params: Promise<{ slug: str
   const kids = (id: string) => nodes.filter((n) => n.parent_id === id).sort((a, b) => a.position - b.position);
   const subs = flat.length - top.length;
   const ld = { "@context": "https://schema.org", "@type": "Book", name: book.title, author: book.author ? { "@type": "Person", name: book.author } : undefined, publisher: book.publisher || undefined, datePublished: book.year || undefined, inLanguage: book.language, image: book.cover_url || undefined, url: `${SITE}/books/${slug}`, workTranslation: trs.filter((t) => t.slug !== slug).map((t) => ({ "@type": "Book", name: t.title, inLanguage: t.language, url: `${SITE}/books/${t.slug}` })), hasPart: flat.slice(0, 200).map((n) => ({ "@type": "Chapter", name: n.title, url: SITE + hrefOf(slug, nodes, n) })) };
-  const row = (n: Node, d: number): React.ReactNode => { const k = kids(n.id); const link = <Link href={hrefOf(slug, nodes, n)} className="group flex items-baseline gap-3 py-2.5 pr-2"><span className="w-8 shrink-0 text-right text-[12px] tabular-nums text-ink-3">{num[n.id]}</span><span className={`min-w-0 flex-1 group-hover:underline ${d ? "text-[13.5px] text-ink-2" : "text-[14.5px] font-medium text-ink"}`}>{n.title}</span>{k.length > 0 && <span className="shrink-0 text-[11.5px] text-ink-3">{k.length} sections</span>}</Link>;
+  const row = (n: Node, d: number): React.ReactNode => { const k = kids(n.id); const inner = <><span className="w-8 shrink-0 text-right text-[12px] tabular-nums text-ink-3">{num[n.id]}</span><span className={`min-w-0 flex-1 group-hover:underline ${d ? "text-[13.5px] text-ink-2" : "text-[14.5px] font-medium text-ink"}`}>{n.title}</span>{k.length > 0 && <span className="shrink-0 text-[11.5px] text-ink-3">{k.length} sections</span>}</>; const link = isLabel(nodes, n) ? <span className="flex items-baseline gap-3 py-2.5 pr-2 [&>span:nth-child(2)]:text-[12.5px] [&>span:nth-child(2)]:font-semibold [&>span:nth-child(2)]:uppercase [&>span:nth-child(2)]:tracking-[0.06em] [&>span:nth-child(2)]:text-ink-3">{inner}</span> : <Link href={hrefOf(slug, nodes, n)} className="group flex items-baseline gap-3 py-2.5 pr-2">{inner}</Link>;
     return k.length ? <details key={n.id} className="group/d border-b border-line last:border-0 [&_summary::-webkit-details-marker]:hidden"><summary className="flex cursor-pointer list-none items-center"><ChevronRight size={14} className="ml-1 shrink-0 text-ink-3 transition group-open/d:rotate-90" /><div className="min-w-0 flex-1">{link}</div></summary><div className="mb-2 ml-[42px] border-l border-line pl-1">{k.map((c) => <div key={c.id}>{row(c, d + 1)}</div>)}</div></details>
       : <div key={n.id} className={d ? "" : "border-b border-line pl-5 last:border-0"}>{link}</div>; };
   return (
@@ -45,7 +45,7 @@ export default async function BookHome({ params }: { params: Promise<{ slug: str
             </dl>
             {trs.length > 1 && <div className="mt-4 flex flex-wrap items-center gap-1.5"><span className="mr-1 flex items-center gap-1.5 text-[12px] text-ink-3"><Languages size={14} />Also in</span>{trs.map((t) => <Link key={t.slug} href={`/books/${t.slug}`} className={`rounded-md border px-2.5 py-1 text-[12.5px] ${t.slug === slug ? "border-ink bg-ink text-white" : "border-line text-ink-2 hover:bg-band"}`}>{langNative(t.language)}</Link>)}</div>}
             {book.description && <p className="mt-5 max-w-2xl whitespace-pre-line text-[14.5px] leading-[1.75] text-ink-2">{book.description}</p>}
-            <div className="mt-7"><BookActions slug={slug} first={flat[0] ? hrefOf(slug, nodes, flat[0]) : null} canParallel={trs.length > 1} /></div>
+            <div className="mt-7"><BookActions slug={slug} first={pagesOf(nodes, flat)[0] ? hrefOf(slug, nodes, pagesOf(nodes, flat)[0]) : null} canParallel={trs.length > 1} /></div>
 
             {top.length > 0 && <section className="mt-12">
               <div className="flex items-baseline justify-between border-b border-line pb-2"><h2 className="text-[15px] font-semibold text-ink">Contents</h2><span className="text-[12px] text-ink-3">{flat.length} parts in all</span></div>

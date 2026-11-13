@@ -55,11 +55,12 @@ const write = (k: string, v: unknown) => { try { localStorage.setItem(k, JSON.st
 type Mark = { ch: number; r: number; label: string; text: string; at: number };
 type Target = { kind: "ratio"; r: number } | { kind: "first" } | { kind: "last" } | { kind: "el"; el: Element };
 
-export function PathaReader({ book, chapters, children }: { book: Book; chapters: Chapter[]; children: React.ReactNode }) {
+export function PathaReader({ book, chapters, toc, children }: { book: Book; chapters: Chapter[]; toc?: TocRow[]; children: React.ReactNode }) {
+  const rows: TocRow[] = toc || chapters.map((c, i) => ({ key: c.id, title: c.title, num: c.num, depth: c.depth, ch: i, words: c.words }));
   const [s, setS] = useState<S>(DEF); const [ready, setReady] = useState(false);
   const [ch, setCh] = useState(0); const [page, setPage] = useState(0); const [pages, setPages] = useState(1);
   const [bars, setBars] = useState(true); const [panel, setPanel] = useState<null | "toc" | "books" | "search" | "marks" | "settings">(null);
-  const [wide, setWide] = useState(false); const [dockTab, setDockTab] = useState<"toc" | "books" | "marks">("toc");
+  const [wide, setWide] = useState(false); const [dockTab, setDockTab] = useState<"toc" | "books" | "search" | "marks">("toc");
   const [marks, setMarks] = useState<Mark[]>([]); const [full, setFull] = useState(false);
   const [box, setBox] = useState({ w: 0, h: 0 });
   const view = useRef<HTMLDivElement>(null); const flow = useRef<HTMLDivElement>(null);
@@ -82,7 +83,7 @@ export function PathaReader({ book, chapters, children }: { book: Book; chapters
   // Wide screens keep the contents beside the pages, as in the other reader.
   useEffect(() => { const f = () => setWide(window.innerWidth >= 1100); f(); window.addEventListener("resize", f); return () => window.removeEventListener("resize", f); }, []);
   const docked = wide && s.dock;
-  const openSide = (t: "toc" | "books" | "marks") => { if (wide) { if (s.dock && dockTab === t) setKeep({ dock: false }); else { if (!s.dock) setKeep({ dock: true }); setDockTab(t); } } else setPanel(panel === t ? null : t); };
+  const openSide = (t: "toc" | "books" | "search" | "marks") => { if (wide) { if (s.dock && dockTab === t) setKeep({ dock: false }); else { if (!s.dock) setKeep({ dock: true }); setDockTab(t); } } else setPanel(panel === t ? null : t); };
   // The size of the page area.
   useEffect(() => {
     const el = view.current; if (!el) return;
@@ -124,6 +125,7 @@ export function PathaReader({ book, chapters, children }: { book: Book; chapters
 
   const next = useCallback(() => { if (page < pages - 1) setPage(page + 1); else if (ch < chapters.length - 1) { target.current = { kind: "first" }; setCh(ch + 1); } setBars(false); }, [page, pages, ch, chapters.length]);
   const prev = useCallback(() => { if (page > 0) setPage(page - 1); else if (ch > 0) { target.current = { kind: "last" }; setCh(ch - 1); } setBars(false); }, [page, ch]);
+  const goToc = (i: number, anchor?: string) => { const el = anchor ? flow.current?.querySelector(`#${CSS.escape(anchor)}`) : null; goCh(i, el ? { kind: "el", el } : { kind: "first" }); };
   const goCh = (i: number, t: Target = { kind: "first" }) => { target.current = t; if (i === ch) measure(); else setCh(i); setPanel(null); };
 
   // Keys and wheel.
@@ -135,7 +137,7 @@ export function PathaReader({ book, chapters, children }: { book: Book; chapters
       if (["ArrowRight", "PageDown", "ArrowDown"].includes(e.key) || (e.key === " " && !e.shiftKey)) { e.preventDefault(); next(); }
       else if (["ArrowLeft", "PageUp", "ArrowUp"].includes(e.key) || (e.key === " " && e.shiftKey)) { e.preventDefault(); prev(); }
       else if (e.key === "Home") setPage(0); else if (e.key === "End") setPage(pages - 1);
-      else if (e.key === "t") openSide("toc"); else if (e.key === "/" || ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k")) { e.preventDefault(); e.stopImmediatePropagation(); setPanel("search"); } else if (e.key === "b") toggleMark();
+      else if (e.key === "t") openSide("toc"); else if (e.key === "/" || ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k")) { e.preventDefault(); e.stopImmediatePropagation(); openSide("search"); } else if (e.key === "b") toggleMark();
       else if ((e.ctrlKey || e.metaKey) && ["+", "=", "-", "0"].includes(e.key)) { e.preventDefault(); setKeep({ size: e.key === "0" ? DEF.size : e.key === "-" ? Math.max(13, s.size - 1) : Math.min(34, s.size + 1) }); }
       else if (e.key === "s" || e.key === "a") setPanel("settings"); else if (e.key === "m") openSide("marks"); else if (e.key === "n") { if (ch < chapters.length - 1) goCh(ch + 1); } else if (e.key === "p") { if (ch > 0) goCh(ch - 1); }
       else if (e.key === "+" || e.key === "=") setKeep({ size: Math.min(34, s.size + 1) }); else if (e.key === "-") setKeep({ size: Math.max(13, s.size - 1) });
@@ -200,11 +202,12 @@ export function PathaReader({ book, chapters, children }: { book: Book; chapters
     <div onMouseMove={onHover} className="pr-root fixed inset-0 z-[90] flex select-text overflow-hidden" style={{ background: T.bg, color: T.ink, ...vars }}>
       {docked && <aside className="flex w-[300px] shrink-0 flex-col" style={{ background: T.ui, borderRight: `1px solid ${T.line}` }}>
         <div className="flex h-12 shrink-0 items-end gap-1 px-2" style={{ borderBottom: `1px solid ${T.line}` }}>
-          {([["toc", "Contents"], ["books", "Books"], ["marks", "Bookmarks"]] as const).map(([k, l]) => <button key={k} onClick={() => setDockTab(k)} className="relative px-2.5 pb-2.5 text-[13px] font-medium" style={{ color: dockTab === k ? T.ink : T.muted }}>{l}{dockTab === k && <span className="absolute inset-x-2 bottom-0 h-[2px] rounded-full" style={{ background: "#b5651d" }} />}</button>)}
+          {([["toc", "Contents"], ["books", "Books"], ["search", "Search"], ["marks", "Bookmarks"]] as const).map(([k, l]) => <button key={k} onClick={() => setDockTab(k)} className="relative px-2 pb-2.5 text-[13px] font-medium" style={{ color: dockTab === k ? T.ink : T.muted }}>{l}{dockTab === k && <span className="absolute inset-x-2 bottom-0 h-[2px] rounded-full" style={{ background: "#b5651d" }} />}</button>)}
           <button onClick={() => setKeep({ dock: false })} aria-label="Hide the side column" title="Hide" className="mb-2 ml-auto rounded-full p-1.5" style={{ color: T.muted }}><X size={16} /></button>
         </div>
         <div className="min-h-0 flex-1 overflow-y-auto">
-          {dockTab === "toc" && <Toc chapters={chapters} ch={ch} T={T} go={(i) => goCh(i)} />}
+          {dockTab === "toc" && <Toc rows={rows} ch={ch} T={T} go={goToc} />}
+          {dockTab === "search" && <Find flow={flow} chapters={chapters} T={T} go={(i, el) => goCh(i, { kind: "el", el })} />}
           {dockTab === "books" && <AllBooks T={T} current={book.slug} onGo={() => {}} />}
           {dockTab === "marks" && <Marks marks={marks} T={T} go={(x) => goCh(x.ch, { kind: "ratio", r: x.r })} remove={(x) => { const n = marks.filter((y) => y !== x); setMarks(n); write(markKey, n); }} />}
         </div>
@@ -216,10 +219,10 @@ export function PathaReader({ book, chapters, children }: { book: Book; chapters
         <button className="pr-ib" onClick={() => openSide("toc")} aria-label="Contents" title="Contents (T)"><List size={18} /></button>
         <button className="pr-ib" onClick={() => openSide("books")} aria-label="All books — go to another book" title="All books — go to another book"><Library size={17} /></button>
         <Link href={`/books/${book.slug}`} className="min-w-0 flex-1 px-1 text-center"><p className="truncate text-[11.5px]" style={{ color: T.muted }}>{book.title}</p><p className="truncate text-[13px] font-medium">{chapters[ch]?.title}</p></Link>
-        <button className="pr-ib" onClick={() => setPanel("search")} aria-label="Search" title="Search (/)"><Search size={18} /></button>
+        <button className="pr-ib" onClick={() => openSide("search")} aria-label="Search" title="Search (/)"><Search size={18} /></button>
         <button className="pr-ib" onClick={toggleMark} aria-label={marked ? "Remove bookmark" : "Bookmark this page"} title="Bookmark (B)">{marked ? <BookmarkCheck size={18} /> : <Bookmark size={18} />}</button>
         <button className="pr-ib max-sm:hidden" onClick={fullscreen} aria-label="Full screen" title="Full screen (F)">{full ? <Minimize size={18} /> : <Maximize size={18} />}</button>
-        <button className="flex h-9 items-center gap-1.5 rounded-full px-3 text-[13px] font-medium transition" style={{ background: T.bg, boxShadow: `inset 0 0 0 1px ${T.line}` }} onClick={() => setPanel("settings")} aria-label="Reading settings" title="Settings (S)"><span className="font-serif text-[15px] leading-none">Aa</span><span className="max-sm:hidden">Settings</span></button>
+        <button className="pr-ib" onClick={() => setPanel(panel === "settings" ? null : "settings")} aria-label="Reading settings" title="Settings (S)"><Settings2 size={18} /></button>
       </div>
       {marked && <span aria-hidden className="absolute right-6 top-0 z-20 h-7 w-4" style={{ background: "#b5651d", clipPath: "polygon(0 0,100% 0,100% 100%,50% 75%,0 100%)" }} />}
 
@@ -264,7 +267,7 @@ export function PathaReader({ book, chapters, children }: { book: Book; chapters
       {(s.dim > 0 || s.warm > 0) && <div aria-hidden className="pointer-events-none absolute inset-0 z-40" style={{ background: `linear-gradient(rgba(255,140,30,${s.warm / 250}), rgba(255,140,30,${s.warm / 250})), rgba(0,0,0,${s.dim / 100})`, mixBlendMode: s.warm && !s.dim ? "multiply" : "normal" }} />}
 
       {panel && <Sheet T={T} onClose={() => setPanel(null)} tab={panel} setTab={setPanel}>
-        {panel === "toc" && <Toc chapters={chapters} ch={ch} T={T} go={(i) => goCh(i)} />}
+        {panel === "toc" && <Toc rows={rows} ch={ch} T={T} go={goToc} />}
         {panel === "books" && <AllBooks T={T} current={book.slug} onGo={() => setPanel(null)} />}
         {panel === "search" && <Find flow={flow} chapters={chapters} T={T} go={(i, el) => goCh(i, { kind: "el", el })} />}
         {panel === "marks" && <Marks marks={marks} T={T} go={(x) => goCh(x.ch, { kind: "ratio", r: x.r })} remove={(x) => { const n = marks.filter((y) => y !== x); setMarks(n); write(markKey, n); }} />}
@@ -274,11 +277,12 @@ export function PathaReader({ book, chapters, children }: { book: Book; chapters
 }
 
 function Sheet({ T, tab, setTab, onClose, children }: { T: (typeof THEMES)[string]; tab: string; setTab: (t: any) => void; onClose: () => void; children: React.ReactNode }) {
+  const right = tab === "settings";
   return (
-    <div className="absolute inset-0 z-50 flex justify-start" style={{ background: "rgba(0,0,0,.28)" }} onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
-      <aside className="pr-sheet flex h-full w-full max-w-[420px] flex-col shadow-2xl" style={{ background: T.bg, color: T.ink, borderRight: `1px solid ${T.line}` }}>
+    <div className={`absolute inset-0 z-50 flex ${right ? "justify-end" : "justify-start"}`} style={{ background: "rgba(0,0,0,.28)" }} onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
+      <aside className="pr-sheet flex h-full w-full max-w-[420px] flex-col shadow-2xl" style={{ background: T.bg, color: T.ink, [right ? "borderLeft" : "borderRight"]: `1px solid ${T.line}`, animationName: right ? "pr-sheet-r" : undefined }}>
         <div className="flex items-center gap-1 px-3 pt-3" style={{ borderBottom: `1px solid ${T.line}` }}>
-          {([["toc", "Contents"], ["books", "Books"], ["search", "Search"], ["marks", "Bookmarks"], ["settings", "Settings"]] as const).map(([k, l]) => (
+          {(right ? ([["settings", "Settings"]] as const) : ([["toc", "Contents"], ["books", "Books"], ["search", "Search"], ["marks", "Bookmarks"]] as const)).map(([k, l]) => (
             <button key={k} onClick={() => setTab(k)} className="relative px-2.5 pb-2.5 pt-1 text-[13px] font-medium transition" style={{ color: tab === k ? T.ink : T.muted }}>{l}{tab === k && <span className="absolute inset-x-2 bottom-0 h-[2px] rounded-full" style={{ background: "#b5651d" }} />}</button>))}
           <button onClick={onClose} aria-label="Close" className="ml-auto mb-2 rounded-full p-1.5" style={{ color: T.muted }}><X size={17} /></button>
         </div>
@@ -287,11 +291,13 @@ function Sheet({ T, tab, setTab, onClose, children }: { T: (typeof THEMES)[strin
     </div>);
 }
 
-function Toc({ chapters, ch, T, go }: { chapters: Chapter[]; ch: number; T: (typeof THEMES)[string]; go: (i: number) => void }) {
+type TocRow = { key: string; title: string; num: string; depth: number; ch: number; anchor?: string; label?: boolean; words?: number };
+function Toc({ rows, ch, T, go }: { rows: TocRow[]; ch: number; T: (typeof THEMES)[string]; go: (i: number, anchor?: string) => void }) {
   const cur = useRef<HTMLButtonElement>(null); useEffect(() => { cur.current?.scrollIntoView({ block: "center" }); }, []);
-  return <ol className="py-2">{chapters.map((c, i) => (
-    <li key={c.id}><button ref={i === ch ? cur : undefined} onClick={() => go(i)} className="flex w-full items-baseline gap-2 py-2 pr-4 text-left text-[14px] transition hover:opacity-100" style={{ paddingLeft: 16 + c.depth * 16, background: i === ch ? `${T.line}` : undefined, opacity: i === ch ? 1 : 0.88 }}>
-      {c.num && <span className="w-8 shrink-0 text-[12px] tabular-nums" style={{ color: T.muted }}>{c.num}</span>}<span className={`min-w-0 flex-1 ${c.depth === 0 ? "font-medium" : ""}`}>{c.title}</span><span className="shrink-0 text-[11px] tabular-nums" style={{ color: T.muted }}>{c.words > 200 ? `${Math.max(1, Math.round(c.words / 230))} min` : ""}</span></button></li>))}</ol>;
+  return <ol className="py-2">{rows.map((c) => { const on = c.ch === ch && !c.anchor && !c.label; return (
+    <li key={c.key}>{c.label ? <p className="flex items-baseline gap-2 pb-1 pr-4 pt-3 text-[11.5px] font-semibold uppercase tracking-[0.08em]" style={{ paddingLeft: 16 + c.depth * 16, color: T.muted }}>{c.num && <span className="w-8 shrink-0 tabular-nums">{c.num}</span>}{c.title}</p>
+      : <button ref={on ? cur : undefined} onClick={() => go(c.ch, c.anchor)} className="flex w-full items-baseline gap-2 py-2 pr-4 text-left text-[14px] transition hover:opacity-100" style={{ paddingLeft: 16 + c.depth * 16, background: on ? `${T.line}` : undefined, opacity: on ? 1 : 0.88 }}>
+      {c.num && <span className="w-8 shrink-0 text-[12px] tabular-nums" style={{ color: T.muted }}>{c.num}</span>}<span className={`min-w-0 flex-1 ${c.depth === 0 && !c.anchor ? "font-medium" : ""}`}>{c.title}</span><span className="shrink-0 text-[11px] tabular-nums" style={{ color: T.muted }}>{!c.anchor && (c.words || 0) > 200 ? `${Math.max(1, Math.round((c.words || 0) / 230))} min` : ""}</span></button>}</li>); })}</ol>;
 }
 
 function Find({ flow, chapters, T, go }: { flow: React.RefObject<HTMLDivElement | null>; chapters: Chapter[]; T: (typeof THEMES)[string]; go: (i: number, el: Element) => void }) {

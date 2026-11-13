@@ -12,7 +12,7 @@ import { Btn, Badge, Field, Input, Select, Textarea, Modal, api, toast, cn } fro
 import { MediaPicker } from "../media-picker";
 
 const NotionEditor = dynamic(() => import("../notion/editor"), { ssr: false, loading: () => <p className="p-6 text-zinc-500">Opening the editor…</p> });
-type N = { id: string; parent_id: string | null; kind: string; position: number; title: string; slug: string; status: string; has_text: boolean; has_draft?: boolean; draft_title?: string; heads?: number };
+type N = { id: string; parent_id: string | null; kind: string; position: number; title: string; slug: string; status: string; page_mode?: string | null; has_text: boolean; has_draft?: boolean; draft_title?: string; heads?: number };
 
 export function BookEditor({ id }: { id: string }) {
   const [book, setBook] = useState<any>(null); const [nodes, setNodes] = useState<N[]>([]); const [tab, setTab] = useState<"chapters" | "details">("chapters"); const [writing, setWriting] = useState<string | null>(null);
@@ -75,6 +75,9 @@ function Chapters({ bookId, order, num, depth, nodes, onOpen, onChanged }: { boo
     const rest = flat.filter((_, k) => k < di || k >= de); const insR = at > di ? at - (de - di) : at; const prev = rest[insR - 1], next = rest[insR];
     const want = Math.round((e.clientX - (listRef.current?.getBoundingClientRect().left || 0) - 70) / 22); const max = prev ? prev.depth + 1 : 0, min = next ? Math.max(0, next.depth - 1) : 0; setDrop({ at, depth: Math.max(min, Math.min(max, want)) }); };
   const toggle = (id: string) => setSel((s) => { const x = new Set(s); if (x.has(id)) x.delete(id); else x.add(id); return x; });
+  const byId = Object.fromEntries(nodes.map((x) => [x.id, x]));
+  const insideTogether = (n: N) => { let c = n.parent_id ? byId[n.parent_id] : undefined; while (c) { if (c.page_mode === "together") return true; c = c.parent_id ? byId[c.parent_id] : undefined; } return false; };
+  const setMode = async (n: N, m: string | null) => { setMenu(null); await api(`/api/admin/nodes/${n.id}`, "PATCH", { page_mode: m }).catch((e) => toast(e.message, true)); onChanged(); };
   const rename = async (n: N, t: string) => { setEdit(null); if (!t.trim() || t === (n.draft_title || n.title)) return; await api(`/api/admin/nodes/${n.id}`, "PATCH", { title: t.trim() }).catch((e) => toast(e.message, true)); onChanged(); };
   const add = async (parent: string | null, t = title) => { if (!t.trim()) return; try { const r = await api<{ id: string }>(`/api/admin/books/${bookId}/nodes`, "POST", { parent_id: parent, title: t.trim(), kind: "chapter" }); setTitle(""); if (parent) setClosed((c) => { const x = new Set(c); x.delete(parent); return x; }); onChanged(); return r.id; } catch (e: any) { toast(e.message, true); } };
   const ids = [...sel]; const ib = "flex size-7 items-center justify-center rounded-md text-zinc-400 hover:bg-zinc-200/70 hover:text-zinc-900";
@@ -119,11 +122,16 @@ function Chapters({ bookId, order, num, depth, nodes, onOpen, onChanged }: { boo
               <span className="flex shrink-0 items-center gap-1.5">
                 {n.has_draft && <span title="Changes not published yet" className="flex items-center gap-1 text-[11px] text-amber-700"><span className="size-1.5 rounded-full bg-amber-500" />Changed</span>}
                 {n.status !== "published" && <Badge>Not on website</Badge>}{!n.has_text && !kidsHere && <span className="text-[11px] text-zinc-400">empty</span>}
+                {kidsHere && n.page_mode === "together" && <span title="Its sub-sections are read on this same page" className="rounded bg-emerald-50 px-1.5 py-px text-[11px] text-emerald-800">One page</span>}
+                {insideTogether(n) && (n.page_mode === "own" ? <span title="Kept on its own page" className="rounded bg-zinc-100 px-1.5 py-px text-[11px] text-zinc-600">Own page</span> : <span title="Read on the page of the section above" className="text-[11px] text-zinc-400">on the page above</span>)}
+                {kidsHere && !n.has_text && n.page_mode !== "together" && !insideTogether(n) && <span title="No text of its own: shown in the contents as a heading, not a page" className="text-[11px] text-zinc-400">heading only</span>}
                 {(n.heads || 0) > 0 && <span title="Headings inside this page, shown in the contents" className="hidden text-[11px] text-zinc-400 sm:inline">{n.heads} headings</span>}
               </span>
               <span className="flex items-center opacity-0 group-hover:opacity-100"><button className={ib} title="Rename" onClick={() => setEdit(n.id)}><Pencil className="size-3.5" /></button><button className={ib} title="More" onClick={() => setMenu(menu === n.id ? null : n.id)}><MoreHorizontal className="size-4" /></button></span>
               {menu === n.id && <div className="absolute right-2 top-9 z-30 w-64 rounded-lg border border-zinc-200 bg-white p-1 shadow-lg" onMouseLeave={() => setMenu(null)}>
                 <MenuItem label="Write" on={() => onOpen(n.id)} /><MenuItem label="Rename" on={() => setEdit(n.id)} />
+                {kidsHere && (n.page_mode === "together" ? <MenuItem label="Give its sub-sections their own pages" on={() => setMode(n, null)} /> : <MenuItem label="Show its sub-sections on this one page" on={() => setMode(n, "together")} />)}
+                {insideTogether(n) && (n.page_mode === "own" ? <MenuItem label="Read it on the page above again" on={() => setMode(n, null)} /> : <MenuItem label="Keep this one on its own page" on={() => setMode(n, "own")} />)}
                 <MenuItem label="Add a sub-chapter inside" on={async () => { const t = prompt("Title of the sub-chapter"); if (t) await add(n.id, t); }} />
                 <MenuItem label="Move in (under the one above)" on={() => indent([n.id], 1)} /><MenuItem label="Move out one level" on={() => indent([n.id], -1)} />
                 <MenuItem label="Keep inside the page above, as a heading" on={() => confirm(`“${t}” stops being its own page: its title becomes a heading inside the page above it, followed by its text. It still shows in the contents. Continue?`) && run("Joining…", { op: "merge", id: n.id }, "Joined. Publish the page above to show it.")} />

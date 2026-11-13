@@ -839,7 +839,7 @@ html.tj-immersive body { overflow: hidden; }
 .pr-flow img, .pr-flow video, .pr-flow iframe { max-height: calc(var(--pr-h) - 3em); width: auto !important; max-width: 100%; object-fit: contain; break-inside: avoid; margin-inline: auto; }
 .pr-flow figure, .pr-flow table, .pr-flow blockquote, .pr-flow pre { break-inside: avoid; }
 .pr-fade { animation: pr-fade .32s ease; } @keyframes pr-fade { from { opacity: .15; } to { opacity: 1; } }
-.pr-sheet { animation: pr-sheet .26s cubic-bezier(.22,.8,.24,1); } @keyframes pr-sheet { from { transform: translateX(-28px); opacity: 0; } to { transform: none; opacity: 1; } }
+.pr-sheet { animation: pr-sheet .26s cubic-bezier(.22,.8,.24,1); } @keyframes pr-sheet { from { transform: translateX(-28px); opacity: 0; } to { transform: none; opacity: 1; } } @keyframes pr-sheet-r { from { transform: translateX(28px); opacity: 0; } to { transform: none; opacity: 1; } }
 .pr-range { accent-color: #b5651d; }
 ::highlight(pr-find) { background: rgba(233,180,108,.45); }
 @media (prefers-reduced-motion: reduce) { .pr-fade, .pr-sheet { animation: none; } }

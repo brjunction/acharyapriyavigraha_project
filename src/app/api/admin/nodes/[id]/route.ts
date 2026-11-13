@@ -16,6 +16,8 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
   const g = await guard("contributor"); if ("res" in g) return g.res; const { id } = await params; const b = await req.json();
   const n = (await sql`select * from book_nodes where id = ${id}`)[0] as any; if (!n) return fail("Not found", 404);
   if (b.discard) { await sql`update book_nodes set draft = null where id = ${id}`; return json({ ok: true }); }
+  // how the contents are laid out: "together" = its sub-sections on this page; "own" = keep this one on its own page; null = normal
+  if ("page_mode" in b) { if (!can(g.user, "editor")) return fail("Only editors can change this.", 403); const m = b.page_mode === "together" || b.page_mode === "own" ? b.page_mode : null; await sql`update book_nodes set page_mode = ${m}, updated_at = now() where id = ${id}`; revalidatePath("/books", "layout"); return json({ ok: true }); }
   const title = b.title !== undefined ? String(b.title).trim() || n.title : n.draft?.title ?? n.title; const blocks = Array.isArray(b.blocks) ? b.blocks : n.draft?.blocks ?? n.blocks;
   if (b.publish) {
     if (!can(g.user, "editor")) return fail("Only editors can publish. Your changes are saved as a draft.", 403);
