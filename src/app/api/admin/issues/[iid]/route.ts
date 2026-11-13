@@ -1,6 +1,7 @@
 import { sql } from "@/lib/db";
 import { guard, json } from "@/lib/api";
 import { revalidatePath } from "next/cache";
+import { cleanToc } from "@/lib/content/toc";
 
 /** One issue with its articles, in order. */
 export async function GET(_: Request, { params }: { params: Promise<{ iid: string }> }) {
@@ -17,7 +18,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ iid: s
   else if (b.detach) { await sql`update articles set issue_id = null, issue_position = null where id = ${b.detach} and issue_id = ${iid}`; }
   else {
     const day = b.date ? String(b.date).slice(0, 10) : null;
-    await sql`update magazine_issues set number = ${b.number || null}, title = ${b.title || null}, date = ${day}, year = ${b.year ? Number(b.year) : day ? Number(day.slice(0, 4)) : null}, cover = ${b.cover || null}, pdf_url = ${b.pdf_url || null}, url = ${b.url || null}, description = ${b.description || null}, status = ${b.status || "published"}, updated_at = now() where id = ${iid}`;
+    await sql`update magazine_issues set number = ${b.number || null}, title = ${b.title || null}, date = ${day}, year = ${b.year ? Number(b.year) : day ? Number(day.slice(0, 4)) : null}, cover = ${b.cover || null}, pdf_url = ${b.pdf_url || null}, url = ${b.url || null}, description = ${b.description || null}, status = ${b.status || "published"}, toc = case when ${"toc" in b} then ${cleanToc(b.toc)}::jsonb else toc end, updated_at = now() where id = ${iid}`;
   }
   revalidatePath("/teachings/magazines", "layout"); revalidatePath("/teachings/articles", "layout"); return json({ ok: true });
 }

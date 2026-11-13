@@ -6,16 +6,18 @@
    Only the current chapter is laid out at a time, so even very long books open and turn instantly. */
 import Link from "next/link";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
-import { ArrowLeft, List, Search, Bookmark, BookmarkCheck, Settings2, Maximize, Minimize, X, ChevronLeft, ChevronRight, Trash2, RotateCcw, ExternalLink } from "lucide-react";
+import { setReaderKind } from "@/lib/reader-pref";
+import { AllBooks } from "./reader";
+import { Home, Library, ArrowLeft, List, Search, Bookmark, BookmarkCheck, Settings2, Maximize, Minimize, X, ChevronLeft, ChevronRight, Trash2, RotateCcw, ExternalLink } from "lucide-react";
 
 type Chapter = { id: string; title: string; num: string; depth: number; href: string; words: number };
 type Book = { slug: string; title: string; author?: string | null; cover?: string | null; language?: string | null };
 type S = {
   theme: string; font: string; size: number; weight: number; lead: number; para: number; indent: number; justify: boolean; hyphen: boolean;
   margin: number; letter: number; word: number; spread: "auto" | "one" | "two"; anim: "slide" | "fade" | "none"; taps: "sides" | "forward";
-  status: boolean; showPct: boolean; showTime: boolean; dim: number; warm: number;
+  status: boolean; showPct: boolean; showTime: boolean; dim: number; warm: number; width: number; dock: boolean;
 };
-const DEF: S = { theme: "paper", font: "literata", size: 19, weight: 400, lead: 1.6, para: 0.5, indent: 0, justify: true, hyphen: true, margin: 7, letter: 0, word: 0, spread: "one", anim: "slide", taps: "sides", status: true, showPct: true, showTime: true, dim: 0, warm: 0 };
+const DEF: S = { theme: "paper", font: "literata", size: 19, weight: 400, lead: 1.6, para: 0.5, indent: 0, justify: true, hyphen: true, margin: 7, letter: 0, word: 0, spread: "one", anim: "slide", taps: "sides", status: true, showPct: true, showTime: true, dim: 0, warm: 0, width: 0, dock: true };
 
 const THEMES: Record<string, { name: string; bg: string; ink: string; muted: string; line: string; ui: string }> = {
   day: { name: "Day", bg: "#ffffff", ink: "#1d1a16", muted: "#8a8178", line: "#e6e1da", ui: "#f6f4f1" },
@@ -56,24 +58,31 @@ type Target = { kind: "ratio"; r: number } | { kind: "first" } | { kind: "last" 
 export function PathaReader({ book, chapters, children }: { book: Book; chapters: Chapter[]; children: React.ReactNode }) {
   const [s, setS] = useState<S>(DEF); const [ready, setReady] = useState(false);
   const [ch, setCh] = useState(0); const [page, setPage] = useState(0); const [pages, setPages] = useState(1);
-  const [bars, setBars] = useState(true); const [panel, setPanel] = useState<null | "toc" | "search" | "marks" | "settings">(null);
+  const [bars, setBars] = useState(true); const [panel, setPanel] = useState<null | "toc" | "books" | "search" | "marks" | "settings">(null);
+  const [wide, setWide] = useState(false); const [dockTab, setDockTab] = useState<"toc" | "books" | "marks">("toc");
   const [marks, setMarks] = useState<Mark[]>([]); const [full, setFull] = useState(false);
   const [box, setBox] = useState({ w: 0, h: 0 });
   const view = useRef<HTMLDivElement>(null); const flow = useRef<HTMLDivElement>(null);
+  const zoomAcc = useRef(0); const sRef = useRef<S>(DEF); const pinch = useRef<{ d: number; size: number } | null>(null); const hoverBars = useRef(false); const hideT = useRef<any>(null);
   const target = useRef<Target | null>(null); const dragX = useRef(0); const [drag, setDrag] = useState(0); const [noAnim, setNoAnim] = useState(true);
+  sRef.current = s;
   const T = THEMES[s.theme] || THEMES.paper; const F = FONTS.find((f) => f.k === s.font) || FONTS[0];
   const posKey = `tj_patha_pos_${book.slug}`, markKey = `tj_patha_marks_${book.slug}`;
 
   // Start: settings, bookmarks, and where the reader stopped (or ?c=chapter id).
   useEffect(() => {
     const v = read("tj_patha", DEF); setS(v); loadFont(v.font); setMarks(readArr<Mark>(markKey));
-    const c = new URLSearchParams(location.search).get("c"); const ci = c ? chapters.findIndex((x) => x.id === c) : -1;
+    const c = new URLSearchParams(location.search).get("c"); const ci = c === "start" ? 0 : c ? chapters.findIndex((x) => x.id === c) : -1; setReaderKind("patha");
     const p = read<{ ch: number; r: number }>(posKey, { ch: 0, r: 0 });
     const start = ci >= 0 ? ci : Math.min(Math.max(0, p.ch), chapters.length - 1);
     target.current = ci >= 0 ? { kind: "first" } : { kind: "ratio", r: p.r || 0 }; setCh(start); setReady(true);
   }, []); // eslint-disable-line
   const set = (p: Partial<S>) => setS((o) => { const n = { ...o, ...p }; write("tj_patha", n); if (p.font) loadFont(p.font); return n; });
 
+  // Wide screens keep the contents beside the pages, as in the other reader.
+  useEffect(() => { const f = () => setWide(window.innerWidth >= 1100); f(); window.addEventListener("resize", f); return () => window.removeEventListener("resize", f); }, []);
+  const docked = wide && s.dock;
+  const openSide = (t: "toc" | "books" | "marks") => { if (wide) { if (s.dock && dockTab === t) setKeep({ dock: false }); else { if (!s.dock) setKeep({ dock: true }); setDockTab(t); } } else setPanel(panel === t ? null : t); };
   // The size of the page area.
   useEffect(() => {
     const el = view.current; if (!el) return;
@@ -83,7 +92,7 @@ export function PathaReader({ book, chapters, children }: { book: Book; chapters
   const two = s.spread === "two" || (s.spread === "auto" && box.w >= 1000 && box.w > box.h * 1.25);
   // Margins; a single page keeps a comfortable line length (about 70 characters) however wide the screen.
   const m0 = Math.round((box.w * s.margin) / 100 / (two ? 2 : 1)) + (two ? 8 : 0);
-  const m = two ? m0 : Math.max(m0, Math.round((box.w - s.size * 36) / 2));
+  const m = two ? m0 : s.width ? Math.max(m0, Math.round((box.w * (1 - s.width / 100)) / 2)) : Math.max(m0, Math.round((box.w - s.size * 36) / 2));
   const colW = two ? (box.w - 4 * m) / 2 : box.w - 2 * m;
 
   // Show only the current chapter; then lay it out and count its pages.
@@ -109,7 +118,9 @@ export function PathaReader({ book, chapters, children }: { book: Book; chapters
   const setKeep = (p: Partial<S>) => { keep(); set(p); };
 
   // Save the place.
-  useEffect(() => { if (!ready) return; const t = setTimeout(() => write(posKey, { ch, r: pages > 1 ? page / pages : 0 }), 250); return () => clearTimeout(t); }, [ch, page, pages, ready, posKey]);
+  useEffect(() => { if (!ready) return; const t = setTimeout(() => { write(posKey, { ch, r: pages > 1 ? page / pages : 0 });
+    const last = { href: `/books/${book.slug}/read`, title: chapters[ch]?.title || "", book: book.title, slug: book.slug, cover: book.cover || null, at: Date.now(), index: ch, total: chapters.length };
+    write(`tj_last_${book.slug}`, last); write("tj_last_books", [last, ...readArr<any>("tj_last_books").filter((x) => x.slug !== book.slug)].slice(0, 8)); }, 250); return () => clearTimeout(t); }, [ch, page, pages, ready, posKey]); // eslint-disable-line
 
   const next = useCallback(() => { if (page < pages - 1) setPage(page + 1); else if (ch < chapters.length - 1) { target.current = { kind: "first" }; setCh(ch + 1); } setBars(false); }, [page, pages, ch, chapters.length]);
   const prev = useCallback(() => { if (page > 0) setPage(page - 1); else if (ch > 0) { target.current = { kind: "last" }; setCh(ch - 1); } setBars(false); }, [page, ch]);
@@ -124,16 +135,34 @@ export function PathaReader({ book, chapters, children }: { book: Book; chapters
       if (["ArrowRight", "PageDown", "ArrowDown"].includes(e.key) || (e.key === " " && !e.shiftKey)) { e.preventDefault(); next(); }
       else if (["ArrowLeft", "PageUp", "ArrowUp"].includes(e.key) || (e.key === " " && e.shiftKey)) { e.preventDefault(); prev(); }
       else if (e.key === "Home") setPage(0); else if (e.key === "End") setPage(pages - 1);
-      else if (e.key === "t") setPanel("toc"); else if (e.key === "/" || ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k")) { e.preventDefault(); e.stopImmediatePropagation(); setPanel("search"); } else if (e.key === "b") toggleMark();
+      else if (e.key === "t") openSide("toc"); else if (e.key === "/" || ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k")) { e.preventDefault(); e.stopImmediatePropagation(); setPanel("search"); } else if (e.key === "b") toggleMark();
+      else if ((e.ctrlKey || e.metaKey) && ["+", "=", "-", "0"].includes(e.key)) { e.preventDefault(); setKeep({ size: e.key === "0" ? DEF.size : e.key === "-" ? Math.max(13, s.size - 1) : Math.min(34, s.size + 1) }); }
+      else if (e.key === "s" || e.key === "a") setPanel("settings"); else if (e.key === "m") openSide("marks"); else if (e.key === "n") { if (ch < chapters.length - 1) goCh(ch + 1); } else if (e.key === "p") { if (ch > 0) goCh(ch - 1); }
       else if (e.key === "+" || e.key === "=") setKeep({ size: Math.min(34, s.size + 1) }); else if (e.key === "-") setKeep({ size: Math.max(13, s.size - 1) });
       else if (e.key === "f") fullscreen();
     };
     let last = 0;
-    const w = (e: WheelEvent) => { if (panel) return; const d = Math.abs(e.deltaY) > Math.abs(e.deltaX) ? e.deltaY : e.deltaX; if (Math.abs(d) < 12) return; const now = Date.now(); if (now - last < 380) return; last = now; d > 0 ? next() : prev(); };
-    window.addEventListener("keydown", k, true); view.current?.addEventListener("wheel", w, { passive: true }); const v = view.current;
+    const w = (e: WheelEvent) => { if (panel) return;
+      if (e.ctrlKey || e.metaKey) { e.preventDefault(); zoomAcc.current += -e.deltaY; if (Math.abs(zoomAcc.current) >= 18) { const st = zoomAcc.current > 0 ? 1 : -1; zoomAcc.current = 0; setKeep({ size: Math.max(13, Math.min(34, sRef.current.size + st)) }); } return; }
+      const d = Math.abs(e.deltaY) > Math.abs(e.deltaX) ? e.deltaY : e.deltaX; if (Math.abs(d) < 12) return; const now = Date.now(); if (now - last < 380) return; last = now; d > 0 ? next() : prev(); };
+    window.addEventListener("keydown", k, true); view.current?.addEventListener("wheel", w, { passive: false }); const v = view.current;
     return () => { window.removeEventListener("keydown", k, true); v?.removeEventListener("wheel", w); };
   });
 
+  // Pinch with two fingers: the text grows or shrinks.
+  useEffect(() => { const el = view.current; if (!el) return;
+    const dist = (t: TouchList) => Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY);
+    const st = (e: TouchEvent) => { if (e.touches.length === 2) { pinch.current = { d: dist(e.touches), size: sRef.current.size }; pd.current = null; } };
+    const mv = (e: TouchEvent) => { const p = pinch.current; if (!p || e.touches.length !== 2) return; e.preventDefault(); const size = Math.max(13, Math.min(34, Math.round(p.size * (dist(e.touches) / p.d)))); if (size !== sRef.current.size) setKeep({ size }); };
+    const en = (e: TouchEvent) => { if (e.touches.length < 2) pinch.current = null; };
+    el.addEventListener("touchstart", st, { passive: true }); el.addEventListener("touchmove", mv, { passive: false }); el.addEventListener("touchend", en);
+    return () => { el.removeEventListener("touchstart", st); el.removeEventListener("touchmove", mv); el.removeEventListener("touchend", en); }; }, [ready]); // eslint-disable-line
+  // With a mouse: the menus appear when the pointer goes near the top or the bottom, and go again when it leaves.
+  const onHover = (e: React.MouseEvent) => { const h = window.innerHeight; const edge = e.clientY < 70 || e.clientY > h - 90;
+    if (edge) { clearTimeout(hideT.current); if (!bars) { hoverBars.current = true; setBars(true); } }
+    else if (hoverBars.current && !panel) { clearTimeout(hideT.current); hideT.current = setTimeout(() => { hoverBars.current = false; setBars(false); }, 700); } };
+  // The menus show at the start, then step aside.
+  useEffect(() => { if (!ready) return; const t = setTimeout(() => { if (!hoverBars.current) setBars(false); }, 3500); return () => clearTimeout(t); }, [ready]);
   // Swipe and tap.
   const pd = useRef<{ x: number; y: number; t: number; moved: boolean } | null>(null);
   const onDown = (e: React.PointerEvent) => { if ((e.target as HTMLElement).closest("a,button,input,select,summary")) return; pd.current = { x: e.clientX, y: e.clientY, t: Date.now(), moved: false }; };
@@ -168,22 +197,35 @@ export function PathaReader({ book, chapters, children }: { book: Book; chapters
   const vars = { "--rd-ink": T.ink, "--rd-muted": T.muted, "--rd-line": T.line, "--pr-h": `${box.h}px` } as React.CSSProperties;
   const half = Math.ceil(pages / step); const at = Math.floor(page / step) + 1;
   return (
-    <div className="pr-root fixed inset-0 z-[90] flex select-text flex-col overflow-hidden" style={{ background: T.bg, color: T.ink, ...vars }}>
+    <div onMouseMove={onHover} className="pr-root fixed inset-0 z-[90] flex select-text overflow-hidden" style={{ background: T.bg, color: T.ink, ...vars }}>
+      {docked && <aside className="flex w-[300px] shrink-0 flex-col" style={{ background: T.ui, borderRight: `1px solid ${T.line}` }}>
+        <div className="flex h-12 shrink-0 items-end gap-1 px-2" style={{ borderBottom: `1px solid ${T.line}` }}>
+          {([["toc", "Contents"], ["books", "Books"], ["marks", "Bookmarks"]] as const).map(([k, l]) => <button key={k} onClick={() => setDockTab(k)} className="relative px-2.5 pb-2.5 text-[13px] font-medium" style={{ color: dockTab === k ? T.ink : T.muted }}>{l}{dockTab === k && <span className="absolute inset-x-2 bottom-0 h-[2px] rounded-full" style={{ background: "#b5651d" }} />}</button>)}
+          <button onClick={() => setKeep({ dock: false })} aria-label="Hide the side column" title="Hide" className="mb-2 ml-auto rounded-full p-1.5" style={{ color: T.muted }}><X size={16} /></button>
+        </div>
+        <div className="min-h-0 flex-1 overflow-y-auto">
+          {dockTab === "toc" && <Toc chapters={chapters} ch={ch} T={T} go={(i) => goCh(i)} />}
+          {dockTab === "books" && <AllBooks T={T} current={book.slug} onGo={() => {}} />}
+          {dockTab === "marks" && <Marks marks={marks} T={T} go={(x) => goCh(x.ch, { kind: "ratio", r: x.r })} remove={(x) => { const n = marks.filter((y) => y !== x); setMarks(n); write(markKey, n); }} />}
+        </div>
+      </aside>}
+      <div className="relative flex min-w-0 flex-1 flex-col overflow-hidden">
       {/* top bar */}
       <div className={`absolute inset-x-0 top-0 z-30 flex h-12 items-center gap-1 px-2 transition duration-300 sm:px-3 ${bars ? "translate-y-0 opacity-100" : "-translate-y-full opacity-0"}`} style={{ background: T.ui, borderBottom: `1px solid ${T.line}` }}>
-        <Link href={`/books/${book.slug}`} className="pr-ib" aria-label="Back to the book"><ArrowLeft size={18} /></Link>
-        <div className="min-w-0 flex-1 px-1 text-center"><p className="truncate text-[13.5px] font-medium">{book.title}</p><p className="truncate text-[11px]" style={{ color: T.muted }}>{chapters[ch]?.title}</p></div>
-        <button className="pr-ib" onClick={() => setPanel("toc")} aria-label="Contents" title="Contents (T)"><List size={18} /></button>
+        <Link href="/teachings/books" className="pr-ib" aria-label="All books" title="All books"><Home size={17} /></Link>
+        <button className="pr-ib" onClick={() => openSide("toc")} aria-label="Contents" title="Contents (T)"><List size={18} /></button>
+        <button className="pr-ib" onClick={() => openSide("books")} aria-label="All books — go to another book" title="All books — go to another book"><Library size={17} /></button>
+        <Link href={`/books/${book.slug}`} className="min-w-0 flex-1 px-1 text-center"><p className="truncate text-[11.5px]" style={{ color: T.muted }}>{book.title}</p><p className="truncate text-[13px] font-medium">{chapters[ch]?.title}</p></Link>
         <button className="pr-ib" onClick={() => setPanel("search")} aria-label="Search" title="Search (/)"><Search size={18} /></button>
         <button className="pr-ib" onClick={toggleMark} aria-label={marked ? "Remove bookmark" : "Bookmark this page"} title="Bookmark (B)">{marked ? <BookmarkCheck size={18} /> : <Bookmark size={18} />}</button>
         <button className="pr-ib max-sm:hidden" onClick={fullscreen} aria-label="Full screen" title="Full screen (F)">{full ? <Minimize size={18} /> : <Maximize size={18} />}</button>
-        <button className="pr-ib" onClick={() => setPanel("settings")} aria-label="Reading settings"><Settings2 size={18} /></button>
+        <button className="flex h-9 items-center gap-1.5 rounded-full px-3 text-[13px] font-medium transition" style={{ background: T.bg, boxShadow: `inset 0 0 0 1px ${T.line}` }} onClick={() => setPanel("settings")} aria-label="Reading settings" title="Settings (S)"><span className="font-serif text-[15px] leading-none">Aa</span><span className="max-sm:hidden">Settings</span></button>
       </div>
       {marked && <span aria-hidden className="absolute right-6 top-0 z-20 h-7 w-4" style={{ background: "#b5651d", clipPath: "polygon(0 0,100% 0,100% 100%,50% 75%,0 100%)" }} />}
 
       {/* the pages */}
       <div ref={view} onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} onPointerCancel={() => { pd.current = null; setDrag(0); }}
-        className="relative mx-auto w-full flex-1 touch-pan-y overflow-hidden" style={{ marginTop: 34, marginBottom: s.status ? 30 : 18, maxWidth: 1600 }}>
+        className="relative mx-auto w-full flex-1 touch-pan-y overflow-hidden" style={{ marginTop: 34, marginBottom: s.status ? 30 : 18, maxWidth: s.width >= 90 ? "none" : 1600 }}>
         <div ref={flow} className={`pr-flow rd-text ${s.anim === "fade" && !noAnim ? "pr-fade" : ""}`} key={s.anim === "fade" ? `${ch}-${page}` : "f"}
           style={{ height: box.h, width: box.w, paddingLeft: m, paddingRight: m, columnWidth: colW, columnGap: 2 * m, columnFill: "auto",
             transform: `translate3d(${s.anim === "fade" ? -page * box.w : tx}px,0,0)`, transition: noAnim || drag || s.anim !== "slide" ? "none" : "transform .32s cubic-bezier(.22,.8,.24,1)",
@@ -217,11 +259,13 @@ export function PathaReader({ book, chapters, children }: { book: Book; chapters
         </div>
       </div>
 
+      </div>
       {/* light: dim and warmth */}
       {(s.dim > 0 || s.warm > 0) && <div aria-hidden className="pointer-events-none absolute inset-0 z-40" style={{ background: `linear-gradient(rgba(255,140,30,${s.warm / 250}), rgba(255,140,30,${s.warm / 250})), rgba(0,0,0,${s.dim / 100})`, mixBlendMode: s.warm && !s.dim ? "multiply" : "normal" }} />}
 
       {panel && <Sheet T={T} onClose={() => setPanel(null)} tab={panel} setTab={setPanel}>
         {panel === "toc" && <Toc chapters={chapters} ch={ch} T={T} go={(i) => goCh(i)} />}
+        {panel === "books" && <AllBooks T={T} current={book.slug} onGo={() => setPanel(null)} />}
         {panel === "search" && <Find flow={flow} chapters={chapters} T={T} go={(i, el) => goCh(i, { kind: "el", el })} />}
         {panel === "marks" && <Marks marks={marks} T={T} go={(x) => goCh(x.ch, { kind: "ratio", r: x.r })} remove={(x) => { const n = marks.filter((y) => y !== x); setMarks(n); write(markKey, n); }} />}
         {panel === "settings" && <Settings s={s} set={setKeep} T={T} chapter={chapters[ch]} />}
@@ -231,10 +275,10 @@ export function PathaReader({ book, chapters, children }: { book: Book; chapters
 
 function Sheet({ T, tab, setTab, onClose, children }: { T: (typeof THEMES)[string]; tab: string; setTab: (t: any) => void; onClose: () => void; children: React.ReactNode }) {
   return (
-    <div className="absolute inset-0 z-50 flex justify-end" style={{ background: "rgba(0,0,0,.28)" }} onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
-      <aside className="pr-sheet flex h-full w-full max-w-[420px] flex-col shadow-2xl" style={{ background: T.bg, color: T.ink, borderLeft: `1px solid ${T.line}` }}>
+    <div className="absolute inset-0 z-50 flex justify-start" style={{ background: "rgba(0,0,0,.28)" }} onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
+      <aside className="pr-sheet flex h-full w-full max-w-[420px] flex-col shadow-2xl" style={{ background: T.bg, color: T.ink, borderRight: `1px solid ${T.line}` }}>
         <div className="flex items-center gap-1 px-3 pt-3" style={{ borderBottom: `1px solid ${T.line}` }}>
-          {([["toc", "Contents"], ["search", "Search"], ["marks", "Bookmarks"], ["settings", "Settings"]] as const).map(([k, l]) => (
+          {([["toc", "Contents"], ["books", "Books"], ["search", "Search"], ["marks", "Bookmarks"], ["settings", "Settings"]] as const).map(([k, l]) => (
             <button key={k} onClick={() => setTab(k)} className="relative px-2.5 pb-2.5 pt-1 text-[13px] font-medium transition" style={{ color: tab === k ? T.ink : T.muted }}>{l}{tab === k && <span className="absolute inset-x-2 bottom-0 h-[2px] rounded-full" style={{ background: "#b5651d" }} />}</button>))}
           <button onClick={onClose} aria-label="Close" className="ml-auto mb-2 rounded-full p-1.5" style={{ color: T.muted }}><X size={17} /></button>
         </div>
@@ -285,11 +329,16 @@ function Settings({ s, set, T, chapter }: { s: S; set: (p: Partial<S>) => void; 
   const Slide = ({ v, min, max, st = 1, on, show }: { v: number; min: number; max: number; st?: number; on: (x: number) => void; show: string }) => <div className="flex items-center gap-3"><input type="range" min={min} max={max} step={st} value={v} onChange={(e) => on(Number(e.target.value))} className="pr-range flex-1" /><span className="w-12 text-right text-[12px] tabular-nums" style={{ color: T.muted }}>{show}</span></div>;
   return (
     <div className="pb-10">
+      <Row label="Reader"><div className="grid gap-1.5">
+        <div className="flex items-start gap-3 rounded-lg p-2.5" style={{ background: T.ui, boxShadow: "inset 0 0 0 2px #b5651d" }}><span className="mt-0.5 text-[15px]">📖</span><span className="min-w-0 flex-1"><span className="block text-[13.5px] font-semibold">Pāṭha — pages <span className="ml-1 rounded px-1.5 py-px text-[10.5px] font-semibold uppercase tracking-wide" style={{ background: "#b5651d", color: "#fff" }}>Recommended</span></span><span className="block text-[12px]" style={{ color: T.muted }}>Turn pages through the whole book, like a printed book.</span></span></div>
+        {chapter && <Link href={chapter.href} onClick={() => setReaderKind("classic")} className="flex items-start gap-3 rounded-lg p-2.5 transition" style={{ boxShadow: `inset 0 0 0 1px ${T.line}` }}><span className="mt-0.5 text-[15px]">📜</span><span className="min-w-0 flex-1"><span className="block text-[13.5px] font-medium">Classic — scroll</span><span className="block text-[12px]" style={{ color: T.muted }}>One chapter at a time as a web page, scrolling down. Opens books this way from now on.</span></span></Link>}
+      </div></Row>
       <Row label="Theme"><div className="grid grid-cols-6 gap-2">{Object.entries(THEMES).map(([k, t]) => <button key={k} onClick={() => set({ theme: k })} title={t.name} className="flex flex-col items-center gap-1"><span className="flex size-10 items-center justify-center rounded-full text-[13px] font-semibold" style={{ background: t.bg, color: t.ink, boxShadow: s.theme === k ? "0 0 0 2px #b5651d" : `0 0 0 1px ${T.line}` }}>Aa</span><span className="text-[10.5px]" style={{ color: T.muted }}>{t.name}</span></button>)}</div></Row>
       <Row label="Font"><div className="grid grid-cols-2 gap-1.5">{FONTS.map((f) => <button key={f.k} onMouseEnter={() => loadFont(f.k)} onFocus={() => loadFont(f.k)} onClick={() => set({ font: f.k })} className="rounded-lg px-2.5 py-2 text-left transition" style={{ background: s.font === f.k ? T.ui : "transparent", boxShadow: s.font === f.k ? "inset 0 0 0 1.5px #b5651d" : `inset 0 0 0 1px ${T.line}` }}><span className="block truncate text-[15px]" style={{ fontFamily: f.css }}>{f.name}</span><span className="block truncate text-[10.5px]" style={{ color: T.muted }}>{f.note}</span></button>)}</div></Row>
       <Row label="Text size"><div className="flex items-center gap-2"><button onClick={() => set({ size: Math.max(13, s.size - 1) })} className="pr-ib text-[13px]">A−</button><Slide v={s.size} min={13} max={34} on={(x) => set({ size: x })} show={`${s.size}px`} /><button onClick={() => set({ size: Math.min(34, s.size + 1) })} className="pr-ib text-[17px]">A+</button></div></Row>
       <Row label="Weight"><Seg v={s.weight} opts={[[300, "Light"], [400, "Regular"], [500, "Medium"], [600, "Bold"]]} on={(x) => set({ weight: x })} /></Row>
       <Row label="Line spacing"><Seg v={s.lead} opts={[[1.35, "Tight"], [1.5, "Snug"], [1.6, "Normal"], [1.8, "Relaxed"], [2.05, "Loose"]]} on={(x) => set({ lead: x })} /></Row>
+      <Row label="Page width"><Seg v={s.width} opts={[[0, "Comfortable"], [50, "Half"], [70, "Wide"], [85, "Wider"], [100, "Full screen"]]} on={(x) => set({ width: x })} /><p className="mt-1.5 text-[11.5px]" style={{ color: T.muted }}>“Comfortable” keeps lines easy to read whatever the screen. Margins below still apply.</p></Row>
       <Row label="Margins"><Slide v={s.margin} min={2} max={16} on={(x) => set({ margin: x })} show={`${s.margin}%`} /></Row>
       <Row label="Alignment"><Seg v={s.justify} opts={[[true, "Justified"], [false, "Left"]]} on={(x) => set({ justify: x })} /><label className="mt-2.5 flex items-center gap-2 text-[13px]"><input type="checkbox" checked={s.hyphen} onChange={(e) => set({ hyphen: e.target.checked })} />Hyphenate long words</label></Row>
       <Row label="Paragraphs"><p className="mb-1 text-[12px]" style={{ color: T.muted }}>Space between</p><Seg v={s.para} opts={[[0, "None"], [0.5, "Small"], [0.95, "Normal"], [1.4, "Large"]]} on={(x) => set({ para: x })} /><p className="mb-1 mt-2.5 text-[12px]" style={{ color: T.muted }}>First-line indent</p><Seg v={s.indent} opts={[[0, "None"], [1, "Small"], [1.6, "Normal"], [2.4, "Large"]]} on={(x) => set({ indent: x })} /></Row>
@@ -302,8 +351,8 @@ function Settings({ s, set, T, chapter }: { s: S; set: (p: Partial<S>) => void; 
         <label className="mt-1.5 flex items-center gap-2 text-[13px]"><input type="checkbox" checked={s.showTime} onChange={(e) => set({ showTime: e.target.checked })} />Time left in the chapter</label></Row>
       <div className="flex flex-wrap items-center gap-2 px-4 py-4">
         <button onClick={() => set({ ...DEF })} className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[12.5px]" style={{ boxShadow: `inset 0 0 0 1px ${T.line}` }}><RotateCcw size={13} />Reset to the defaults</button>
-        {chapter && <Link href={chapter.href} className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[12.5px]" style={{ boxShadow: `inset 0 0 0 1px ${T.line}` }}><ExternalLink size={13} />Open this chapter as a web page</Link>}
+
       </div>
-      <p className="px-4 text-[11.5px] leading-relaxed" style={{ color: T.muted }}>Keys: ← → or Space to turn · T contents · / search · B bookmark · + − size · F full screen · Esc menus. On a phone: swipe, or tap the sides; tap the middle for the menus.</p>
+      <p className="px-4 text-[11.5px] leading-relaxed" style={{ color: T.muted }}>Keys: ← → or Space to turn · N / P next / previous chapter · T contents · / search · B bookmark · M bookmarks · S settings · Ctrl + / − (or pinch) text size · F full screen · Esc menus. With a mouse, move to the top or bottom edge for the menus. On a phone: swipe, or tap the sides; tap the middle for the menus.</p>
     </div>);
 }

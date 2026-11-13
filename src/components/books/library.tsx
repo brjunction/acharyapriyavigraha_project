@@ -63,11 +63,15 @@ export function BookLibrary({ books, shelves: meta, title = "Books", intro = "Re
         </div>
         {(q || lang || pub || len || shelf) && <p className="mt-4 flex flex-wrap items-center gap-2 rounded-lg bg-band px-4 py-2.5 text-[13px] text-ink-2">Showing <b className="font-semibold text-ink">{list.length}</b> of {works.length} books, chosen by your filters.<button onClick={() => { setQ(""); pickLang(""); setPub(""); setLen(""); setShelf(""); }} className="font-medium text-saffron underline underline-offset-2">Show all books</button></p>}
 
-        {recent.length > 0 && !q && !shelf && <section className="mt-5">{recent.slice(0, 1).map((r) => <Link key={r.slug} href={r.href} className="group flex max-w-xl items-center gap-3 rounded-lg border border-line px-3 py-2 hover:border-line-strong">
-          <span className="h-10 w-7 shrink-0 overflow-hidden rounded-[2px] bg-band shadow-sm">{r.cover ? /* eslint-disable-next-line @next/next/no-img-element */ <img src={r.cover} alt="" className="h-full w-full object-cover" /> : <BookOpen size={14} className="m-auto mt-3 text-ink-3" />}</span>
-          <span className="min-w-0 flex-1"><span className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3"><BookOpen size={12} />Continue reading</span><span className="block truncate text-[13px] text-ink"><b className="font-medium">{r.book}</b><span className="text-ink-3"> · {r.title}</span></span></span>
-          <span className="hidden w-16 shrink-0 sm:block"><span className="block h-1 overflow-hidden rounded-full bg-band"><span className="block h-full rounded-full bg-ink/70" style={{ width: `${Math.round(((r.index + 1) / r.total) * 100)}%` }} /></span></span>
-          <ArrowRight size={14} className="shrink-0 text-ink-3 transition group-hover:translate-x-0.5" /></Link>)}</section>}
+        {recent.length > 0 && !q && !shelf && <section className="mt-5">{recent.slice(0, 1).map((r) => { const pc = Math.round(((r.index + 1) / r.total) * 100); return <Link key={r.slug} href={r.href} className="group flex w-full max-w-[440px] items-center gap-3.5 rounded-xl border border-line bg-white p-2.5 pr-4 shadow-[0_1px_2px_rgba(0,0,0,.04)] transition hover:border-line-strong hover:shadow-[0_6px_18px_-10px_rgba(0,0,0,.25)]">
+          <span className="relative h-[62px] w-[44px] shrink-0 overflow-hidden rounded-[2px_4px_4px_2px] bg-band shadow-[0_1px_2px_rgba(0,0,0,.12),0_6px_12px_-8px_rgba(0,0,0,.4)]">{r.cover ? /* eslint-disable-next-line @next/next/no-img-element */ <img src={r.cover} alt="" className="h-full w-full object-cover" /> : <BookOpen size={15} className="absolute inset-0 m-auto text-ink-3" />}</span>
+          <span className="min-w-0 flex-1">
+            <span className="block text-[10.5px] font-semibold uppercase tracking-[0.12em] text-saffron">Continue reading</span>
+            <span className="mt-0.5 block truncate text-[14px] font-medium leading-snug text-ink">{r.book}</span>
+            <span className="block truncate text-[12px] text-ink-3">Chapter {r.index + 1} of {r.total} · {r.title}</span>
+            <span className="mt-1.5 flex items-center gap-2"><span className="block h-1 flex-1 overflow-hidden rounded-full bg-band"><span className="block h-full rounded-full bg-saffron/80" style={{ width: `${pc}%` }} /></span><span className="text-[11px] tabular-nums text-ink-3">{pc}%</span></span>
+          </span>
+          <ArrowRight size={15} className="shrink-0 text-ink-3 transition group-hover:translate-x-0.5 group-hover:text-ink" /></Link>; })}</section>}
 
         {!list.length ? <p className="py-20 text-center text-[13.5px] text-ink-3">No book matches these choices. <button onClick={() => { setQ(""); pickLang(""); setPub(""); setLen(""); setShelf(""); }} className="mr-2 font-medium text-saffron underline">Show all books</button>{lang && <button onClick={() => pickLang("")} className="underline">Show all languages</button>}</p> : groups.map(([g, xs]) => (
           <section key={g} className="mt-10">

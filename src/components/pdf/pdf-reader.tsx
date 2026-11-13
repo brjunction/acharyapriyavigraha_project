@@ -5,8 +5,9 @@
    light, sepia and night colours; full screen; download; remembers the page. Keys: ← → PageUp/Down, + −, Home/End, / F. */
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ArrowLeft, ChevronLeft, ChevronRight, ZoomIn, ZoomOut, Search, PanelLeft, Maximize, Minimize, Download, X, Moon, Sun, Columns2, Square, Rows3, Loader2 } from "lucide-react";
+import { Library, ArrowLeft, ChevronLeft, ChevronRight, ZoomIn, ZoomOut, Search, PanelLeft, Maximize, Minimize, Download, X, Moon, Sun, Columns2, Square, Rows3, Loader2 } from "lucide-react";
 import { pdfjs } from "@/lib/fetcher";
+import type { Shelf } from "@/lib/content/articles-public";
 
 type Mode = "scroll" | "page" | "spread";
 type Fit = "width" | "page" | "custom";
@@ -14,12 +15,13 @@ type Tone = "light" | "sepia" | "night";
 type Size = { w: number; h: number };
 const PREF = "tj_pdf_pref";
 
-export function PdfReader({ src, title, sub, back, download, storeKey, poster }: { src: string; title: string; sub?: string; back: { href: string; label: string }; download?: string | null; storeKey: string; poster?: string | null }) {
+export function PdfReader({ src, title, sub, back, download, storeKey, poster, toc, shelf, here }: { src: string; title: string; sub?: string; back: { href: string; label: string }; download?: string | null; storeKey: string; poster?: string | null; toc?: { title: string; page: number }[] | null; shelf?: Shelf; here?: { mag: string; issue: string } }) {
   const [doc, setDoc] = useState<any>(null); const [err, setErr] = useState(""); const [loadPct, setLoadPct] = useState(0);
   const [sizes, setSizes] = useState<Size[]>([]); const [n, setN] = useState(0);
   const [page, setPage] = useState(1); const [mode, setMode] = useState<Mode>("scroll"); const [fit, setFit] = useState<Fit>("width"); const [zoom, setZoom] = useState(1);
-  const [tone, setTone] = useState<Tone>("light"); const [side, setSide] = useState<null | "pages" | "contents" | "search">(null); const [full, setFull] = useState(false);
-  const [box, setBox] = useState({ w: 0, h: 0 }); const [outline, setOutline] = useState<{ title: string; page: number; depth: number }[]>([]);
+  const [tone, setTone] = useState<Tone>("light"); const [side, setSide] = useState<null | "pages" | "contents" | "search" | "library">(null); const [full, setFull] = useState(false);
+  const [box, setBox] = useState({ w: 0, h: 0 }); const [outline, setOutline] = useState<{ title: string; page: number; depth: number }[]>(() => (toc || []).map((t) => ({ ...t, depth: 0 }))); const [tocState, setTocState] = useState<"" | "reading" | "done">(toc?.length ? "done" : "");
+  const [shelfMag, setShelfMag] = useState(here?.mag || shelf?.[0]?.slug || "");
   const [q, setQ] = useState(""); const [hits, setHits] = useState<{ page: number; text: string }[] | null>(null); const [searching, setSearching] = useState(false);
   const area = useRef<HTMLDivElement>(null); const texts = useRef<Map<number, string>>(new Map()); const [hl, setHl] = useState("");
 
@@ -29,18 +31,25 @@ export function PdfReader({ src, title, sub, back, download, storeKey, poster }:
     try { const p = JSON.parse(localStorage.getItem(PREF) || "{}"); if (p.mode) setMode(p.mode); if (p.tone) setTone(p.tone); if (p.fit) setFit(p.fit); } catch {}
     (async () => {
       try {
-        const lib = await pdfjs(); task = lib.getDocument({ url: src, rangeChunkSize: 262144, disableAutoFetch: true, disableStream: false, isEvalSupported: false });
+        const lib = await pdfjs(); task = lib.getDocument({ url: src, rangeChunkSize: 262144, disableAutoFetch: true, disableStream: true, isEvalSupported: false });
         task.onProgress = (p: { loaded: number; total: number }) => p.total && setLoadPct(Math.round((p.loaded / p.total) * 100));
         const d = await task.promise; if (dead) return; setDoc(d); setN(d.numPages);
         const first = await d.getPage(1); const v = first.getViewport({ scale: 1 }); setSizes(Array.from({ length: d.numPages }, () => ({ w: v.width, h: v.height })));
         // Real sizes of every page, gently in the background.
         (async () => { const s: Size[] = []; for (let i = 1; i <= d.numPages; i++) { if (dead) return; const pg = await d.getPage(i); const vv = pg.getViewport({ scale: 1 }); s.push({ w: vv.width, h: vv.height }); if (i % 20 === 0 || i === d.numPages) setSizes((o) => s.concat(o.slice(s.length))); } })();
-        try { const o = await d.getOutline(); const flat: { title: string; page: number; depth: number }[] = []; const walk = async (items: any[], depth: number) => { for (const it of items || []) { let pg = 0; try { const dest = typeof it.dest === "string" ? await d.getDestination(it.dest) : it.dest; if (dest) pg = (await d.getPageIndex(dest[0])) + 1; } catch {} flat.push({ title: it.title, page: pg, depth }); await walk(it.items, depth + 1); } }; await walk(o || [], 0); if (!dead) setOutline(flat); } catch {}
+        if (!toc?.length) try { const o = await d.getOutline(); const flat: { title: string; page: number; depth: number }[] = []; const walk = async (items: any[], depth: number) => { for (const it of items || []) { let pg = 0; try { const dest = typeof it.dest === "string" ? await d.getDestination(it.dest) : it.dest; if (dest) pg = (await d.getPageIndex(dest[0])) + 1; } catch {} flat.push({ title: it.title, page: pg, depth }); await walk(it.items, depth + 1); } }; await walk(o || [], 0); if (!dead && flat.length) { setOutline(flat); setTocState("done"); } } catch {}
+        if (window.innerWidth >= 1280) setSide((x) => x ?? "contents");
         let start = 1; try { start = Number(localStorage.getItem(`tj_pdf_${storeKey}`)) || 1; } catch {} if (start > 1 && start <= d.numPages) setTimeout(() => goTo(start, false), 60);
       } catch (e: any) { if (!dead) setErr(e?.message || "This PDF could not be opened."); }
     })();
     return () => { dead = true; try { task?.destroy(); } catch {} };
   }, [src]); // eslint-disable-line
+  // No contents given and no bookmarks: read the headings of the pages, once, when the contents are first wanted.
+  useEffect(() => { if (side !== "contents" || !doc || outline.length || tocState) return; setTocState("reading");
+    (async () => { try { const { pdfContents } = await import("@/lib/content/pdf-contents"); const t = await pdfContents(doc); setOutline(t.map((x) => ({ ...x, depth: 0 }))); } catch {} setTocState("done"); })(); }, [side, doc]); // eslint-disable-line
+  // The issues before and after this one (newest first in the shelf).
+  const shelfIssues = shelf?.find((m) => m.slug === here?.mag)?.issues || []; const at = shelfIssues.findIndex((i) => i.slug === here?.issue);
+  const nextIssue = at > 0 ? shelfIssues[at - 1] : null, prevIssue = at >= 0 && at + 1 < shelfIssues.length ? shelfIssues[at + 1] : null;
   const savePref = (p: object) => { try { localStorage.setItem(PREF, JSON.stringify({ mode, tone, fit, ...p })); } catch {} };
   useEffect(() => { try { localStorage.setItem(`tj_pdf_${storeKey}`, String(page)); } catch {} }, [page, storeKey]);
 
@@ -107,7 +116,8 @@ export function PdfReader({ src, title, sub, back, download, storeKey, poster }:
       {/* bar */}
       <div className="z-20 flex h-12 shrink-0 items-center gap-1 border-b px-2 sm:px-3" style={{ background: C.bar, borderColor: C.line }}>
         <Link href={back.href} className={ib} aria-label={back.label} title={back.label}><ArrowLeft size={18} /></Link>
-        <button className={ib} onClick={() => setSide(side ? null : "pages")} aria-label="Pages and contents" title="Pages and contents"><PanelLeft size={18} /></button>
+        <button className={ib} onClick={() => setSide(side && side !== "library" ? null : "contents")} aria-label="Contents and pages" title="Contents and pages"><PanelLeft size={18} /></button>
+        {shelf?.length ? <button className={ib} onClick={() => setSide(side === "library" ? null : "library")} aria-label="Other issues" title="Other issues and magazines"><Library size={18} /></button> : null}
         <div className="min-w-0 flex-1 px-1"><p className="truncate text-[13.5px] font-medium">{title}</p>{sub && <p className="truncate text-[11px]" style={{ color: C.muted }}>{sub}</p>}</div>
         <div className="flex items-center gap-0.5 max-md:hidden">
           <button className={ib} onClick={() => zoomBy(1 / 1.2)} aria-label="Zoom out"><ZoomOut size={17} /></button>
@@ -128,12 +138,19 @@ export function PdfReader({ src, title, sub, back, download, storeKey, poster }:
         {/* side panel */}
         {side && <aside className="absolute inset-y-0 left-0 z-30 flex w-[280px] max-w-[85vw] flex-col border-r shadow-xl md:static md:shadow-none" style={{ background: C.bar, borderColor: C.line }}>
           <div className="flex items-center gap-1 border-b px-2 pt-2" style={{ borderColor: C.line }}>
-            {([["pages", "Pages"], ...(outline.length ? [["contents", "Contents"]] : []), ["search", "Search"]] as [string, string][]).map(([k, l]) => <button key={k} onClick={() => setSide(k as any)} className="relative px-2.5 pb-2 pt-1 text-[12.5px] font-medium" style={{ color: side === k ? C.ink : C.muted }}>{l}{side === k && <span className="absolute inset-x-2 bottom-0 h-[2px] rounded bg-[#b5651d]" />}</button>)}
+            {([["contents", "Contents"], ["pages", "Pages"], ["search", "Search"], ...(shelf?.length ? [["library", "Library"]] : [])] as [string, string][]).map(([k, l]) => <button key={k} onClick={() => setSide(k as any)} className="relative px-2.5 pb-2 pt-1 text-[12.5px] font-medium" style={{ color: side === k ? C.ink : C.muted }}>{l}{side === k && <span className="absolute inset-x-2 bottom-0 h-[2px] rounded bg-[#b5651d]" />}</button>)}
             <button onClick={() => setSide(null)} className="ml-auto mb-1.5 rounded-full p-1" style={{ color: C.muted }} aria-label="Close"><X size={15} /></button>
           </div>
           <div className="min-h-0 flex-1 overflow-y-auto p-2">
             {side === "pages" && doc && <Thumbs doc={doc} n={n} page={page} go={(p) => { goTo(p); if (window.innerWidth < 768) setSide(null); }} C={C} />}
-            {side === "contents" && <ul>{outline.map((o, i) => <li key={i}><button disabled={!o.page} onClick={() => { goTo(o.page); if (window.innerWidth < 768) setSide(null); }} className="flex w-full items-baseline gap-2 rounded-md py-1.5 pr-2 text-left text-[13px] hover:bg-black/[0.05]" style={{ paddingLeft: 8 + o.depth * 14 }}><span className="min-w-0 flex-1">{o.title}</span><span className="text-[11px] tabular-nums" style={{ color: C.muted }}>{o.page || ""}</span></button></li>)}</ul>}
+            {side === "contents" && (outline.length ? <ul>{outline.map((o, i) => { const on = o.page > 0 && o.page <= page && !(outline[i + 1] && outline[i + 1].page <= page && outline[i + 1].page > o.page); return <li key={i}><button disabled={!o.page} onClick={() => { goTo(o.page); if (window.innerWidth < 768) setSide(null); }} className="flex w-full items-baseline gap-2 rounded-md py-2 pr-2 text-left text-[13.5px] leading-snug transition hover:bg-black/[0.05]" style={{ paddingLeft: 10 + o.depth * 14, ...(on ? { background: "rgba(181,101,29,.12)", fontWeight: 600 } : {}) }}><span className="min-w-0 flex-1">{o.title}</span><span className="text-[11px] tabular-nums" style={{ color: C.muted }}>{o.page || ""}</span></button></li>; })}</ul>
+              : <p className="px-2 py-6 text-center text-[12.5px]" style={{ color: C.muted }}>{tocState === "done" ? "No headings were found in this issue." : <span className="inline-flex items-center gap-2"><Loader2 size={13} className="animate-spin" />Reading the contents…</span>}</p>)}
+            {side === "library" && shelf && <div>
+              {shelf.length > 1 && <select value={shelfMag} onChange={(e) => setShelfMag(e.target.value)} className="mb-2 h-9 w-full rounded-lg px-2 text-[13px] outline-none" style={{ background: C.bg, color: C.ink }} aria-label="Magazine">{shelf.map((m) => <option key={m.slug} value={m.slug}>{m.title} ({m.issues.length})</option>)}</select>}
+              <ul className="grid gap-1">{(shelf.find((m) => m.slug === shelfMag) || shelf[0]).issues.map((i) => { const on = here && here.mag === shelfMag && here.issue === i.slug; return <li key={i.slug}><Link href={`/teachings/magazines/${shelfMag}/${i.slug}`} className="flex items-center gap-3 rounded-lg p-1.5 transition hover:bg-black/[0.05]" style={on ? { background: "rgba(181,101,29,.12)" } : undefined} aria-current={on ? "page" : undefined}>
+                <span className="h-[52px] w-[39px] shrink-0 overflow-hidden rounded-[2px] bg-black/[0.06] shadow-sm">{i.cover && /* eslint-disable-next-line @next/next/no-img-element */ <img src={i.cover} alt="" loading="lazy" className="h-full w-full object-cover" />}</span>
+                <span className="min-w-0"><span className="line-clamp-2 block text-[13px] font-medium leading-snug">{i.label}</span>{i.date && <span className="block text-[11.5px]" style={{ color: C.muted }}>{new Date(i.date).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}</span>}</span></Link></li>; })}</ul>
+            </div>}
             {side === "search" && <div>
               <label className="flex h-9 items-center gap-2 rounded-lg px-2.5" style={{ background: C.bg }}><Search size={14} style={{ color: C.muted }} /><input autoFocus value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search this issue" className="min-w-0 flex-1 bg-transparent text-[13.5px] outline-none" /></label>
               {hits && <p className="px-1 py-2 text-[11.5px]" style={{ color: C.muted }}>{searching ? "Searching… " : ""}{hits.length} {hits.length === 1 ? "place" : "places"}</p>}
@@ -150,6 +167,9 @@ export function PdfReader({ src, title, sub, back, download, storeKey, poster }:
           {doc && <div className={`flex min-w-fit flex-col items-center py-3 ${mode === "spread" ? "" : "gap-3"}`} style={{ transform: pinch !== 1 ? `scale(${pinch})` : undefined, transformOrigin: "center top" }}>
             {mode === "spread" ? <div className="flex items-start gap-1">{shown.map((p) => <PageView key={p} doc={doc} p={p} size={sizes[p - 1] || base} scale={scale} filter={C.filter} hl={hl} eager poster={p === 1 ? poster : null} />)}</div>
               : shown.map((p) => <PageView key={p} doc={doc} p={p} size={sizes[p - 1] || base} scale={scale} filter={C.filter} hl={hl} eager={mode !== "scroll" || p === 1} poster={p === 1 ? poster : null} />)}
+            {mode === "scroll" && (prevIssue || nextIssue) && <div className="mt-6 mb-10 grid w-full max-w-[640px] gap-3 px-3 sm:grid-cols-2">{[[prevIssue, "Older issue"], [nextIssue, "Newer issue"]].map(([x, l]: any) => x ? <Link key={l} href={`/teachings/magazines/${here!.mag}/${x.slug}`} className="flex items-center gap-3 rounded-xl border p-3 transition hover:shadow-md" style={{ background: C.bar, borderColor: C.line }}>
+              <span className="h-[64px] w-[48px] shrink-0 overflow-hidden rounded-[2px] bg-black/[0.06] shadow-sm">{x.cover && /* eslint-disable-next-line @next/next/no-img-element */ <img src={x.cover} alt="" className="h-full w-full object-cover" />}</span>
+              <span className="min-w-0"><span className="block text-[11px] font-semibold uppercase tracking-[0.12em]" style={{ color: C.muted }}>{l}</span><span className="line-clamp-2 block text-[13.5px] font-medium leading-snug">{x.label}</span></span></Link> : <span key={l} className="max-sm:hidden" />)}</div>}
           </div>}
           {doc && mode !== "scroll" && <>
             <button onClick={() => step(-1)} disabled={page <= 1} aria-label="Previous page" className="absolute left-2 top-1/2 hidden size-10 -translate-y-1/2 items-center justify-center rounded-full bg-black/[0.06] backdrop-blur hover:bg-black/[0.12] disabled:opacity-0 md:flex"><ChevronLeft size={20} /></button>

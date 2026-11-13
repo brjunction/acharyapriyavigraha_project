@@ -3,6 +3,7 @@ import dynamic from "next/dynamic";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { FileText, Plus, Search, Trash2, ExternalLink, ArrowLeft, Image as ImageIcon, UserRound, Layers, FolderOpen, X } from "lucide-react";
 import { AiAssist } from "../ai-assist";
+import { ORIGINS } from "@/lib/content/article-origin";
 import { Btn, Badge, Card, Field, Input, Select, Textarea, PageHeader, Empty, Modal, api, toast, cn } from "../ui";
 import { MediaPicker } from "../media-picker";
 import { useTicks, TickBar, DraftsButton, Tick } from "./bulk";
@@ -129,6 +130,7 @@ function ArticleEditor({ id, lists, onClose, issue }: { id: string; lists: Data 
         <aside className="space-y-4 lg:sticky lg:top-16 lg:self-start">
           <Card className="p-4"><AiAssist blocks={() => body.current || a.body || []} context={[a.title, a.author].filter(Boolean).join(" · ")} onReplace={(bl) => { body.current = bl; setDirty(true); setRev((r) => r + 1); }} /></Card>
           <Card className="space-y-4 p-4">
+            <Field label="From" hint="Which shelf of the Articles page it belongs to."><Select value={a.origin || "taptajivanam"} onChange={(e) => set("origin", e.target.value)}>{ORIGINS.map(([k, l]) => <option key={k} value={k}>{l}</option>)}</Select></Field>
             <Field label="Author"><DL id="dl-author" value={a.author} onChange={(v) => set("author", v)} opts={lists?.authors || []} placeholder="Who wrote it" /></Field>
             <div className="grid grid-cols-[1fr_72px] gap-2"><Field label="Series"><DL id="dl-series" value={a.series} onChange={(v) => set("series", v)} opts={lists?.series || []} placeholder="If part of a series" /></Field><Field label="Part"><Input type="number" min={1} value={a.series_part ?? ""} onChange={(e) => set("series_part", e.target.value)} /></Field></div>
             <Field label="Section"><DL id="dl-section" value={a.section} onChange={(v) => set("section", v)} opts={lists?.sections || []} placeholder="e.g. Tattva, Pastimes" /></Field>

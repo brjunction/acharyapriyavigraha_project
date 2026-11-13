@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ChevronLeft, ChevronRight, FileDown, ExternalLink, Clock, BookOpen } from "lucide-react";
-import { getIssue } from "@/lib/content/articles-public";
+import { getIssue, readerShelf } from "@/lib/content/articles-public";
 import { WritingsHeader } from "@/components/articles/header";
 import { MagCover } from "@/components/articles/mag-cover";
 import { PdfReader } from "@/components/pdf/pdf-reader";
@@ -14,8 +14,8 @@ export default async function Page({ params }: { params: Promise<{ mag: string; 
   const { mag, issue } = await params; const r = await getIssue(mag, issue); if (!r) notFound();
   const { magazine: m, issue: i, articles, newer, older } = r; const label = i.number && i.title ? `${i.number} · ${i.title}` : i.title || i.number;
   // an issue with its PDF opens straight in the PDF reader
-  if (i.pdf_url) { const own = String(i.pdf_url).startsWith("/api/files/");
-    return <PdfReader src={own ? i.pdf_url : `/api/magazines/pdf/${i.id}`} title={label || "Issue"} sub={m.title} back={{ href: `/teachings/magazines/${m.slug}`, label: m.title }} download={i.pdf_url} storeKey={`issue-${i.id}`} poster={i.cover} />; }
+  if (i.pdf_url) { const shelf = await readerShelf(); const own = String(i.pdf_url).startsWith("/api/files/");
+    return <PdfReader src={own ? i.pdf_url : `/api/magazines/pdf/${i.id}`} title={label || "Issue"} sub={m.title} back={{ href: `/teachings/magazines/${m.slug}`, label: m.title }} download={i.pdf_url} storeKey={`issue-${i.id}`} poster={i.cover} toc={i.toc} shelf={shelf} here={{ mag: m.slug, issue: i.slug }} />; }
   return (
     <>
       <WritingsHeader at="/teachings/magazines" title={label} intro={m.title} stats={[i.date ? new Date(i.date).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" }) : "", `${articles.length} articles`].filter(Boolean)} crumbs={[["/teachings/magazines", "Magazines"], [`/teachings/magazines/${m.slug}`, m.title]]} />

@@ -392,7 +392,7 @@ html.nav-hidden [class*="top-[52px]"], html.nav-hidden [class*="top-[58px]"], ht
 /* ---- Book reader: the text follows the reader's chosen font, size and colours */
 .rd { -webkit-font-smoothing: antialiased; }
 .rd-text .book-body p, .rd-text .book-body li, .rd-text .book-body blockquote, .rd-text .book-body summary, .rd-text .book-body figcaption, .rd-text .book-body td { font-size: 1em !important; line-height: inherit !important; color: var(--rd-ink) !important; font-family: inherit !important; }
-.rd-text .book-body p { margin: 0 0 0.95em !important; }
+.rd-text .book-body p { margin: 0 0 var(--rd-para, 0.95em) !important; text-indent: var(--rd-indent, 0); }
 .rd-text .book-body h1, .rd-text .book-body h2, .rd-text .book-body h3, .rd-text .book-body h4 { color: var(--rd-ink) !important; font-family: inherit !important; letter-spacing: -0.01em; font-weight: 600 !important; line-height: 1.3 !important; break-after: avoid; }
 .rd-text .book-body h1 { font-size: 1.45em !important; margin: 1.6em 0 0.6em !important; }
 .rd-text .book-body h2 { font-size: 1.3em !important; margin: 1.5em 0 0.55em !important; }
@@ -839,7 +839,7 @@ html.tj-immersive body { overflow: hidden; }
 .pr-flow img, .pr-flow video, .pr-flow iframe { max-height: calc(var(--pr-h) - 3em); width: auto !important; max-width: 100%; object-fit: contain; break-inside: avoid; margin-inline: auto; }
 .pr-flow figure, .pr-flow table, .pr-flow blockquote, .pr-flow pre { break-inside: avoid; }
 .pr-fade { animation: pr-fade .32s ease; } @keyframes pr-fade { from { opacity: .15; } to { opacity: 1; } }
-.pr-sheet { animation: pr-sheet .26s cubic-bezier(.22,.8,.24,1); } @keyframes pr-sheet { from { transform: translateX(28px); opacity: 0; } to { transform: none; opacity: 1; } }
+.pr-sheet { animation: pr-sheet .26s cubic-bezier(.22,.8,.24,1); } @keyframes pr-sheet { from { transform: translateX(-28px); opacity: 0; } to { transform: none; opacity: 1; } }
 .pr-range { accent-color: #b5651d; }
 ::highlight(pr-find) { background: rgba(233,180,108,.45); }
 @media (prefers-reduced-motion: reduce) { .pr-fade, .pr-sheet { animation: none; } }

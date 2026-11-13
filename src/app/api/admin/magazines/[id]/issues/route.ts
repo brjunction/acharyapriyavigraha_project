@@ -2,6 +2,7 @@ import { sql } from "@/lib/db";
 import { guard, json } from "@/lib/api";
 import { revalidatePath } from "next/cache";
 import { slugify } from "@/lib/content/text";
+import { cleanToc } from "@/lib/content/toc";
 
 /** Add an issue to a magazine — or many at once with {many: [{number, title, date, cover, pdf_url}]}. */
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -12,7 +13,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     while ((await sql`select 1 from magazine_issues where magazine_id = ${id} and slug = ${slug}`).length) slug = `${base}-${++k}`;
     const day = x.date ? String(x.date).slice(0, 10) : null; const year = x.year ? Number(x.year) : day ? Number(day.slice(0, 4)) : null;
     const n = Number((await sql`select coalesce(max(position), 0) + 1 as n from magazine_issues where magazine_id = ${id}`)[0].n);
-    out.push((await sql`insert into magazine_issues (magazine_id, slug, number, title, date, year, cover, pdf_url, url, description, position, status) values (${id}, ${slug}, ${x.number || null}, ${x.title || null}, ${day}, ${year}, ${x.cover || null}, ${x.pdf_url || null}, ${x.url || null}, ${x.description || null}, ${n}, ${x.status || "published"}) returning id, slug`)[0]);
+    out.push((await sql`insert into magazine_issues (magazine_id, slug, number, title, date, year, cover, pdf_url, url, description, position, status, toc) values (${id}, ${slug}, ${x.number || null}, ${x.title || null}, ${day}, ${year}, ${x.cover || null}, ${x.pdf_url || null}, ${x.url || null}, ${x.description || null}, ${n}, ${x.status || "published"}, ${cleanToc(x.toc)}::jsonb) returning id, slug`)[0]);
   }
   revalidatePath("/teachings/magazines", "layout"); return json(Array.isArray(b.many) ? out : out[0]);
 }

@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Search, X, Clock, Newspaper, Layers, ChevronDown } from "lucide-react";
 import { Avatar } from "./header";
 import type { ACard, Author } from "@/lib/content/articles-public";
+import { ORIGINS } from "@/lib/content/article-origin";
 
 const fold = (s: unknown) => String(s ?? "").normalize("NFKD").replace(/[̀-ͯ]/g, "").toLowerCase();
 const fmt = (d: string | null) => (d ? new Date(d).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : "");
@@ -20,22 +21,26 @@ export function ArticleLibrary({ items, authors }: { items: ACard[]; authors: Au
   const get = (k: string) => sp.get(k) || "";
   const set = (k: string, v: string) => { const p = new URLSearchParams(sp.toString()); v ? p.set(k, v) : p.delete(k); router.replace(`?${p}`, { scroll: false }); };
   const [q, setQ] = useState(get("q")); const [n, setN] = useState(30);
-  const author = get("author"), section = get("section"), series = get("series"), topic = get("topic"), sort = get("sort") || "new";
-  useEffect(() => setN(30), [author, section, series, topic, q]);
+  const from = get("from"), author = get("author"), section = get("section"), series = get("series"), topic = get("topic"), sort = get("sort") || "new";
+  useEffect(() => setN(30), [from, author, section, series, topic, q]);
   const count = (f: (a: ACard) => string | null | undefined) => { const m: Record<string, number> = {}; items.forEach((a) => { const v = f(a); if (v) m[v] = (m[v] || 0) + 1; }); return Object.entries(m).sort((a, b) => a[0].localeCompare(b[0])); };
   const sections = useMemo(() => count((a) => a.section), [items]); // eslint-disable-line react-hooks/exhaustive-deps
   const seriesL = useMemo(() => count((a) => a.series), [items]); // eslint-disable-line react-hooks/exhaustive-deps
   const f = fold(q.trim());
   const list = useMemo(() => {
-    const r = items.filter((a) => (!author || a.author === author) && (!section || a.section === section) && (!series || a.series === series) && (!topic || a.topics?.includes(topic)) && (!f || fold(`${a.title} ${a.subtitle} ${a.summary} ${a.author} ${a.series} ${a.section} ${a.topics?.join(" ")} ${a.mag} ${a.issue}`).includes(f)));
+    const r = items.filter((a) => (!from || (a.origin || "taptajivanam") === from) && (!author || a.author === author) && (!section || a.section === section) && (!series || a.series === series) && (!topic || a.topics?.includes(topic)) && (!f || fold(`${a.title} ${a.subtitle} ${a.summary} ${a.author} ${a.series} ${a.section} ${a.topics?.join(" ")} ${a.mag} ${a.issue}`).includes(f)));
     if (series) return r.sort((a, b) => (a.series_part ?? 999) - (b.series_part ?? 999));
     return sort === "old" ? [...r].reverse() : sort === "az" ? [...r].sort((a, b) => a.title.localeCompare(b.title)) : r;
-  }, [items, author, section, series, topic, f, sort]);
+  }, [items, from, author, section, series, topic, f, sort]);
   const au = authors.find((a) => a.name === author);
-  const any = author || section || series || topic || f;
+  const any = from || author || section || series || topic || f;
 
   return (
     <div className="mx-auto max-w-[1240px] px-4 pb-20 sm:px-6">
+      {items.length > 0 && <nav className="-mx-4 flex gap-1 overflow-x-auto border-b border-line px-4 pt-4 [scrollbar-width:none] sm:-mx-0 sm:px-0" aria-label="Shelves">
+        {([["", "All articles", items.length], ...ORIGINS.map(([k, l]) => [k, l, items.filter((a) => (a.origin || "taptajivanam") === k).length])] as [string, string, number][]).filter(([k, , c]) => !k || c > 0).map(([k, l, c]) => <button key={k || "all"} onClick={() => set("from", k)} className={`relative shrink-0 px-3 pb-3 pt-1 text-[14.5px] transition ${from === k ? "font-semibold text-ink" : "text-ink-2 hover:text-ink"}`}>{l}<span className="ml-1.5 text-[12px] font-normal text-ink-3">{c}</span>{from === k && <span className="absolute inset-x-3 -bottom-px h-[2px] rounded bg-saffron" />}</button>)}
+      </nav>}
+      {from && <p className="mt-3 text-[13.5px] text-ink-2">{ORIGINS.find((o) => o[0] === from)?.[2]}</p>}
       {authors.length > 0 && <div className="flex gap-2 overflow-x-auto border-b border-line py-4 [scrollbar-width:none]">
         <button onClick={() => set("author", "")} className={`flex shrink-0 items-center gap-2 rounded-full border py-1 pl-1 pr-3 text-[13px] ${!author ? "border-ink bg-ink text-white" : "border-line text-ink-2 hover:bg-band"}`}><span className="flex size-7 items-center justify-center rounded-full bg-white/15 text-[11px]">All</span>Every author</button>
         {authors.map((a) => <button key={a.name} onClick={() => set("author", author === a.name ? "" : a.name)} className={`flex shrink-0 items-center gap-2 rounded-full border py-1 pl-1 pr-3 text-[13px] ${author === a.name ? "border-ink bg-ink text-white" : "border-line text-ink-2 hover:bg-band"}`}><Avatar name={a.name} photo={a.photo} size={28} />{a.name}<span className={author === a.name ? "text-white/60" : "text-ink-3"}>{a.n}</span></button>)}

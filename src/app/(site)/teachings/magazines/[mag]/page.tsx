@@ -14,7 +14,7 @@ export default async function Page({ params }: { params: Promise<{ mag: string }
   const years = Array.from(new Set(issues.map((i: any) => i.year || 0))).sort((a: any, b: any) => b - a) as number[];
   return (
     <>
-      <WritingsHeader at="/teachings/magazines" title={m.title} intro={m.description || m.publisher || "All issues"} stats={[`${issues.length} issues`, `${issues.reduce((n: number, i: any) => n + i.n, 0)} articles`]} crumbs={[["/teachings/magazines", "Magazines"]]} />
+      <WritingsHeader at="/teachings/magazines" title={m.title} intro={m.description || m.publisher || "All issues"} stats={[`${issues.length} issues`, (() => { const n = issues.reduce((k: number, i: any) => k + Number(i.n || 0), 0); return n ? `${n} articles` : ""; })()].filter(Boolean)} crumbs={[["/teachings/magazines", "Magazines"]]} />
       <div className="mx-auto max-w-[1240px] px-4 pb-20 sm:px-6">
         {years.length > 1 && <nav className="sticky top-[52px] z-20 -mx-4 flex gap-1 overflow-x-auto border-b border-line bg-white/95 px-4 py-2.5 backdrop-blur [scrollbar-width:none] sm:top-[58px] sm:-mx-6 sm:px-6">{years.map((y) => <a key={y} href={`#y-${y}`} className="shrink-0 rounded-md px-2.5 py-1 text-[13px] tabular-nums text-ink-2 hover:bg-band">{y || "Undated"}</a>)}</nav>}
         {!issues.length && <p className="py-20 text-center text-[13.5px] text-ink-3">Issues will appear here soon.</p>}

@@ -10,9 +10,11 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
   const m = /bytes=(\d*)-(\d*)/.exec(req.headers.get("range") || "");
   let a = 0, b = len - 1; let partial = false;
   if (m) { partial = true; if (m[1] === "" && m[2]) { a = Math.max(0, len - Number(m[2])); } else { a = Number(m[1]); b = m[2] ? Math.min(len - 1, Number(m[2])) : len - 1; } if (a > b || a >= len) return new Response(null, { status: 416, headers: { "content-range": `bytes */${len}` } }); }
-  // Whole files are sent in 4 MB slices at most (each response stays small); the reader asks for ranges anyway.
-  if (!partial && len > 4_000_000) { partial = true; b = Math.min(len - 1, 4_000_000 - 1); }
-  const r = (await sql`select encode(substring(data from ${a + 1} for ${b - a + 1}), 'base64') b64 from files where id = ${id}`)[0] as any;
-  const body = Buffer.from(r.b64, "base64");
-  return new Response(body, { status: partial ? 206 : 200, headers: { ...base, "content-length": String(body.length), ...(partial ? { "content-range": `bytes ${a}-${a + body.length - 1}/${len}` } : {}) } });
+  const slice = async (from: number, n: number) => Buffer.from(((await sql`select encode(substring(data from ${from + 1} for ${n}), 'base64') b64 from files where id = ${id}`)[0] as any).b64, "base64");
+  // The whole file: streamed in 2 MB slices (a plain download, or the reader's first look before it asks for ranges).
+  if (!partial) { let at = 0; const stream = new ReadableStream({ async pull(c) { if (at >= len) { c.close(); return; } const n = Math.min(2_000_000, len - at); try { c.enqueue(new Uint8Array(await slice(at, n))); at += n; } catch (e) { c.error(e); } } });
+    return new Response(stream, { status: 200, headers: { ...base, "content-length": String(len) } }); }
+  if (b - a + 1 > 4_000_000) b = a + 4_000_000 - 1;   // one response stays small
+  const body = await slice(a, b - a + 1);
+  return new Response(body, { status: 206, headers: { ...base, "content-length": String(body.length), "content-range": `bytes ${a}-${a + body.length - 1}/${len}` } });
 }

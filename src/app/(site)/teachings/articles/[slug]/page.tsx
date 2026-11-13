@@ -24,12 +24,12 @@ export default async function Article({ params }: { params: Promise<{ slug: stri
   const date = a.day ? new Date(a.day).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" }) : null;
   const ld = { "@context": "https://schema.org", "@type": "Article", headline: a.title, author: a.author ? { "@type": "Person", name: a.author } : undefined, datePublished: a.day || undefined, image: a.cover || undefined, isPartOf: a.mag ? { "@type": "PublicationIssue", name: `${a.mag}${a.issue ? `, ${a.issue}` : ""}` } : undefined };
   return (
-    <div className="bg-white">
+    <div id="article-page" className="bg-page text-ink">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ld) }} />
       <ArticleBar title={a.title} />
       <div className="mx-auto grid max-w-[1100px] gap-12 px-4 pb-20 pt-10 sm:px-6 lg:grid-cols-[minmax(0,1fr)_250px]">
         <article className="min-w-0">
-          <div className="mx-auto max-w-[700px]">
+          <div id="article-col" className="mx-auto max-w-[700px]">
             {(a.section || a.series) && <p className="text-[12px] font-medium text-ink-3">{a.section && <Link href={`/teachings/articles?section=${encodeURIComponent(a.section)}`} className="hover:text-ink">{a.section}</Link>}{a.section && a.series && " · "}{a.series && <Link href={`/teachings/articles?series=${encodeURIComponent(a.series)}`} className="hover:text-ink">{a.series}{a.series_part ? `, part ${a.series_part}` : ""}</Link>}</p>}
             <h1 className="mt-2 text-[30px] leading-[1.15] tracking-[-0.01em] text-ink sm:text-[38px]">{a.title}</h1>
             {a.subtitle && <p className="mt-3 text-[17px] leading-relaxed text-ink-2">{a.subtitle}</p>}
