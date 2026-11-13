@@ -26,7 +26,7 @@ export default async function Read({ params }: P) {
   const pages = pagesOf(nodes, flat); const at = new Map(pages.map((p, i) => [p.id, i]));
   const chapters = pages.map((n) => ({ id: n.id, title: n.title, num: num[n.id] || "", depth: depth(n), href: hrefOf(slug, nodes, n), words: words(n) + insideOf(nodes, flat, n).reduce((a, x) => a + words(x), 0) }));
   const toc = flat.map((n) => { const h = hostOf(nodes, n); const label = isLabel(nodes, n);
-    return { key: n.id, title: n.title, num: num[n.id] || "", depth: depth(n), ch: label ? -1 : at.get(h.id) ?? -1, ...(h.id !== n.id ? { anchor: `s-${n.slug}` } : {}), ...(label ? { label: true } : {}), words: h.id === n.id ? chapters[at.get(n.id) ?? -1]?.words : 0 }; });
+    return { key: n.id, parent: n.parent_id, title: n.title, num: num[n.id] || "", depth: depth(n), ch: label ? -1 : at.get(h.id) ?? -1, ...(h.id !== n.id ? { anchor: `s-${n.slug}` } : {}), ...(label ? { label: true } : {}), words: h.id === n.id ? chapters[at.get(n.id) ?? -1]?.words : 0 }; });
   return (
     <PathaReader book={{ slug, title: book.title, author: book.author, cover: book.cover_url, language: book.language }} chapters={chapters} toc={toc}>
       {pages.map((n, i) => (

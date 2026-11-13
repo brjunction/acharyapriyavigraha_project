@@ -7,7 +7,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { setReaderKind } from "@/lib/reader-pref";
-import { AllBooks } from "./reader";
+import { AllBooks, Contents } from "./reader";
 import { Home, Library, ArrowLeft, List, Search, Bookmark, BookmarkCheck, Settings2, Maximize, Minimize, X, ChevronLeft, ChevronRight, Trash2, RotateCcw, ExternalLink } from "lucide-react";
 
 type Chapter = { id: string; title: string; num: string; depth: number; href: string; words: number };
@@ -125,6 +125,9 @@ export function PathaReader({ book, chapters, toc, children }: { book: Book; cha
 
   const next = useCallback(() => { if (page < pages - 1) setPage(page + 1); else if (ch < chapters.length - 1) { target.current = { kind: "first" }; setCh(ch + 1); } setBars(false); }, [page, pages, ch, chapters.length]);
   const prev = useCallback(() => { if (page > 0) setPage(page - 1); else if (ch > 0) { target.current = { kind: "last" }; setCh(ch - 1); } setBars(false); }, [page, ch]);
+  const tocItems = rows.map((r) => ({ id: r.key, title: r.title, href: "#", num: r.num, depth: r.depth, part: !!r.label, parent: r.parent ?? null }));
+  const curKey = rows.find((r) => r.ch === ch && !r.anchor && !r.label)?.key || "";
+  const pick = (t: { id: string }) => { const r = rows.find((x) => x.key === t.id); if (r && r.ch >= 0) goToc(r.ch, r.anchor); };
   const goToc = (i: number, anchor?: string) => { const el = anchor ? flow.current?.querySelector(`#${CSS.escape(anchor)}`) : null; goCh(i, el ? { kind: "el", el } : { kind: "first" }); };
   const goCh = (i: number, t: Target = { kind: "first" }) => { target.current = t; if (i === ch) measure(); else setCh(i); setPanel(null); };
 
@@ -200,13 +203,13 @@ export function PathaReader({ book, chapters, toc, children }: { book: Book; cha
   const half = Math.ceil(pages / step); const at = Math.floor(page / step) + 1;
   return (
     <div onMouseMove={onHover} className="pr-root fixed inset-0 z-[90] flex select-text overflow-hidden" style={{ background: T.bg, color: T.ink, ...vars }}>
-      {docked && <aside className="flex w-[300px] shrink-0 flex-col" style={{ background: T.ui, borderRight: `1px solid ${T.line}` }}>
+      {docked && <aside className="flex w-[300px] shrink-0 flex-col border-r font-sans" style={{ borderColor: T.line }}>
         <div className="flex h-12 shrink-0 items-end gap-1 px-2" style={{ borderBottom: `1px solid ${T.line}` }}>
           {([["toc", "Contents"], ["books", "Books"], ["search", "Search"], ["marks", "Bookmarks"]] as const).map(([k, l]) => <button key={k} onClick={() => setDockTab(k)} className="relative px-2 pb-2.5 text-[13px] font-medium" style={{ color: dockTab === k ? T.ink : T.muted }}>{l}{dockTab === k && <span className="absolute inset-x-2 bottom-0 h-[2px] rounded-full" style={{ background: "#b5651d" }} />}</button>)}
           <button onClick={() => setKeep({ dock: false })} aria-label="Hide the side column" title="Hide" className="mb-2 ml-auto rounded-full p-1.5" style={{ color: T.muted }}><X size={16} /></button>
         </div>
-        <div className="min-h-0 flex-1 overflow-y-auto">
-          {dockTab === "toc" && <Toc rows={rows} ch={ch} T={T} go={goToc} />}
+        <div className="min-h-0 flex-1 overflow-y-auto pb-10 [scrollbar-width:thin]">
+          {dockTab === "toc" && <Contents key={curKey} toc={tocItems} current={curKey} T={T} onPick={pick} />}
           {dockTab === "search" && <Find flow={flow} chapters={chapters} T={T} go={(i, el) => goCh(i, { kind: "el", el })} />}
           {dockTab === "books" && <AllBooks T={T} current={book.slug} onGo={() => {}} />}
           {dockTab === "marks" && <Marks marks={marks} T={T} go={(x) => goCh(x.ch, { kind: "ratio", r: x.r })} remove={(x) => { const n = marks.filter((y) => y !== x); setMarks(n); write(markKey, n); }} />}
@@ -267,7 +270,7 @@ export function PathaReader({ book, chapters, toc, children }: { book: Book; cha
       {(s.dim > 0 || s.warm > 0) && <div aria-hidden className="pointer-events-none absolute inset-0 z-40" style={{ background: `linear-gradient(rgba(255,140,30,${s.warm / 250}), rgba(255,140,30,${s.warm / 250})), rgba(0,0,0,${s.dim / 100})`, mixBlendMode: s.warm && !s.dim ? "multiply" : "normal" }} />}
 
       {panel && <Sheet T={T} onClose={() => setPanel(null)} tab={panel} setTab={setPanel}>
-        {panel === "toc" && <Toc rows={rows} ch={ch} T={T} go={goToc} />}
+        {panel === "toc" && <Contents key={curKey} toc={tocItems} current={curKey} T={T} onPick={pick} />}
         {panel === "books" && <AllBooks T={T} current={book.slug} onGo={() => setPanel(null)} />}
         {panel === "search" && <Find flow={flow} chapters={chapters} T={T} go={(i, el) => goCh(i, { kind: "el", el })} />}
         {panel === "marks" && <Marks marks={marks} T={T} go={(x) => goCh(x.ch, { kind: "ratio", r: x.r })} remove={(x) => { const n = marks.filter((y) => y !== x); setMarks(n); write(markKey, n); }} />}
@@ -291,14 +294,7 @@ function Sheet({ T, tab, setTab, onClose, children }: { T: (typeof THEMES)[strin
     </div>);
 }
 
-type TocRow = { key: string; title: string; num: string; depth: number; ch: number; anchor?: string; label?: boolean; words?: number };
-function Toc({ rows, ch, T, go }: { rows: TocRow[]; ch: number; T: (typeof THEMES)[string]; go: (i: number, anchor?: string) => void }) {
-  const cur = useRef<HTMLButtonElement>(null); useEffect(() => { cur.current?.scrollIntoView({ block: "center" }); }, []);
-  return <ol className="py-2">{rows.map((c) => { const on = c.ch === ch && !c.anchor && !c.label; return (
-    <li key={c.key}>{c.label ? <p className="flex items-baseline gap-2 pb-1 pr-4 pt-3 text-[11.5px] font-semibold uppercase tracking-[0.08em]" style={{ paddingLeft: 16 + c.depth * 16, color: T.muted }}>{c.num && <span className="w-8 shrink-0 tabular-nums">{c.num}</span>}{c.title}</p>
-      : <button ref={on ? cur : undefined} onClick={() => go(c.ch, c.anchor)} className="flex w-full items-baseline gap-2 py-2 pr-4 text-left text-[14px] transition hover:opacity-100" style={{ paddingLeft: 16 + c.depth * 16, background: on ? `${T.line}` : undefined, opacity: on ? 1 : 0.88 }}>
-      {c.num && <span className="w-8 shrink-0 text-[12px] tabular-nums" style={{ color: T.muted }}>{c.num}</span>}<span className={`min-w-0 flex-1 ${c.depth === 0 && !c.anchor ? "font-medium" : ""}`}>{c.title}</span><span className="shrink-0 text-[11px] tabular-nums" style={{ color: T.muted }}>{!c.anchor && (c.words || 0) > 200 ? `${Math.max(1, Math.round((c.words || 0) / 230))} min` : ""}</span></button>}</li>); })}</ol>;
-}
+type TocRow = { key: string; title: string; num: string; depth: number; ch: number; anchor?: string; label?: boolean; words?: number; parent?: string | null };
 
 function Find({ flow, chapters, T, go }: { flow: React.RefObject<HTMLDivElement | null>; chapters: Chapter[]; T: (typeof THEMES)[string]; go: (i: number, el: Element) => void }) {
   const [q, setQ] = useState(""); const inp = useRef<HTMLInputElement>(null); useEffect(() => { inp.current?.focus(); }, []);
