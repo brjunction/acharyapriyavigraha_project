@@ -63,7 +63,7 @@ export function BookLibrary({ books, shelves: meta, title = "Books", intro = "Re
 
         {recent.length > 0 && !q && !shelf && <section className="mt-8">
           <h2 className="mb-3 text-[13px] font-semibold text-ink">Continue reading</h2>
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">{recent.map((r) => <Link key={r.slug} href={r.href} className="group flex items-center gap-3 rounded-lg border border-line p-3 hover:border-line-strong">
+          <div className="max-w-md">{recent.slice(0, 1).map((r) => <Link key={r.slug} href={r.href} className="group flex items-center gap-3 rounded-lg border border-line p-3 hover:border-line-strong">
             <span className="h-14 w-10 shrink-0 overflow-hidden rounded-sm bg-band shadow-sm">{r.cover && /* eslint-disable-next-line @next/next/no-img-element */ <img src={r.cover} alt="" className="h-full w-full object-cover" />}</span>
             <span className="min-w-0 flex-1"><span className="block truncate text-[13px] font-medium text-ink">{r.book}</span><span className="block truncate text-[12px] text-ink-3">{r.title}</span><span className="mt-1.5 block h-1 overflow-hidden rounded-full bg-band"><span className="block h-full rounded-full bg-ink/70" style={{ width: `${Math.round(((r.index + 1) / r.total) * 100)}%` }} /></span></span>
             <ArrowRight size={14} className="text-ink-3 transition group-hover:translate-x-0.5" /></Link>)}</div>
