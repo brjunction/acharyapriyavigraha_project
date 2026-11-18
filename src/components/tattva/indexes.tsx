@@ -46,7 +46,7 @@ export async function VersesIndex({ s }: { s?: string }) {
     <>
       <IndexNav at="verses" />
       <Head title="Verse index" intro="The verses Śrīla Gurudeva spoke on, scripture by scripture — open a verse to hear every lecture given on it." stats={[plural(rows.length, "lecture"), plural(keys.length, "scripture")]} />
-      {!rows.length ? <Empty text="Lectures will be listed here verse by verse as their scripture references are added in the Studio." /> : <>
+      {!rows.length ? <Empty text="Lectures will be listed here verse by verse as their scripture references are prepared." /> : <>
         <div className="mb-6 flex flex-wrap gap-2">{keys.map((k) => <Link key={k} href={`/tattva/index/verses?s=${k}`} className={`rounded-xl border px-4 py-2.5 text-left transition ${k === pick ? "border-saffron bg-saffron/[0.06]" : "border-line hover:border-ink-3"}`}><span className="block text-[14px] font-medium text-ink">{SCRIPTURES[k] || k}</span><span className="text-[12px] text-ink-3">{plural(by.get(k)!.length, "lecture")}</span></Link>)}</div>
         {[...groups.entries()].map(([g, rs]) => { const verses = new Map<string, any[]>(); rs.forEach((r) => { const k = ref(r) || "—"; verses.set(k, [...(verses.get(k) || []), r]); }); return (
           <Block key={g} title={g} n={rs.length}>

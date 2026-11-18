@@ -55,7 +55,7 @@ export function BlessingLetters({ align = "center" }: { align?: "center" | "left
 /** Topics as chips sized by how much is on them. */
 export function TopicCloud({ topics }: { topics: { name: string; slug: string; total: number }[] }) {
   const max = Math.max(1, ...topics.map((t) => t.total));
-  if (!topics.length) return <p className="py-8 text-center text-[13px] text-ink-3">Topics appear here as they are added in the Studio.</p>;
+  if (!topics.length) return <p className="py-8 text-center text-[13px] text-ink-3">The subjects are being prepared.</p>;
   return (
     <div className="flex flex-wrap gap-2">{topics.map((t) => { const w = t.total / max; return (
       <Link key={t.slug} href={`/tattva/${t.slug}`} className="rounded-full border border-[#eadcc0] px-3 py-1.5 text-ink-2 transition hover:border-saffron hover:bg-[#fbf7ef] hover:text-saffron" style={{ fontSize: 12.5 + w * 3 }}>{t.name}{t.total > 0 && <span className="ml-1.5 text-[11px] text-ink-3">{t.total}</span>}</Link>); })}</div>
