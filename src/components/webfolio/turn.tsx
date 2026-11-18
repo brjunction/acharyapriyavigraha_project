@@ -43,7 +43,7 @@ export function PageTurn({ prev, next, up }: { prev?: Nb; next?: Nb; up?: { href
   return (
     <>
       <div className="fixed inset-x-0 top-0 z-50 h-[3px] bg-transparent"><div className="h-full bg-[#853500] transition-[width] duration-150" style={{ width: `${pct}%` }} /></div>
-      {(prev || book) && <div className={`${edge} ${p.side && p.mode === "classic" ? "left-[300px]" : "left-4"} gap-2`}><button onClick={() => flip(-1)} aria-label="Previous" className={btn}><ChevronLeft size={20} /></button>{prev && !book && <span className={tip}>{prev.title}</span>}</div>}
+      {(prev || book) && <div className={`${edge} ${p.side && p.mode === "classic" ? "left-[300px] xl:!hidden 2xl:!flex" : "left-4"} gap-2`}><button onClick={() => flip(-1)} aria-label="Previous" className={btn}><ChevronLeft size={20} /></button>{prev && !book && <span className={tip}>{prev.title}</span>}</div>}
       {(next || book) && <div className={`${edge} right-4 flex-row-reverse gap-2`}><button onClick={() => flip(1)} aria-label="Next" className={btn}><ChevronRight size={20} /></button>{next && !book && <span className={tip}>{next.title}</span>}</div>}
       {book && <div className="fixed bottom-5 left-1/2 z-30 flex -translate-x-1/2 items-center gap-1 rounded-full border border-zinc-200 bg-white/95 p-1 shadow-[0_10px_30px_-12px_rgba(0,0,0,.35)] backdrop-blur">
         <button onClick={() => flip(-1)} className="flex size-8 items-center justify-center rounded-full text-zinc-600 hover:bg-zinc-100" aria-label="Previous page"><ChevronLeft size={17} /></button>
