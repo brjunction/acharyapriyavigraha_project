@@ -47,7 +47,7 @@ export function LanguageDirectory() {
                       <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10.5px] font-medium ${TONE[l.status]}`}>{STATUS_LABEL[l.status]}</span>
                     </div>
                     {l.status !== "planned" ? (
-                      <div className="mt-4" dir="ltr"><div className="mb-1 flex justify-between text-[11px] text-ink-3"><span>Interface</span><span className="tabular">{l.ui}%</span></div><div className="h-1 overflow-hidden rounded-full bg-band"><div className="h-full rounded-full bg-[var(--acc)]" style={{ width: `${l.ui}%` }} /></div></div>
+                      <p className="mt-4 text-[11.5px] text-ink-3" dir="ltr">{l.status === "live" ? "Menus and pages in this language; teachings are added as their translations are reviewed." : "Translation has begun."}</p>
                     ) : <p className="mt-4 text-[11.5px] text-ink-3" dir="ltr">Not started. Help begin this language.</p>}
                     <span className="mt-3 flex items-center gap-1 text-[11.5px] font-medium text-[var(--acc)]" dir="ltr">{l.status === "planned" ? "Open portal" : "Open site"}<ArrowRight size={13} className="transition-transform group-hover:translate-x-0.5" /></span>
                   </Link>

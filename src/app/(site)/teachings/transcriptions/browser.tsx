@@ -2,7 +2,8 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { Search, X, FileText, ArrowRight } from "lucide-react";
-import { LECTURES, fmtDate } from "@/lib/data";
+import { fmtDate } from "@/lib/data";
+export type TItem = { slug: string; href: string; title: string; date: string; place: string; type: string; scripture?: string; topics: string[]; languages: string[] };
 import { norm } from "@/components/search";
 
 const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
@@ -10,7 +11,6 @@ const kind = (l: { type: string; scripture?: string }) => {
   if (l.type === "Lecture") { const k = l.scripture?.split(" ")[0]; return k === "SB" ? "Śrīmad-Bhāgavatam lecture" : k === "BG" ? "Bhagavad-gītā lecture" : k === "CC" ? "Caitanya-caritāmṛta lecture" : "Discussion"; }
   return l.type === "Questions & Answers" ? "Questions & answers" : l.type;
 };
-const ALL = LECTURES.filter((l) => l.transcribed);
 
 function Select({ label, value, onChange, options }: { label: string; value: string; onChange: (v: string) => void; options: [string, number][] }) {
   return (
@@ -24,7 +24,7 @@ function Select({ label, value, onChange, options }: { label: string; value: str
   );
 }
 
-export function TranscriptionBrowser() {
+export function TranscriptionBrowser({ items: ALL }: { items: TItem[] }) {
   const [q, setQ] = useState("");
   const [year, setYear] = useState("");
   const [month, setMonth] = useState("");
@@ -42,7 +42,7 @@ export function TranscriptionBrowser() {
   const count = (f: (l: (typeof ALL)[0]) => string[], skip: string) => {
     const m = new Map<string, number>(); base.filter((l) => match(l, skip)).forEach((l) => f(l).forEach((v) => m.set(v, (m.get(v) ?? 0) + 1))); return m;
   };
-  const years = useMemo(() => [...count((l) => [l.date.slice(0, 4)], "year").entries()].sort((a, b) => b[0].localeCompare(a[0])), [q, year, month, bk, topic, place, lang]); // eslint-disable-line react-hooks/exhaustive-deps
+  const years = useMemo(() => [...count((l) => [l.date.slice(0, 4) || "Undated"], "year").entries()].sort((a, b) => b[0].localeCompare(a[0])), [q, year, month, bk, topic, place, lang]); // eslint-disable-line react-hooks/exhaustive-deps
   const monthsAvail = count((l) => [l.date.slice(5, 7)], "month");
   const books = [...count((l) => [kind(l)], "bk").entries()].sort();
   const topics = [...count((l) => l.topics, "topic").entries()].sort();
@@ -85,14 +85,14 @@ export function TranscriptionBrowser() {
       <div className="mt-3">
         {Object.keys(grouped).sort().reverse().map((k) => (
           <section key={k} className="mb-7">
-            <h2 className="mb-2 text-[14px] font-semibold text-saffron">{MONTHS[+k.slice(5) - 1]} {k.slice(0, 4)} <span className="font-normal text-ink-3">· {grouped[k].length}</span></h2>
+            <h2 className="mb-2 text-[14px] font-semibold text-saffron">{k === "-" ? "Undated" : `${MONTHS[+k.slice(5) - 1] || ""} ${k.slice(0, 4)}`} <span className="font-normal text-ink-3">· {grouped[k].length}</span></h2>
             <div className="card divide-y divide-line">
               {grouped[k].map((l) => (
-                <Link key={l.slug} href={`/teachings/audio/${l.slug}`} className="group flex items-center gap-4 px-5 py-3.5 hover:bg-saffron-tint">
+                <Link key={l.slug} href={l.href} className="group flex items-center gap-4 px-5 py-3.5 hover:bg-saffron-tint">
                   <span className="mega-ic !h-9 !w-9"><FileText size={16} strokeWidth={1.7} /></span>
                   <span className="min-w-0 flex-1">
                     <span className="block truncate text-[14.5px] font-semibold text-ink group-hover:text-saffron">{l.title}</span>
-                    <span className="block truncate text-[12px] text-ink-3">{fmtDate(l.date)} · {l.place} · {l.scripture ?? "No verse"} · {l.topics.join(", ")}</span>
+                    <span className="block truncate text-[12px] text-ink-3">{[l.date ? fmtDate(l.date) : "Undated", l.place, l.scripture, l.topics.join(", ")].filter(Boolean).join(" · ")}</span>
                   </span>
                   <ArrowRight size={15} className="text-ink-3 transition group-hover:translate-x-0.5 group-hover:text-saffron" />
                 </Link>

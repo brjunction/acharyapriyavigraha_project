@@ -84,7 +84,7 @@ export const TRANSCRIPT = [
 
 export const QUOTE_OF_DAY = {
   text: "When the sun rises, the lotus blossoms; when the sun sets, the petals close.",
-  source: "House Program", date: "31 May 1994", place: "San Francisco, USA",
+  source: "Śrī Śrīmad Gour Govinda Swāmī", date: "", place: "",
 };
 
 export const QUOTE_CATEGORIES = [

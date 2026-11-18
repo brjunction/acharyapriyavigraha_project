@@ -292,7 +292,7 @@ export function LangMarquee() {
             {[...row, ...row, ...row, ...row].map((l, k) => (
               <Link key={k} href={`/${l.code === "en" ? "" : l.code}`} className="mr-3 flex shrink-0 items-center gap-3 rounded-2xl border border-line bg-surface px-5 py-3 transition hover:-translate-y-0.5 hover:border-saffron hover:shadow-[var(--shadow-md)]">
                 <span className="text-[16.5px] font-semibold tracking-[-0.02em] text-ink">{l.native}</span>
-                <span className="text-[11.5px] text-ink-3">{l.name}<br /><span className="text-saffron">{l.ui}% translated</span></span>
+                <span className="text-[11.5px] text-ink-3">{l.name}<br /><span className="text-saffron">{l.status === "live" ? "Open" : "Being translated"}</span></span>
               </Link>
             ))}
           </div>
