@@ -34,6 +34,7 @@ export function ArticleLibrary({ items, authors }: { items: ACard[]; authors: Au
   }, [items, from, author, section, series, topic, f, sort]);
   const au = authors.find((a) => a.name === author);
   const any = from || author || section || series || topic || f;
+  const feat = !any && list.length >= 4;
 
   return (
     <div className="mx-auto max-w-[1240px] px-4 pb-20 sm:px-6">
@@ -58,8 +59,13 @@ export function ArticleLibrary({ items, authors }: { items: ACard[]; authors: Au
 
       {!any && seriesL.length > 0 && <section className="mt-8"><h2 className="mb-3 flex items-center gap-2 text-[13px] font-semibold text-ink"><Layers size={14} />Series</h2><div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">{seriesL.map(([s, c]) => { const first = items.find((a) => a.series === s); return <button key={s} onClick={() => set("series", s)} className="rounded-lg border border-line p-4 text-left hover:border-line-strong"><p className="text-[14px] font-medium text-ink">{s}</p><p className="mt-0.5 text-[12px] text-ink-3">{c} parts{first?.author ? ` · ${first.author}` : ""}</p></button>; })}</div></section>}
 
+      {feat && (() => { const top = list[0]; return (
+        <Link href={`/teachings/articles/${top.slug}`} className="group mt-8 grid overflow-hidden rounded-2xl border border-line bg-band/30 transition hover:border-line-strong md:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
+          {top.cover ? /* eslint-disable-next-line @next/next/no-img-element */ <img src={top.cover} alt="" className="aspect-[16/10] h-full w-full object-cover md:aspect-auto" /> : <span className="hidden items-center justify-center bg-[#f6efe3] md:flex"><span className="px-8 text-center font-serif text-[22px] italic leading-snug text-[#853500]/80">{top.title}</span></span>}
+          <span className="flex flex-col justify-center p-6 sm:p-8"><span className="text-[11.5px] font-semibold uppercase tracking-[0.14em] text-saffron">Latest</span><span className="mt-2 block text-[24px] font-semibold leading-tight tracking-[-0.01em] text-ink group-hover:underline sm:text-[28px]">{top.title}</span>{(top.summary || top.subtitle) && <span className="mt-2 line-clamp-3 block text-[14.5px] leading-relaxed text-ink-2">{top.summary || top.subtitle}</span>}<span className="mt-4 flex flex-wrap items-center gap-x-3 text-[12.5px] text-ink-3">{top.author && <span className="text-ink-2">{top.author}</span>}{top.date && <span>{fmt(top.date)}</span>}<span>{top.minutes} min read</span></span></span>
+        </Link>); })()}
       <p className="mb-2 mt-8 text-[12.5px] text-ink-3">{list.length.toLocaleString()} {list.length === 1 ? "article" : "articles"}{series ? ` in “${series}”, in order` : ""}</p>
-      <div className="divide-y divide-line border-y border-line">{list.slice(0, n).map((a) => (
+      <div className="divide-y divide-line border-y border-line">{(feat ? list.slice(1) : list).slice(0, n).map((a) => (
         <article key={a.slug} className="group grid gap-4 py-5 sm:grid-cols-[minmax(0,1fr)_150px]">
           <div className="min-w-0">
             <div className="mb-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-[12px] text-ink-3">

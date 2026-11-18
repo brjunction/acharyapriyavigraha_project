@@ -56,8 +56,8 @@ export async function SectionPage({ href }: { href: string }) {
       <PageHero crumbs={[{ href: menu.href, label: menu.label }, { label: link.label }]} title={link.label} intro={link.desc} icon={link.icon} />
       <Container className="grid grid-cols-[minmax(0,1fr)] gap-10 py-14 lg:grid-cols-[minmax(0,1fr)_320px]">
         <div>
-          <EmptyState icon={Hourglass} title={link.soon ? "Coming soon" : "Arriving with the archive move"}
-            text={`This page is designed and ready. Its content comes from the Taptajīvanam archive and is managed in the dashboard.`} />
+          <EmptyState icon={Hourglass} title="Being prepared"
+            text={`${link.desc ? `${link.desc}. ` : ""}This collection is being prepared from the Taptajīvanam archive; entries appear here as soon as they are reviewed, each with its source.`} />
         </div>
         <aside>
           <p className="mb-3 text-[11.5px] font-semibold uppercase tracking-[0.14em] text-saffron">{group.title}</p>
