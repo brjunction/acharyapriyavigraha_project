@@ -42,7 +42,7 @@ export function PageTurn({ prev, next, up }: { prev?: Nb; next?: Nb; up?: { href
   const tip = "pointer-events-none max-w-[220px] truncate rounded-lg bg-zinc-900 px-2.5 py-1.5 text-[12px] font-medium text-white opacity-0 shadow-lg transition group-hover:opacity-100";
   return (
     <>
-      <div className="fixed inset-x-0 top-0 z-50 h-[3px] bg-transparent"><div className="h-full bg-[#1a73e8] transition-[width] duration-150" style={{ width: `${pct}%` }} /></div>
+      <div className="fixed inset-x-0 top-0 z-50 h-[3px] bg-transparent"><div className="h-full bg-[#853500] transition-[width] duration-150" style={{ width: `${pct}%` }} /></div>
       {(prev || book) && <div className={`${edge} ${p.side && p.mode === "classic" ? "left-[300px]" : "left-4"} gap-2`}><button onClick={() => flip(-1)} aria-label="Previous" className={btn}><ChevronLeft size={20} /></button>{prev && !book && <span className={tip}>{prev.title}</span>}</div>}
       {(next || book) && <div className={`${edge} right-4 flex-row-reverse gap-2`}><button onClick={() => flip(1)} aria-label="Next" className={btn}><ChevronRight size={20} /></button>{next && !book && <span className={tip}>{next.title}</span>}</div>}
       {book && <div className="fixed bottom-5 left-1/2 z-30 flex -translate-x-1/2 items-center gap-1 rounded-full border border-zinc-200 bg-white/95 p-1 shadow-[0_10px_30px_-12px_rgba(0,0,0,.35)] backdrop-blur">
@@ -65,7 +65,7 @@ export function UpNext({ prev, next, up }: { prev?: Nb; next?: Nb; up?: { href: 
     <div className="mt-16">
       {next && <Link href={next.href} className="group flex items-center gap-4 rounded-2xl border border-zinc-200 bg-zinc-50 p-5 transition hover:border-zinc-300 hover:bg-white hover:shadow-[0_14px_36px_-18px_rgba(0,0,0,.35)]">
         <span className="min-w-0 flex-1"><span className="text-[11.5px] font-semibold uppercase tracking-[0.1em] text-zinc-400">Up next</span><span className="mt-1 block truncate text-[18px] font-semibold tracking-tight text-zinc-950">{next.title}</span></span>
-        <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-[#1a73e8] text-white shadow-[0_6px_16px_-6px_rgba(26,115,232,.6)] transition group-hover:translate-x-0.5"><ArrowRight size={19} /></span>
+        <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-[#853500] text-white shadow-[0_6px_16px_-6px_rgba(133,53,0,.6)] transition group-hover:translate-x-0.5"><ArrowRight size={19} /></span>
       </Link>}
       <div className="mt-3 flex flex-wrap items-center justify-between gap-2 px-1 text-[13px]">
         {prev ? <Link href={prev.href} className="inline-flex min-w-0 items-center gap-1.5 text-zinc-500 hover:text-zinc-950"><ChevronLeft size={15} /><span className="truncate">{prev.title}</span></Link> : <span />}

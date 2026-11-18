@@ -3,10 +3,10 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { PrefsRoot, ReadingMenu, ThemeButton, usePrefs, SIZES, THEME_ORDER } from "./prefs";
-import { Search, X, Menu, Globe, Download, ChevronRight, Home, ScanSearch, Filter, MonitorDown, CornerDownLeft, PanelLeftClose, PanelLeftOpen, Maximize2, Minimize2, BookOpenText, Keyboard, Flower2, Headphones, FileText, Music, BookOpen, Quote, Clapperboard, Files, Newspaper, Library, type LucideIcon } from "lucide-react";
+import { Search, X, Menu, Globe, Download, ChevronRight, Home, ScanSearch, Filter, MonitorDown, CornerDownLeft, PanelLeftClose, PanelLeftOpen, Maximize2, Minimize2, BookOpenText, Keyboard, Flower2, Headphones, FileText, Music, BookOpen, Quote, Clapperboard, Files, Newspaper, Library, Network, type LucideIcon } from "lucide-react";
 import type { FSec } from "@/lib/webfolio/data";
 
-const ICONS: Record<string, LucideIcon> = { Flower2, Headphones, FileText, Music, BookOpen, Quote, Clapperboard, Files, Newspaper, Library, Globe };
+const ICONS: Record<string, LucideIcon> = { Network, Flower2, Headphones, FileText, Music, BookOpen, Quote, Clapperboard, Files, Newspaper, Library, Globe };
 export const SecIcon = ({ s, size = 14 }: { s: Pick<FSec, "icon" | "color">; size?: number }) => { const I = ICONS[s.icon] || FileText; return <span className="flex shrink-0 items-center justify-center rounded-lg" style={{ background: `${s.color}1f`, color: s.color, width: size + 12, height: size + 12 }}><I size={size} strokeWidth={2.1} /></span>; };
 const fold = (s: string) => s.normalize("NFKD").replace(/[̀-ͯ]/g, "").toLowerCase();
 
@@ -64,7 +64,7 @@ function Inner({ nav, children }: { nav: FSec[]; children: React.ReactNode }) {
         </div>); })}
       </div>
       <Link href="/webfolio/download" className="mt-6 block rounded-xl border border-zinc-200 bg-zinc-50 p-3.5 transition hover:border-zinc-300">
-        <span className="flex items-center gap-2 text-[13px] font-semibold text-zinc-900"><MonitorDown size={15} className="text-[#1a73e8]" />Read offline</span>
+        <span className="flex items-center gap-2 text-[13px] font-semibold text-zinc-900"><MonitorDown size={15} className="text-[#853500]" />Read offline</span>
         <span className="mt-1 block text-[12px] leading-snug text-zinc-500">Install the WebFolio on Windows, Mac or your phone.</span>
       </Link>
     </nav>
@@ -83,7 +83,7 @@ function Inner({ nav, children }: { nav: FSec[]; children: React.ReactNode }) {
             <button onClick={() => set({ mode: p.mode === "book" ? "classic" : "book" })} title="Book reader, page by page (B)" aria-label="Book reader" className={`hidden size-9 items-center justify-center rounded-full transition hover:bg-zinc-100 sm:flex ${p.mode === "book" ? "bg-zinc-100 text-zinc-950" : "text-zinc-600"}`}><BookOpenText size={17} /></button>
             <ReadingMenu /><ThemeButton />
             <button onClick={() => setHelp(true)} title="Keyboard shortcuts (?)" aria-label="Keyboard shortcuts" className="hidden size-9 items-center justify-center rounded-full text-zinc-600 hover:bg-zinc-100 md:flex"><Keyboard size={17} /></button>
-            <Link href="/webfolio/download" className="ml-1 hidden h-9 items-center gap-1.5 rounded-full bg-[#1a73e8] px-4 text-[13px] font-semibold text-white transition hover:bg-[#1765cc] sm:flex"><Download size={15} />Install</Link>
+            <Link href="/webfolio/download" className="ml-1 hidden h-9 items-center gap-1.5 rounded-full bg-[#853500] px-4 text-[13px] font-semibold text-white transition hover:bg-[#6e2c00] sm:flex"><Download size={15} />Install</Link>
             <Link href="/" title="Back to the website" className="flex size-9 items-center justify-center rounded-full text-zinc-600 hover:bg-zinc-100"><Globe size={17} /></Link>
           </div>
         </div>
@@ -130,7 +130,7 @@ function SearchDialog({ nav, onClose }: { nav: FSec[]; onClose: () => void }) {
               {h.snippet && <p className="mt-0.5 line-clamp-2 text-[12.5px] leading-relaxed text-zinc-600"><Mark text={h.snippet} q={q} /></p>}</button>; })}</div>)}
         </div>
         <div className="flex items-center justify-between gap-3 border-t border-zinc-200 bg-zinc-50 px-4 py-2.5 text-[12px] text-zinc-500"><span className="hidden items-center gap-1.5 sm:flex"><kbd className="rounded border border-zinc-200 bg-white px-1">↑</kbd><kbd className="rounded border border-zinc-200 bg-white px-1">↓</kbd> move <kbd className="ml-2 rounded border border-zinc-200 bg-white px-1"><CornerDownLeft size={11} className="inline" /></kbd> open</span>
-          <Link href={`/webfolio/search${q ? `?q=${encodeURIComponent(q)}` : ""}`} onClick={onClose} className="ml-auto inline-flex items-center gap-1.5 font-medium text-[#1a73e8] hover:underline"><ScanSearch size={14} />Research search{q ? ` for “${q}”` : ""} <span className="hidden text-zinc-400 sm:inline">Ctrl ↵</span></Link></div>
+          <Link href={`/webfolio/search${q ? `?q=${encodeURIComponent(q)}` : ""}`} onClick={onClose} className="ml-auto inline-flex items-center gap-1.5 font-medium text-[#853500] hover:underline"><ScanSearch size={14} />Research search{q ? ` for “${q}”` : ""} <span className="hidden text-zinc-400 sm:inline">Ctrl ↵</span></Link></div>
       </div>
     </div>
   );

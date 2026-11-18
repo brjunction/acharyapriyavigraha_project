@@ -7,6 +7,8 @@ import { order, type Node } from "@/lib/content/books";
 import { COLLECTIONS } from "@/lib/archive/config";
 import { getTimeline } from "@/lib/content/timeline";
 import { getMenus } from "@/lib/menus-server";
+import { topics as allTopics, childrenOf, namesBelow } from "@/lib/content/topics";
+import { SCRIPTURES, CC_LILA } from "@/lib/content/indexes";
 
 export type FGroup = { key: string; title: string; count?: number };
 export type FSec = { key: string; title: string; desc: string; icon: string; color: string; groups: FGroup[] };
@@ -18,6 +20,7 @@ const SECS: Omit<FSec, "groups">[] = [
   { key: "transcriptions", title: "Transcriptions", desc: "Lectures written out, to read", icon: "FileText", color: "#4338ca" },
   { key: "kirtans", title: "Kīrtanas", desc: "Songs he sang and led", icon: "Music", color: "#be185d" },
   { key: "books", title: "Books", desc: "Each book on one page", icon: "BookOpen", color: "#0f766e" },
+  { key: "tattva", title: "Tattva", desc: "Every subject he spoke on, and the verse index", icon: "Network", color: "#3f51b5" },
   { key: "compilations", title: "Compilations", desc: "Quotes, verses, stories, analogies", icon: "Quote", color: "#a16207" },
   { key: "articles", title: "Articles", desc: "Essays and writings, by section", icon: "Newspaper", color: "#0e7490" },
   { key: "magazines", title: "Magazines", desc: "Magazines and their issues", icon: "Library", color: "#6d28d9" },
@@ -50,12 +53,14 @@ async function buildNav(): Promise<FSec[]> {
     q(sql`select m.id, m.title, (select count(*)::int from magazine_issues i where i.magazine_id = m.id and i.status = 'published') n from magazines m where m.status = 'published' order by m.position, m.title`),
     getMenus().catch(() => []),
   ]) as any[][];
+  const tps = await allTopics().catch(() => []); const verseN = ((await q(sql`select count(*)::int n from audios where status = 'published' and scripture is not null`)) as any[])[0]?.n || 0;
   const groups: Record<string, FGroup[]> = {
     gurudeva: [
       { key: "timeline", title: "Life timeline", count: tl[0]?.n || undefined },
       ...(diary.length ? diary.map((r) => ({ key: `diary-${r.y || "undated"}`, title: `His Diary, ${r.y || "undated"}`, count: r.n })) : [{ key: "diary-undated", title: "His Diary", count: 0 }]),
       ...ARCH.map((k) => ({ key: k, title: COLLECTIONS[k].label, count: arch.find((a) => a.collection === k)?.n || 0 })),
     ],
+    tattva: [...(verseN ? [{ key: "verses", title: "Verse index", count: verseN }] : []), ...childrenOf(tps, null).filter((t) => !t.parent || !tps.some((x) => x.name === t.parent)).map((t) => ({ key: t.slug, title: t.name, count: t.deep || undefined }))],
     lectures: yearsOf(lec), transcriptions: yearsOf(tr), kirtans: yearsOf(kir), videos: yearsOf(vid),
     books: books.map((b) => ({ key: b.slug, title: b.title, count: b.n })),
     compilations: EXK.filter(([k]) => exk.some((e) => e.kind === k)).map(([k, l]) => ({ key: k, title: l, count: exk.find((e) => e.kind === k)?.n })),
@@ -86,6 +91,28 @@ export async function groupPage(sec: string, g: string): Promise<Page | null> {
     return { title: `${SECS.find((s) => s.key === sec)!.title} · ${g === "undated" ? "Undated" : g}`, intro: `${rows.length} ${songs ? "recordings" : text ? "transcriptions" : "lectures"}${g === "undated" ? " without a known date" : ` from ${g}`}.`, list: true,
       blocks: rows.map((r) => ({ id: r.slug, title: r.title, href: `/webfolio/${sec}/${g}/${r.slug}`, sub: [date(r.date) || r.date_note, [r.place, r.country].filter(Boolean).join(", "), r.type, verseRef(r), durText(r.duration_sec)].filter(Boolean).join(" · "), badge: !text && r.has_text ? "Text" : undefined })) };
   }
+  if (sec === "tattva") {
+    const lecSub = (r: any) => [date(r.date) || r.date_note, [r.place, r.country].filter(Boolean).join(", "), r.type, verseRef(r), durText(r.duration_sec)].filter(Boolean).join(" · ");
+    const lecHref = (r: any) => `/webfolio/lectures/${r.date ? String(date(r.date)).slice(0, 4) : "undated"}/${r.slug}`;
+    if (g === "verses") {
+      const rows = (await q(sql`select slug, title, date, date_note, place, country, scripture, canto, chapter, verse, type, duration_sec from audios where status = 'published' and scripture is not null order by scripture, canto nulls last, chapter nulls last, nullif(regexp_replace(coalesce(verse, ''), '[^0-9].*$', ''), '')::int nulls last, date nulls last`)) as any[];
+      const out: Block[] = []; let cur = "";
+      for (const r of rows) { const sc = String(r.scripture).toUpperCase(); const head = `${SCRIPTURES[sc] || sc}${sc === "CC" ? ` · ${CC_LILA[r.canto] || ""}` : r.canto ? ` · Canto ${r.canto}` : ""}`; if (head !== cur) { cur = head; out.push({ id: `s-${sc}-${r.canto || 0}`, title: head }); } out.push({ id: r.slug, title: `${sc} ${[r.canto, r.chapter, r.verse].filter((x) => x != null && x !== "").join(".")} — ${r.title}`, sub: lecSub(r), href: lecHref(r) }); }
+      return { title: "Verse index", intro: `${rows.length} lectures, verse by verse.`, list: true, blocks: out };
+    }
+    const tps = await allTopics(); const t = tps.find((x) => x.slug === g); if (!t) return null;
+    const names = [t.name, ...namesBelow(tps, t.name)];
+    const [quotes, lectures, videos] = await Promise.all([
+      q(sql`select e.slug, e.text, e.source, e.topics, a.title as lecture from excerpts e left join audios a on a.id = e.audio_id where e.status = 'published' and e.kind = 'quote' and e.topics && ${names} order by e.position limit 400`),
+      q(sql`select slug, title, date, date_note, place, country, scripture, canto, chapter, verse, type, duration_sec, topics from audios where status = 'published' and topics && ${names} order by date nulls last limit 300`),
+      q(sql`select slug, title, date, year, topics from videos where status = 'published' and topics && ${names} order by date nulls last limit 200`),
+    ]) as any[][];
+    const blocks: Block[] = [];
+    for (const n of names) { const tt = tps.find((x) => x.name === n); const qs = quotes.filter((x) => (x.topics || []).includes(n)); const ls = lectures.filter((x) => (x.topics || []).includes(n)); const vs = videos.filter((x) => (x.topics || []).includes(n));
+      if (n !== t.name && !qs.length && !ls.length && !vs.length && !tt?.description) continue;
+      blocks.push({ id: tt?.slug || n, title: n === t.name ? (qs.length || ls.length || vs.length ? `On ${t.name}` : "") : n, text: [tt?.description, ...qs.map((x) => `“${x.text}”${x.source || x.lecture ? `\n— ${x.source || x.lecture}` : ""}`), ls.length ? `Lectures: ${ls.map((x) => x.title).join(" · ")}` : "", vs.length ? `Videos: ${vs.map((x) => x.title).join(" · ")}` : ""].filter(Boolean).join("\n\n"), sub: [qs.length && `${qs.length} quotes`, ls.length && `${ls.length} lectures`, vs.length && `${vs.length} videos`].filter(Boolean).join(" · "), href: `/tattva/${tt?.slug || t.slug}` }); }
+    return { title: t.name, intro: t.description || `Everything on ${t.name}${childrenOf(tps, t.name).length ? ` and its ${childrenOf(tps, t.name).length} sub-topics` : ""}.`, blocks };
+  }
   if (sec === "videos") {
     const rows = (await q(sql`select slug, title, date, year, place, type, scripture, duration_sec from videos where status = 'published' and coalesce(year, extract(year from date)::int, 0) = ${yr(g)} order by date nulls last, title`)) as any[];
     return { title: `Videos · ${g === "undated" ? "Undated" : g}`, intro: `${rows.length} videos.`, list: true, blocks: rows.map((r) => ({ id: r.slug, title: r.title, href: `/webfolio/videos/${g}/${r.slug}`, sub: [date(r.date) || r.year, r.place, r.type, r.scripture, durText(r.duration_sec)].filter(Boolean).join(" · ") })) };
@@ -107,11 +134,11 @@ export async function groupPage(sec: string, g: string): Promise<Page | null> {
     // The magazine, then each issue (newest first) with the articles in it, in their order.
     const mags = (await q(sql`select id, coalesce(slug, id::text) slug, title, publisher, description from magazines where status = 'published' and (${g} = 'all' or id::text = ${g}) order by position, title`)) as any[];
     const ids = mags.map((m) => m.id);
-    const issues = (await q(sql`select id, magazine_id, slug, number, title, date, year, description from magazine_issues where status = 'published' and magazine_id = any(${ids}::uuid[]) order by coalesce(year, 0) desc, date desc nulls last, position`)) as any[];
+    const issues = (await q(sql`select id, magazine_id, slug, number, title, date, year, description, toc from magazine_issues where status = 'published' and magazine_id = any(${ids}::uuid[]) order by coalesce(year, 0) desc, date desc nulls last, position`)) as any[];
     const arts = (await q(sql`select slug, title, author, issue_id, summary from articles where status = 'published' and issue_id = any(${issues.map((i) => i.id)}::uuid[]) order by issue_id, issue_position nulls last, title`)) as any[];
     return { title: mags.length === 1 ? mags[0].title : "Magazines", intro: mags.length === 1 ? `${issues.length} issues.` : undefined,
       blocks: mags.flatMap((m) => [{ id: `m-${m.slug}`, title: m.title, sub: m.publisher || "", text: m.description || "", href: `/teachings/magazines/${m.slug}` },
-        ...issues.filter((i) => i.magazine_id === m.id).flatMap((i) => [{ id: `i-${i.slug || i.id}`, title: i.title || i.number || "Issue", sub: [i.number && i.title ? i.number : "", date(i.date) || i.year].filter(Boolean).join(" · "), text: i.description || "", href: `/teachings/magazines/${m.slug}/${i.slug || i.id}` },
+        ...issues.filter((i) => i.magazine_id === m.id).flatMap((i) => [{ id: `i-${i.slug || i.id}`, title: i.title || i.number || "Issue", sub: [i.number && i.title ? i.number : "", date(i.date) || i.year].filter(Boolean).join(" · "), text: [i.description, Array.isArray(i.toc) && i.toc.length ? `Contents:\n${i.toc.map((t: any) => `p. ${t.page}  ${t.title}`).join("\n")}` : ""].filter(Boolean).join("\n\n"), href: `/teachings/magazines/${m.slug}/${i.slug || i.id}` },
           ...arts.filter((x) => x.issue_id === i.id).map((x) => ({ id: x.slug, title: x.title, sub: x.author ? `By ${x.author}` : "", text: x.summary || "", href: `/teachings/articles/${x.slug}` }))])]) };
   }
   if (sec === "website") {

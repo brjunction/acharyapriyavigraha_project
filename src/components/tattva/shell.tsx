@@ -9,7 +9,7 @@ const fold = (s: string) => s.normalize("NFKD").replace(/[̀-ͯ]/g, "").toLowerC
 
 /** Tattva: every topic in a collapsible tree on the left, the chosen topic on the right. */
 export function TattvaShell({ topics, children }: { topics: TNode[]; children: React.ReactNode }) {
-  const path = usePathname(); const cur = path.split("/")[2] || ""; const [open, setOpen] = useState<Record<string, boolean>>({}); const [q, setQ] = useState(""); const [side, setSide] = useState(false);
+  const path = usePathname(); const cur = path.split("/")[2] === "index" ? "" : path.split("/")[2] || ""; const [open, setOpen] = useState<Record<string, boolean>>({}); const [q, setQ] = useState(""); const [side, setSide] = useState(false);
   const kids = useMemo(() => { const m: Record<string, TNode[]> = {}; topics.forEach((t) => (m[t.parent || ""] ||= []).push(t)); return m; }, [topics]);
   useEffect(() => { const by = Object.fromEntries(topics.map((t) => [t.slug, t])); const byName = Object.fromEntries(topics.map((t) => [t.name, t])); let t = by[cur]; const add: Record<string, boolean> = {}; while (t?.parent) { add[t.parent] = true; t = byName[t.parent]; } setOpen((o) => ({ ...o, ...add })); setSide(false); }, [cur, topics]);
   const f = fold(q.trim());
@@ -24,7 +24,10 @@ export function TattvaShell({ topics, children }: { topics: TNode[]; children: R
   const tree = (
     <div>
       <label className="relative mb-3 block"><Search size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-ink-3" /><input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Find a topic" className="h-8 w-full rounded-md border border-line bg-white pl-8 pr-7 text-[12.5px] outline-none focus:border-ink/40" />{q && <button onClick={() => setQ("")} className="absolute right-2 top-1/2 -translate-y-1/2 text-ink-3"><X size={13} /></button>}</label>
-      <Link href="/tattva" className={`mb-1 block rounded-md px-2 py-1 text-[13px] ${!cur ? "bg-band font-medium" : "text-ink-2 hover:bg-band/60"}`}>All topics, A–Z</Link>
+      <p className="mb-1 mt-1 px-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-ink-3">Indexes</p>
+      <div className="mb-3 grid grid-cols-2 gap-0.5">{[["verses", "Verses"], ["years", "Years"], ["places", "Places"], ["people", "People"], ["glossary", "Glossary"], ["a-z", "A–Z"]].map(([k, l]) => <Link key={k} href={`/tattva/index/${k}`} className={`rounded-md px-2 py-1 text-[13px] ${path === `/tattva/index/${k}` ? "bg-band font-medium text-ink" : "text-ink-2 hover:bg-band/60"}`}>{l}</Link>)}</div>
+      <p className="mb-1 px-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-ink-3">Topics</p>
+      <Link href="/tattva" className={`mb-1 block rounded-md px-2 py-1 text-[13px] ${path === "/tattva" ? "bg-band font-medium" : "text-ink-2 hover:bg-band/60"}`}>All topics, A–Z</Link>
       {f ? topics.filter((t) => fold(t.name).includes(f)).map((t) => <Link key={t.name} href={`/tattva/${t.slug}`} className="flex justify-between rounded-md px-2 py-1 text-[13px] text-ink-2 hover:bg-band/60"><span className="truncate">{t.name}</span><span className="text-[11px] text-ink-3">{t.total || ""}</span></Link>) : (kids[""] || []).map((t) => row(t, 0))}
     </div>
   );

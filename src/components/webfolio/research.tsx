@@ -33,17 +33,17 @@ function Inner() {
   return (
     <div className="px-5 py-8 sm:px-10 lg:py-12">
       <div className="mx-auto max-w-[920px]">
-        <div className="flex items-center gap-3"><span className="flex size-11 items-center justify-center rounded-2xl bg-[#e8f0fe] text-[#1a73e8]"><ScanSearch size={22} /></span><div><h1 className="text-[26px] font-semibold tracking-[-0.025em] text-zinc-950 sm:text-[30px]">Research search</h1><p className="text-[13.5px] text-zinc-500">Every place a word or phrase is found, in every text of the WebFolio.</p></div></div>
+        <div className="flex items-center gap-3"><span className="flex size-11 items-center justify-center rounded-2xl bg-[#f6ede3] text-[#853500]"><ScanSearch size={22} /></span><div><h1 className="text-[26px] font-semibold tracking-[-0.025em] text-zinc-950 sm:text-[30px]">Research search</h1><p className="text-[13.5px] text-zinc-500">Every place a word or phrase is found, in every text of the WebFolio.</p></div></div>
         <form onSubmit={(e) => { e.preventDefault(); run(); }} className="mt-6">
           <div className="flex h-14 items-center gap-3 rounded-full border border-zinc-200 bg-white pl-5 pr-2 shadow-[0_1px_6px_rgba(32,33,36,.12)] transition focus-within:shadow-[0_2px_10px_rgba(32,33,36,.22)]">
             <Search size={19} className="shrink-0 text-zinc-400" />
             <input ref={inp} value={q} onChange={(e) => setQ(e.target.value)} placeholder="A word, a name, a verse, a phrase…" className="h-full min-w-0 flex-1 bg-transparent text-[16px] text-zinc-950 outline-none placeholder:text-zinc-400" />
             {q && <button type="button" onClick={() => { setQ(""); setRes(null); inp.current?.focus(); }} className="flex size-9 items-center justify-center rounded-full text-zinc-500 hover:bg-zinc-100" aria-label="Clear"><X size={17} /></button>}
-            <button className="flex h-10 items-center gap-2 rounded-full bg-[#1a73e8] px-5 text-[14px] font-semibold text-white transition hover:bg-[#1765cc]">{busy ? <Loader2 size={16} className="animate-spin" /> : <Search size={16} />}<span className="hidden sm:inline">Search</span></button>
+            <button className="flex h-10 items-center gap-2 rounded-full bg-[#853500] px-5 text-[14px] font-semibold text-white transition hover:bg-[#6e2c00]">{busy ? <Loader2 size={16} className="animate-spin" /> : <Search size={16} />}<span className="hidden sm:inline">Search</span></button>
           </div>
           <div className="mt-3 flex flex-wrap items-center gap-2 pl-2 text-[12.5px]">
             <span className="text-zinc-500">Find</span>
-            {[["phrase", "the exact phrase"], ["all", "all the words"]].map(([k, l]) => <button key={k} type="button" onClick={() => { setMode(k); if (q.trim()) run(q, k); }} className={`h-7 rounded-full border px-3 font-medium transition ${mode === k ? "border-[#1a73e8] bg-[#e8f0fe] text-[#1765cc]" : "border-zinc-200 text-zinc-600 hover:border-zinc-300"}`}>{l}</button>)}
+            {[["phrase", "the exact phrase"], ["all", "all the words"]].map(([k, l]) => <button key={k} type="button" onClick={() => { setMode(k); if (q.trim()) run(q, k); }} className={`h-7 rounded-full border px-3 font-medium transition ${mode === k ? "border-[#853500] bg-[#f6ede3] text-[#6e2c00]" : "border-zinc-200 text-zinc-600 hover:border-zinc-300"}`}>{l}</button>)}
             <span className="ml-1 text-zinc-400">· diacritics not needed: “krsna” finds “Kṛṣṇa”</span>
           </div>
         </form>
@@ -71,7 +71,7 @@ function Inner() {
                     <Link href={h.href} className="text-[15.5px] font-semibold leading-snug text-[#1a0dab] hover:underline [.folio[data-theme=dark]_&]:text-[#8ab4f8]"><Mark text={h.title} words={words} /></Link>
                     <p className="mt-0.5 text-[12.5px] text-zinc-500">{h.gt}{h.sub ? ` · ${h.sub}` : ""}</p>
                     <div className="mt-2 space-y-1.5">{(open[id] ? h.snips || [h.snippet || ""] : [h.snippet || ""]).map((s, k) => <p key={k} className="text-[13.5px] leading-relaxed text-zinc-700"><Mark text={s} words={words} /></p>)}</div>
-                    {more && <button onClick={() => setOpen((o) => ({ ...o, [id]: !o[id] }))} className="mt-2 inline-flex items-center gap-1 text-[12.5px] font-medium text-[#1a73e8] hover:underline">{open[id] ? "Fewer places" : `Show ${Math.min(h.n, h.snips!.length) - 1} more place${h.snips!.length > 2 ? "s" : ""}`}<ChevronDown size={13} className={open[id] ? "rotate-180" : ""} /></button>}
+                    {more && <button onClick={() => setOpen((o) => ({ ...o, [id]: !o[id] }))} className="mt-2 inline-flex items-center gap-1 text-[12.5px] font-medium text-[#853500] hover:underline">{open[id] ? "Fewer places" : `Show ${Math.min(h.n, h.snips!.length) - 1} more place${h.snips!.length > 2 ? "s" : ""}`}<ChevronDown size={13} className={open[id] ? "rotate-180" : ""} /></button>}
                   </div>
                   <span title="Times found" className="shrink-0 rounded-full bg-zinc-100 px-2 py-0.5 text-[11.5px] font-semibold tabular-nums text-zinc-700">{h.n}×</span>
                 </div>

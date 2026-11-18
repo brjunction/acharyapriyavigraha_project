@@ -11,8 +11,10 @@ const LIBS = ["main"];
     { op: "start", book: { title, author, category, language, cover_url, status, library, acharya, layout, source }, into? } → { id, slug }   (into = replace the chapters of an existing book)
     { op: "nodes", book_id, nodes: [{ key, parent, title, blocks }] } → { map: { key: id } }      (parent = an id from an earlier answer, or a key of this same batch)
     { op: "finish", book_id } */
+/** Text from Word or EPUB can carry NUL and lone surrogate characters, which Postgres refuses in text and jsonb ("unsupported Unicode escape sequence"). */
+const clean = (x: any): any => typeof x === "string" ? x.replace(/\u0000/g, "").replace(/[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/g, "") : Array.isArray(x) ? x.map(clean) : x && typeof x === "object" ? Object.fromEntries(Object.entries(x).map(([k, v]) => [k, clean(v)])) : x;
 export async function POST(req: Request) {
-  const g = await guard("editor"); if ("res" in g) return g.res; const b = await req.json().catch(() => null); if (!b) return fail("Nothing received.");
+  const g = await guard("editor"); if ("res" in g) return g.res; const b = clean(await req.json().catch(() => null)); if (!b) return fail("Nothing received.");
   if (b.op === "start") {
     const k = b.book || {}; const title = String(k.title || "").trim().slice(0, 300); if (!title) return fail("Give the book a title.");
     const library = LIBS.includes(k.library) ? k.library : "main"; const status = k.status === "published" ? "published" : "draft"; const source = JSON.stringify({ ...(k.source || {}), by: g.user.id, at: new Date().toISOString() });
