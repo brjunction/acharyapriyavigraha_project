@@ -6,6 +6,7 @@ import {
   Music, BookOpen, FileText, Newspaper, Languages, Quote, Droplet, Lightbulb, BookHeart, MessageCircleQuestion, ListChecks, HandHeart,
   Library, Network, BookA, MapPin, CalendarRange, Users2, ArrowDownAZ, Info, HeartHandshake, MessageCircle, Phone, Globe, Archive, Megaphone,
   Map, Compass, Sunrise, Search, ShieldCheck, Accessibility, ListTree, Type, Download, Smartphone, GraduationCap, ExternalLink, Youtube, Image as ImageDl,
+  CalendarHeart,
 } from "lucide-react";
 import { ALL_LANGUAGES, REGIONS, STATUS_LABEL } from "./languages";
 
@@ -30,6 +31,7 @@ export const MENUS: NavMenu[] = [
         l("/gurudeva/who-is-srila-gurudeva", "Who is Śrīla Gurudeva?", "His biographies", UserRound),
         l("/gurudeva/radha-gopal-jiu", "His beloved Deity", "Śrī Śrī Rādhā-Gopāl Jiu", Sparkles),
         l("/gurudeva/timeline", "Life timeline", "His life, year by year", Clock),
+        l("/gurudeva/on-this-day", "On this day", "His life, lectures and diary on today’s date", CalendarHeart),
         l("/gurudeva/diaries", "His diary", "His prayers to Śrī Gopāl Jiu", NotebookPen),
         l("/gurudeva/memories", "Memories & pastimes", "Disciples remembering him", HandHeart),
         l("/gurudeva/glorifications", "Glorifications", "Vyāsa-pūjā offerings and poems", Gift),
