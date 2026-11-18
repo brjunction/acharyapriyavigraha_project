@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { sql, hasDb } from "@/lib/db";
-import { fold } from "@/lib/content/text";
+import { fold, slugify } from "@/lib/content/text";
 import { docText } from "@/components/cms/doc-text";
 
 /** Full-text search for the WebFolio. Diacritics are not needed. Returns links straight into the WebFolio.
@@ -21,7 +21,7 @@ export async function GET(req: Request) {
   };
   const hit = (base: { href: string; title: string; sub?: string }, text: string) => { const k = kwic(text, full ? 4 : 1); return { ...base, snippet: k.snips[0], snips: full ? k.snips : undefined, n: k.n }; };
   const q = async (p: Promise<any[]>) => { try { return await p; } catch { return []; } };
-  const [aud, ex, bn, vid, di, ar, art] = await Promise.all([
+  const [aud, ex, bn, vid, di, ar, art, tp] = await Promise.all([
     q(sql`select slug, title, date, place, kind, summary, transcript from audios where status = 'published' and search like ${like} order by date limit ${L}`),
     q(sql`select slug, kind, title, text, verse_ref, translation, source from excerpts where status = 'published' and search like ${like} limit ${L}`),
     q(sql`select n.slug, n.title, n.blocks, b.slug as book, b.title as btitle from book_nodes n join books b on b.id = n.book_id where n.status = 'published' and b.status = 'published' and n.search like ${like} limit ${L}`),
@@ -29,10 +29,12 @@ export async function GET(req: Request) {
     q(sql`select slug, date, date_note, translation from diary_entries where status = 'published' and search like ${like} order by date limit ${L}`),
     q(sql`select collection, slug, title, summary, body, person from archive_items where status = 'published' and search like ${like} limit ${L}`),
     q(sql`select slug, title, author, section, summary, body from articles where status = 'published' and search like ${like} limit ${L}`),
+    q(sql`select name, extra from vocab where kind = 'topic'`),
   ]);
   const song = (k: string) => k === "kirtan" || k === "bhajan";
   const T = (r: any, ...xs: any[]) => [r.title || "", ...xs].join(" \n ");
   const groups = [
+    { key: "tattva", title: "Tattva topics", hits: tp.map((r: any) => ({ r, t: [r.name, r.extra?.description || "", ...(r.extra?.aliases || [])].join(" \n ") })).filter((x) => has(x.t)).map(({ r, t }) => hit({ href: `/webfolio/tattva/${slugify(r.name)}`, title: r.name, sub: "Tattva" }, t)) },
     { key: "lectures", title: "Lectures & transcriptions", hits: aud.map((r: any) => ({ r, t: T(r, r.summary || "", docText(r.transcript || [], 400000)) })).filter((x) => has(x.t)).map(({ r, t }) => hit({ href: `/webfolio/${song(r.kind) ? "kirtans" : "lectures"}/${y(r.date)}/${r.slug}`, title: r.title, sub: [r.date ? String(r.date instanceof Date ? r.date.toISOString() : r.date).slice(0, 10) : "", r.place].filter(Boolean).join(" · ") }, t)) },
     { key: "books", title: "Books", hits: bn.map((r: any) => ({ r, t: T(r, docText(r.blocks || [], 400000)) })).filter((x) => has(x.t)).map(({ r, t }) => hit({ href: `/webfolio/books/${r.book}#${r.slug}`, title: r.title, sub: r.btitle }, t)) },
     { key: "compilations", title: "Compilations", hits: ex.map((r: any) => ({ r, t: T(r, r.verse_ref || "", r.text || "", r.translation || "") })).filter((x) => has(x.t)).map(({ r, t }) => hit({ href: `/webfolio/compilations/${r.kind}#${r.slug}`, title: r.title || r.verse_ref || "Entry", sub: r.source || "" }, t)) },

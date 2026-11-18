@@ -4,7 +4,7 @@ import { fold, slugify } from "@/lib/content/text";
 import { COLLECTIONS } from "@/lib/archive/config";
 
 export type Hit = { type: string; title: string; href: string; sub: string; snippet: string };
-const TYPES: Record<string, string> = { lecture: "Lectures", kirtan: "Kīrtanas", video: "Videos", book: "Books", chapter: "Book chapters", article: "Articles", quote: "Quotes & compilations", topic: "Topics", diary: "His diary", archive: "Śrīla Gurudeva", life: "Life timeline" };
+const TYPES: Record<string, string> = { lecture: "Lectures", kirtan: "Kīrtanas", video: "Videos", book: "Books", chapter: "Book chapters", article: "Articles", quote: "Quotes & compilations", topic: "Topics", diary: "His diary", archive: "Śrīla Gurudeva", life: "Life timeline", issue: "Magazine issues" };
 const snip = (text: string, q: string) => { const t = String(text || "").replace(/\s+/g, " "); const i = fold(t).indexOf(q.split(" ")[0]); if (i < 0) return t.slice(0, 160); const s = Math.max(0, i - 70); return (s ? "…" : "") + t.slice(s, i + 130) + "…"; };
 const q_ = async (p: Promise<any[]>) => { try { return await p; } catch { return []; } };
 
@@ -16,7 +16,7 @@ export async function GET(req: Request) {
   const all = (col: string) => words.map((_, i) => `${col} like $${i + 1}`).join(" and ");
   const run = (t: string, sqlText: string) => (!only || only === t) ? q_(sql.query(sqlText.replace("{W}", all("search")), [...like, lim])) : Promise.resolve([]);
   const L = `$${words.length + 1}`;
-  const [lectures, kirtans, videos, books, chapters, articles, quotes, diary, archive, life, topics] = await Promise.all([
+  const [lectures, kirtans, videos, books, chapters, articles, quotes, diary, archive, life, topics, issues] = await Promise.all([
     run("lecture", `select slug, title, to_char(date,'YYYY-MM-DD') date, place, coalesce(summary, left(transcript::text, 4000)) t from audios where status='published' and kind not in ('kirtan','bhajan') and {W} order by date desc nulls last limit ${L}`),
     run("kirtan", `select slug, title, to_char(date,'YYYY-MM-DD') date, place, coalesce(song, '') t from audios where status='published' and kind in ('kirtan','bhajan') and {W} order by date desc nulls last limit ${L}`),
     run("video", `select slug, title, to_char(date,'YYYY-MM-DD') date, place, coalesce(description,'') t from videos where status='published' and {W} order by date desc nulls last limit ${L}`),
@@ -28,6 +28,7 @@ export async function GET(req: Request) {
     run("archive", `select collection, slug, title, coalesce(summary, '') t from archive_items where status='published' and {W} limit ${L}`),
     (!only || only === "life") ? q_(sql.query(`select slug, title, year, coalesce(summary,'') t from life_events where status='published' and ${words.map((_, i) => `lower(title || ' ' || coalesce(summary,'') || ' ' || coalesce(place,'')) like $${i + 1}`).join(" and ")} limit ${L}`, [...like, lim])) : Promise.resolve([]),
     (!only || only === "topic") ? q_(sql.query(`select name from vocab where kind='topic' and ${words.map((_, i) => `lower(name) like $${i + 1}`).join(" and ")} limit ${L}`, [...like, lim])) : Promise.resolve([]),
+    (!only || only === "issue") ? q_(sql.query(`select i.slug, coalesce(m.slug, m.id::text) mslug, m.title mtitle, i.number, i.title, to_char(i.date, 'YYYY-MM-DD') date, coalesce(i.toc::text, '') t from magazine_issues i join magazines m on m.id = i.magazine_id where i.status = 'published' and ${words.map((_, i) => `lower(coalesce(i.number, '') || ' ' || coalesce(i.title, '') || ' ' || coalesce(i.toc::text, '')) like $${i + 1}`).join(" and ")} order by i.date desc nulls last limit ${L}`, [...like, lim])) : Promise.resolve([]),
   ]);
   const ROUTE: Record<string, string> = { quote: "/teachings/quotes", verse: "/teachings/verses", story: "/teachings/stories", instruction: "/teachings/instructions", desire: "/teachings/desires", nectar: "/teachings/nectar-drops", analogy: "/teachings/analogies", qa: "/teachings/questions-and-answers" };
   const groups: { type: string; label: string; hits: Hit[] }[] = [
@@ -40,7 +41,8 @@ export async function GET(req: Request) {
     { type: "quote", hits: quotes.filter((r: any) => ROUTE[r.kind]).map((r: any) => ({ type: "quote", title: r.title || snip(r.t, q).slice(0, 90), href: `${ROUTE[r.kind]}/${r.slug}`, sub: r.kind, snippet: snip(r.t, q) })) },
     { type: "diary", hits: diary.map((r: any) => ({ type: "diary", title: r.date || r.date_note || "His diary", href: `/gurudeva/diaries/${r.slug}`, sub: "His diary to Śrī Gopāl Jiu", snippet: snip(r.t, q) })) },
     { type: "archive", hits: archive.filter((r: any) => COLLECTIONS[r.collection]).map((r: any) => ({ type: "archive", title: r.title, href: `${COLLECTIONS[r.collection].base}/${r.slug}`, sub: COLLECTIONS[r.collection].label, snippet: snip(r.t, q) })) },
-    { type: "life", hits: life.map((r: any) => ({ type: "life", title: r.title, href: `/gurudeva/timeline#e-${r.slug}`, sub: String(r.year), snippet: snip(r.t, q) })) },
+    { type: "life", hits: life.map((r: any) => ({ type: "life", title: r.title, href: `/gurudeva/timeline#m-${r.slug}`, sub: String(r.year), snippet: snip(r.t, q) })) },
+    { type: "issue", hits: issues.map((r: any) => { const toc = (() => { try { return (JSON.parse(r.t || "[]") as { title: string; page: number }[]); } catch { return []; } })(); const m = toc.find((x) => words.every((w) => fold(x.title).includes(w))); return { type: "issue", title: [r.number, r.title].filter(Boolean).join(" · ") || "Issue", href: `/teachings/magazines/${r.mslug}/${r.slug}`, sub: [r.mtitle, r.date].filter(Boolean).join(" · "), snippet: m ? `p. ${m.page} · ${m.title}` : "" }; }) },
     { type: "topic", hits: topics.map((r: any) => ({ type: "topic", title: r.name, href: `/tattva/${slugify(r.name)}`, sub: "Tattva", snippet: "" })) },
   ].map((g) => ({ ...g, label: TYPES[g.type] })).filter((g) => g.hits.length);
   return NextResponse.json({ q: raw, groups }, { headers: { "cache-control": "public, max-age=60" } });

@@ -3,7 +3,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Search, CornerDownLeft, Headphones, Network, Quote, ScrollText, FileText, ArrowRight } from "lucide-react";
 import { usePrefs } from "./providers";
-const ICONS: Record<string, typeof Search> = { lecture: Headphones, kirtan: Headphones, video: FileText, book: FileText, chapter: FileText, article: FileText, quote: Quote, topic: Network, diary: FileText, archive: FileText, life: FileText };
+const ICONS: Record<string, typeof Search> = { lecture: Headphones, kirtan: Headphones, video: FileText, book: FileText, chapter: FileText, article: FileText, quote: Quote, topic: Network, diary: FileText, archive: FileText, life: FileText, issue: FileText };
 import { useMenus } from "./menus-context";
 
 export const norm = (s: string) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/krishna/g, "krsna").replace(/gaura|gaur/g, "gour");
